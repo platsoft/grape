@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+         Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel>
+<schema name="public" protected="true" fill-color="#e1e1e1" sql-disabled="true">
+</schema>
+
+<schema name="grape" fill-color="#e1e1e1">
+</schema>
+
+<database name="grape">
+</database>
+
+<extension name="hstore" handles-type="true">
+	<schema name="public"/>
+</extension>
+
+<table name="access_role">
+	<schema name="grape"/>
+	<position x="116" y="471"/>
+	<column name="role_name">
+		<type name="text"/>
+	</column>
+	<constraint name="access_role_pk" type="pk-constr" factor="10" table="grape.access_role">
+		<columns names="role_name" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="user_role">
+	<schema name="grape"/>
+	<position x="101" y="303"/>
+	<column name="user_id">
+		<type name="integer"/>
+	</column>
+	<column name="role_name">
+		<type name="text"/>
+	</column>
+	<constraint name="user_role_pk" type="pk-constr" factor="10" table="grape.user_role">
+		<columns names="user_id,role_name" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="session">
+	<schema name="grape"/>
+	<position x="487" y="47"/>
+	<column name="session_id">
+		<type name="text"/>
+	</column>
+	<column name="ip_address">
+		<type name="text"/>
+	</column>
+	<column name="user_id">
+		<type name="integer"/>
+	</column>
+	<column name="date_inserted">
+		<type name="timestamp"/>
+	</column>
+	<column name="last_activity">
+		<type name="timestamp"/>
+	</column>
+	<constraint name="session_pk" type="pk-constr" factor="10" table="grape.session">
+		<columns names="session_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="access_path" oids="true">
+	<schema name="grape"/>
+	<position x="546" y="459"/>
+	<column name="role_name">
+		<type name="text"/>
+	</column>
+	<column name="regex_path">
+		<type name="text"/>
+	</column>
+	<column name="method" default-value="'{POST, PUT, GET}'">
+		<type name="text" dimension="1"/>
+		<comment><![CDATA[HTTP methods accepted by this path/route eg. (GET, POST, etc)]]></comment>
+	</column>
+	<constraint name="access_path_pk" type="pk-constr" factor="10" table="grape.access_path">
+		<columns names="role_name,regex_path,method" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="user_history" oids="true">
+	<schema name="grape"/>
+	<position x="481" y="246"/>
+	<column name="user_history_id">
+		<type name="serial"/>
+	</column>
+	<column name="user_id">
+		<type name="integer"/>
+	</column>
+	<column name="date_inserted" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp"/>
+	</column>
+	<column name="data">
+		<type name="public.hstore"/>
+	</column>
+	<column name="blame_id">
+		<type name="integer"/>
+	</column>
+	<constraint name="user_history_id_pk" type="pk-constr" factor="10" table="grape.user_history">
+		<columns names="user_history_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="user">
+	<schema name="grape"/>
+	<position x="112" y="41"/>
+	<column name="user_id">
+		<type name="serial"/>
+	</column>
+	<column name="password">
+		<type name="text"/>
+	</column>
+	<column name="username">
+		<type name="text"/>
+	</column>
+	<column name="email">
+		<type name="text"/>
+	</column>
+	<column name="fullnames">
+		<type name="text"/>
+	</column>
+	<column name="active" default-value="true">
+		<type name="boolean"/>
+	</column>
+	<column name="external" default-value="0">
+		<type name="smallint"/>
+	</column>
+	<column name="blame_id">
+		<type name="integer"/>
+	</column>
+	<constraint name="user_pk" type="pk-constr" factor="10" table="grape.user">
+		<columns names="user_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<constraint name="user_id_rel" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_role">
+	<columns names="user_id" ref-type="src-columns"/>
+	<columns names="user_id" ref-type="dst-columns"/>
+</constraint>
+<constraint name="role_name_rel" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.access_role" table="grape.user_role">
+	<columns names="role_name" ref-type="src-columns"/>
+	<columns names="role_name" ref-type="dst-columns"/>
+</constraint>
+<constraint name="user_id_rel" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.session">
+	<columns names="user_id" ref-type="src-columns"/>
+	<columns names="user_id" ref-type="dst-columns"/>
+</constraint>
+<constraint name="role_name_rel" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.access_role" table="grape.access_path">
+	<columns names="role_name" ref-type="src-columns"/>
+	<columns names="role_name" ref-type="dst-columns"/>
+</constraint>
+<constraint name="user_id_rel" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_history">
+	<columns names="user_id" ref-type="src-columns"/>
+	<columns names="user_id" ref-type="dst-columns"/>
+</constraint>
+<relationship name="rel_user_role_user" type="relfk"
+	 src-table="grape.user_role"
+	 dst-table="grape.user"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_user_role_access_role" type="relfk"
+	 src-table="grape.user_role"
+	 dst-table="grape.access_role"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_access_path_access_role" type="relfk"
+	 src-table="grape.access_path"
+	 dst-table="grape.access_role"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_session_user" type="relfk"
+	 src-table="grape.session"
+	 dst-table="grape.user"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_user_history_user" type="relfk"
+	 src-table="grape.user_history"
+	 dst-table="grape.user"
+	 src-required="true" dst-required="true"/>
+
+</dbmodel>
