@@ -14,7 +14,7 @@
 	}
 }
 ```
-* npm update
+* execute `npm update` in the created directory
 * Create your index.js
 ```
 	var grape = require('grape');
@@ -22,7 +22,7 @@
 		port: 3001
 	});
 ```
-* You can now run node index.js 
+* You can now run `node index.js`
 
 ## Serving static files
 Pass the option public_directory to the Grape initializer to serve static files from. For example:
