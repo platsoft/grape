@@ -23,8 +23,24 @@
 	});
 ```
 
-# API support
+# Serving static files
+Pass the option public_directory to the Grape initializer to serve static files from. For example:
+```
+	var grape = require('grape');
+	var app = grape.app({
+		public_directory: __dirname + '/public',
+		port: 3001
+	});
+```
 
+
+# API support
+Grape provides built-in API calls. To add API calls to your app, fill the option api_directory in with the directory containing your API calls.
+
+# DB support
+
+
+# Session management
 
 # grape.app
 
