@@ -1,0 +1,30 @@
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (0, 'EMPTY');
+
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name, universal_branch) VALUES (1, 'Standard Bank of South Africa Limited', 4039);
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (2, 'Nedbank (Swaziland) Limited');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (3, 'Cape of Good Hope Bank Limited');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name, universal_branch) VALUES (4, 'Nedbank Limited', 4198);
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name, universal_branch) VALUES (5, 'First National Bank', 1658);
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (8, 'Credit Agricole Indosuez');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name, universal_branch) VALUES (9, 'Bank of Athens', 4093);
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (11, 'Mercantile Bank Limited');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (12, 'Nedbank (Namibia) Limited');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (13, 'Bank Windhoek');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (14, 'ITHALA - A Division of Kwazulu Finance Limited');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (21, 'Habib Overseas Bank Limited');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (22, 'Nedbank Limited Incorporating BOE Bank');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (23, 'Peoples Bank Limited Incorporating NBS');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (24, 'Saambou Bank');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (27, 'Unibank Limited'); 
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (36, 'HBZ Bank Limited');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (38, 'Investec Bank Limited'); --
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name, universal_branch) VALUES (40, 'ABSA Bank', 2900);
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (52, 'Peoples Bank Limited Incorporating PEP Bank');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name, universal_branch) VALUES (59, 'Capitec Bank Limited', 3944);
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (68, 'TEBA Bank Limited');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (69, 'Standard Chartered Bank');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name, universal_branch) VALUES (70, 'PostBank', 4114);
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name, universal_branch) VALUES (71, 'Bidvest Bank (prev ZABG)', 4181);
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (74, 'Societe Generale');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (76, 'Grindrod');
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name) VALUES (77, 'Albaraka Bank');

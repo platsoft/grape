@@ -65,7 +65,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="access_path" oids="true">
+<table name="access_path">
 	<schema name="grape"/>
 	<position x="546" y="459"/>
 	<column name="role_name">
@@ -83,7 +83,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="user_history" oids="true">
+<table name="user_history">
 	<schema name="grape"/>
 	<position x="481" y="246"/>
 	<column name="user_history_id">

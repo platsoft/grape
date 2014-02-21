@@ -60,7 +60,7 @@ CREATE TABLE grape.access_path(
 	method text[] DEFAULT '{POST, PUT, GET}',
 	CONSTRAINT access_path_pk PRIMARY KEY (role_name,regex_path,method)
 
-)WITH ( OIDS = TRUE );
+);
 -- ddl-end --
 COMMENT ON COLUMN grape.access_path.method IS 'HTTP methods accepted by this path/route eg. (GET, POST, etc)';
 -- ddl-end --
@@ -75,7 +75,7 @@ CREATE TABLE grape.user_history(
 	blame_id integer,
 	CONSTRAINT user_history_id_pk PRIMARY KEY (user_history_id)
 
-)WITH ( OIDS = TRUE );
+);
 -- ddl-end --
 -- object: grape.user | type: TABLE --
 CREATE TABLE grape.user(
@@ -124,6 +124,3 @@ ALTER TABLE grape.user_history ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
 REFERENCES grape.user (user_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
 -- ddl-end --
-
-
-
