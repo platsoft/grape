@@ -2,6 +2,7 @@
 var express = require('express');
 var _ = require('underscore');
 var fs = require('fs');
+var util = require('util');
 
 exports = module.exports = function(_o) {
 	var app = express();
@@ -9,18 +10,33 @@ exports = module.exports = function(_o) {
 	app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	
+	var logger = require(__dirname + '/logger.js');
+	app.set('logger', logger);
+	
 	var options = {
 		session_management: false, 
 		api_directory: false, 
 		apiIgnore: [],
 		port: 3000,
-		db: null,
 		public_directory: false,
 		debug: false,
 	};
-	_.extend(options, _o);
 
-	app.set('db', options.db);
+	_.extend(options, _o);
+	
+	app.set('config', options);
+	
+	logger.info('Starting application with options: ' + util.inspect(options));
+
+	//if database loading is requested
+	if (options.dburi)
+	{
+		var _db = require(__dirname + '/db.js');
+		var db = new _db({dburi: options.dburi, debug: options.debug});
+		app.set('db', db);
+	}
+
+
 
 
 	/**
@@ -54,7 +70,7 @@ exports = module.exports = function(_o) {
 				{
 					// loads the api module and execute the export function with the app param.
 					require(dirname + file)(app);
-					//app.get('logger').info("Loaded " + relativedirname + file);
+					app.get('logger').info("Loaded " + relativedirname + file);
 				}
 			}
 			else if (fstat.isDirectory()) 
@@ -68,7 +84,7 @@ exports = module.exports = function(_o) {
 	{
 		app.use(function(req, res, next) 
 		{
-			var accepts_json = (req.headers.accept.indexOf('application/json') != -1);
+			var accepts_json = (req.headers.accept && req.headers.accept.indexOf('application/json') != -1);
 			
 			//GET which does not accept JSON 
 			if (req.method == 'GET' && !accepts_json && !req.app._router.matchRequest(req))
@@ -132,10 +148,6 @@ exports = module.exports = function(_o) {
 	}
 
 	server.timeout = 50000;
-	server.on('connection', function(socket) {
-		socket.setKeepAlive(true, 1000);
-	});
-
 	
 	return app;
 };
