@@ -8,8 +8,9 @@
  */
 'use strict';
 var pg = require('pg');
+var util = require('util');
 var _ = require('underscore');
-var EventEmitter = require('events').EventEmitter;
+var events = require('events');
 
 /**
  * Database singleton, allowing us to only have one db object and share that between
@@ -30,7 +31,7 @@ var EventEmitter = require('events').EventEmitter;
  */
 function db (_o) {
 
-	EventEmitter.call(this);
+	events.EventEmitter.call(this);
 
 	/** @type db */
 	var self = this;
@@ -52,6 +53,7 @@ function db (_o) {
 	}
 	self.options = options;
 
+	console.log("Connecting to " + util.inspect(options.dburi));
 	self.client = new pg.Client(options.dburi);
 	self.client.connect(function(err) {
 		if (err != null) 
@@ -63,6 +65,7 @@ function db (_o) {
 		{
 			self.options.connected_callback(self);
 		}
+		self.emit('connected');
 	});
 
 	/**
@@ -91,6 +94,7 @@ function db (_o) {
 	self.jsonCall =  function(name, input, callback, options) {
 		options = options || {};
 		var alias = name;
+		alias = alias.replace(/\./g, '');
 
 		if (!callback && options.response)
 		{
@@ -109,7 +113,7 @@ function db (_o) {
 					});
 					return;
 				};
-				res.json(JSON.parse(result.rows[0][alias]));
+				res.json(result.rows[0][alias]);
 				return;
 			}
 		}
@@ -125,6 +129,6 @@ function db (_o) {
 	self.json_call = self.jsonCall;
 
 };
-
+db.prototype.__proto__ = events.EventEmitter.prototype;
 exports = module.exports = db;
 

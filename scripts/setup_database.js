@@ -7,6 +7,7 @@ if (process.argv.length != 3)
 
 var fs = require('fs');
 var pg = require('pg');
+var util = require('util');
 var grape_db_dir = fs.realpathSync(__dirname + '/../db/');
 
 var config_file = fs.realpathSync(process.argv[2]);
@@ -71,8 +72,10 @@ client.connect(function(err) {
 				var ar = file.split('.');
 				if (ar[ar.length - 1] == 'sql') 
 				{
+					var data = fs.readFileSync(dirname + file, 'utf8');
+					data = data.replace(/^\uFEFF/, '');
 					sql_list.push({ 
-						data: fs.readFileSync(dirname + file, 'utf8'),
+						data: data,
 						filename: dirname + file
 					});
 				}
@@ -99,23 +102,28 @@ client.connect(function(err) {
 			if (err.code == '23505' || err.code == '42P06')
 			{
 				console.log("ERROR: Looks like this database is already populated. You can recreate it with the following command: ");
-				console.log("DROP DATABASE " + config.dburi.database + "; " + "CREATE DATABASE " + config.dburi.database + " OWNER " + config.dburi.user + ";");
+				console.log("echo 'DROP DATABASE " + config.dburi.database + "; " + "CREATE DATABASE " + config.dburi.database + " OWNER " + config.dburi.user + "; ' | psql postgres postgres");
 			}
 			else
 			{
-				console.log("ERROR (" + err.code + "): " + err);
+				console.log("ERROR (" + err.code + "): " + err );
+				console.log(util.inspect(err));
 			}
+			client.end();
+			process.exit(1);
 			return;
 		}
 		if (sql_list.length <= 0)
 		{
 			console.log("DONE");
 			client.query('COMMIT');
+			client.end();
+			process.exit(0);
 			return;
 		}
 
 		var nextfile = sql_list.shift();
-		console.log("Creating " + nextfile.filename);
+		console.log("Creating " + nextfile.filename + "(" + nextfile.data.length + " bytes)");
 		client.query(nextfile.data, next);
 	}
 
@@ -127,7 +135,9 @@ client.connect(function(err) {
 
 		if (app_db_dir)
 		{
-			
+			loadsqlfiles(app_db_dir + '/schema');
+			loadsqlfiles(app_db_dir + '/function');
+			loadsqlfiles(app_db_dir + '/data');
 		}
 
 		next(null, null);

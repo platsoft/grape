@@ -37,8 +37,6 @@ exports = module.exports = function(_o) {
 	}
 
 
-
-
 	/**
 	 * Loads js files into the application space
 	 *
@@ -111,9 +109,20 @@ exports = module.exports = function(_o) {
 
 	app.configure(function() {
 		
+		//first function to be called on a new request
+		app.use(function(req, res, next) 
+		{
+			logger.trace('New request');
+			res.locals.db = app.get('db');
+			req.db = app.get('db');
+			next();
+		});
+
+
 		if (options.session_management)
 		{
-			setup_session_management();
+			var session_management = require(__dirname + '/session.js');
+			session_management(app);
 		}
 
 		// Load built-in API calls

@@ -1,8 +1,14 @@
 
 module.exports = function (app)
 {
+
+	var dbs = [];
+	app.set('dbs', dbs);
+
 	// Session management
 	app.use(function(req, res, next) {
+
+		app.get('logger').session('aaaa');
 
 		var db = app.get('db');
 		if (!db)
@@ -10,7 +16,7 @@ module.exports = function (app)
 			next();
 			return;
 		}
-
+			
 		var accepts_json = (req.headers.accept.indexOf('application/json') != -1);
 		var session_id = req.header('X-SessionID') || req.cookies.SessionID;
 
@@ -38,7 +44,9 @@ module.exports = function (app)
 			return;
 		}
 
-		db.func('session_check_path_select', session_id, path, req.method, function(err, result) { 
+		app.get('logger').session('Checking path ' + path + ' against session ' + session_id);
+
+		db.query('SELECT * FROM grape.session_check_path_select($1, $2, $3)', [session_id, path, req.method], function(err, result) { 
 			if (err)
 			{
 				app.get('logger').session('Could not load access paths for Session ' + session_id + ' against ' + path + ' ' + err);
@@ -53,10 +61,37 @@ module.exports = function (app)
 			}
 			app.get('logger').session((ret.check_path_result ? 'GRANTED' : 'DENIED') + ' ' + session_id + ' ' + path);
 
+			if (!ret.check_path_result)
+			{
+				session_fail();
+				return;
+			}
+
 			req.session = ret;
 			req.user_access_path = ret.user_role;
-			next();
+
+			var dbs = app.get('dbs');
+			if (dbs[session_id])
+			{
+				req.db = dbs[session_id];
+				res.locals.db = dbs[session_id];
+				next();
+			}
+			else
+			{
+				var _db = require(__dirname + '/db.js');
+				var db = new _db({dburi: app.get('config').dburi, debug: app.get('config').debug});
+
+				dbs[session_id] = db;
+				db.on('connected', function() {
+					req.db = dbs[session_id];
+					res.locals.db = dbs[session_id];
+					next();
+				});
+			}
 		});
 	});
 }
+
+
 

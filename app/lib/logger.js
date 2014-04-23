@@ -15,6 +15,14 @@ logger.session = function(message) {
 logger.info = function(message) {
 	this.log('info', message, []);
 };
+logger.trace = function(message) {
+	this.log('trace', message, []);
+};
+logger.debug = function(message) {
+	this.log('debug', message, []);
+};
+
+
 
 
 logger.log = function(level, message, outputs) {

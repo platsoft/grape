@@ -61,7 +61,7 @@ TODO
 ## grape.app
 
 ### Supported options in grape.app
-	* session_management - Indicates where session management should be loaded or not (true or false, defaults to false)
+	* session_management - Indicates if session management should be loaded or not (true or false, defaults to false)
 	* api_directory - Load API files from this directory
 	* port - listen on port (defaults to 3000)
 	* dburi - database connection options. Must include the following fields: 
