@@ -18,7 +18,7 @@ module.exports = function (app)
 		}
 			
 		var accepts_json = (req.headers.accept.indexOf('application/json') != -1);
-		var session_id = req.header('X-SessionID') || req.cookies.SessionID;
+		var session_id = req.header('X-SessionID') || req.cookies.session_id;
 
 		//Do not do session management checking if session id is not set and the request do not want json. We need to check if it is json because it might be a guest API call
 		if ((!session_id || session_id == 0) && !accepts_json)
@@ -35,7 +35,7 @@ module.exports = function (app)
 			res.set('X-No-Permission', 'true');
 			if (req.headers.accept.indexOf('application/json') != -1)
 			{
-				res.json({error: 'Internal error'});
+				res.json({error: 'Permission denied', code: "-1"});
 			} 
 			else
 			{
@@ -57,7 +57,7 @@ module.exports = function (app)
 			var ret = result.rows[0];
 			if (ret.error_code == 2) // invalid session
 			{
-				res.clearCookie('SessionID', '/');
+				res.clearCookie('session_id', '/');
 			}
 			app.get('logger').session((ret.check_path_result ? 'GRANTED' : 'DENIED') + ' ' + session_id + ' ' + path);
 

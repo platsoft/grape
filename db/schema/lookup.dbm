@@ -10,6 +10,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="lookup" fill-color="#e1e1e1">
 </schema>
 
+<schema name="lookup_cp1" fill-color="#e1e1e1">
+</schema>
+
 <database name="grape">
 </database>
 
@@ -47,6 +50,20 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<constraint name="bank_id_pk" type="pk-constr" factor="10" table="lookup.valid_bank_name">
 		<columns names="bank_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="relationship">
+	<schema name="lookup"/>
+	<position x="448.57" y="65.286"/>
+	<column name="relationship_id">
+		<type name="integer"/>
+	</column>
+	<column name="description">
+		<type name="text"/>
+	</column>
+	<constraint name="relationship_id_pk" type="pk-constr" factor="10" table="lookup.relationship">
+		<columns names="relationship_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 

@@ -47,12 +47,12 @@ function create_session(req, res) {
 			if (obj.success == "true")
 			{
 				//1 month
-				res.cookie('SessionID', obj.session_id, {maxAge: 30 * 24 * 60 * 60 * 1000});
+				res.cookie('session_id', obj.session_id, {maxAge: 30 * 24 * 60 * 60 * 1000});
 				res.cookie('user_id', obj.user_id, {maxAge: 30 * 24 * 60 * 60 * 1000});
 			}
 			else
 			{
-				res.clearCookie('SessionID');
+				res.clearCookie('session_id');
 				res.clearCookie('user_id');
 			}
 			res.json(obj);

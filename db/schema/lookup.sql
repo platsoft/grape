@@ -19,7 +19,11 @@ SET check_function_bodies = false;
 CREATE SCHEMA lookup;
 -- ddl-end --
 
-SET search_path TO pg_catalog,public,lookup;
+-- object: lookup_cp1 | type: SCHEMA --
+CREATE SCHEMA lookup_cp1;
+-- ddl-end --
+
+SET search_path TO pg_catalog,public,lookup,lookup_cp1;
 -- ddl-end --
 
 -- object: lookup.bank_branch | type: TABLE --
@@ -41,8 +45,19 @@ CREATE TABLE lookup.valid_bank_name(
 
 );
 -- ddl-end --
+-- object: lookup.relationship | type: TABLE --
+CREATE TABLE lookup.relationship(
+	relationship_id integer,
+	description text,
+	CONSTRAINT relationship_id_pk PRIMARY KEY (relationship_id)
+
+);
+-- ddl-end --
 -- object: bank_branch_bank_id_fk | type: CONSTRAINT --
 ALTER TABLE lookup.bank_branch ADD CONSTRAINT bank_branch_bank_id_fk FOREIGN KEY (bank_id)
 REFERENCES lookup.valid_bank_name (bank_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
 -- ddl-end --
+
+
+

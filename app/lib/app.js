@@ -112,18 +112,24 @@ exports = module.exports = function(_o) {
 		//first function to be called on a new request
 		app.use(function(req, res, next) 
 		{
-			logger.trace('New request');
+			logger.trace(req.method + ' ' + req.url);
 			res.locals.db = app.get('db');
 			req.db = app.get('db');
 			next();
 		});
 
+		if (options.public_directory)
+		{
+			app.set('publicPath', options.public_directory);
+			setup_public_directory(options.public_directory);
+		}
 
 		if (options.session_management)
 		{
 			var session_management = require(__dirname + '/session.js');
 			session_management(app);
 		}
+
 
 		// Load built-in API calls
 		var builtin_api_dir = __dirname + '/../api/';
@@ -139,11 +145,7 @@ exports = module.exports = function(_o) {
 			loadapifiles(options.api_directory, '');
 		}
 		
-		if (options.public_directory)
-		{
-			app.set('publicPath', options.public_directory);
-			setup_public_directory(options.public_directory);
-		}
+
 	});
 
 	var http = require('http');

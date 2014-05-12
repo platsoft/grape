@@ -61,6 +61,9 @@ client.connect(function(err) {
 	{
 		if (dirname[dirname.length - 1] != '/') dirname += '/';
 
+		if (!fs.existsSync(dirname))
+			return;
+
 		var dir_list = [];
 		var files = fs.readdirSync(dirname);
 		for (var i = 0; i < files.length; i++) 

@@ -44,12 +44,29 @@ A typical skeleton application will contain the following directories:
 ## API support
 Grape provides built-in API calls. To add API calls to your app, fill the option api_directory in with the directory containing your API calls.
 
+### /session/new
+TODO
+In: {username, password}
+Out: {code, message, status, success}
+
+
 ## DB support
 Grape DB 
 TODO
 
+Built-in tables:
+### grape.user
+
+### grape.user_role
+
+### grape.access_path
+
+
 ## Session management
-TODO
+Built-in session management is loaded if session_management = true in the grape initializer. When loaded:
+	* Populate the tables grape."user", grape.user_role, grape.access_path to add new users
+	* Use the /session/new API call to create a new login
+	* 
 
 ## Logger
 TODO
@@ -60,7 +77,7 @@ TODO
 
 ## grape.app
 
-### Supported options in grape.app
+### Supported options in grape.app config object
 	* session_management - Indicates if session management should be loaded or not (true or false, defaults to false)
 	* api_directory - Load API files from this directory
 	* port - listen on port (defaults to 3000)
@@ -70,7 +87,11 @@ TODO
 		# database - Name of the database
 		# application_name - Application name
 	* public_directory - load public files from this directory (string)
-	* db_definition - load database definition and data from this directory (string)
+	* db_definition - load database definition and data from this directory (string) The directory structure should look as follows:
+		# schema/
+		# function/
+		# data/
+		When the script scripts/setup_database.js is ran all SQL files in the directories listed will be loaded
 	* debug - debugging on or off (boolean)
 
 
