@@ -104,7 +104,7 @@ function db (_o) {
 				if (err || !result.rows) 
 				{
 					self.options.error_logger(err.toString());
-					res.json({
+					res.jsonp({
 						error: {
 							message: 'Sorry we could not do stuff. Please contact Platinum Software.',
 							code: -1,
@@ -113,7 +113,7 @@ function db (_o) {
 					});
 					return;
 				};
-				res.json(result.rows[0][alias]);
+				res.jsonp(result.rows[0][alias]);
 				return;
 			}
 		}

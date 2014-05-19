@@ -25,6 +25,12 @@ exports = module.exports = function(_o) {
 	_.extend(options, _o);
 	
 	app.set('config', options);
+
+	app.set("jsonp callback", true);
+
+	var gutil = require(__dirname + '/util.js');
+
+	app.set('gutil', new gutil());
 	
 	logger.info('Starting application with options: ' + util.inspect(options));
 

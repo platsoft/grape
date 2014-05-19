@@ -130,22 +130,25 @@ client.connect(function(err) {
 		client.query(nextfile.data, next);
 	}
 
-	client.query('BEGIN', function(err, result) {
+	client.query("SET search_path TO 'public'", function(err, result) {
 		if (err) return rollback(client);
-		loadsqlfiles(grape_db_dir + '/schema');
-		loadsqlfiles(grape_db_dir + '/function');
-		loadsqlfiles(grape_db_dir + '/data');
 
-		if (app_db_dir)
-		{
-			loadsqlfiles(app_db_dir + '/schema');
-			loadsqlfiles(app_db_dir + '/function');
-			loadsqlfiles(app_db_dir + '/data');
-		}
+		client.query('BEGIN', function(err, result) {
+			if (err) return rollback(client);
+			loadsqlfiles(grape_db_dir + '/schema');
+			loadsqlfiles(grape_db_dir + '/function');
+			loadsqlfiles(grape_db_dir + '/data');
 
-		next(null, null);
+			if (app_db_dir)
+			{
+				loadsqlfiles(app_db_dir + '/schema');
+				loadsqlfiles(app_db_dir + '/function');
+				loadsqlfiles(app_db_dir + '/data');
+			}
+
+			next(null, null);
+		});
 	});
-
 });
 
 

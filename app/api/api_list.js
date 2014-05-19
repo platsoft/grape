@@ -18,7 +18,7 @@ exports = module.exports = function(_app) {
 
 function api_grapeapi_list(req, res)
 {
-	res.status(200).json(app.routes);
+	res.status(200).jsonp(app.routes);
 }
 
 
