@@ -1,0 +1,7 @@
+{
+	"name": "myapp",
+	"main": "index.js",
+	"dependencies": {
+		"grape": "git+ssh://git@mail.platsoft.net:grape.git#master"
+	}
+}

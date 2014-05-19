@@ -1,0 +1,10 @@
+++++++++++++++++++++++++++++++
++ Grape skeleton application +
+++++++++++++++++++++++++++++++
+
+- Copy this directory
+- Edit package.json and add your application name
+- Edit config.js
+- Run npm update
+
+
