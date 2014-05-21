@@ -70,6 +70,8 @@ module.exports = function (app)
 			req.session = ret;
 			req.user_access_path = ret.user_role;
 
+			res.locals.session = ret;
+
 			var dbs = app.get('dbs');
 			if (dbs[session_id])
 			{
