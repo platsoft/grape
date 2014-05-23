@@ -15,7 +15,9 @@
 	"dependencies": {
 		"pg": "~2.11.1",
 		"underscore": "~1.6.0",
-		"express": "*"
+		"express": "4.3.0",
+		"body-parser": "1.2.0",
+		"cookie-parser": "1.1.0"
 	},
 	"devDependencies": {}
 }

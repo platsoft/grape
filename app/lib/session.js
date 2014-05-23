@@ -1,4 +1,5 @@
 
+var util = require('util');
 module.exports = function (app)
 {
 
@@ -8,7 +9,6 @@ module.exports = function (app)
 	// Session management
 	app.use(function(req, res, next) {
 
-		app.get('logger').session('aaaa');
 
 		var db = app.get('db');
 		if (!db)
@@ -26,9 +26,22 @@ module.exports = function (app)
 			next();
 			return;
 		}
-		var path = req.app._router.matchRequest(req);
 
-		path = path ? path.path : req.path;
+		//find the route that matches this request
+		var path = req.url;
+		for (var i = 0; i < app._router.stack.length; i++)
+		{
+			if (!app._router.stack[i].route) continue;
+			var stack = app._router.stack[i];
+			var route = stack.route;
+			if (stack.match(req.path))
+			{
+				console.log("MATCHED " + req.path + " TO " + route.path);
+				path = route.path;
+				break;
+			}
+		}
+
 		
 		function session_fail () 
 		{

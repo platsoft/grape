@@ -1,5 +1,7 @@
 
 var express = require('express');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 var _ = require('underscore');
 var fs = require('fs');
 var util = require('util');
@@ -7,8 +9,8 @@ var util = require('util');
 exports = module.exports = function(_o) {
 	var app = express();
 	
-	app.use(express.bodyParser());
-	app.use(express.cookieParser());
+	app.use(bodyParser());
+	app.use(cookieParser());
 	
 	var logger = require(__dirname + '/logger.js');
 	app.set('logger', logger);
@@ -91,7 +93,7 @@ exports = module.exports = function(_o) {
 			var accepts_json = (req.headers.accept && req.headers.accept.indexOf('application/json') != -1);
 			
 			//GET which does not accept JSON 
-			if (req.method == 'GET' && !accepts_json && !req.app._router.matchRequest(req))
+			if (req.method == 'GET' && !accepts_json)
 			{
 				//TODO this is insecure, make sure that fileName exists in publicPath
 				var fileName = app.get('publicPath') + decodeURI(req.path);
@@ -113,46 +115,43 @@ exports = module.exports = function(_o) {
 		});
 	}
 
-	app.configure(function() {
-		
-		//first function to be called on a new request
-		app.use(function(req, res, next) 
-		{
-			logger.trace(req.method + ' ' + req.url);
-			res.locals.db = app.get('db');
-			req.db = app.get('db');
-			next();
-		});
-
-		if (options.public_directory)
-		{
-			app.set('publicPath', options.public_directory);
-			setup_public_directory(options.public_directory);
-		}
-
-		if (options.session_management)
-		{
-			var session_management = require(__dirname + '/session.js');
-			session_management(app);
-		}
-
-
-		// Load built-in API calls
-		var builtin_api_dir = __dirname + '/../api/';
-		if (options.debug)
-		{
-			console.log("Loading built-in API calls from " + builtin_api_dir);
-		}
-		loadapifiles(builtin_api_dir, '');
-
-
-		if (options.api_directory)
-		{
-			loadapifiles(options.api_directory, '');
-		}
-		
-
+	
+	//first function to be called on a new request
+	app.use(function(req, res, next) 
+	{
+		logger.trace(req.method + ' ' + req.url);
+		res.locals.db = app.get('db');
+		req.db = app.get('db');
+		next();
 	});
+
+	if (options.public_directory)
+	{
+		app.set('publicPath', options.public_directory);
+		setup_public_directory(options.public_directory);
+	}
+
+	if (options.session_management)
+	{
+		var session_management = require(__dirname + '/session.js');
+		session_management(app);
+	}
+
+
+	// Load built-in API calls
+	var builtin_api_dir = __dirname + '/../api/';
+	if (options.debug)
+	{
+		console.log("Loading built-in API calls from " + builtin_api_dir);
+	}
+	loadapifiles(builtin_api_dir, '');
+
+
+	if (options.api_directory)
+	{
+		loadapifiles(options.api_directory, '');
+	}
+		
 
 	var http = require('http');
 	http.globalAgent.maxSockets = 50;
