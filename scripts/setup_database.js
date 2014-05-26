@@ -36,11 +36,11 @@ client.connect(function(err) {
 		console.log("Error connecting to database: " + err.toString());
 		if (err.code == '28000')
 		{
-			console.log("You need to create database role first:  CREATE ROLE " + config.dburi.user + " WITH LOGIN SUPERUSER;");
+			console.log("You need to create database role first:  psql postgres postgres -c 'CREATE ROLE " + config.dburi.user + " WITH LOGIN SUPERUSER;'");
 		}
 		else if (err.code == '3D000')
 		{
-			console.log("You need to create the database first:  CREATE DATABASE " + config.dburi.database + " OWNER " + config.dburi.user + ";");
+			console.log("You need to create the database first:  psql postgres postgres -c 'CREATE DATABASE " + config.dburi.database + " OWNER " + config.dburi.user + ";'");
 		}
 		else
 		{
@@ -105,7 +105,7 @@ client.connect(function(err) {
 			if (err.code == '23505' || err.code == '42P06')
 			{
 				console.log("ERROR: Looks like this database is already populated. You can recreate it with the following command: ");
-				console.log("echo 'DROP DATABASE " + config.dburi.database + "; " + "CREATE DATABASE " + config.dburi.database + " OWNER " + config.dburi.user + "; ' | psql postgres postgres");
+				console.log("psql postgres postgres -c 'DROP DATABASE " + config.dburi.database + "; " + "CREATE DATABASE " + config.dburi.database + " OWNER " + config.dburi.user + ";'");
 			}
 			else
 			{

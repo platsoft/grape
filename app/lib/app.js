@@ -121,7 +121,7 @@ exports = module.exports = function(_o) {
 	//first function to be called on a new request
 	app.use(function(req, res, next) 
 	{
-		logger.trace(req.method + ' ' + req.url);
+		logger.trace([req.ip, req.method, req.url].join(' '));
 		res.locals.db = app.get('db');
 		req.db = app.get('db');
 		next();

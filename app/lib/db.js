@@ -83,6 +83,9 @@ function db (_o) {
 		}
 
 		var qry = self.client.query(config, values, callback);
+		qry.on('error', function(err) { 
+			console.log("DB Error ", err.toString());
+		});
 		return qry;
 	};
 	
