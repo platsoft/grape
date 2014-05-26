@@ -2,6 +2,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
+var multipartParser = require('connect-multiparty');
 var _ = require('underscore');
 var fs = require('fs');
 var util = require('util');
@@ -11,6 +12,7 @@ exports = module.exports = function(_o) {
 	
 	app.use(bodyParser());
 	app.use(cookieParser());
+	app.use(multipartParser());
 	
 	var logger = require(__dirname + '/logger.js');
 	app.set('logger', logger);
