@@ -88,6 +88,38 @@ exports = module.exports = function(_o) {
 		}
 	}
 
+	function loadpublicjsfiles(dirname, relativedirname)
+	{
+		var data = '';
+
+		if (relativedirname[relativedirname.length - 1] != '/') relativedirname += '/';
+
+		if (dirname[dirname.length - 1] != '/') dirname += '/';
+
+		var files = fs.readdirSync(dirname);
+		for (var i = 0; i < files.length; i++) 
+		{
+			var file = files[i];
+			var fstat = fs.statSync(dirname + file);
+			if (fstat.isFile()) 
+			{
+				var ar = file.split('.');
+				if (ar[ar.length - 1] == 'js')
+				{
+					// loads the api module and execute the export function with the app param.
+					data += '// JAVASCRIPT FILE ' + dirname + file;
+					data += fs.readFileSync(dirname + file);
+					app.get('logger').info("Loaded " + relativedirname + file);
+				}
+			}
+			else if (fstat.isDirectory()) 
+			{
+				data += loadapifiles(dirname + '/' + file, relativedirname + file);
+			}
+		}
+		return data;
+	}
+
 	function setup_public_directory(dirname)
 	{
 		app.use(function(req, res, next) 
@@ -107,6 +139,13 @@ exports = module.exports = function(_o) {
 				else if (req.path.slice(0, 9) == '/download') //skip the sending of index.html if path is /download (special case)
 				{
 				} 
+				else if (req.path == 'download_public_js_files') //special path to download all javcascript files recursively in /public/pages/
+				{
+					var jsdata = loadpublicjsfiles(app.get('publicPath'), '/');
+					res.set('Content-Type', 'application/javascript');
+					res.send(jsdata);
+					return;
+				}
 				else 	//send index.html to load app (this is for stuff like /search and /policy/:policy_id)
 				{
 					res.sendfile(app.get('publicPath') + '/index.html');
