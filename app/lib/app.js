@@ -107,14 +107,14 @@ exports = module.exports = function(_o) {
 				if (ar[ar.length - 1] == 'js')
 				{
 					// loads the api module and execute the export function with the app param.
-					data += '// JAVASCRIPT FILE ' + dirname + file;
+					data += '// JAVASCRIPT FILE ' + dirname + file + "\n";
 					data += fs.readFileSync(dirname + file);
 					app.get('logger').info("Loaded " + relativedirname + file);
 				}
 			}
 			else if (fstat.isDirectory()) 
 			{
-				data += loadapifiles(dirname + '/' + file, relativedirname + file);
+				data += loadpublicjsfiles(dirname + '/' + file, relativedirname + file);
 			}
 		}
 		return data;
@@ -129,23 +129,25 @@ exports = module.exports = function(_o) {
 			//GET which does not accept JSON 
 			if (req.method == 'GET' && !accepts_json)
 			{
+				console.log(req._parsedUrl.pathname);
 				//TODO this is insecure, make sure that fileName exists in publicPath
 				var fileName = app.get('publicPath') + decodeURI(req.path);
 				if (fs.existsSync(fileName)) //public file
 				{
+					console.log("Sending file " + fileName);
 					res.sendfile(fileName);
 					return;
 				} 
-				else if (req.path.slice(0, 9) == '/download') //skip the sending of index.html if path is /download (special case)
+				else if (req._parsedUrl.pathname == '/download_public_js_files') //special path to download all javcascript files recursively in /public/pages/
 				{
-				} 
-				else if (req.path == 'download_public_js_files') //special path to download all javcascript files recursively in /public/pages/
-				{
-					var jsdata = loadpublicjsfiles(app.get('publicPath'), '/');
+					var jsdata = loadpublicjsfiles(app.get('publicPath') + '/pages', '/');
 					res.set('Content-Type', 'application/javascript');
 					res.send(jsdata);
 					return;
 				}
+				else if (req.path.slice(0, 9) == '/download') //skip the sending of index.html if path is /download (special case)
+				{
+				} 
 				else 	//send index.html to load app (this is for stuff like /search and /policy/:policy_id)
 				{
 					res.sendfile(app.get('publicPath') + '/index.html');

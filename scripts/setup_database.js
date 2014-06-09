@@ -105,7 +105,7 @@ client.connect(function(err) {
 			if (err.code == '23505' || err.code == '42P06')
 			{
 				console.log("ERROR: Looks like this database is already populated. You can recreate it with the following command: ");
-				console.log("psql postgres postgres -c 'DROP DATABASE " + config.dburi.database + "; " + "CREATE DATABASE " + config.dburi.database + " OWNER " + config.dburi.user + ";'");
+				console.log("psql postgres postgres -c 'DROP DATABASE " + config.dburi.database + "'; psql postgres postgres -c 'CREATE DATABASE " + config.dburi.database + " OWNER " + config.dburi.user + ";'");
 			}
 			else
 			{
@@ -127,7 +127,7 @@ client.connect(function(err) {
 
 		var nextfile = sql_list.shift();
 		console.log("Creating " + nextfile.filename + "(" + nextfile.data.length + " bytes)");
-		client.query(nextfile.data, next);
+		client.query("SET search_path TO 'public';" + nextfile.data, next);
 	}
 
 	client.query("SET search_path TO 'public'", function(err, result) {
