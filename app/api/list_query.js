@@ -27,7 +27,7 @@ exports = module.exports = function(_app) {
  *
  * @example {"result_count":1,"offset":0,"limit":5,"records":[{"stock_item_id":4,"description":"Refining Mist (200ml)"}],"total":1} 
  **/
-	app.get("/grape/list", api_list_query);
+	app.post("/grape/list", api_list_query);
 };
 
 function api_list_query(req, res)
