@@ -23,3 +23,5 @@ END; $$ LANGUAGE plpgsql;
 DROP CAST IF EXISTS (JSON AS TEXT[]);
 CREATE CAST (JSON AS TEXT[]) WITH FUNCTION cast_json_array_to_text_array(JSON) AS IMPLICIT;
 
+-- SELECT ('["aaa","bbb","ccc"]'::JSON)::TEXT[];
+
