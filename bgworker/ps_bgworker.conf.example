@@ -1,0 +1,4 @@
+host=localhost
+dbname=platlife
+user=platlife
+logfile=/home/hans/log/ps_bgworker.log
