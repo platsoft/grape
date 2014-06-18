@@ -5,7 +5,7 @@ CREATE OR REPLACE VIEW grape.type_summary AS
 		ty.typname AS type_name,
 		attr.attname AS attribute_name,
 		FORMAT_TYPE(attr.atttypid, NULL) AS attribute_type,
-		(ty_target_array.oid IS NOT NULL OR ty_target.typtype = 'c') AS is_composite,
+		(ty_target.typtype = 'c' OR COALESCE(ty_target_array.typtype, '') = 'c') AS is_composite,
 		ty_target.typelem <> 0 AND ty_target.typlen < 0 AS is_array
 	FROM pg_type ty
 		JOIN pg_namespace ns ON ty.typnamespace = ns.oid -- To allow filtering by namespace name instead of namespace oid
@@ -44,7 +44,7 @@ BEGIN
 	END IF;
 
 	-- Loop through all parameters
-	FOR _type_data IN SELECT * FROM type_summary WHERE schema = target_schema AND type_name = target_type LOOP
+	FOR _type_data IN SELECT * FROM grape.type_summary WHERE schema = target_schema AND type_name = target_type LOOP
 		-- Cache the parameter value for use throughout the rest of the function
 		_param_value := (data ->> _type_data.attribute_name)::TEXT;
 		_result := _result || ',';
@@ -60,7 +60,7 @@ BEGIN
 			-- Loop over the array
 			FOR _param_value IN SELECT * FROM JSON_ARRAY_ELEMENTS(_param_value::JSON) LOOP
 				IF _type_data.is_composite THEN
-					_temp_value := json_to_composite_type_text( _type_data.schema, _type_data.attribute_type, _param_value::JSON );
+					_temp_value := grape.json_to_composite_type_text( _type_data.schema, _type_data.attribute_type, _param_value::JSON );
 					_result := _result ||  _temp_value || ',';
 				ELSE
 					_temp_value := _param_value;
@@ -72,7 +72,7 @@ BEGIN
 			_result := _result || ']::' || _type_data.attribute_type;
 		ELSE
 			IF _type_data.is_composite THEN
-				_temp_value := json_to_composite_type_text( _type_data.schema, _type_data.attribute_type, (data ->> _type_data.attribute_name)::json );
+				_temp_value := grape.json_to_composite_type_text( _type_data.schema, _type_data.attribute_type, (data ->> _type_data.attribute_name)::json );
 				_result := _result || _temp_value;
 			ELSE
 				_temp_value := _param_value;
@@ -93,7 +93,7 @@ DECLARE
 	rec RECORD;
 BEGIN
 
-	SELECT json_to_composite_type_text(target_schema, target_type, data) INTO txt;
+	SELECT grape.json_to_composite_type_text(target_schema, target_type, data) INTO txt;
 
 	EXECUTE 'SELECT (a.ppp).* FROM (SELECT ' || txt || ' AS ppp) AS a' INTO rec;
 	RETURN rec;

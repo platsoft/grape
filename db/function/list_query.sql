@@ -3,6 +3,7 @@
 /**
  * Input fields:
  * 	tablename
+ * 	schema (optional) text
  *   	sortfield (optional) text
  *	limit (optional) integer default 50
  * 	offset (optional) integer default 0
@@ -23,6 +24,7 @@ DECLARE
         _total_results INTEGER;
         _rec RECORD;
 	_tablename TEXT;
+	_schema TEXT;
 	_page_number INTEGER;
 
 	_filters TEXT[];
@@ -31,6 +33,7 @@ DECLARE
 BEGIN
 	_offset := 0;
 	_page_number := 0;
+	_schema := 'public';
 
 	IF json_extract_path($1, 'tablename') IS NULL THEN
 		RETURN NULL;
@@ -45,6 +48,10 @@ BEGIN
 		_sortfield := '';
 		_sortsql := '';
         END IF;
+        
+	IF json_extract_path($1, 'schema') IS NOT NULL THEN
+		_schema := $1->>'schema';
+	END IF;
 
         IF json_extract_path($1, 'limit') IS NOT NULL THEN
 		_limit := ($1->>'limit')::INTEGER;
@@ -83,7 +90,7 @@ BEGIN
 		_filter_sql := '';
 	END IF;
 
-	EXECUTE 'SELECT COUNT(*) FROM '  || quote_ident(_tablename) || ' ' || _filter_sql INTO _total;
+	EXECUTE 'SELECT COUNT(*) FROM '  || quote_ident(_schema) || '.'  || quote_ident(_tablename) || ' ' || _filter_sql INTO _total;
 
 	EXECUTE 'SELECT to_json(b) FROM '
 		'(SELECT COUNT(a) AS "result_count", '
@@ -94,7 +101,7 @@ BEGIN
 			'$4 AS "total", '
 			'($4/$2)+1 AS "total_pages" '
 		' FROM '
-			'(SELECT * FROM ' || quote_ident(_tablename) || ' ' || _filter_sql || ' ' || _sortsql || ' OFFSET $1 LIMIT $2) a'
+			'(SELECT * FROM '  || quote_ident(_schema) || '.' || quote_ident(_tablename) || ' ' || _filter_sql || ' ' || _sortsql || ' OFFSET $1 LIMIT $2) a'
 		') b' 
 		USING _offset, _limit, _page_number, _total INTO _ret;
 
