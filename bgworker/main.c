@@ -176,7 +176,7 @@ void noticeProcessor(void *arg, const char *message)
 	
 	char *qry = (char *)malloc(1024 + strlen(escaped));
 
-	sprintf(qry, "INSERT INTO proc.schedule_log (schedule_id, time, message) VALUES (%d, CURRENT_TIMESTAMP, %s)", info->sched->schedule_id, escaped);
+	sprintf(qry, "INSERT INTO grape.schedule_log (schedule_id, time, message) VALUES (%d, CURRENT_TIMESTAMP, %s)", info->sched->schedule_id, escaped);
 
 	res = PQexec(info->conn, qry);
 	if (res)
@@ -197,7 +197,7 @@ void noticeReceiver(void *arg, const PGresult *res)
 
 	qry = (char *)malloc(110 + strlen(message_primary));
 
-	sprintf(qry, "INSERT INTO proc.schedule_log (schedule_id, time, message) VALUES (%d, CURRENT_TIMESTAMP, '%s')", info->sched->schedule_id, message_primary);
+	sprintf(qry, "INSERT INTO grape.schedule_log (schedule_id, time, message) VALUES (%d, CURRENT_TIMESTAMP, '%s')", info->sched->schedule_id, message_primary);
 
 	result = PQexec(info->conn, qry);
 	if (result)
@@ -222,12 +222,12 @@ void *start_process(void *s)
 	info->conn = notice_conn;
 	info->sched = sched;
 
-	printf("Thread started to call proc.%s('%s'::JSON);\n", sched->pg_function, sched->param);
+	printf("Thread started to call grape.%s('%s'::JSON);\n", sched->pg_function, sched->param);
 
 	sprintf(qry, "Starting %s (%s)", sched->pg_function, sched->param);
 	noticeProcessor((void *)info, qry);
 	
-	sprintf(qry, "UPDATE proc.schedule SET pid=%d, status='Running' WHERE schedule_id=%d", tid, sched->schedule_id);
+	sprintf(qry, "UPDATE grape.schedule SET pid=%d, status='Running' WHERE schedule_id=%d", tid, sched->schedule_id);
 	result = PQexec(conn, qry);
 	if (result)
 		PQclear(result);
@@ -239,7 +239,7 @@ void *start_process(void *s)
 
 	PQsetNoticeReceiver(conn, noticeReceiver, info);
 	
-	sprintf(qry, "SELECT proc.%s('%s'::JSON)", sched->pg_function, sched->param);
+	sprintf(qry, "SELECT grape.%s('%s'::JSON)", sched->pg_function, sched->param);
 	printf("Query: [%s]\n", qry);
 	result = PQexec(conn, qry);
 	if (PQresultStatus(result) != 2)
@@ -251,7 +251,7 @@ void *start_process(void *s)
 		if (result)
 			PQclear(result);
 
-		sprintf(qry, "UPDATE proc.schedule SET status='Error' WHERE schedule_id=%d", sched->schedule_id);
+		sprintf(qry, "UPDATE grape.schedule SET status='Error' WHERE schedule_id=%d", sched->schedule_id);
 		result = PQexec(conn, qry);
 		if (result)
 			PQclear(result);
@@ -260,13 +260,13 @@ void *start_process(void *s)
 	{
 		if (result)
 			PQclear(result);
-		sprintf(qry, "UPDATE proc.schedule SET status='Completed' WHERE schedule_id=%d", sched->schedule_id);
+		sprintf(qry, "UPDATE grape.schedule SET status='Completed' WHERE schedule_id=%d", sched->schedule_id);
 		result = PQexec(conn, qry);
 		if (result)	
 			PQclear(result);
 	}
 
-	sprintf(qry, "UPDATE proc.schedule SET time_ended=CURRENT_TIMESTAMP WHERE schedule_id=%d", sched->schedule_id);
+	sprintf(qry, "UPDATE grape.schedule SET time_ended=CURRENT_TIMESTAMP WHERE schedule_id=%d", sched->schedule_id);
 	result = PQexec(conn, qry);
 	PQclear(result);
 	
@@ -352,7 +352,7 @@ int main(int argc, char **argv)
 			continue;
 		}
 
-		result = PQexec(conn, "SELECT proc.schedule.process_id, schedule_id, pg_function, param, proc.schedule.user_id FROM proc.schedule JOIN proc.process USING (process_id) WHERE time_started IS NULL AND time_sched <= CURRENT_TIMESTAMP AND proc.schedule.process_id NOT IN (SELECT ss.process_id FROM proc.schedule AS ss WHERE ss.time_ended IS NULL AND ss.time_started IS NOT NULL AND ss.schedule_id != proc.schedule.schedule_id) LIMIT 1");
+		result = PQexec(conn, "SELECT grape.schedule.process_id, schedule_id, pg_function, param, grape.schedule.user_id FROM grape.schedule JOIN grape.process USING (process_id) WHERE time_started IS NULL AND time_sched <= CURRENT_TIMESTAMP AND grape.schedule.process_id NOT IN (SELECT ss.process_id FROM grape.schedule AS ss WHERE ss.time_ended IS NULL AND ss.time_started IS NOT NULL AND ss.schedule_id != grape.schedule.schedule_id) LIMIT 1");
 
 		if (PQresultStatus(result) == PGRES_TUPLES_OK)
 		{
@@ -373,7 +373,7 @@ int main(int argc, char **argv)
 					continue;
 				}
 
-				sprintf(qry, "UPDATE proc.schedule SET time_started=CURRENT_TIMESTAMP WHERE proc.schedule.schedule_id=%d", sched->schedule_id);
+				sprintf(qry, "UPDATE grape.schedule SET time_started=CURRENT_TIMESTAMP WHERE grape.schedule.schedule_id=%d", sched->schedule_id);
 				res = PQexec(conn, qry);
 				if (res)
 					PQclear(res);
