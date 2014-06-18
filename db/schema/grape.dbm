@@ -141,6 +141,92 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="proc" fill-color="#e1e1e1">
 </schema>
 
+<schema name="proc_cp" fill-color="#e1e1e1">
+</schema>
+
+<table name="process" oids="true">
+	<schema name="grape"/>
+	<position x="814" y="37"/>
+	<column name="process_id">
+		<type name="serial"/>
+	</column>
+	<column name="pg_function">
+		<type name="text"/>
+	</column>
+	<column name="description">
+		<type name="text"/>
+	</column>
+	<column name="process_type">
+		<type name="text"/>
+		<comment><![CDATA[PG_FUNCTION; COMMAND]]></comment>
+	</column>
+	<constraint name="process_pk" type="pk-constr" factor="10" table="grape.process">
+		<columns names="process_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<usertype name="e_schedule_status" configuration="enumeration">
+	<schema name="grape"/>
+	<enumeration values="Running,Completed,Error,NewTask"/>
+</usertype>
+
+<table name="schedule_log" oids="true">
+	<schema name="grape"/>
+	<position x="801" y="287"/>
+	<column name="schedule_log_id">
+		<type name="serial"/>
+	</column>
+	<column name="schedule_id">
+		<type name="integer"/>
+	</column>
+	<column name="time">
+		<type name="timestamp"/>
+	</column>
+	<column name="message">
+		<type name="text"/>
+	</column>
+	<constraint name="schedule_log_pk" type="pk-constr" factor="10" table="grape.schedule_log">
+		<columns names="schedule_log_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="schedule" oids="true">
+	<schema name="grape"/>
+	<position x="1068" y="39"/>
+	<column name="schedule_id">
+		<type name="serial"/>
+	</column>
+	<column name="process_id">
+		<type name="integer"/>
+	</column>
+	<column name="time_sched">
+		<type name="timestamp"/>
+		<comment><![CDATA[Scheduled to start on]]></comment>
+	</column>
+	<column name="time_started">
+		<type name="timestamp"/>
+		<comment><![CDATA[Actual start]]></comment>
+	</column>
+	<column name="time_ended">
+		<type name="timestamp"/>
+	</column>
+	<column name="pid">
+		<type name="integer"/>
+	</column>
+	<column name="param">
+		<type name="json"/>
+	</column>
+	<column name="user_id">
+		<type name="integer"/>
+	</column>
+	<column name="status" default-value="'NewTask'">
+		<type name="grape.e_schedule_status"/>
+	</column>
+	<constraint name="schedule_pk" type="pk-constr" factor="10" table="grape.schedule">
+		<columns names="schedule_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_role">
 	<columns names="user_id" ref-type="src-columns"/>
@@ -166,6 +252,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="user_id" ref-type="dst-columns"/>
 </constraint>
+<constraint name="schedule_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.schedule" table="grape.schedule_log">
+	<columns names="schedule_id" ref-type="src-columns"/>
+	<columns names="schedule_id" ref-type="dst-columns"/>
+</constraint>
+<constraint name="process_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.process" table="grape.schedule">
+	<columns names="process_id" ref-type="src-columns"/>
+	<columns names="process_id" ref-type="dst-columns"/>
+</constraint>
 <relationship name="rel_user_role_user" type="relfk"
 	 src-table="grape.user_role"
 	 dst-table="grape.user"
@@ -189,6 +285,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <relationship name="rel_user_history_user" type="relfk"
 	 src-table="grape.user_history"
 	 dst-table="grape.user"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_schedule_log_schedule" type="relfk"
+	 src-table="grape.schedule_log"
+	 dst-table="grape.schedule"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_schedule_process" type="relfk"
+	 src-table="grape.schedule"
+	 dst-table="grape.process"
 	 src-required="true" dst-required="true"/>
 
 </dbmodel>

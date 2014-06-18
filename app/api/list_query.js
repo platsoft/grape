@@ -10,6 +10,7 @@ exports = module.exports = function(_app) {
  * @url /list
  * @input JSON object containing:
  * 	tablename text Table or view name
+ * 	schema text Schema name of table or view
  * 	sortfield text optional Field to order by
  * 	limit integer optional Record limit default 50
  * 	offset integer optional Record offset default 0

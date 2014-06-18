@@ -27,7 +27,12 @@ CREATE SCHEMA grape;
 CREATE SCHEMA proc;
 -- ddl-end --
 
-SET search_path TO pg_catalog,public,grape,proc;
+-- object: proc_cp | type: SCHEMA --
+-- DROP SCHEMA proc_cp;
+CREATE SCHEMA proc_cp;
+-- ddl-end --
+
+SET search_path TO pg_catalog,public,grape,proc,proc_cp;
 -- ddl-end --
 
 -- object: hstore | type: EXTENSION --
@@ -105,6 +110,57 @@ CREATE TABLE grape.user(
 
 );
 -- ddl-end --
+-- object: grape.process | type: TABLE --
+-- DROP TABLE grape.process;
+CREATE TABLE grape.process(
+	process_id serial,
+	pg_function text,
+	description text,
+	process_type text,
+	CONSTRAINT process_pk PRIMARY KEY (process_id)
+
+)WITH ( OIDS = TRUE );
+-- ddl-end --
+COMMENT ON COLUMN grape.process.process_type IS 'PG_FUNCTION; COMMAND';
+-- ddl-end --
+
+-- object: grape.e_schedule_status | type: TYPE --
+-- DROP TYPE grape.e_schedule_status;
+CREATE TYPE grape.e_schedule_status AS
+ ENUM ('Running','Completed','Error','NewTask');
+-- ddl-end --
+
+-- object: grape.schedule_log | type: TABLE --
+-- DROP TABLE grape.schedule_log;
+CREATE TABLE grape.schedule_log(
+	schedule_log_id serial,
+	schedule_id integer,
+	time timestamp,
+	message text,
+	CONSTRAINT schedule_log_pk PRIMARY KEY (schedule_log_id)
+
+)WITH ( OIDS = TRUE );
+-- ddl-end --
+-- object: grape.schedule | type: TABLE --
+-- DROP TABLE grape.schedule;
+CREATE TABLE grape.schedule(
+	schedule_id serial,
+	process_id integer,
+	time_sched timestamp,
+	time_started timestamp,
+	time_ended timestamp,
+	pid integer,
+	param json,
+	user_id integer,
+	status grape.e_schedule_status DEFAULT 'NewTask',
+	CONSTRAINT schedule_pk PRIMARY KEY (schedule_id)
+
+)WITH ( OIDS = TRUE );
+-- ddl-end --
+COMMENT ON COLUMN grape.schedule.time_sched IS 'Scheduled to start on';
+COMMENT ON COLUMN grape.schedule.time_started IS 'Actual start';
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT user_id_rel;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
@@ -141,6 +197,22 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ALTER TABLE grape.user_history DROP CONSTRAINT user_id_rel;
 ALTER TABLE grape.user_history ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
 REFERENCES grape.user (user_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+
+-- object: schedule_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.schedule_log DROP CONSTRAINT schedule_fk;
+ALTER TABLE grape.schedule_log ADD CONSTRAINT schedule_fk FOREIGN KEY (schedule_id)
+REFERENCES grape.schedule (schedule_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+
+-- object: process_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.schedule DROP CONSTRAINT process_fk;
+ALTER TABLE grape.schedule ADD CONSTRAINT process_fk FOREIGN KEY (process_id)
+REFERENCES grape.process (process_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
