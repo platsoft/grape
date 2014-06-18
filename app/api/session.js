@@ -9,10 +9,9 @@ exports = module.exports = function(app_) {
 /**
  * @api /session/new
  * @method POST
- * @desc Remove a pending refund
- * @param policy_id Policy ID
- * @param refund_id Payment ID of refund
- * @return JSON object 
+ * @desc New session
+ * @fields username TEXT, password TEXT
+ * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
  */
 	app.post('/session/new', create_session);
 

@@ -3,15 +3,15 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel>
+<dbmodel pgmodeler-ver="0.7.1">
+<database name="grape">
+</database>
+
 <schema name="public" protected="true" fill-color="#e1e1e1" sql-disabled="true">
 </schema>
 
 <schema name="grape" fill-color="#e1e1e1">
 </schema>
-
-<database name="grape">
-</database>
 
 <extension name="hstore" handles-type="true">
 	<schema name="public"/>
@@ -138,27 +138,30 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<constraint name="user_id_rel" type="fk-constr"	 comparison-type="MATCH FULL"
+<schema name="proc" fill-color="#e1e1e1">
+</schema>
+
+<constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_role">
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="user_id" ref-type="dst-columns"/>
 </constraint>
-<constraint name="role_name_rel" type="fk-constr"	 comparison-type="MATCH FULL"
+<constraint name="role_name_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.access_role" table="grape.user_role">
 	<columns names="role_name" ref-type="src-columns"/>
 	<columns names="role_name" ref-type="dst-columns"/>
 </constraint>
-<constraint name="user_id_rel" type="fk-constr"	 comparison-type="MATCH FULL"
+<constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.session">
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="user_id" ref-type="dst-columns"/>
 </constraint>
-<constraint name="role_name_rel" type="fk-constr"	 comparison-type="MATCH FULL"
+<constraint name="role_name_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.access_role" table="grape.access_path">
 	<columns names="role_name" ref-type="src-columns"/>
 	<columns names="role_name" ref-type="dst-columns"/>
 </constraint>
-<constraint name="user_id_rel" type="fk-constr"	 comparison-type="MATCH FULL"
+<constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_history">
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="user_id" ref-type="dst-columns"/>
