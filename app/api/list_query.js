@@ -16,7 +16,7 @@ exports = module.exports = function(_app) {
  * 	offset integer optional Record offset default 0
  * 	filter json array optional Filters containing fields:
  * 		field text Field to filter on
- * 		operand text One of '=', '>', '<', '>=', '<='
+ * 		operand text One of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE'
  * 		value text Filter value
  *
  * @return JSON object containing fields:

@@ -9,7 +9,7 @@
  * 	offset (optional) integer default 0
  * 	filter (optional) array of fields:
  *		field text
- *		operand text of '=', '>', '<', '>=', '<='
+ *		operand text of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE'
  *		value text
  * Returns a list object:  { total: INT, offset: INT, limit: INT, result_count: INT, records: [ {} ] }
  */
@@ -75,7 +75,7 @@ BEGIN
 	_filters := '{}'::TEXT[];
 	IF json_extract_path($1, 'filter') IS NOT NULL THEN
 		FOR _filter_json IN SELECT json_array_elements(json_extract_path($1, 'filter')) LOOP
-			IF NOT _filter_json->>'operand' IN ('=', '>=', '>', '<', '<=', '!=') THEN
+			IF NOT _filter_json->>'operand' IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
 				continue;
 			END IF;
 			_filter_sql := quote_ident(_filter_json->>'field') || ' ' || (_filter_json->>'operand') || ' ' || quote_literal(_filter_json->>'value') || '';
