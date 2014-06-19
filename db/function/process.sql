@@ -28,7 +28,7 @@ DECLARE
 	_ret JSON;
 BEGIN
 	SELECT to_json(array_agg(r)) INTO _ret FROM (
-		SELECT process_id, pg_function, description, 
+		SELECT process_id, pg_function, description, param, 
 				count_new.count AS "new", 
 				count_completed.count AS "completed", 
 				count_error.count AS "error", 
