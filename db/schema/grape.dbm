@@ -156,6 +156,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="description">
 		<type name="text"/>
 	</column>
+	<column name="param">
+		<type name="json"/>
+	</column>
 	<column name="process_type">
 		<type name="text"/>
 		<comment><![CDATA[PG_FUNCTION; COMMAND]]></comment>

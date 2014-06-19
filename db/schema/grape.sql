@@ -116,6 +116,7 @@ CREATE TABLE grape.process(
 	process_id serial,
 	pg_function text,
 	description text,
+	param json,
 	process_type text,
 	CONSTRAINT process_pk PRIMARY KEY (process_id)
 
