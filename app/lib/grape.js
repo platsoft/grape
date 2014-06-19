@@ -37,7 +37,13 @@ exports = module.exports = function(_o) {
 			{
 				//check if process exists
 				var old_pid = fs.readFileSync(pidfile, 'UTF8');
-				if (process.kill(old_pid, 0))
+				var proc_running = false;
+				try {
+					proc_running = process.kill(old_pid, 0);
+				} catch (e) {
+					proc_running = false;
+				}
+				if (proc_running)
 				{
 					process.kill(old_pid, 'SIGINT');
 					setTimeout(start_instances, 2000);
