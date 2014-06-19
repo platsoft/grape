@@ -1,0 +1,100 @@
+<h1>Grape</h1>
+
+<h2>Setting up a minimal application</h2>
+
+<ul><li>Create a new directory (for example myapp)</li><li>Add the following to your package.json:
+<code>json
+{
+	&quot;name&quot;: &quot;myapp&quot;,
+	&quot;main&quot;: &quot;index.js&quot;,
+	&quot;dependencies&quot;: {
+		&quot;grape&quot;: &quot;git+ssh://git@mail.platsoft.net:grape.git#master&quot;
+	}
+}
+</code></li><li>execute <code>npm update</code> in the created directory</li><li>Create your index.js
+<code>
+	var grape = require(&#39;grape&#39;);
+	var app = grape.app({
+		port: 3001
+	});
+</code></li><li>You can now run <code>node index.js</code></li></ul>
+
+<h2>Serving static files</h2>
+
+<p>Pass the option public_directory to the Grape initializer to serve static files from. For example:
+<code>
+	var grape = require(&#39;grape&#39;);
+	var app = grape.app({
+		public_directory: __dirname + &#39;/public&#39;,
+		port: 3001
+	});
+</code></p>
+
+<h2>Application directories</h2>
+
+<p>A typical skeleton application will contain the following directories:</p>
+
+<ul><li>db/ - App-specific database functions and structure.<ul><li>db/schema/ - Database schema</li><li>db/function/ - Functions</li><li>db/data/</li></ul></li><li>api/ - App-specific API calls</li><li>public/ - Static files</li><li>doc/ - Documentation</li><li>test/ - Tests</li></ul>
+
+<h2>API support</h2>
+
+<p>Grape provides built-in API calls. To add API calls to your app, fill the option api_directory in with the directory containing your API calls.</p>
+
+<h3>/session/new</h3>
+
+<p>TODO
+In: {username, password}
+Out: {code, message, status, success}</p>
+
+<h3>/grape/list</h3>
+
+<p>List records from a table or view</p>
+
+<h3>/grape/process/start</h3>
+
+<h3>/grape/process/list</h3>
+
+<h2>DB support</h2>
+
+<p>Grape DB </p>
+
+<h3>Setting up a new database</h3>
+
+<ol><li>After setting up your app&#39;s config.js, run the script script/setup_database.js</li><li>When providing the -r option, the dataabse will be dropped and created before loading the schema and data</li></ol>
+
+<p>Built-in tables:</p>
+
+<h3>grape.user</h3>
+
+<h3>grape.user_role</h3>
+
+<h3>grape.access_path</h3>
+
+<h2>Session management</h2>
+
+<p>Built-in session management is loaded if session_management = true in the grape initializer. When loaded:</p>
+
+<ul><li>Populate the tables grape.&quot;user&quot;, grape.user<em>role, grape.access</em>path to add new users</li><li>Use the /session/new API call to create a new login</li></ul>
+
+<h2>Logger</h2>
+
+<p>TODO</p>
+
+<h1>Reference documentation</h1>
+
+<h2>grape.db</h2>
+
+<h2>grape.app</h2>
+
+<h3>Supported options in grape.app config object</h3>
+
+<ul><li>session_management - Indicates if session management should be loaded or not (true or false, defaults to false)</li><li>api_directory - Load API files from this directory</li><li>port - listen on port (defaults to 3000)</li><li>dburi - database connection options. Must include the following fields: 
+	# user - Username to connect with
+	# host - The hostname to connect to (or path to pipe)
+	# port - The port to connect to (defaults to 5432)
+	# database - Name of the database
+	# application_name - Application name</li><li>public_directory - load public files from this directory (string)</li><li>db<em>definition - load database definition and data from this directory (string) The directory structure should look as follows:
+	# schema/
+	# function/
+	# data/
+	When the script scripts/setup</em>database.js is ran all SQL files in the directories listed will be loaded</li><li>debug - debugging on or off (boolean)</li><li>document_store - Path to system generated documents (string)</li></ul>

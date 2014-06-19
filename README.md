@@ -17,10 +17,14 @@
 * execute `npm update` in the created directory
 * Create your index.js
 ```
-	var grape = require('grape');
-	var app = grape.app({
-		port: 3001
-	});
+var Grape = require('grape');
+
+var app = new Grape.grape({
+	port: 3001
+}); 
+
+app.start();
+
 ```
 * You can now run `node index.js`
 
@@ -113,6 +117,8 @@ TODO
 	When the script scripts/setup_database.js is ran all SQL files in the directories listed will be loaded
 * debug - debugging on or off (boolean)
 * document_store - Path to system generated documents (string)
+* base_directory - Path to base directory (string) If not set it defaults to the parent directory of public_directory
+* instances - The number of instances to start (defaults to 1)
 
 
 

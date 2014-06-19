@@ -17,17 +17,8 @@ exports = module.exports = function(_o) {
 	var logger = require(__dirname + '/logger.js');
 	app.set('logger', logger);
 	
-	var options = {
-		session_management: false, 
-		api_directory: false, 
-		apiIgnore: [],
-		port: 3000,
-		public_directory: false,
-		debug: false,
-	};
+	var options = require(__dirname + '/options.js')(_o);
 
-	_.extend(options, _o);
-	
 	app.set('config', options);
 
 	app.set("jsonp callback", true);
