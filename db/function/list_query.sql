@@ -26,6 +26,7 @@ DECLARE
 	_tablename TEXT;
 	_schema TEXT;
 	_page_number INTEGER;
+	_total_pages INTEGER;
 
 	_filters TEXT[];
 	_filter_sql TEXT;
@@ -92,6 +93,11 @@ BEGIN
 
 	EXECUTE 'SELECT COUNT(*) FROM '  || quote_ident(_schema) || '.'  || quote_ident(_tablename) || ' ' || _filter_sql INTO _total;
 
+	_total_pages := (_total / _limit)::INTEGER;
+	IF MOD(_total, _limit) > 0 THEN
+		_total_pages := _total_pages + 1;
+	END IF;
+
 	EXECUTE 'SELECT to_json(b) FROM '
 		'(SELECT COUNT(a) AS "result_count", '
 			'$1 AS "offset", '
@@ -99,11 +105,11 @@ BEGIN
 			'$3 AS "page_number", '
 			'array_agg(a) AS records, '
 			'$4 AS "total", '
-			'($4/$2)+1 AS "total_pages" '
+			'$5 AS "total_pages" '
 		' FROM '
 			'(SELECT * FROM '  || quote_ident(_schema) || '.' || quote_ident(_tablename) || ' ' || _filter_sql || ' ' || _sortsql || ' OFFSET $1 LIMIT $2) a'
 		') b' 
-		USING _offset, _limit, _page_number, _total INTO _ret;
+		USING _offset, _limit, _page_number, _total, _total_pages INTO _ret;
 
         RETURN _ret;
 END; $$ LANGUAGE plpgsql;

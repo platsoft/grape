@@ -41,7 +41,7 @@ BEGIN
 
 	INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity) VALUES (_session_id, _ip_address, rec.user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-	RETURN ('{"success":"true","code":"0","session_id":"' || _session_id || '","user_id":"' || rec.user_id || '"}')::JSON;
+	RETURN ('{"success":"true","code":"0","session_id":"' || _session_id || '","user_id":"' || rec.user_id || '","username":"' || _user || '"}')::JSON;
 
 END; $$ LANGUAGE plpgsql;
 
