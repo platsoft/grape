@@ -363,7 +363,7 @@ int main(int argc, char **argv)
 			continue;
 		}
 
-		result = PQexec(conn, "SELECT grape.schedule.process_id, schedule_id, pg_function, param, grape.schedule.user_id FROM grape.schedule JOIN grape.process USING (process_id) WHERE time_started IS NULL AND time_sched <= CURRENT_TIMESTAMP AND grape.schedule.process_id NOT IN (SELECT ss.process_id FROM grape.schedule AS ss WHERE ss.time_ended IS NULL AND ss.time_started IS NOT NULL AND ss.schedule_id != grape.schedule.schedule_id) LIMIT 1");
+		result = PQexec(conn, "SELECT grape.schedule.process_id, schedule_id, pg_function, grape.schedule.param, grape.schedule.user_id FROM grape.schedule JOIN grape.process USING (process_id) WHERE time_started IS NULL AND time_sched <= CURRENT_TIMESTAMP AND grape.schedule.process_id NOT IN (SELECT ss.process_id FROM grape.schedule AS ss WHERE ss.time_ended IS NULL AND ss.time_started IS NOT NULL AND ss.schedule_id != grape.schedule.schedule_id) LIMIT 1");
 
 		if (PQresultStatus(result) == PGRES_TUPLES_OK)
 		{
