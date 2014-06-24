@@ -1,4 +1,5 @@
 host=localhost
 dbname=platlife
 user=platlife
+port=5432
 logfile=/home/hans/log/ps_bgworker.log

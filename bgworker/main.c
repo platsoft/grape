@@ -38,6 +38,7 @@ int uid_find();
 char *confHost = NULL;
 char *confDBName = NULL;
 char *confUser = NULL;
+char *confPort = NULL;
 char *confLogfile = NULL;
 
 void rtrim(char **text)
@@ -73,12 +74,15 @@ int readconf()
 		free(confDBName);
 	if (confUser)
 		free(confUser);
+	if (confPort)
+		free(confPort);
 	if (confLogfile)
 		free(confLogfile);
 
 	confHost = (char *)calloc(1000, 1);
 	confDBName = (char *)calloc(1000, 1);
 	confUser = (char *)calloc(1000, 1);
+	confPort = (char *)calloc(1000, 1);
 	confLogfile = (char *)calloc(1000, 1);
 
 	char *line = (char *)malloc(1024);
@@ -99,6 +103,8 @@ int readconf()
 			strcpy(confDBName, p);
 		else if (strstr(line, "user"))
 			strcpy(confUser, p);
+		else if (strstr(line, "port"))
+			strcpy(confPort, p);
 		else if (strstr(line, "logfile"))
 			strcpy(confLogfile, p);
 	}
@@ -106,6 +112,7 @@ int readconf()
 	rtrim(&confHost);
 	rtrim(&confDBName);
 	rtrim(&confUser);
+	rtrim(&confPort);
 	rtrim(&confLogfile);
 
 	fclose(fp);
@@ -123,21 +130,25 @@ PGconn *open_db()
 	keywords[0] = strdup("host");
 	keywords[1] = strdup("dbname");
 	keywords[2] = strdup("user");
-	keywords[3] = NULL;
+	keywords[3] = strdup("port");
+	keywords[4] = NULL;
 	
 	values[0] = strdup(confHost);
 	values[1] = strdup(confDBName);
 	values[2] = strdup(confUser);
-	values[3] = NULL;
+	values[3] = strdup(confPort);
+	values[4] = NULL;
 
 	ret = PQconnectdbParams((const char*const*)keywords, (const char*const*)values, 1);
 
 	free(values[0]);
 	free(values[1]);
 	free(values[2]);
+	free(values[3]);
 	free(keywords[0]);
 	free(keywords[1]);
 	free(keywords[2]);
+	free(keywords[3]);
 
 	free(values);
 	free(keywords);
