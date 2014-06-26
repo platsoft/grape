@@ -24,8 +24,10 @@ exports = module.exports = function(_o) {
 	app.set("jsonp callback", true);
 
 	var gutil = require(__dirname + '/util.js');
-
 	app.set('gutil', new gutil());
+
+	var document_store = new (require(__dirname + '/document_store.js'))(options);
+	app.set('document_store', document_store);
 	
 	logger.info('Starting application with options: ' + util.inspect(options));
 

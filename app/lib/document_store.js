@@ -5,12 +5,14 @@ var path = require('path');
 
 var documentStore = function(_opt) {
 	this.options = _opt;
+	var self = this;
+	this.self = self;
 
 	/*
  		Get directory for storing files of type 'filetype', claims
 	*/
 	this.getDirectory = function(filetype) {
-		var dir = app.get('docRepoPath') + '/' + filetype;
+		var dir = self.options.document_store + '/' + filetype;
 		this.makeDirRecursiveSync(dir);
 		return dir;
 	};
@@ -20,7 +22,7 @@ var documentStore = function(_opt) {
 	*/
 	this.getRelativeDirectory = function(filetype) {
 		var dir = this.getDirectory(filetype);
-		return path.relative(app.get('basePath') + '/../', dir);
+		return path.relative(self.options.base_directory, dir);
 	};
 
 

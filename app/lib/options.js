@@ -29,6 +29,13 @@ exports = module.exports = function(_o) {
 		options.log_directory = fs.realpathSync(options.base_directory + '/log/');
 	}
 
+	if (options.document_store == false)
+	{
+		if (!fs.existsSync(options.base_directory + '/repo/'))
+			fs.mkdirSync(options.base_directory + '/repo/');
+		options.document_store = fs.realpathSync(options.base_directory + '/repo/');
+	}
+
 	return options;
 };
 
