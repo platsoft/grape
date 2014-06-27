@@ -23,11 +23,19 @@ var Client = pg.Client;
 function do_database_definitions()
 {
 	var app_db_dir = false;
+	var app_db_dirs = [];
 
 	if (config.db_definition)
 	{
-		app_db_dir = fs.realpathSync(config.db_definition);
-		console.log("Loading application DB files from " + app_db_dir);
+		if (!util.isArray(config.db_definition))
+			app_db_dirs.push(config.db_definition);
+		else
+			app_db_dirs = config.db_definition;
+		for (var i = 0; i < app_db_dirs.length; i++)
+		{
+			app_db_dir = fs.realpathSync(app_db_dirs[i]);
+			console.log("Loading application DB files from " + app_db_dir);
+		}
 	}
 
 	console.log("Loading Grape DB files from " + grape_db_dir);
@@ -149,8 +157,9 @@ function do_database_definitions()
 				loadsqlfiles(grape_db_dir + '/function');
 				loadsqlfiles(grape_db_dir + '/data');
 
-				if (app_db_dir)
+				for (var i = 0; i < app_db_dirs.length; i++)
 				{
+					app_db_dir = app_db_dirs[i];
 					loadsqlfiles(app_db_dir + '/schema');
 					loadsqlfiles(app_db_dir + '/function');
 					loadsqlfiles(app_db_dir + '/data');
