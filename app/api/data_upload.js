@@ -51,13 +51,15 @@ function api_data_upload(req, res)
 			console.log(doc.workSheetNames);
 			var w = doc.getWorkSheetByName(doc.workSheetNames[0]);
 			var headers = w.rows[0].getAllCellValues();
+
 			for (var j = 1; j < w.rows.length; j++)
 			{
 				var data = {};
 				var row = w.rows[j];
-				for (var i = 0; i < headers.length; i++)
+				for (var col in headers)
 				{
-					data[headers[i]] = row.getFormattedCellValueAt('' + h.decimal2bijb26(i+1) + (j+1));
+					if (headers.hasOwnProperty(col))
+						data[headers[col]] = row.getFormattedCellValueAt('' + col + (j+1));
 					
 				}
 				data['data_import_id'] = data_import_id;

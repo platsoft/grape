@@ -214,10 +214,12 @@ function Row()
 
 
 	this.getAllCellValues = function() {
-		var ret = [];
+		var ret = {};
 		for (var i = 0; i < this.cells.length; i++)
 		{
-			ret.push(this.cells[i].getValue());
+			var reference = this.cells[i].reference;
+			reference = reference.replace(/[0-9]+/g, '');
+			ret[reference] = this.cells[i].getValue();
 		}
 		return ret;
 	};
