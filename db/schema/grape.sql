@@ -162,6 +162,28 @@ COMMENT ON COLUMN grape.schedule.time_sched IS 'Scheduled to start on';
 COMMENT ON COLUMN grape.schedule.time_started IS 'Actual start';
 -- ddl-end --
 
+-- object: grape.data_import | type: TABLE --
+-- DROP TABLE grape.data_import;
+CREATE TABLE grape.data_import(
+	data_import_id serial,
+	filename text,
+	date_inserted timestamp DEFAULT NOW(),
+	parameter json,
+	description text,
+	CONSTRAINT data_import_pk PRIMARY KEY (data_import_id)
+
+);
+-- ddl-end --
+-- object: grape.data_import_row | type: TABLE --
+-- DROP TABLE grape.data_import_row;
+CREATE TABLE grape.data_import_row(
+	data_import_row_id serial,
+	data_import_id integer,
+	data json,
+	CONSTRAINT data_import_row_pk PRIMARY KEY (data_import_row_id)
+
+);
+-- ddl-end --
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT user_id_rel;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
@@ -214,6 +236,14 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ALTER TABLE grape.schedule DROP CONSTRAINT process_fk;
 ALTER TABLE grape.schedule ADD CONSTRAINT process_fk FOREIGN KEY (process_id)
 REFERENCES grape.process (process_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+
+-- object: data_import_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.data_import_row DROP CONSTRAINT data_import_fk;
+ALTER TABLE grape.data_import_row ADD CONSTRAINT data_import_fk FOREIGN KEY (data_import_id)
+REFERENCES grape.data_import (data_import_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 

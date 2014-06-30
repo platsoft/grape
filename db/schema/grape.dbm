@@ -230,6 +230,46 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
+<table name="data_import">
+	<schema name="grape"/>
+	<position x="836" y="454"/>
+	<column name="data_import_id">
+		<type name="serial"/>
+	</column>
+	<column name="filename">
+		<type name="text"/>
+	</column>
+	<column name="date_inserted" default-value="NOW()">
+		<type name="timestamp"/>
+	</column>
+	<column name="parameter">
+		<type name="json"/>
+	</column>
+	<column name="description">
+		<type name="text"/>
+	</column>
+	<constraint name="data_import_pk" type="pk-constr" factor="10" table="grape.data_import">
+		<columns names="data_import_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="data_import_row">
+	<schema name="grape"/>
+	<position x="1275" y="472"/>
+	<column name="data_import_row_id">
+		<type name="serial"/>
+	</column>
+	<column name="data_import_id">
+		<type name="integer"/>
+	</column>
+	<column name="data">
+		<type name="json"/>
+	</column>
+	<constraint name="data_import_row_pk" type="pk-constr" factor="10" table="grape.data_import_row">
+		<columns names="data_import_row_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_role">
 	<columns names="user_id" ref-type="src-columns"/>
@@ -265,6 +305,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="process_id" ref-type="src-columns"/>
 	<columns names="process_id" ref-type="dst-columns"/>
 </constraint>
+<constraint name="data_import_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.data_import" table="grape.data_import_row">
+	<columns names="data_import_id" ref-type="src-columns"/>
+	<columns names="data_import_id" ref-type="dst-columns"/>
+</constraint>
 <relationship name="rel_user_role_user" type="relfk"
 	 src-table="grape.user_role"
 	 dst-table="grape.user"
@@ -298,6 +343,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <relationship name="rel_schedule_process" type="relfk"
 	 src-table="grape.schedule"
 	 dst-table="grape.process"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_data_import_row_data_import" type="relfk"
+	 src-table="grape.data_import_row"
+	 dst-table="grape.data_import"
 	 src-required="true" dst-required="true"/>
 
 </dbmodel>
