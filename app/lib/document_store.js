@@ -10,6 +10,7 @@ var documentStore = function(_opt) {
 
 	/*
  		Get directory for storing files of type 'filetype', claims
+		Returns full path
 	*/
 	this.getDirectory = function(filetype) {
 		var dir = self.options.document_store + '/' + filetype;
@@ -23,6 +24,21 @@ var documentStore = function(_opt) {
 	this.getRelativeDirectory = function(filetype) {
 		var dir = this.getDirectory(filetype);
 		return path.relative(self.options.base_directory, dir);
+	};
+
+	/*
+ 		Copies a file from path to repo dir for filetype
+	*/
+	this.saveFile = function(filetype, currentpath, filename) {
+		var dir = self.getDirectory(filetype);
+		if (!filename)
+		{
+			var ar = currentpath.split('/');
+			var filename = ar[ar.length-1];
+		}
+		var newfilename = dir + '/' + filename;
+		fs.writeFileSync(newfilename, fs.readFileSync(currentpath));
+		return dir;
 	};
 
 
