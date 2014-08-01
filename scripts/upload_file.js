@@ -3,23 +3,22 @@ var httppost = require('./http-post');
 var util = require('util');
 var url = require('url');
 
-if (process.argv.length != 4)
+if (process.argv.length < 4)
 {
-	console.log(util.format("Usage: URL File"));
+	console.log(util.format("Usage: URL File [Body]"));
 	process.exit(1);
 	return;
 }
 
 var options = url.parse(process.argv[2]);
 var filename = process.argv[3];
+var body = {};
+if (process.argv[4])
+	body = JSON.parse(process.argv[4]);
 
 options.headers = {'Accept': 'application/json; charset=utf-8'};
 
-var req = httppost(options,
-	{
-		sale_type: 'IPS4Life'
-	}, 
-
+var req = httppost(options, body,
 	[{param: 'batch_file', path: filename}], 
 
 	function(responce) {
