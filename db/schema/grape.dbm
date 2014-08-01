@@ -270,6 +270,24 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
+<table name="setting">
+	<schema name="grape"/>
+	<comment><![CDATA[System-wide settings]]></comment>
+	<position x="272" y="573"/>
+	<column name="name">
+		<type name="text"/>
+	</column>
+	<column name="value">
+		<type name="text"/>
+	</column>
+	<column name="json_value">
+		<type name="json"/>
+	</column>
+	<constraint name="setting_pk" type="pk-constr" factor="10" table="grape.setting">
+		<columns names="name" ref-type="src-columns"/>
+	</constraint>
+</table>
+
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_role">
 	<columns names="user_id" ref-type="src-columns"/>

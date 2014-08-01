@@ -184,6 +184,19 @@ CREATE TABLE grape.data_import_row(
 
 );
 -- ddl-end --
+-- object: grape.setting | type: TABLE --
+-- DROP TABLE grape.setting;
+CREATE TABLE grape.setting(
+	name text,
+	value text,
+	json_value json,
+	CONSTRAINT setting_pk PRIMARY KEY (name)
+
+);
+-- ddl-end --
+COMMENT ON TABLE grape.setting IS 'System-wide settings';
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT user_id_rel;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
