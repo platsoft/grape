@@ -66,6 +66,10 @@ function api_data_upload(req, res)
 				item_queue.push(data);
 			}
 
+			if (j == 1) 
+			{
+				item_queue.drain();
+			}
 		});
 	}
 }
