@@ -6,6 +6,8 @@ DECLARE
 	_email TEXT;
 	_fullnames TEXT;
 	_active BOOLEAN;
+	_role_names TEXT[];
+	_role_name TEXT;
 
 	rec RECORD;
 BEGIN
@@ -15,6 +17,7 @@ BEGIN
 	_email := $1->>'email';
 	_fullnames := $1->>'fullnames';
 	_active := ($1->>'active')::BOOLEAN;
+	_role_names := string_to_array($1->>'role_names', ',');
 
 	-- Validate Username
 	IF _username IS NULL OR _username = '' THEN
@@ -35,6 +38,10 @@ BEGIN
 			INSERT INTO grape."user" (username, password, email, fullnames, active)
 				VALUES (_username, _password, _email, _fullnames, _active)
 				RETURNING user_id INTO _user_id;
+
+			FOREACH _role_name IN ARRAY _role_names LOOP
+				INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
+			END LOOP;
 
 			RETURN ('{"success":"true","code":"0","new":"true","user_id":"' || _user_id || '"}')::JSON;
 
@@ -68,6 +75,11 @@ BEGIN
 					active = _active
 				WHERE
 					user_id = _user_id;
+
+			DELETE FROM grape.user_role WHERE user_id = _user_id;
+			FOREACH _role_name IN ARRAY _role_names LOOP
+				INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
+			END LOOP;
 
 			RETURN ('{"success":"true","code":"0","new":"false","user_id":"' || _user_id || '"}')::JSON;
 
