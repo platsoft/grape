@@ -155,6 +155,7 @@ function do_database_definitions()
 				if (err) return rollback(client);
 				loadsqlfiles(grape_db_dir + '/schema');
 				loadsqlfiles(grape_db_dir + '/function');
+				loadsqlfiles(grape_db_dir + '/view');
 				loadsqlfiles(grape_db_dir + '/data');
 
 				for (var i = 0; i < app_db_dirs.length; i++)
@@ -162,6 +163,7 @@ function do_database_definitions()
 					app_db_dir = app_db_dirs[i];
 					loadsqlfiles(app_db_dir + '/schema');
 					loadsqlfiles(app_db_dir + '/function');
+					loadsqlfiles(app_db_dir + '/view');
 					loadsqlfiles(app_db_dir + '/data');
 				}
 
