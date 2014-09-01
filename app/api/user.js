@@ -27,7 +27,8 @@ function save_user(req, res) {
 		password: req.body.password,
 		fullnames: req.body.fullnames,
 		email: req.body.email,
-		active: req.body.active
+		active: req.body.active,
+		role_names: req.body.role_names
 	};
 
 	res.locals.db.json_call('grape.user_save', input, function(err, result) {
