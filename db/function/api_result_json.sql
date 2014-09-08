@@ -55,4 +55,12 @@ BEGIN
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.api_success() RETURNS JSON AS $$
+DECLARE
+	_ret JSON;
+BEGIN
+	SELECT to_json(b) INTO _ret FROM (SELECT 'OK' AS "status") AS b;
+	RETURN _ret;
+END; $$ LANGUAGE plpgsql;
+
 
