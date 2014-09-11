@@ -5,6 +5,7 @@
  * 	tablename
  * 	schema (optional) text
  *   	sortfield (optional) text
+ * 	sortorder (optional) text DESC
  *	limit (optional) integer default 50
  * 	offset (optional) integer default 0
  * 	filter (optional) array of fields:
@@ -31,6 +32,8 @@ DECLARE
 	_filters TEXT[];
 	_filter_sql TEXT;
 	_filter_json JSON;
+
+	_oper TEXT;
 BEGIN
 	_offset := 0;
 	_page_number := 0;
@@ -45,6 +48,11 @@ BEGIN
         IF json_extract_path($1, 'sortfield') IS NOT NULL THEN
                 _sortfield := $1->>'sortfield';
 		_sortsql := ' ORDER BY ' || quote_ident(_sortfield);
+
+		IF json_extract_path_text($1, 'sortorder') = 'DESC' THEN
+			_sortsql := _sortsql || ' DESC';
+		END IF;
+
         ELSE
 		_sortfield := '';
 		_sortsql := '';
@@ -76,10 +84,19 @@ BEGIN
 	_filters := '{}'::TEXT[];
 	IF json_extract_path($1, 'filter') IS NOT NULL THEN
 		FOR _filter_json IN SELECT json_array_elements(json_extract_path($1, 'filter')) LOOP
-			IF NOT _filter_json->>'operand' IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
-				continue;
+
+			_oper := '=';
+			IF json_extract_path(_filter_json, 'operand') THEN
+				_oper := _filter_json->>'operand';
+			ELSIF json_extract_path(_filter_json, 'oper') THEN
+				_oper := _filter_json->>'oper';
 			END IF;
-			_filter_sql := quote_ident(_filter_json->>'field') || ' ' || (_filter_json->>'operand') || ' ' || quote_literal(_filter_json->>'value') || '';
+
+			IF NOT _oper IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
+				CONTINUE;
+			END IF;
+
+			_filter_sql := quote_ident(_filter_json->>'field') || ' ' || (_oper) || ' ' || quote_literal(_filter_json->>'value') || '';
 			_filters := array_append(_filters, _filter_sql);
 		END LOOP;
 		IF array_length(_filters, 1) > 0 THEN
