@@ -86,9 +86,9 @@ BEGIN
 		FOR _filter_json IN SELECT json_array_elements(json_extract_path($1, 'filter')) LOOP
 
 			_oper := '=';
-			IF json_extract_path(_filter_json, 'operand') THEN
+			IF json_extract_path(_filter_json, 'operand') IS NOT NULL THEN
 				_oper := _filter_json->>'operand';
-			ELSIF json_extract_path(_filter_json, 'oper') THEN
+			ELSIF json_extract_path(_filter_json, 'oper') IS NOT NULL THEN
 				_oper := _filter_json->>'oper';
 			END IF;
 
@@ -96,7 +96,7 @@ BEGIN
 				CONTINUE;
 			END IF;
 
-			_filter_sql := quote_ident(_filter_json->>'field') || ' ' || (_oper) || ' ' || quote_literal(_filter_json->>'value') || '';
+			_filter_sql := quote_ident(_filter_json->>'field') || ' ' || _oper || ' ' || quote_literal(_filter_json->>'value') || '';
 			_filters := array_append(_filters, _filter_sql);
 		END LOOP;
 		IF array_length(_filters, 1) > 0 THEN
@@ -114,6 +114,8 @@ BEGIN
 	IF MOD(_total, _limit) > 0 THEN
 		_total_pages := _total_pages + 1;
 	END IF;
+
+	RAISE NOTICE 'Query: %', '(SELECT * FROM '  || quote_ident(_schema) || '.' || quote_ident(_tablename) || ' ' || _filter_sql || ' ' || _sortsql || ' OFFSET $1 LIMIT $2)';
 
 	EXECUTE 'SELECT to_json(b) FROM '
 		'(SELECT COUNT(a) AS "result_count", '
