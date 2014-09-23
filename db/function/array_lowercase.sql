@@ -1,0 +1,6 @@
+
+CREATE OR REPLACE FUNCTION grape.array_lowercase(TEXT[]) RETURNS TEXT[] AS $$
+	SELECT array_agg(q.i) FROM (SELECT LOWER(UNNEST($1))::TEXT AS i) q;
+$$ LANGUAGE sql IMMUTABLE;
+
+
