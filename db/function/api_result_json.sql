@@ -55,6 +55,17 @@ BEGIN
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.api_success(_keys TEXT[], _values INTEGER[]) RETURNS JSON AS $$
+DECLARE
+	_types TEXT[];
+BEGIN
+	_types := array_fill('n'::TEXT, ARRAY[array_length(_values, 1)]);
+
+	RETURN grape.api_success(_keys, _values::TEXT[], ARRAY['n']);
+	RETURN _ret;
+END; $$ LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION grape.api_success() RETURNS JSON AS $$
 DECLARE
 	_ret JSON;
