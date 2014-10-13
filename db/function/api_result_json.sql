@@ -62,8 +62,20 @@ BEGIN
 	_types := array_fill('n'::TEXT, ARRAY[array_length(_values, 1)]);
 
 	RETURN grape.api_success(_keys, _values::TEXT[], ARRAY['n']);
-	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.api_success(_key1 TEXT, _val1 INTEGER) RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN grape.api_success(ARRAY[_key1]::TEXT[], ARRAY[_val1::TEXT]::TEXT[], ARRAY['n']);
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.api_success(_key1 TEXT, _val1 INTEGER, _key2 TEXT, _val2 INTEGER) RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN grape.api_success(ARRAY[_key1, _key2]::TEXT[], ARRAY[_val1::TEXT, _val2::TEXT]::TEXT[], ARRAY['n', 'n']);
+END; $$ LANGUAGE plpgsql;
+
 
 
 CREATE OR REPLACE FUNCTION grape.api_success() RETURNS JSON AS $$
