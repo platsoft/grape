@@ -150,6 +150,10 @@ function Cell()
 		{
 			var base = 25569;
 			var i = parseInt(v);
+
+			if (isNaN(i))
+				return v;
+
 			var days = i - base;
 			var secs = days * 86400000;
 			var d = new Date();
