@@ -8,7 +8,7 @@ I would recommend something like the [jQuery JavaScript Style Guide][0] with the
 		console.log("Code should be like paragraphs, with a single paragraph containing a nice nugget unit of work");
 	}
 
-- except for in line functions.
+- except for inline functions:
 
 	app.get(function(req, res, next) {
 		res.json({ pojo: "POJO stands for Plain Old JavaScript Object",
@@ -18,3 +18,5 @@ I would recommend something like the [jQuery JavaScript Style Guide][0] with the
 
 [0]: https://contribute.jquery.org/style-guide/js/
 [use_strict]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions_and_function_scope/Strict_mode
+
+

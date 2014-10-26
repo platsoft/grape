@@ -1,0 +1,71 @@
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns="http://www.w3.org/1999/xhtml"
+                version="1.0">
+
+<xsl:output method="html" encoding="UTF-8" omit-xml-declaration="no" standalone="yes" indent="yes"/>
+
+
+<xsl:template match="/">
+<html>
+	<xsl:apply-templates />
+</html>
+</xsl:template>
+
+<xsl:template match="http_api_call">
+	<div class="http_calls">
+		<h1>HTTP CALLS</h1>
+	<xsl:for-each select="item">
+		<div>
+			<h2>
+			<xsl:value-of select="tags/method/text()" /><xsl:text> </xsl:text><xsl:value-of select="identifier/text()" />
+			</h2>
+
+			<span style="font-size: 10px;">File: <xsl:value-of select="filename/text()" /></span><br />
+			<xsl:value-of select="tags/desc/text()" />
+
+			<xsl:if test="tags/body">
+				<xsl:for-each select="tags/body">
+					<xsl:call-template name="body_parameters" />
+				</xsl:for-each>
+			</xsl:if>
+			<xsl:if test="tags/param">
+				<xsl:for-each select="tags/param">
+					<xsl:call-template name="body_parameters" />
+				</xsl:for-each>
+			</xsl:if>
+
+			<xsl:if test="tags/returnsample">
+				<div>
+				<code><pre><xsl:value-of select="tags/returnsample/text()" /></pre></code>
+				</div>
+			</xsl:if>
+
+		</div>
+	</xsl:for-each>
+	</div>
+</xsl:template>
+	
+<xsl:template name="body_parameters">
+	<table border="1">
+	<tr><td></td><td>Name</td><td>Type</td><td>Optional</td></tr>
+	<xsl:for-each select="item">
+		<xsl:call-template name="body_parameter_item" />
+	</xsl:for-each>
+	</table>
+</xsl:template>
+<xsl:template name="body_parameter_item">
+	<xsl:variable name="depth" select="count(ancestor::*)"/>
+	<tr>
+		<td><xsl:value-of select="$depth" /></td>
+		<td><xsl:value-of select="name" /></td>
+		<td><xsl:value-of select="type" /></td>
+		<td><xsl:value-of select="optional" /></td>
+	</tr>
+	<xsl:for-each select="item">
+		<xsl:call-template name="body_parameter_item" />
+	</xsl:for-each>
+</xsl:template>
+
+
+
+</xsl:stylesheet>
