@@ -20,22 +20,29 @@
 			<xsl:value-of select="tags/method/text()" /><xsl:text> </xsl:text><xsl:value-of select="identifier/text()" />
 			</h2>
 
-			<span style="font-size: 10px;">File: <xsl:value-of select="filename/text()" /></span><br />
-			<xsl:value-of select="tags/desc/text()" />
+			<span><xsl:value-of select="tags/desc/text()" /></span><br />
+			<span style="font-size: 12px;">File: <xsl:value-of select="filename/text()" /></span><br />
 
 			<xsl:if test="tags/body">
+				<div>
+				Description of fields in the request body:
 				<xsl:for-each select="tags/body">
 					<xsl:call-template name="body_parameters" />
 				</xsl:for-each>
+				</div>
 			</xsl:if>
 			<xsl:if test="tags/param">
+				<div>
+				Description of parameters in the request:
 				<xsl:for-each select="tags/param">
 					<xsl:call-template name="body_parameters" />
 				</xsl:for-each>
+				</div>
 			</xsl:if>
 
 			<xsl:if test="tags/returnsample">
 				<div>
+				Sample return message:
 				<code><pre><xsl:value-of select="tags/returnsample/text()" /></pre></code>
 				</div>
 			</xsl:if>
@@ -47,19 +54,23 @@
 	
 <xsl:template name="body_parameters">
 	<table border="1">
-	<tr><td></td><td>Name</td><td>Type</td><td>Optional</td></tr>
+	<tr><td>Name</td><td>Type</td><td>Optional</td><td>Default</td></tr>
 	<xsl:for-each select="item">
 		<xsl:call-template name="body_parameter_item" />
 	</xsl:for-each>
 	</table>
 </xsl:template>
 <xsl:template name="body_parameter_item">
-	<xsl:variable name="depth" select="count(ancestor::*)"/>
+	<xsl:variable name="depth" select="count(ancestor::*) - 5"/>
 	<tr>
-		<td><xsl:value-of select="$depth" /></td>
-		<td><xsl:value-of select="name" /></td>
+		<td>
+		
+			<xsl:for-each select="(//node())[$depth >= position()]">&#x2192;</xsl:for-each>
+			<xsl:value-of select="name" />
+		</td>
 		<td><xsl:value-of select="type" /></td>
 		<td><xsl:value-of select="optional" /></td>
+		<td><xsl:value-of select="default" /></td>
 	</tr>
 	<xsl:for-each select="item">
 		<xsl:call-template name="body_parameter_item" />
