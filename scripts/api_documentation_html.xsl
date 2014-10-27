@@ -12,20 +12,30 @@
 </xsl:template>
 
 <xsl:template match="http_api_call">
-	<div class="http_calls">
+	<link rel="stylesheet" type="text/css" href="styles.css"></link>
+	<div style ="width: 30%; float: left; padding-left: 20px">
+	<xsl:for-each select="item">
+		<ul>
+			<li>
+				 <a href = "#{identifier/text()}"><xsl:value-of select="tags/method/text()" /><xsl:text> </xsl:text>  <xsl:value-of select="identifier/text()"/></a>
+			</li>
+		</ul>
+	</xsl:for-each>
+	</div>
+	<div class="http_calls" style = "width: 50%; float: left">
 		<h1>HTTP CALLS</h1>
 	<xsl:for-each select="item">
 		<div>
-			<h2>
+			<h2 id = "{identifier/text()}">
 			<xsl:value-of select="tags/method/text()" /><xsl:text> </xsl:text><xsl:value-of select="identifier/text()" />
 			</h2>
 
-			<span><xsl:value-of select="tags/desc/text()" /></span><br />
-			<span style="font-size: 12px;">File: <xsl:value-of select="filename/text()" /></span><br />
+			<p><i><xsl:value-of select="tags/desc/text()" /></i></p>
+			<span style="font-size: 14px;">Filename: <xsl:value-of select="filename/text()" /></span><br />
 
 			<xsl:if test="tags/body">
 				<div>
-				Description of fields in the request body:
+				Request Body
 				<xsl:for-each select="tags/body">
 					<xsl:call-template name="body_parameters" />
 				</xsl:for-each>
@@ -33,7 +43,7 @@
 			</xsl:if>
 			<xsl:if test="tags/param">
 				<div>
-				Description of parameters in the request:
+				Parameters
 				<xsl:for-each select="tags/param">
 					<xsl:call-template name="body_parameters" />
 				</xsl:for-each>
@@ -42,8 +52,10 @@
 
 			<xsl:if test="tags/returnsample">
 				<div>
-				Sample return message:
-				<code><pre><xsl:value-of select="tags/returnsample/text()" /></pre></code>
+				Example Result
+				<div class = "code-block">
+				<code><pre style = "padding-left: 10px"><xsl:value-of select="tags/returnsample/text()" /></pre></code>
+				</div>
 				</div>
 			</xsl:if>
 
@@ -53,12 +65,14 @@
 </xsl:template>
 	
 <xsl:template name="body_parameters">
-	<table border="1">
-	<tr><td>Name</td><td>Type</td><td>Optional</td><td>Default</td></tr>
+	<div class = "border">
+	<table border="1" class = "description-table" style = "width: 100%">
+	<tr><th>Name</th><th>Type</th><th>Optional</th><th>Default</th></tr>
 	<xsl:for-each select="item">
 		<xsl:call-template name="body_parameter_item" />
 	</xsl:for-each>
 	</table>
+	</div>
 </xsl:template>
 <xsl:template name="body_parameter_item">
 	<xsl:variable name="depth" select="count(ancestor::*) - 5"/>

@@ -9,3 +9,5 @@ node node_modules/grape/scripts/extract_documentation.js api/ $DIRNAME/generated
 
 xsltproc node_modules/grape/scripts/api_documentation_html.xsl $DIRNAME/generated.xml >$DIRNAME/index.html
 
+cp node_modules/grape/scripts/api_documentation_styles.css $DIRNAME/styles.css
+
