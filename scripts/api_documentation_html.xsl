@@ -13,6 +13,7 @@
 
 <xsl:template match="http_api_call">
 	<link rel="stylesheet" type="text/css" href="styles.css"></link>
+	<div class = "nav" style = "width: 100%">
 	<div class = "nav" style = "width: 30%; min-height: 100%; float: left">
 		<div style ="width: 80%; float: left; padding-left: 50px">
 			<xsl:for-each select="item">
@@ -24,7 +25,8 @@
 			</xsl:for-each>
 		</div>
 	</div>
-	<div class="http_calls" style = "width: 50%; float: left; padding-left: 50px">
+	<div class="http_calls" style = "width:69.9%; float: left;background-color: white;">
+	<div style = "padding-left: 80px; width:70%">
 		<h1>HTTP CALLS</h1>
 	<xsl:for-each select="item">
 		<div>
@@ -63,6 +65,9 @@
 
 		</div>
 	</xsl:for-each>
+		</div>
+	</div>
+<br/><br/>
 	</div>
 </xsl:template>
 	
