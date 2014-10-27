@@ -13,16 +13,18 @@
 
 <xsl:template match="http_api_call">
 	<link rel="stylesheet" type="text/css" href="styles.css"></link>
-	<div style ="width: 30%; float: left; padding-left: 20px">
-	<xsl:for-each select="item">
-		<ul>
-			<li>
-				 <a href = "#{identifier/text()}"><xsl:value-of select="tags/method/text()" /><xsl:text> </xsl:text>  <xsl:value-of select="identifier/text()"/></a>
-			</li>
-		</ul>
-	</xsl:for-each>
+	<div class = "nav" style = "width: 30%; min-height: 100%; float: left">
+		<div style ="width: 80%; float: left; padding-left: 50px">
+			<xsl:for-each select="item">
+				<ul style = "">
+					<li>
+						 <a href = "#{identifier/text()}"><xsl:value-of select="tags/method/text()" /><xsl:text> </xsl:text>  <xsl:value-of select="identifier/text()"/></a>
+					</li>
+				</ul>
+			</xsl:for-each>
+		</div>
 	</div>
-	<div class="http_calls" style = "width: 50%; float: left">
+	<div class="http_calls" style = "width: 50%; float: left; padding-left: 50px">
 		<h1>HTTP CALLS</h1>
 	<xsl:for-each select="item">
 		<div>
@@ -35,7 +37,7 @@
 
 			<xsl:if test="tags/body">
 				<div>
-				Request Body
+				<h3>Request Body</h3>
 				<xsl:for-each select="tags/body">
 					<xsl:call-template name="body_parameters" />
 				</xsl:for-each>
@@ -43,7 +45,7 @@
 			</xsl:if>
 			<xsl:if test="tags/param">
 				<div>
-				Parameters
+				<h3>Parameters</h3>
 				<xsl:for-each select="tags/param">
 					<xsl:call-template name="body_parameters" />
 				</xsl:for-each>
@@ -52,7 +54,7 @@
 
 			<xsl:if test="tags/returnsample">
 				<div>
-				Example Result
+				<h3>Example Result</h3>
 				<div class = "code-block">
 				<code><pre style = "padding-left: 10px"><xsl:value-of select="tags/returnsample/text()" /></pre></code>
 				</div>
