@@ -3,7 +3,10 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel>
+<dbmodel pgmodeler-ver="0.7.2" last-position="0,0" last-zoom="1">
+<database name="grape">
+</database>
+
 <schema name="public" protected="true" fill-color="#e1e1e1" sql-disabled="true">
 </schema>
 
@@ -12,9 +15,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <schema name="lookup_cp1" fill-color="#e1e1e1">
 </schema>
-
-<database name="grape">
-</database>
 
 <table name="bank_branch">
 	<schema name="lookup"/>
@@ -48,6 +48,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="universal_branch">
 		<type name="text"/>
 	</column>
+	<column name="supports_naedo" default-value="false">
+		<type name="boolean"/>
+	</column>
 	<constraint name="bank_id_pk" type="pk-constr" factor="10" table="lookup.valid_bank_name">
 		<columns names="bank_id" ref-type="src-columns"/>
 	</constraint>
@@ -67,7 +70,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<constraint name="bank_branch_bank_id_fk" type="fk-constr"	 comparison-type="MATCH FULL"
+<constraint name="bank_branch_bank_id_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="lookup.valid_bank_name" table="lookup.bank_branch">
 	<columns names="bank_id" ref-type="src-columns"/>
 	<columns names="bank_id" ref-type="dst-columns"/>
