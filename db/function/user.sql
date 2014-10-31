@@ -39,9 +39,11 @@ BEGIN
 				VALUES (_username, _password, _email, _fullnames, _active)
 				RETURNING user_id INTO _user_id;
 
-			FOREACH _role_name IN ARRAY _role_names LOOP
-				INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
-			END LOOP;
+			IF _role_names IS NOT NULL THEN
+				FOREACH _role_name IN ARRAY _role_names LOOP
+					INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
+				END LOOP;
+			END IF;
 
 			RETURN ('{"success":"true","code":"0","new":"true","user_id":"' || _user_id || '"}')::JSON;
 
@@ -76,10 +78,12 @@ BEGIN
 				WHERE
 					user_id = _user_id;
 
-			DELETE FROM grape.user_role WHERE user_id = _user_id;
-			FOREACH _role_name IN ARRAY _role_names LOOP
-				INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
-			END LOOP;
+			IF _role_names IS NOT NULL THEN
+				DELETE FROM grape.user_role WHERE user_id = _user_id::INTEGER;
+				FOREACH _role_name IN ARRAY _role_names LOOP
+					INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
+				END LOOP;
+			END IF;
 
 			RETURN ('{"success":"true","code":"0","new":"false","user_id":"' || _user_id || '"}')::JSON;
 
