@@ -90,6 +90,8 @@ BEGIN
 				_oper := _filter_json->>'operand';
 			ELSIF json_extract_path(_filter_json, 'oper') IS NOT NULL THEN
 				_oper := _filter_json->>'oper';
+			ELSIF json_extract_path(_filter_json, 'op') IS NOT NULL THEN
+				_oper := _filter_json->>'op';
 			END IF;
 
 			IF NOT _oper IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
