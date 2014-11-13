@@ -1,8 +1,8 @@
 
 var util = require('util');
+
 module.exports = function (app)
 {
-
 	var dbs = [];
 	app.set('dbs', dbs);
 
@@ -16,7 +16,7 @@ module.exports = function (app)
 			next();
 			return;
 		}
-			
+		
 		var accepts_json = (req.headers.accept.indexOf('application/json') != -1);
 		var session_id = req.header('X-SessionID') || req.cookies.session_id;
 
@@ -72,6 +72,9 @@ module.exports = function (app)
 			{
 				res.clearCookie('session_id', '/');
 			}
+
+			var user_id = ret.user_id;
+
 			app.get('logger').session((ret.check_path_result ? 'GRANTED' : 'DENIED') + ' ' + session_id + ' ' + path);
 
 			if (!ret.check_path_result)
@@ -95,13 +98,20 @@ module.exports = function (app)
 			else
 			{
 				var _db = require(__dirname + '/db.js');
-				var db = new _db({dburi: app.get('config').dburi, debug: app.get('config').debug});
+				var db = new _db({
+					dburi: app.get('config').dburi, 
+					debug: app.get('config').debug,
+					debug_logger: function(s) { app.get('logger').db(s); },
+					error_logger: function(s) { app.get('logger').db(s); }
+				});
 
 				dbs[session_id] = db;
 				db.on('connected', function() {
-					req.db = dbs[session_id];
-					res.locals.db = dbs[session_id];
-					next();
+					db.json_call('grape.set_session_user_id', {user_id: user_id}, function(d) { 
+						req.db = dbs[session_id];
+						res.locals.db = dbs[session_id];
+						next();
+					});
 				});
 			}
 		});

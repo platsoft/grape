@@ -1,3 +1,5 @@
+
+
 CREATE OR REPLACE FUNCTION grape.user_save (JSON) RETURNS JSON AS $$
 DECLARE
 	_user_id INTEGER;
@@ -90,3 +92,9 @@ BEGIN
 		END IF;
 	END IF;
 END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.username (_user_id INTEGER) RETURNS TEXT AS $$
+	SELECT username FROM grape."user" WHERE user_id=_user_id::INTEGER;
+$$ LANGUAGE sql;
+
+

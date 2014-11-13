@@ -14,10 +14,13 @@ exports = module.exports = function(_o) {
 	app.use(cookieParser());
 	app.use(multipartParser());
 	
-	var logger = require(__dirname + '/logger.js');
-	app.set('logger', logger);
-	
 	var options = require(__dirname + '/options.js')(_o);
+	
+	var _logger = require(__dirname + '/logger.js');
+	var logger = new _logger(options);
+
+	app.set('logger', logger);
+	app.set('log', logger);
 
 	app.set('config', options);
 
@@ -35,7 +38,13 @@ exports = module.exports = function(_o) {
 	if (options.dburi)
 	{
 		var _db = require(__dirname + '/db.js');
-		var db = new _db({dburi: options.dburi, debug: options.debug});
+		var db = new _db({
+			dburi: app.get('config').dburi, 
+			debug: app.get('config').debug,
+			debug_logger: function(s) { app.get('logger').db(s); },
+			error_logger: function(s) { app.get('logger').db(s); }
+		});
+
 		app.set('db', db);
 	}
 

@@ -17,6 +17,13 @@ BEGIN
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.api_error(_message TEXT, _code INTEGER) RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN grape.api_result_error(_message, _code);
+END; $$ LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION grape.api_success(_keys TEXT[], _values TEXT[], _types TEXT[]) RETURNS JSON AS $$
 DECLARE
 	_ret JSON;

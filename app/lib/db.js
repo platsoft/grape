@@ -53,7 +53,7 @@ function db (_o) {
 	}
 	self.options = options;
 
-	console.log("Connecting to " + util.inspect(options.dburi));
+	self.options.debug_logger("Connecting to " + util.inspect(options.dburi));
 	self.client = new pg.Client(options.dburi);
 	self.client.connect(function(err) {
 		if (err != null) 
@@ -76,15 +76,13 @@ function db (_o) {
 	self.query = function(config, values, callback) {
 		if (self.options.debug)
 		{
-			self.options.debug_logger('query = ' + JSON.stringify( {
-				config: config,
-				values: values
-			}));
+			self.options.debug_logger('Query ' + config + ' ' + values.join(', '));
 		}
 
 		var qry = self.client.query(config, values, callback);
 		qry.on('error', function(err) { 
-			console.log("DB Error ", err.toString());
+			self.emit('error', err);
+			self.options.error_logger('Error ' + err.toString());
 		});
 		return qry;
 	};
@@ -106,14 +104,15 @@ function db (_o) {
 				var res = options.response;
 				if (err || !result.rows) 
 				{
-					self.options.error_logger(err.toString());
-					res.jsonp({
-						error: {
-							message: 'Sorry we could not do stuff. Please contact Platinum Software.',
-							code: -1,
-							error_message: err.toString()
-						}
-					});
+					self.options.error_logger(util.inspect(err));
+					var error_object = {
+						'status': 'ERROR',
+						'message': err.toString(),
+						'code': -99,
+						error: err
+					};
+
+					res.jsonp(error_object);
 					return;
 				};
 				res.jsonp(result.rows[0][alias]);
@@ -121,7 +120,7 @@ function db (_o) {
 			}
 		}
 
-		self.options.debug_logger('db.jsonCall ' + name + ' ' + JSON.stringify(input));
+		self.options.debug_logger('DB JSON ' + name + ' ' + JSON.stringify(input));
 		var result;
 		if (options.rows)
 			result = self.query("SELECT * FROM " + name + "($1::JSON) AS " + alias, [JSON.stringify(input)], callback);
@@ -130,7 +129,6 @@ function db (_o) {
 		return result;
 	};
 	self.json_call = self.jsonCall;
-
 };
 db.prototype.__proto__ = events.EventEmitter.prototype;
 exports = module.exports = db;

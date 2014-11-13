@@ -97,6 +97,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+
 CREATE OR REPLACE FUNCTION grape.session_check_path_select
 (
 	_session_id TEXT,
@@ -121,4 +123,15 @@ BEGIN
 	RETURN ret;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.set_session_user_id(JSON) RETURNS JSON AS $$
+DECLARE
+	_user_id INTEGER;
+BEGIN
+	_user_id := ($1->>'user_id')::INTEGER;
+	PERFORM set_config('grape.user_id'::TEXT, _user_id::TEXT, false);
+	RETURN '{}'::JSON;
+END;
+$$ LANGUAGE plpgsql;
+
 
