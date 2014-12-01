@@ -57,17 +57,8 @@ module.exports = function (app)
 			return;
 		}
 
-		app.get('logger').session('Checking path ' + path + ' against session ' + session_id);
-
-		db.query('SELECT * FROM grape.session_check_path_select($1, $2, $3)', [session_id, path, req.method], function(err, result) { 
-			if (err)
-			{
-				app.get('logger').session('Could not load access paths for Session ' + session_id + ' against ' + path + ' ' + err);
-				session_fail();
-				return;
-			}
-
-			var ret = result.rows[0];
+		function handle_session_check (ret)
+		{
 			if (ret.error_code == 2) // invalid session
 			{
 				res.clearCookie('session_id', '/');
@@ -113,6 +104,32 @@ module.exports = function (app)
 						next();
 					});
 				});
+			}
+		}
+
+		app.get('logger').session('Checking path ' + path + ' against session ' + session_id);
+
+		var cachename = [session_id, path, req.method].join('-');
+		app.get('cache').fetch(cachename, function(message) {
+			if (typeof message.v == 'undefined' || !message.v)
+			{
+				db.query('SELECT * FROM grape.session_check_path_select($1, $2, $3)', [session_id, path, req.method], function(err, result) { 
+					if (err)
+					{
+						app.get('logger').session('Could not load access paths for Session ' + session_id + ' against ' + path + ' ' + err);
+						session_fail();
+						return;
+					}
+
+					var ret = result.rows[0];
+					app.get('cache').set(cachename, ret);
+					handle_session_check(ret);
+				});
+			}
+			else
+			{
+				console.log("FOUND THIS QUERY IN CACHE");
+				handle_session_check(message.v);
 			}
 		});
 	});

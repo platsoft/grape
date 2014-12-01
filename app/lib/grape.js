@@ -4,6 +4,7 @@ var fs = require('fs');
 var util = require('util');
 var cluster = require('cluster');
 var g_app = require(__dirname + '/app.js');
+var comms = require(__dirname + '/comms.js');
 
 exports = module.exports = function(_o) {
 	this.self = this;
@@ -14,6 +15,9 @@ exports = module.exports = function(_o) {
 		if (cluster.isMaster)
 		{
 			var pidfile = this.options.log_directory + '/grape.pid';
+
+			var channel = new comms.server(_o);
+			channel.start();
 
 			var start_instances = function() {
 				fs.writeFileSync(pidfile, process.pid.toString());
@@ -61,6 +65,15 @@ exports = module.exports = function(_o) {
 		else
 		{
 			var app = g_app(_o);
+			var cache = new comms.worker(_o);
+			cache.start();
+			app.set('cache', cache);
+
+			cache.set('testvar', 'testing a value');
+			cache.fetch('testvar', function(message) { 
+				console.log(message);
+			});
+
 		}
 	};
 
