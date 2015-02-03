@@ -85,6 +85,7 @@ function CellFormattingRecord()
 function CellData()
 {
 	var contents = null;
+	var formula = null;
 }
 
 function Cell() 
@@ -364,6 +365,28 @@ function Excel2007Reader(xlsfilename, doc)
 
 	this.readSharedStrings = function(filename)
 	{
+
+		var find_all_t_elements = function(el, t_found) {
+			var ret = t_found;
+
+			var ar = el.childNodes();
+			if (ar.length == 0)
+				return ret;
+			
+			for (var i = 0; i < ar.length; i++)
+			{
+				if (ar[i].name() == "t")
+				{
+					ret.push(ar[i].text());
+				}
+				else
+				{
+					ret = find_all_t_elements(ar[i], ret);
+				}
+			}
+			return ret;
+		};
+
 		console.log("Reading " + filename);
 		var str = fs.readFileSync(filename);
 		var doc = libxmljs.parseXmlString(str);
@@ -375,18 +398,8 @@ function Excel2007Reader(xlsfilename, doc)
 			var el = children[i];
 			if (el.name() == "si")
 			{
-				var ar = el.childNodes();
-				for (var j = 0; j < ar.length; j++)
-				{
-					if (ar[j].name() == "t")
-					{
-						this.document.SharedStrings.push(ar[j].text());
-					}
-					else
-					{
-						console.log("Unknown element " + ar[j].name() + " in readSharedStrings 2");
-					}
-				}
+				var t_values = find_all_t_elements(el, []);
+				this.document.SharedStrings.push(t_values.join(""));
 			}
 			else
 			{
@@ -430,6 +443,11 @@ function Excel2007Reader(xlsfilename, doc)
 						{
 							cell.data.contents = ar[0].text();
 						}
+						else if (ar[0].name() == "f")
+						{
+							cell.data.formula = ar[0].text();
+						}
+
 						else
 						{
 							console.log("Unknown element " + ar[0].name() + " in readSheetData");
