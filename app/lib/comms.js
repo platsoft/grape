@@ -22,8 +22,8 @@ var MessageSocket = function (socket) {
 };
 
 MessageSocket.prototype.processData = function(_buf) {
-	console.log("PROCESSING: " );
-	console.log(_buf);
+	//console.log("PROCESSING: " );
+	//console.log(_buf);
 	var buf = _buf;
 	//new message, all buffers are empty
 	if (this._headbuffer == null)
@@ -43,7 +43,7 @@ MessageSocket.prototype.processData = function(_buf) {
 		this._read_len = 0;
 	}
 
-	console.log("Preparing to get new message of length " + this._msg_len);
+	//console.log("Preparing to get new message of length " + this._msg_len);
 	if (this._buffer == null && this._msg_len >= 0)
 	{
 		this._buffer = new Buffer(this._msg_len);
@@ -113,8 +113,8 @@ var ServerFIFO = function (_opt) {
 		server.on('connection', function(socket) {
 			var ms = new MessageSocket(socket);
 			ms.on('message', function(message) {
-				console.log("SERVER RECEIVED ON PIPE: ");
-				console.log(message);
+				//console.log("SERVER RECEIVED ON PIPE: ");
+				//console.log(message);
 
 				switch (message.command)
 				{
@@ -158,8 +158,8 @@ var WorkerFIFO = function (_opt) {
 
 		var ms = new MessageSocket(this.socket);
 		ms.on('message', function(message) {
-			console.log("CLIENT RECEIVED ON PIPE: " );
-			console.log(message);
+			//console.log("CLIENT RECEIVED ON PIPE: " );
+			//console.log(message);
 			if (message.command == 1)
 			{
 				var callback = self.callbacks[message.muid];
