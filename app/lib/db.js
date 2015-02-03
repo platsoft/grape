@@ -68,6 +68,13 @@ function db (_o) {
 		self.emit('connected');
 	});
 
+	self.client.on('notice', function(msg) {
+		self.emit('notice', msg);
+		var str = ['Notice ', msg.severity, ':', msg.message, 'at', msg.where].join(' ');
+		self.options.debug_logger(str);
+	});
+
+
 	/**
 	 * Short hand function for client.query which also logs query information
 	 * 
