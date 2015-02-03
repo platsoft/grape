@@ -7,6 +7,8 @@ gutil.prototype.trim = function(str) {
 gutil.prototype.formatDate = function(dte) { 
 	if (!dte)
 		return '';
+	if (typeof dte == 'string')
+		var dte = new Date(dte);
 	var y = dte.getFullYear();
 	var m = dte.getMonth() + 1;
 	var d = dte.getDate();
@@ -15,6 +17,8 @@ gutil.prototype.formatDate = function(dte) {
 gutil.prototype.formatDateTime = function(dte) {
 	if (!dte)
 		return '';
+	if (typeof dte == 'string')
+		var dte = new Date(dte);
 	var y = dte.getFullYear();
 	var m = dte.getMonth() + 1;
 	var d = dte.getDate();
