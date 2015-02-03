@@ -120,7 +120,7 @@ BEGIN
 	RAISE NOTICE 'Query: %', '(SELECT * FROM '  || quote_ident(_schema) || '.' || quote_ident(_tablename) || ' ' || _filter_sql || ' ' || _sortsql || ' OFFSET $1 LIMIT $2)';
 
 	EXECUTE 'SELECT to_json(b) FROM '
-		'(SELECT COUNT(a) AS "result_count", '
+		'(SELECT COUNT(*) AS "result_count", '
 			'$1 AS "offset", '
 			'$2 AS "limit", '
 			'$3 AS "page_number", '
