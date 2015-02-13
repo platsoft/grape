@@ -7,6 +7,7 @@
 
 <xsl:template match="/">
 <html>
+	<head><meta charset="UTF-8"/></head> 
 	<xsl:apply-templates />
 </html>
 </xsl:template>
@@ -36,6 +37,11 @@
 
 			<p><i><xsl:value-of select="tags/desc/text()" /></i></p>
 			<span style="font-size: 14px;">Filename: <xsl:value-of select="filename/text()" /></span><br />
+			
+			<xsl:if test="tags/sqlfunc">
+				<span style="font-size: 14px;">SQL API function: <xsl:value-of select="tags/sqlfunc/text()" /></span><br />
+			</xsl:if>
+			
 
 			<xsl:if test="tags/body">
 				<div>
@@ -51,6 +57,13 @@
 				<xsl:for-each select="tags/param">
 					<xsl:call-template name="body_parameters" />
 				</xsl:for-each>
+				</div>
+			</xsl:if>
+
+			<xsl:if test="tags/return">
+				<div>
+					<h3>Return</h3>
+					<p><i><xsl:value-of select="tags/return/text()" /></i></p>
 				</div>
 			</xsl:if>
 

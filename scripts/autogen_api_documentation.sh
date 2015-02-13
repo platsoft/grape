@@ -1,13 +1,22 @@
 #!/bin/bash
 
+SCRIPTDIR=`dirname $0`
 
-DIRNAME=public/api_docs/
 
-mkdir -p $DIRNAME
+APIDIR=`find . -maxdepth 2 -type d -name api`
+OUTPUTDIR=`find . -maxdepth 2 -type d -name public`
 
-node node_modules/grape/scripts/extract_documentation.js api/ $DIRNAME/generated.xml >$DIRNAME/generated.log
+OUTPUTDIR="$OUTPUTDIR/api_docs"
 
-xsltproc node_modules/grape/scripts/api_documentation_html.xsl $DIRNAME/generated.xml >$DIRNAME/index.html
+echo "Reading source files from $APIDIR"
+echo "Outputting to $OUTPUTDIR"
 
-cp node_modules/grape/scripts/api_documentation_styles.css $DIRNAME/styles.css
+mkdir -p $OUTPUTDIR
+
+node $SCRIPTDIR/extract_documentation.js $APIDIR/ $OUTPUTDIR/generated.xml >$OUTPUTDIR/generated.log
+
+xsltproc $SCRIPTDIR/api_documentation_html.xsl $OUTPUTDIR/generated.xml >$OUTPUTDIR/index.html
+
+cp $SCRIPTDIR/api_documentation_styles.css $OUTPUTDIR/styles.css
+
 
