@@ -106,6 +106,11 @@ var ServerFIFO = function (_opt) {
 			{
 				console.log("Pipe ", self.fifo, "already exists. This is probably due to an unclean shutdown. If this is the case, please remove the file manually");
 			}
+			else
+			{
+				console.log(err);
+				console.log("Error creating pipe ", self.fifo, ". Error code: ", err.code);
+			}
 		});
 
 		server.listen(this.fifo, function() {});
@@ -118,6 +123,7 @@ var ServerFIFO = function (_opt) {
 
 				switch (message.command)
 				{
+					//get value
 					case 1:
 						var data = {'k': message.data.k, 'v': self.dataStore[message.data.k]};
 						var message = gutil.encodeMessage(message.muid, 1, data);

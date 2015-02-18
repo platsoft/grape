@@ -2,11 +2,21 @@
 var fs = require('fs');
 var path = require('path');
 
-
+/**
+ * Options: { 	document_store Directory of document store
+ * 		base_directory Base directory of app
+ * 	}
+ *
+ */
 var documentStore = function(_opt) {
 	this.options = _opt;
 	var self = this;
 	this.self = self;
+
+	if (!self.options.document_store || !self.options.base_directory)
+	{
+		console.log("This ain't right");
+	}
 
 	/*
  		Get directory for storing files of type 'filetype', claims

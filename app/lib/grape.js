@@ -49,6 +49,7 @@ exports = module.exports = function(_o) {
 				}
 				if (proc_running)
 				{
+					console.log("Killing running process " + old_pid + " (found from pidfile)");
 					process.kill(old_pid, 'SIGINT');
 					setTimeout(start_instances, 2000);
 				}
@@ -69,11 +70,12 @@ exports = module.exports = function(_o) {
 			cache.start();
 			app.set('cache', cache);
 
+			/*
 			cache.set('testvar', 'testing a value');
 			cache.fetch('testvar', function(message) { 
 				console.log(message);
 			});
-
+			*/
 		}
 	};
 
