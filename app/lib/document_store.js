@@ -65,6 +65,8 @@ var documentStore = function(_opt) {
 		}
 		return true;
 	};
+
+	return this;
 };
 
 exports = module.exports = documentStore;
