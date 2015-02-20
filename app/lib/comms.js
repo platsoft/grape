@@ -196,5 +196,9 @@ var WorkerFIFO = function (_opt) {
 
 };
 
+
+ServerFIFO.prototype.__proto__ = events.EventEmitter.prototype;
+WorkerFIFO.prototype.__proto__ = events.EventEmitter.prototype;
+
 exports = module.exports = { server: ServerFIFO, worker: WorkerFIFO };
 

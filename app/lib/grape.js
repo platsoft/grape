@@ -17,6 +17,9 @@ exports = module.exports = function(_o) {
 			var pidfile = this.options.log_directory + '/grape.pid';
 
 			var channel = new comms.server(_o);
+			channel.on('error', function(message) {
+				//TODO
+			});
 			channel.start();
 
 			var start_instances = function() {
@@ -29,6 +32,11 @@ exports = module.exports = function(_o) {
 					console.log("Caught SIGINT, exiting gracefully");
 					process.exit(1);
 				});
+				process.on('SIGUSR2', function(code) {
+					console.log("Caught SIGUSR2, exiting gracefully");
+					process.exit(1);
+				});
+
 
 				console.log("Starting " + self.options.instances + " instances");
 				for (var i = 0; i < self.options.instances; i++)
@@ -69,13 +77,6 @@ exports = module.exports = function(_o) {
 			var cache = new comms.worker(_o);
 			cache.start();
 			app.set('cache', cache);
-
-			/*
-			cache.set('testvar', 'testing a value');
-			cache.fetch('testvar', function(message) { 
-				console.log(message);
-			});
-			*/
 		}
 	};
 
@@ -85,8 +86,14 @@ exports = module.exports = function(_o) {
 		worker.on('disconnect', function() {
 		});
 		worker.on('exit', function() {
+			console.log("Worker exit");
 			self.createWorker();
 		});
+		worker.on('death', function() {
+			console.log("Worker died");
+			self.createWorker();
+		});
+
 	};
 };
 

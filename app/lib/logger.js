@@ -49,23 +49,12 @@ logger.prototype.logToStream = function(streamname, message) {
 logger.prototype.getWriteStream = function(level) {
 	if (typeof this.streams[level] == 'undefined' || !this.streams[level])
 	{
-		var fname = [this.options.log_directory, '/', level, '.log'].join('');
-		if (fs.existsSync(fname))
-		{
-			var d = new Date();
-			
-			var ofname = [
-				this.options.log_directory, 
-				'/', 
-				level, 
-				'-', 
-				d.getFullYear(), (d.getMonth()+1).toString(), d.getDate(), 'T', (d.getHours()+1), d.getMinutes(), d.getSeconds(),
-				'.log'].join('');
-
-			fs.renameSync(fname, ofname);
-		}
+		var d = new Date();
+		var fname = [this.options.log_directory, '/', level, '-', d.getFullYear(), (d.getMonth()+1).toString(), d.getDate(), '.log'].join('');
 		
-		this.streams[level] = fs.createWriteStream(fname, {flags: 'w'});
+		this.streams[level] = fs.createWriteStream(fname, {flags: 'a'});
+
+		//TODO if we want to somewherein the future move old files to other dir
 	}
 
 	return this.streams[level];

@@ -32,7 +32,7 @@ exports = module.exports = function(_o) {
 	var document_store = new (require(__dirname + '/document_store.js'))(options);
 	app.set('document_store', document_store);
 	
-	logger.info('Starting application with options: ' + util.inspect(options));
+	logger.info('Starting application (pid ' + process.pid + ') with options: ' + util.inspect(options));
 
 	//if database loading is requested
 	if (options.dburi)
@@ -185,12 +185,8 @@ exports = module.exports = function(_o) {
 
 	// Load built-in API calls
 	var builtin_api_dir = __dirname + '/../api/';
-	if (options.debug)
-	{
-		console.log("Loading built-in API calls from " + builtin_api_dir);
-	}
+	logger.info("Loading built-in API calls from " + builtin_api_dir);
 	loadapifiles(builtin_api_dir, '');
-
 
 	if (options.api_directory)
 	{
@@ -203,10 +199,7 @@ exports = module.exports = function(_o) {
 
 	var server = app.listen(options.port);
 
-	if (options.debug)
-	{
-		console.log('Listening on ' + options.port);
-	}
+	logger.info('Listening on ' + options.port);
 
 	server.timeout = 50000;
 	

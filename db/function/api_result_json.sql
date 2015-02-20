@@ -33,6 +33,7 @@ DECLARE
 	_sql TEXT;
 	_type TEXT;
 BEGIN
+	-- TODO look at the speed of this concatenations (maybe use CONCAT?)
 	_i := 1;
 
 	_sql := 'SELECT to_json(b) FROM (SELECT ''OK'' AS "status" ';
@@ -44,11 +45,18 @@ BEGIN
 
 		_sql := _sql || ', ';
 
-		IF _type = 'i' OR _type = 'integer' OR _type = 'number' OR _type = 'n' THEN
-			_sql := _sql || _value;
+		IF _value IS NULL THEN
+			_sql := _sql || 'null';
 		ELSE
-			_sql := _sql || quote_literal(_value);
+			IF _type = 'i' OR _type = 'integer' OR _type = 'number' OR _type = 'n' THEN
+				_sql := _sql || _value;
+			ELSIF _type = 'json' OR _type = 'j' THEN
+				_sql := _sql || quote_literal(_value) || '::JSON';
+			ELSE
+				_sql := _sql || quote_literal(_value);
+			END IF;
 		END IF;
+
 		_sql := _sql || ' AS ' || quote_ident(_key);
 
 		_i := _i + 1;
@@ -81,6 +89,12 @@ CREATE OR REPLACE FUNCTION grape.api_success(_key1 TEXT, _val1 INTEGER, _key2 TE
 DECLARE
 BEGIN
 	RETURN grape.api_success(ARRAY[_key1, _key2]::TEXT[], ARRAY[_val1::TEXT, _val2::TEXT]::TEXT[], ARRAY['n', 'n']);
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.api_success(_key1 TEXT, _val1 JSON) RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN grape.api_success(ARRAY[_key1]::TEXT[], ARRAY[_val1::TEXT]::TEXT[], ARRAY['j']);
 END; $$ LANGUAGE plpgsql;
 
 

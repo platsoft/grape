@@ -30,7 +30,17 @@ function api_data_upload(req, res)
 	}, 10);
 	
 	item_queue.drain = function() {
-		res.status(200).json({'status': 'OK', 'row_count': item_count, data_import_id: data_import_ids});
+		var count_done = data_import_ids.length;
+		for (var i = 0; i < data_import_ids.length; i++)
+		{
+			res.locals.db.json_call('grape.data_upload_done', {data_import_id: data_import_ids[i]}, function (err, result) {
+				count_done--;
+				if (count_done <= 0)
+				{
+					res.status(200).json({'status': 'OK', 'row_count': item_count, data_import_id: data_import_ids});
+				}
+			});
+		}
 	};
 	
 	var fieldnames = Object.keys(req.files);
@@ -39,7 +49,7 @@ function api_data_upload(req, res)
 	{
 		var file = req.files[fieldnames[i]];
 
-		res.locals.db.json_call('grape.data_import_insert', {filename: file.originalFilename, description: fieldnames[i], body: req.body}, function(err, result) { 
+		res.locals.db.json_call('grape.data_import_insert', {filename: file.originalFilename, description: fieldnames[i]}, function(err, result) { 
 
 			var data_import_id = result.rows[0].grapedata_import_insert.data_import_id;
 			data_import_ids.push(data_import_id);

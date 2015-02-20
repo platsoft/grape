@@ -11,18 +11,28 @@ CREATE OR REPLACE FUNCTION grape.data_import_insert(JSON) RETURNS JSON AS $$
 DECLARE
 	_filename TEXT;
 	_description TEXT;
-	_ret JSON;
 	_data_import_id INTEGER;
 BEGIN
 	_filename := $1->>'filename';
 	_description := $1->>'description';
 
-	INSERT INTO grape.data_import (filename, description, parameter) VALUES (_filename, _description, $1) RETURNING data_import_id INTO _data_import_id;
+	INSERT INTO grape.data_import (filename, description, parameter, date_done) VALUES (_filename, _description, $1, NULL) 
+		RETURNING data_import_id INTO _data_import_id;
 	
-	SELECT row_to_json(b) INTO _ret FROM (SELECT _data_import_id AS "data_import_id") b;
-
-	RETURN _ret;
+	RETURN grape.api_success('data_import_id', _data_import_id);
 END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.data_upload_done(JSON) RETURNS JSON AS $$
+DECLARE
+	_data_import_id INTEGER;
+BEGIN
+	_data_import_id := ($1->>'data_import_id')::INTEGER;
+
+	UPDATE grape.data_import SET date_done=CURRENT_TIMESTAMP WHERE data_import_id=_data_import_id::INTEGER;
+	
+	RETURN grape.api_success('data_import_id', _data_import_id);
+END; $$ LANGUAGE plpgsql;
+
 
 /**
  * Insert a row of JSON into data_import_row

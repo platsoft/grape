@@ -170,6 +170,7 @@ CREATE TABLE grape.data_import(
 	date_inserted timestamp DEFAULT NOW(),
 	parameter json,
 	description text,
+	date_done timestamp,
 	CONSTRAINT data_import_pk PRIMARY KEY (data_import_id)
 
 );

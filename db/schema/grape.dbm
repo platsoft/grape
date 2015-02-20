@@ -248,6 +248,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="description">
 		<type name="text"/>
 	</column>
+	<column name="date_done">
+		<type name="timestamp"/>
+	</column>
+
 	<constraint name="data_import_pk" type="pk-constr" factor="10" table="grape.data_import">
 		<columns names="data_import_id" ref-type="src-columns"/>
 	</constraint>
