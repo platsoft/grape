@@ -43,7 +43,7 @@ function create_session(req, res) {
 		if (!err)
 		{
 			var obj = result.rows[0]['grapesession_insert'];
-			if (obj.success == "true")
+			if (obj.success === true || obj.success == "true")
 			{
 				//1 month
 				res.cookie('session_id', obj.session_id, {maxAge: 30 * 24 * 60 * 60 * 1000});
