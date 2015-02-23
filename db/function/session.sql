@@ -10,6 +10,10 @@ DECLARE
 
 	_session_id TEXT;
 	_found BOOLEAN;
+
+	_user_roles TEXT[];
+
+	_ret JSON;
 BEGIN
 	_user := $1->>'username';
 	_password := $1->>'password';
@@ -39,10 +43,20 @@ BEGIN
 		END IF;
 	END LOOP;
 
+	SELECT array_agg(role_name) INTO _user_roles FROM grape."user_role" WHERE user_id=rec.user_id::INTEGER;
+
 	INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity) VALUES (_session_id, _ip_address, rec.user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-	RETURN ('{"success":"true","code":"0","session_id":"' || _session_id || '","user_id":"' || rec.user_id || '","username":"' || _user || '"}')::JSON;
-
+	SELECT to_json(a) INTO _ret FROM (
+		SELECT true AS "success", 
+			0 AS "code", 
+			_session_id AS "session_id",
+			rec.user_id AS "user_id",
+			_user AS "username",
+			_user_roles AS "user_roles" 
+		) a;
+	
+	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
 
 
