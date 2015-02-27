@@ -70,9 +70,24 @@ function db (_o) {
 
 	self.client.on('notice', function(msg) {
 		self.emit('notice', msg);
-		var str = ['Notice ', msg.severity, ':', msg.message, 'at', msg.where].join(' ');
+
+		if (msg.where && msg.where != '')
+			msg.where = ' at ' + msg.where;
+
+		var str = ['Notice ', msg.severity, ':', msg.message, msg.where].join(' ');
 		self.options.debug_logger(str);
 	});
+	self.client.on('error', function(msg) {
+		console.log("ERRRRRRRROR", msg);
+		self.emit('error', msg);
+
+		if (msg.where && msg.where != '')
+			msg.where = ' at ' + msg.where;
+
+		var str = ['Error', msg.severity, ':', msg.message, msg.where].join(' ');
+		self.options.error_logger(str);
+	});
+
 
 
 	/**

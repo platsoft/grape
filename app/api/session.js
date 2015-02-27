@@ -58,6 +58,8 @@ function create_session(req, res) {
 		}
 		else
 		{
+			app.get('logger').error('Error while creating session: ', err);
+
 			res.json({error: err});
 		}
 		

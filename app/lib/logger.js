@@ -11,6 +11,21 @@ var logger = function(opts) {
 	this.streams = streams;
 };
 
+logger.prototype._join_arguments = function(args) {
+	var ret = [];
+	for (var i = 0; i < args.length; i++)
+	{
+		if (typeof args[i] == 'string')
+			ret.push(args[i]);
+		else if (args[i].toString)
+			ret.push(args[i].toString());
+		else
+			ret.push(args[i]);
+			
+	}
+	return ret.join('');
+};
+
 logger.prototype.session = function(message) {
 	this.log('session', message, {});
 };
@@ -26,6 +41,10 @@ logger.prototype.debug = function(message) {
 logger.prototype.db = function(message) {
 	this.log('db', message, {});
 };
+logger.prototype.error = function() {
+	this.log('error', logger.prototype._join_arguments(arguments), {});
+};
+
 
 
 logger.prototype.log = function(level, message, opts) {

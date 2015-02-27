@@ -1,4 +1,7 @@
-
+/**
+ * Entry point for a Grape app. This one starts the workers and sets up comms channel between them
+ *
+ */
 var _ = require('underscore');
 var fs = require('fs');
 var util = require('util');
