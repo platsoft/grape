@@ -34,6 +34,9 @@
 			<h2 id = "{identifier/text()}">
 			<xsl:value-of select="tags/method/text()" /><xsl:text> </xsl:text><xsl:value-of select="identifier/text()" />
 			</h2>
+			
+			<div style = "border-bottom: 1px solid #03a9f4; margin-top: 10px; height: 0px; width: 100%"></div>
+			
 
 			<p><i><xsl:value-of select="tags/desc/text()" /></i></p>
 			<span style="font-size: 14px;">Filename: <xsl:value-of select="filename/text()" /></span><br />
@@ -75,8 +78,8 @@
 				</div>
 				</div>
 			</xsl:if>
-
-		</div>
+			<div style = "border-bottom: 3px solid #01579b ; margin-top: 100px; height: 0px; width: 100%"></div>
+			</div>
 	</xsl:for-each>
 		</div>
 	</div>

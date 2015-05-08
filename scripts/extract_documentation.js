@@ -36,7 +36,7 @@ function extract_param_fields(raw)
 	var pname = '';
 
 	//look for the type 
-	var matches = param.match(/\{?(integer|string|numeric|int|text| date)\}?/i);
+	var matches = param.match(/\{?(integer|string|numeric|int|text|date|boolean|bool)\}?/i);
 	if (matches)
 	{
 		ptype = matches[0];
@@ -292,6 +292,8 @@ function processDirectory(dirname)
 
 	debug('Reading directory ' + dirname);
 
+	dirname = dirname.replace(/\/{2}/, '/').replace(/\/{2}/, '/');
+
 	for (var i = 0; i < files.length; i++)
 	{
 		var file = files[i];
@@ -311,6 +313,8 @@ function processDirectory(dirname)
 			processFile(dirname + '/' + file);
 		}
 	}
+
+
 }
 
 function createXML (elname, object) 
