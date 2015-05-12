@@ -14,6 +14,7 @@
  *		value text
  * Returns a list object:  { total: INT, offset: INT, limit: INT, result_count: INT, records: [ {} ] }
  */
+CREATE TABLE IF NOT EXISTS grape.list_query_whitelist (schema text, tablename text, PRIMARY KEY (schema, tablename));
 CREATE OR REPLACE FUNCTION grape.list_query(JSON) RETURNS JSON AS $$
 DECLARE
 	_offset INTEGER;
@@ -45,6 +46,16 @@ BEGIN
 
 	_tablename := $1->>'tablename';
 
+	IF json_extract_path($1, 'schema') IS NOT NULL THEN
+		_schema := $1->>'schema';
+	END IF;
+
+	PERFORM schema, tablename FROM grape.list_query_whitelist
+		WHERE schema = _schema AND tablename = _tablename;
+	IF NOT FOUND THEN
+		RETURN NULL;
+	END IF;
+
         IF json_extract_path($1, 'sortfield') IS NOT NULL THEN
                 _sortfield := $1->>'sortfield';
 		_sortsql := ' ORDER BY ' || quote_ident(_sortfield);
@@ -58,10 +69,6 @@ BEGIN
 		_sortsql := '';
         END IF;
         
-	IF json_extract_path($1, 'schema') IS NOT NULL THEN
-		_schema := $1->>'schema';
-	END IF;
-
         IF json_extract_path($1, 'limit') IS NOT NULL THEN
 		_limit := ($1->>'limit')::INTEGER;
         ELSE
