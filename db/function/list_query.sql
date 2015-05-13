@@ -1,4 +1,15 @@
-
+CREATE OR REPLACE FUNCTION grape.list_query_whitelist_add(_schema text, _tables text[]) RETURNS BOOLEAN AS $$
+DECLARE
+	_success BOOLEAN = true;
+	_table text;
+BEGIN
+	FOREACH _table IN ARRAY _tables LOOP
+		INSERT INTO grape.list_query_whitelist(schema, tablename)
+			SELECT _schema,_table WHERE NOT EXISTS
+			(SELECT * FROM grape.list_query_whitelist WHERE schema = _schema and tablename = _table);
+	END LOOP;
+	RETURN true;
+END; $$ LANGUAGE plpgsql;
 
 /**
  * Input fields:
