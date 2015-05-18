@@ -90,7 +90,7 @@
 <xsl:template name="body_parameters">
 	<div class = "border">
 	<table border="1" class = "description-table" style = "width: 100%">
-	<tr><th>Name</th><th>Type</th><th>Optional</th><th>Default</th></tr>
+	<tr><th>Name</th><th>Type</th><th>Optional</th><th>Default</th><th>Description</th></tr>
 	<xsl:for-each select="item">
 		<xsl:call-template name="body_parameter_item" />
 	</xsl:for-each>
@@ -108,6 +108,7 @@
 		<td><xsl:value-of select="type" /></td>
 		<td><xsl:value-of select="optional" /></td>
 		<td><xsl:value-of select="default" /></td>
+		<td><xsl:value-of select="description" /></td>
 	</tr>
 	<xsl:for-each select="item">
 		<xsl:call-template name="body_parameter_item" />

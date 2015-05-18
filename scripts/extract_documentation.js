@@ -40,6 +40,8 @@ function extract_param_fields(raw)
 	if (matches)
 	{
 		ptype = matches[0];
+		if (ptype[0] == '{' && ptype[ptype.length-1] == '}')
+			ptype = ptype.substring(1, ptype.length-1);
 		param = param.substring(0, matches.index).concat(param.substr(matches.index + matches[0].length));
 	}
 
