@@ -206,7 +206,7 @@ function processCommentBlock(block, current_file)
 
 	//var matches = block.match(/(@[a-z]+[\s\S]*?)(?=(@[a-z]+))/g);
 	//var matches = block.match(/((@[a-z]+[\s\S]*?)(?=(@[a-z]+)))/g);
-	var matches = block.match(/(@[a-z]+[\s\S]*?(?=(@[a-z]+)))|(@[a-z]+[\s\S]*?$)/g);
+	var matches = block.match(/(\s@[a-z]+[\s\S]*?(?=(\s@[a-z]+)))|(\s@[a-z]+[\s\S]*?$)/g);
 	
 	if (matches == null)
 		return;
