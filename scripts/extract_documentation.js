@@ -36,7 +36,7 @@ function extract_param_fields(raw)
 	var pname = '';
 
 	//look for the type 
-	var matches = param.match(/\{?(integer|string|numeric|int|text|date|boolean|bool)\}?/i);
+	var matches = param.match(/\{?(integer|string|numeric|int|text|date|boolean|bool|object)\}?/i);
 	if (matches)
 	{
 		ptype = matches[0];

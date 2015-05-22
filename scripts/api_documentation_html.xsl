@@ -78,6 +78,14 @@
 				</div>
 				</div>
 			</xsl:if>
+			<xsl:if test="tags/todo">
+				<div>
+				<h3>To Do</h3>
+				<div class = "code-block">
+				<code><pre style = "padding-left: 10px"><xsl:value-of select="tags/todo/text()" /></pre></code>
+				</div>
+				</div>
+			</xsl:if>
 			<div style = "border-bottom: 3px solid #01579b ; margin-top: 100px; height: 0px; width: 100%"></div>
 			</div>
 	</xsl:for-each>
