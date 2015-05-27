@@ -52,7 +52,7 @@ BEGIN
 	_schema := 'public';
 
 	IF json_extract_path($1, 'tablename') IS NULL THEN
-		RETURN NULL;
+		RETURN grape.api_error('Table requested is null', -2);
 	END IF;
 
 	_tablename := $1->>'tablename';
@@ -64,7 +64,7 @@ BEGIN
 	PERFORM schema, tablename FROM grape.list_query_whitelist
 		WHERE schema = _schema AND tablename = _tablename;
 	IF NOT FOUND THEN
-		RETURN NULL;
+		RETURN grape.api_error('Table requested is not in whitelist', -1);
 	END IF;
 
         IF json_extract_path($1, 'sortfield') IS NOT NULL THEN
