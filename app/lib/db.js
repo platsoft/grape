@@ -84,7 +84,7 @@ function db (_o) {
 		if (msg.where && msg.where != '')
 			msg.where = ' at ' + msg.where;
 
-		var str = ['Error', msg.severity, ':', msg.message, msg.where].join(' ');
+		var str = ['DB Error', msg.severity, ':', msg.message, msg.where].join(' ');
 		self.options.error_logger(str);
 	});
 
@@ -104,7 +104,7 @@ function db (_o) {
 		var qry = self.client.query(config, values, callback);
 		qry.on('error', function(err) { 
 			self.emit('error', err);
-			self.options.error_logger('Error ' + err.toString());
+			self.options.error_logger('DB Error ' + err.toString());
 		});
 		return qry;
 	};
