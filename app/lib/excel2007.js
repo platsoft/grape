@@ -228,6 +228,17 @@ function Row()
 		}
 		return ret;
 	};
+	this.getAllFormattedCellValues = function() {
+		var ret = {};
+		for (var i = 0; i < this.cells.length; i++)
+		{
+			var reference = this.cells[i].reference;
+			reference = reference.replace(/[0-9]+/g, '');
+			ret[reference] = this.cells[i].getFormattedValue();
+		}
+		return ret;
+	};
+
 }
 
 function WorkSheet()
