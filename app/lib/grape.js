@@ -56,7 +56,6 @@ exports = module.exports = function(_o) {
 					fs.writeFileSync(pidfile, process.pid.toString());
 					next();
 				}
-
 			}
 
 			//start worker instances
@@ -90,6 +89,7 @@ exports = module.exports = function(_o) {
 				var channel = new comms.server(_o);
 				channel.on('error', function(message) {
 					//TODO
+					console.log("Comms channel error", message);
 				});
 				channel.start();
 				next();
@@ -99,6 +99,7 @@ exports = module.exports = function(_o) {
 		}
 		else
 		{
+			// We are a worker/child process
 			var app = g_app(_o);
 			var cache = new comms.worker(_o);
 			cache.start();
@@ -112,8 +113,15 @@ exports = module.exports = function(_o) {
 		worker.on('disconnect', function() {
 		});
 		worker.on('exit', function() {
-			console.log("Worker exit");
-			self.createWorker();
+			console.log("Worker exit with code", worker.process.exitCode);
+			if (worker.process.exitCode == 5)
+			{
+				console.log("Connectivity issue. Not restarting");
+			}
+			else
+			{
+				self.createWorker();
+			}
 		});
 		worker.on('death', function() {
 			console.log("Worker died");

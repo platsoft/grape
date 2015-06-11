@@ -18,6 +18,18 @@ var LoginPage = function(bindings) {
 			}
 		});
 	};
+
+	this.clickNewuser = function() {
+		var dialog = window.Grape.dialog('newuser', {
+			onClose: function(data) {
+				if (data.email)
+				{
+					var msg = 'Your new user registration has been received. A confirmation email will be sent to ' + data.email;
+					Grape.alert({alert_type: 'info', message: msg}, '#div_login_alerts');
+				}
+			}
+		});
+	};
 };
 
 

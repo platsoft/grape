@@ -22,69 +22,141 @@ $(function() {
 		localStorage.setItem('session_id', session.session_id);
 	};
 
+	
+	GrapeApp.prototype.register_dialog = function(name, file, pageClass) {
+		this.dialogs[name] = {
+			file: file,
+			pageClass: pageClass
+		};
+	};
+
+
 	//options:
 	//	file: HTML file
-	GrapeApp.prototype.show_dialog = function(name, object, options) {
+	//
+	//other options recognized in bindings:
+	//	onClose: optional callback after dialog has closed
+	GrapeApp.prototype.dialog = function(name, bindings) {
+		if (!bindings)
+			var bindings = {};
+
+		console.log(this.dialogs);
+
 		if (this.dialogs[name])
 		{
-			var dialog = this.dialogs[name];
-			var el = $("#container").append('<div class="modal" role="dialog" id="tmp_dialog"></div>');
+			var dialog_def = this.dialogs[name];
 
-			$("#tmp_dialog").load(this.dialogs[name].file,function() { 
-				$("#tmp_dialog").on('hide.bs.modal', function(){
-					ko.cleanNode(document.getElementById('tmp_dialog'));
+			var dialog = {};
+
+			var rnd = Math.floor((Math.random() * 10) + 1);
+			var dom_dialog_id = 'diag_' + name + '_' + rnd;
+			var dom_body_id = 'diagbod_' + name + '_' + rnd;
+			var dom_header_id = 'diaghead_' + name + '_' + rnd;
+
+			dialog.dom_dialog_id = dom_dialog_id;
+			dialog.dom_body_id = dom_body_id;
+			dialog.dom_header_id = dom_header_id;
+
+			var el = $("#container").append(
+				'<div class="modal fade" role="dialog" id="' + dom_dialog_id + '">' +
+					'<div class="modal-dialog">' +
+						'<div class="modal-content">' +
+							'<div class="modal-header" id="' + dom_header_id + '"></div>' +
+							'<div class="modal-body" id="' + dom_body_id + '"></div>' +
+						'</div>' +
+					'</div>' +
+				'</div>');
+
+			dialog.element = el;
+
+			$("#" + dom_body_id).load(this.dialogs[name].file, function() { 
+
+				console.log("Loaded file into", dom_body_id);
+
+				$("#" + dom_dialog_id).on('hide.bs.modal', function() {
+					if (dialog.pageClass.viewModel)
+						dialog.data = ko.toJS(dialog.pageClass.viewModel);
+
+					ko.cleanNode(document.getElementById(dom_body_id));
 				});  
-				$("#tmp_dialog").on('show.bs.modal', function(){
-					if (dialog.pageClass)
+				$("#" + dom_dialog_id).on('hidden.bs.modal', function() {
+					if (bindings.onClose)
 					{
-						var pc = new dialog.pageClass(object);
-						if (pc.viewModel)
-							ko.applyBindings(pc.viewModel, document.getElementById('tmp_dialog'));
+						bindings.onClose(dialog.data);
 					}
 				});  
-				$("#tmp_dialog").modal('show');  
+
+				$("#" + dom_dialog_id).on('show.bs.modal', function(){
+					if (dialog_def.pageClass)
+					{
+						bindings.dialog_id = dom_dialog_id;
+						bindings.dialog_header_id = dom_header_id;
+						bindings.dialog_body_id = dom_body_id;
+						var pc = new dialog_def.pageClass(bindings);
+						
+						if (pc.updateData)
+							pc.updateData();
+						
+						if (pc.viewModel)
+							ko.applyBindings(pc.viewModel, document.getElementById(dom_body_id)); 
+
+						dialog.pageClass = pc;
+					}
+				});  
+				$("#" + dom_dialog_id).modal('show');  
 			});
+
+			return dialog;
 		}
 	};
 
+	GrapeApp.prototype.show_dialog = GrapeApp.prototype.dialog;
+
 	GrapeApp.prototype.alert = function(options, id) {
 		// give it an ID - a div where you want to place it
-		if(!options.alert_type) 
+		if (!options.alert_type) 
 		{
 			console.error("No alert type given, exiting function. The types are: success, info, warning and danger");
 			return;
 		}
 
-		if(!options.message) 
+		if (!options.message) 
 		{
 			console.error("No message was given, exiting function");
 			return;
 		}
 
-		if(options.title)
+		if (options.title)
 			options.title = '<strong>' + options.title + ' </strong>';
 		else
 			options.title = "";
 
-		var alert = '<div class="alert alert-' + options.alert_type + ' fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+ options.title + options.message +'</div>';
+		var alert_html = '<div class="alert alert-' + options.alert_type + ' fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+ options.title + options.message +'</div>';
 
-		$(id).append(alert);
+		$(id).append(alert_html);
 	};
 
 	//options:
-	//	file: HTML file
-	//	pageClass: class of page to load
+	//	either use these options:
+	//		file: HTML file
+	//		pageClass: optional class of page to load
+	//		elementId: DOM element to load the page in and bind knockout to (if applicable). defaults to container
+	//	
+	//	or give this function:
+	//		setup: optional function to call instead of the normal behaviour
 	GrapeApp.prototype.route = function(uri, options) {
 		var self = this;
 		var _options = options;
 		var routepage = false;
 		var htmlfile = false;
-
+		var element_id = 'container';
 
 		if (options.pageClass)
 			var routepage = options.pageClass;
 		if (options.file)
 			var htmlfile = options.file;
+		if (options.elementId)
+			element_id = options.elementId;
 		
 		if (!_options.setup)
 		{
@@ -95,7 +167,7 @@ $(function() {
 				}
 				
 				console.log("Loading " + uri);
-				$("#container").load(htmlfile, function() {
+				$("#" + element_id).load(htmlfile, function() {
 					if (routepage)
 					{
 						var a = new routepage(bindings);
@@ -104,7 +176,7 @@ $(function() {
 						
 						if (a.updateData)
 							a.updateData();
-						ko.applyBindings(a.viewModel, document.getElementById('container'));
+						ko.applyBindings(a.viewModel, document.getElementById(element_id));
 					}
 					childCallback(); 
 				});

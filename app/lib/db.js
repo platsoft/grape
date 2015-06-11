@@ -58,8 +58,8 @@ function db (_o) {
 	self.client.connect(function(err) {
 		if (err != null) 
 		{
-			self.options.error_logger("Could not connect to database " + options.dburi);
-			process.exit(1);
+			self.options.error_logger("Could not connect to database", options.dburi);
+			process.exit(5);
 		};
 		if (self.options.connected_callback) 
 		{
