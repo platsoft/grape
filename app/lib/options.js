@@ -22,6 +22,7 @@ exports = module.exports = function(_o) {
 	{
 		options.base_directory = fs.realpathSync(options.public_directory + '/../');
 	}
+
 	if (options.log_directory == false && options.base_directory != false)
 	{
 		if (!fs.existsSync(options.base_directory + '/log/'))
@@ -31,9 +32,13 @@ exports = module.exports = function(_o) {
 
 	if (options.document_store == false)
 	{
-		if (!fs.existsSync(options.base_directory + '/repo/'))
-			fs.mkdirSync(options.base_directory + '/repo/');
-		options.document_store = fs.realpathSync(options.base_directory + '/repo/');
+
+		if (options.base_directory != false)
+		{
+			if (!fs.existsSync(options.base_directory + '/repo/'))
+				fs.mkdirSync(options.base_directory + '/repo/');
+			options.document_store = fs.realpathSync(options.base_directory + '/repo/');
+		}
 	}
 
 	return options;

@@ -10,22 +10,25 @@
 	"name": "myapp",
 	"main": "index.js",
 	"dependencies": {
-		"grape": "git+ssh://git@mail.platsoft.net:grape.git#master"
+		"ps-grape": "0.0.2"
 	}
 }
 ```
-* execute `npm update` in the created directory
 * Create your index.js
 ```
-var Grape = require('grape');
+
+var Grape = require('ps-grape');
 
 var app = new Grape.grape({
-	port: 3001
+	port: 3001,
+	base_directory: __dirname
 }); 
 
 app.start();
 
 ```
+* Make sure your npm repository is set to npm.platsoft.net (npm set registry http://npm.platsoft.net:4873)
+* execute `npm install` in the created directory
 * You can now run `node index.js`
 
 
@@ -33,11 +36,16 @@ app.start();
 ## Serving static files
 Pass the option public_directory to the Grape initializer to serve static files from. For example:
 ```
-	var grape = require('grape');
-	var app = grape.app({
-		public_directory: __dirname + '/public',
-		port: 3001
-	});
+var Grape = require('ps-grape');
+
+var app = new Grape.grape({
+	port: 3001,
+	base_directory: __dirname,
+	public_directory: __dirname + '/public'
+}); 
+
+app.start();
+
 ```
 
 ## Application directories
