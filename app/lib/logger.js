@@ -52,28 +52,27 @@ logger.prototype.log = function(level, message, opts) {
 	{
 		console.log(level + ": " + message);
 	}
-	this.logToStream('all', message);
+	this.logToStream('all', level + ": " + message);
 	this.logToStream(level, message);
 };
 
 logger.prototype.logToStream = function(streamname, message) {
 	var d = new Date();
+	var d_str = ['[', d.getFullYear(), '/', ('00' + (d.getMonth()+1)).slice(-2), '/', ('00' + d.getDate()).slice(-2), ' ', ('00' + d.getHours()).slice(-2), ':', ('00' + d.getMinutes()).slice(-2), ':', ('00' + d.getSeconds()).slice(-2), ']'].join('');
+
+	var data = [d_str, ' ', message, "\n"].join('');
+
 	var stream = this.getWriteStream(streamname);
-	stream.write(d.toJSON());
-	stream.write(' ');
-	stream.write(message);
-	stream.write("\n");
+	stream.write(data);
 };
 
 logger.prototype.getWriteStream = function(level) {
 	if (typeof this.streams[level] == 'undefined' || !this.streams[level])
 	{
 		var d = new Date();
-		var fname = [this.options.log_directory, '/', level, '-', d.getFullYear(), (d.getMonth()+1).toString(), d.getDate(), '.log'].join('');
+		var fname = [this.options.log_directory, '/', level, '-', d.toJSON().slice(0, 10).replace(/\-/g, ''), '.log'].join('');
 		
 		this.streams[level] = fs.createWriteStream(fname, {flags: 'a'});
-
-		//TODO if we want to somewherein the future move old files to other dir
 	}
 
 	return this.streams[level];
