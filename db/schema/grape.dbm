@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.7.1">
+<dbmodel pgmodeler-ver="0.7.2" last-position="9,572" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -251,7 +251,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="date_done">
 		<type name="timestamp"/>
 	</column>
-
 	<constraint name="data_import_pk" type="pk-constr" factor="10" table="grape.data_import">
 		<columns names="data_import_id" ref-type="src-columns"/>
 	</constraint>
@@ -290,6 +289,105 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<constraint name="setting_pk" type="pk-constr" factor="10" table="grape.setting">
 		<columns names="name" ref-type="src-columns"/>
 	</constraint>
+</table>
+
+<table name="system_registry">
+	<schema name="grape"/>
+	<position x="454" y="758"/>
+	<column name="system_registry_id">
+		<type name="serial"/>
+	</column>
+	<column name="product_name">
+		<type name="text"/>
+	</column>
+	<column name="physical_host">
+		<type name="text"/>
+	</column>
+	<column name="system_name">
+		<type name="text"/>
+	</column>
+	<column name="guid">
+		<type name="uuid"/>
+	</column>
+	<column name="public_key">
+		<type name="text"/>
+	</column>
+</table>
+
+<table name="system_endpoint">
+	<schema name="grape"/>
+	<position x="782" y="654"/>
+	<column name="system_endpoint_id">
+		<type name="integer"/>
+	</column>
+</table>
+
+<table name="system_routing">
+	<schema name="grape"/>
+	<position x="701" y="1029"/>
+	<column name="system_routing_id">
+		<type name="serial"/>
+	</column>
+	<column name="final_destination_id">
+		<type name="integer"/>
+	</column>
+	<column name="routing_via_id">
+		<type name="integer"/>
+	</column>
+</table>
+
+<table name="system_message_rcv">
+	<schema name="grape"/>
+	<position x="982" y="756"/>
+	<column name="system_message_rcv_id">
+		<type name="serial"/>
+	</column>
+	<column name="type_indicator">
+		<type name="smallint"/>
+	</column>
+	<column name="source_system">
+		<type name="uuid"/>
+	</column>
+	<column name="destination_system">
+		<type name="uuid"/>
+	</column>
+	<column name="message_id">
+		<type name="integer"/>
+	</column>
+	<column name="frame_idx">
+		<type name="integer"/>
+	</column>
+	<column name="last_frame_idx">
+		<type name="integer"/>
+	</column>
+	<column name="date_received">
+		<type name="timestamp"/>
+	</column>
+	<column name="date_sent">
+		<type name="timestamp"/>
+	</column>
+	<column name="data">
+		<type name="bytea"/>
+	</column>
+</table>
+
+<table name="system_public_key">
+	<schema name="grape"/>
+	<position x="395" y="927"/>
+	<column name="system_registry_id">
+		<type name="integer"/>
+	</column>
+	<column name="data">
+		<type name="bytea"/>
+	</column>
+</table>
+
+<table name="system_private">
+	<schema name="grape"/>
+	<position x="310" y="1037"/>
+	<column name="my_secret">
+		<type name="bytea"/>
+	</column>
 </table>
 
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
