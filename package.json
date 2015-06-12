@@ -1,7 +1,7 @@
 {
-	"name": "grape",
+	"name": "ps-grape",
 	"version": "0.0.2",
-	"description": "Grape Framework",
+	"description": "Platinum Software Grape Framework",
 	"main": "app/index.js",
 	"directories": {
 		"test": "test"
@@ -12,7 +12,7 @@
 	"author": "Hans Lombard <hans@platsoft.net>",
 	"license": "BSD-2-Clause",
 	"dependencies": {
-		"pg": "4.2.0",
+		"pg": "4.4.0",
 		"underscore": "~1.6.0",
 		"express": "4.3.0",
 		"body-parser": "1.2.0",
