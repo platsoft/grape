@@ -42,7 +42,7 @@ function decode_validation_string (validate_string)
 			{
 				switch (var_info[i])
 				{
-					case 's': case 'i': case 'f': case 'b': case 'd': case 'dt':
+					case 's': case 'i': case 'f': case 'b': case 'd': case 'dt': case 'a':
 						modifiers.data_type = var_info[i];
 						continue;
 					case '*':
@@ -168,7 +168,6 @@ function auto_validate(obj, validate_string)
 				if (str_value == '' && p.empty_becomes_null == true)
 				{
 					p.value = null;
-					obj[p.name] = p.value;
 					p.valid = true;
 					continue;
 				}
@@ -179,13 +178,11 @@ function auto_validate(obj, validate_string)
 					{
 						p.valid = false;
 						p['error'] = p.name + ' must be a valid integer';
-						validation_errors.push(p['error']);
 					}
 					else
 					{
 						p.valid = true;
 						p.value = parseInt(str_value);
-						obj[p.name] = p.value;
 					}
 				}
 				else if (p.data_type == 's')
@@ -199,6 +196,7 @@ function auto_validate(obj, validate_string)
 					if (str_value.match (/true|false|t|f/i) == null)
 					{
 						p.valid = false;
+						p['error'] = p.name + ' must be a valid boolean (false, f, true or t)';
 					}
 					else
 					{
@@ -215,6 +213,7 @@ function auto_validate(obj, validate_string)
 					if (str_value.match (/[0-9]*(\.[0-9]*)?/) == null)
 					{
 						p.valid = false;
+						p['error'] = p.name + ' must be a valid numeric value';
 					}
 					else
 					{
@@ -237,10 +236,31 @@ function auto_validate(obj, validate_string)
 					else
 					{
 						p.valid = false;
+						
 					}
 				}
-					
+				else if (p.data_type == 'a')
+				{
+					p.value = p.original_value;
+					if (typeof original_value == 'object')
+					{
+						p.valid = true;
+					}
+					else
+					{
+						p.valid = false;
+					}
+				}
+				else 
+				{
+					p.valid = true;
+					p.value = p.original_value;
+				}
+				
 				obj[p.name] = p.value;
+				if (p['error'])
+					validation_errors.push(p['error']);
+				
 			}
 		}
 
