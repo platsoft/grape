@@ -239,9 +239,9 @@ exports = module.exports = function(_o) {
 		var self = this;
 		if (!param) return;
 		if (!param.url_prefix)
-			param.url_prefix == '';
+			param.url_prefix = '';
 
-		if (!param.url_prefix.slice(-1) != '/')
+		if (param.url_prefix.slice(-1) != '/')
 			param.url_prefix = param.url_prefix + '/';
 
 		var key_val = param.param_id;
