@@ -209,17 +209,30 @@ exports = module.exports = function(_o) {
 	app.add_api_call = function(param)
 	{
 		function call_api_function(req, res) {
-			var obj = req.body;
-			_.each(_.keys(req.params), function(field) {
-				req.body[field] = req.params[field];
-			});
-
-			if (param.validation_string)
+			try
 			{
-				obj = validate_object(obj, param.validation_string);
-			}
+				var obj = req.body;
+				_.each(_.keys(req.params), function(field) {
+					req.body[field] = req.params[field];
+				});
 
-			res.locals.db.json_call(param.db_function, obj, null, {response: res});
+				if (param.validation_string)
+				{
+					obj = validate_object(obj, param.validation_string);
+				}
+
+				res.locals.db.json_call(param.db_function, obj, null, {response: res});
+			}
+			catch (e)
+			{
+				logger.error(e.stack);
+				res.send({
+					status: 'ERROR',
+					message: e.message,
+					code: -99,
+					error: e
+				});
+			}
 		}
 		// Validation
 		if (!param) return;
