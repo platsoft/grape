@@ -234,59 +234,63 @@ exports = module.exports = function(_o) {
 		}
 	}
 
-	app.create_api_calls = function (url_prefix, name, db_schema, ops, validation_strings)
+	app.create_api_calls = function (param)
 	{
 		var self = this;
-		if (!url_prefix || url_prefix == '')
-			url_prefix = '/';
+		if (!param) return;
+		if (!param.url_prefix)
+			param.url_prefix == '';
 
-		if (!validation_strings)
-			validation_strings = [];
+		if (!param.url_prefix.slice(-1) != '/')
+			param.url_prefix = param.url_prefix + '/';
 
-		var key_val = name + '_id';
-		for (var i = 0; i < ops.length; i++)
+		var key_val = param.param_id;
+		if( !key_val )
+			key_val = param.name + '_id';
+
+		for (var i = 0; i < param.operations.length; i++)
 		{
-			op = ops[i];
-			validation_string = validation_strings[i];
+			entry = param.operations[i];
+			op = entry.name;
 
 			if (op == 'view')
 			{
 				self.add_api_call({
-					name              : name + '.' + op,
+					name              : param.name + '.' + op,
 					method            : 'get',
-					url               : url_prefix + name + '/:' + key_val,
-					db_function       : db_schema + '.view_' + name,
-					validation_string : validation_strings[i]
+					url               : param.url_prefix + param.name + '/:' + key_val,
+					db_function       : param.db_schema + '.view_' + param.name,
+					validation_string : entry.validation_string
 				});
 			}
 			else if (op == 'create')
 			{
 				self.add_api_call({
-					name              : name + '.' + op,
+					name              : param.name + '.' + op,
 					method            : 'post',
-					url               : url_prefix + name,
-					db_function       : db_schema + '.save' + name,
-					validation_string : validation_strings[i]
+					url               : param.url_prefix + param.name,
+					db_function       : param.db_schema + '.save' + param.name,
+					validation_string : entry.validation_string
 				});
 			}
 			else if (op == 'update')
 			{
 				self.add_api_call({
-					name              : name + '.' + op,
+					name              : param.name + '.' + op,
 					method            : 'post',
-					url               : url_prefix + name + '/:' + key_val,
-					db_function       : db_schema + '.save' + name,
-					validation_string : validation_strings[i]
+					url               : param.url_prefix + param.name + '/:' + key_val,
+					db_function       : param.db_schema + '.save' + param.name,
+					validation_string : entry.validation_string
 				});
 			}
 			else
 			{
 				self.add_api_call({
-					name              : name + '.' + op,
+					name              : param.name + '.' + op,
 					method            : 'post',
-					url               : url_prefix + name + '/:' + key_val,
-					db_function       : db_schema + '.save' + name,
-					validation_string : validation_strings[i]
+					url               : param.url_prefix + param.name + '/:' + key_val + '/' + op,
+					db_function       : param.db_schema + '.save' + param.name,
+					validation_string : entry.validation_string
 				});
 			}
 		}
