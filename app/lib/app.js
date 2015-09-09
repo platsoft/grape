@@ -247,8 +247,7 @@ exports = module.exports = function(_o) {
 					name              : name + '.' + op,
 					method            : 'get',
 					url               : url_prefix + name + '/:' + key_val,
-					db_function       : db_schema + '.view_' + name,
-					validation_string : 'hello'
+					db_function       : db_schema + '.view_' + name
 				});
 			}
 			else if (op == 'create')
