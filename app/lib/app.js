@@ -185,60 +185,97 @@ exports = module.exports = function(_o) {
 		session_management(app);
 	}
 
-	app.add_api_calls = function (url_prefix, name, db_schema, ops)
+	function validate_object(data, validation_string) {
+		return data;
+	}
+
+	/*
+	param : {
+		name,
+		method,
+		url,
+		db_function,
+		validation_string
+	}
+	 */
+	app.add_api_call = function(param)
 	{
+		function call_api_function(req, res) {
+			var obj = req.body;
+			_.each(req.params, function(field) {
+				req.body[field] = req.params[field];
+			});
+
+			if(param.validation_string)
+			{
+				obj = validate_object(obj, param.validation_string);
+			}
+
+			res.locals.db.json_call(param.db_function, obj, null, {response: res});
+		}
+		// Validation
+		if (!param) return;
+		if (param.method != 'get' && param.method != 'post')
+			throw new Error('Invalid API method provided: ' + param.method);
+		if (!param.db_function)
+			throw new Error('No db_function provided');
+		if (!param.url)
+			throw new Error('No url provided');
+
+		logger.info('Registering API call ' + param.name + ' as ' + param.method + ':' + param.url);
+		if(param.method = 'get')
+		{
+			app.get(param.url, call_api_function);
+		}
+		else if (param.method = 'post')
+		{
+			app.post(param.url, call_api_function);
+		}
+	}
+
+	app.create_api_calls = function (url_prefix, name, db_schema, ops)
+	{
+		var self = this;
 		if (!url_prefix || url_prefix == '')
 			url_prefix = '/';
 
 		var key_val = name + '_id';
-		var url;
-
 		ops.forEach(function(op) {
 			if(op == 'view')
 			{
-				url = url_prefix + name + '/:' + key_val;
-				logger.info('Loading dynamic API call ' + name + '.' + op + ' at GET - ' + url);
-
-				app.get(url, function(req, res) {
-					var obj = req.body;
-					obj[key_val] = req.params[key_val];
-
-					res.locals.db.json_call(db_schema + '.view_' + name, obj, null, {response: res});
+				self.add_api_call({
+					name              : name + '.' + op,
+					method            : 'get',
+					url               : url_prefix + name + '/:' + key_val,
+					db_function       : db_schema + '.view_' + name,
+					validation_string : 'hello'
 				});
 			}
 			else if (op == 'create')
 			{
-				url = url_prefix + name;
-				logger.info('Loading dynamic API call ' + name + '.' + op + ' at POST - ' + url);
-
-				app.post(url, function(req, res) {
-					var obj = req.body;
-
-					res.locals.db.json_call(db_schema + '.save' + name, obj, null, {response: res});
+				self.add_api_call({
+					name        : name + '.' + op,
+					method      : 'post',
+					url         : url_prefix + name,
+					db_function : db_schema + '.save' + name
 				});
 			}
 			else if (op == 'update')
 			{
-				url = url_prefix + name + '/:' + key_val;
-				logger.info('Loading dynamic API call ' + name + '.' + op + ' at POST - ' + url);
-
-				app.post(url, function(req, res) {
-					var obj = req.body;
-					obj[key_val] = req.params[key_val];
-
-					res.locals.db.json_call(db_schema + '.save' + name, obj, null, {response: res});
+				self.add_api_call({
+					name        : name + '.' + op,
+					method      : 'post',
+					url         : url_prefix + name + '/:' + key_val,
+					db_function : db_schema + '.save' + name
 				});
 			}
 			else
 			{
-				url = url_prefix + name + '/:' + key_val + '/' + op;
-				logger.info('Loading dynamic API call ' + name + '.' + op + ' at POST - ' + url);
-
-				app.post(url, function(req, res) {
-					var obj = req.body;
-					obj[key_val] = req.params[key_val];
-
-					res.locals.db.json_call(db_schema + '.' + op + '_' + name, obj, null, {response: res});
+				self.add_api_call({
+					name        : name + '.' + op,
+					method      : 'post',
+					url         : url_prefix + name + '/:' + key_val,
+					db_function : db_schema + '.save' + name
 				});
 			}
 		});
