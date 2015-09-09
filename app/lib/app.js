@@ -186,6 +186,7 @@ exports = module.exports = function(_o) {
 	}
 
 	function validate_object(data, validation_string) {
+		logger.info('Auto-validating input data');
 		return data;
 	}
 
@@ -206,7 +207,7 @@ exports = module.exports = function(_o) {
 				req.body[field] = req.params[field];
 			});
 
-			if(param.validation_string)
+			if (param.validation_string)
 			{
 				obj = validate_object(obj, param.validation_string);
 			}
@@ -223,7 +224,7 @@ exports = module.exports = function(_o) {
 			throw new Error('No url provided');
 
 		logger.info('Registering API call ' + param.name + ' as ' + param.method + ':' + param.url);
-		if(param.method = 'get')
+		if (param.method = 'get')
 		{
 			app.get(param.url, call_api_function);
 		}
@@ -233,51 +234,62 @@ exports = module.exports = function(_o) {
 		}
 	}
 
-	app.create_api_calls = function (url_prefix, name, db_schema, ops)
+	app.create_api_calls = function (url_prefix, name, db_schema, ops, validation_strings)
 	{
 		var self = this;
 		if (!url_prefix || url_prefix == '')
 			url_prefix = '/';
 
+		if (!validation_strings)
+			validation_strings = [];
+
 		var key_val = name + '_id';
-		ops.forEach(function(op) {
-			if(op == 'view')
+		for (var i = 0; i < ops.length; i++)
+		{
+			op = ops[i];
+			validation_string = validation_strings[i];
+
+			if (op == 'view')
 			{
 				self.add_api_call({
 					name              : name + '.' + op,
 					method            : 'get',
 					url               : url_prefix + name + '/:' + key_val,
-					db_function       : db_schema + '.view_' + name
+					db_function       : db_schema + '.view_' + name,
+					validation_string : validation_strings[i]
 				});
 			}
 			else if (op == 'create')
 			{
 				self.add_api_call({
-					name        : name + '.' + op,
-					method      : 'post',
-					url         : url_prefix + name,
-					db_function : db_schema + '.save' + name
+					name              : name + '.' + op,
+					method            : 'post',
+					url               : url_prefix + name,
+					db_function       : db_schema + '.save' + name,
+					validation_string : validation_strings[i]
 				});
 			}
 			else if (op == 'update')
 			{
 				self.add_api_call({
-					name        : name + '.' + op,
-					method      : 'post',
-					url         : url_prefix + name + '/:' + key_val,
-					db_function : db_schema + '.save' + name
+					name              : name + '.' + op,
+					method            : 'post',
+					url               : url_prefix + name + '/:' + key_val,
+					db_function       : db_schema + '.save' + name,
+					validation_string : validation_strings[i]
 				});
 			}
 			else
 			{
 				self.add_api_call({
-					name        : name + '.' + op,
-					method      : 'post',
-					url         : url_prefix + name + '/:' + key_val,
-					db_function : db_schema + '.save' + name
+					name              : name + '.' + op,
+					method            : 'post',
+					url               : url_prefix + name + '/:' + key_val,
+					db_function       : db_schema + '.save' + name,
+					validation_string : validation_strings[i]
 				});
 			}
-		});
+		}
 	};
 
 
