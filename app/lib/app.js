@@ -10,6 +10,8 @@ var _ = require('underscore');
 var fs = require('fs');
 var util = require('util');
 
+var auto_validate = require('./auto_validate.js');
+
 exports = module.exports = function(_o) {
 	var app = express();
 
@@ -185,9 +187,14 @@ exports = module.exports = function(_o) {
 		session_management(app);
 	}
 
-	function validate_object(data, validation_string) {
-		logger.info('Auto-validating input data');
-		return data;
+	function validate_object(obj, validation_string)
+	{
+		var ret = auto_validate.validate(obj, validation_string);
+		if(ret.errors && ret.errors.length > 0)
+		{
+			throw new Error('Validation failure: ' + ret.errors[0]);
+		}
+		else return ret.obj;
 	}
 
 	/*
@@ -203,7 +210,7 @@ exports = module.exports = function(_o) {
 	{
 		function call_api_function(req, res) {
 			var obj = req.body;
-			_.each(req.params, function(field) {
+			_.each(_.keys(req.params), function(field) {
 				req.body[field] = req.params[field];
 			});
 
