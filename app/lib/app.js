@@ -1,5 +1,5 @@
 /**
- * Worker apps. Starts listening on port, loads API files, public files 
+ * Worker apps. Starts listening on port, loads API files, public files
  *
  */
 var express = require('express');
@@ -12,13 +12,13 @@ var util = require('util');
 
 exports = module.exports = function(_o) {
 	var app = express();
-	
+
 	app.use(bodyParser());
 	app.use(cookieParser());
 	app.use(multipartParser());
-	
+
 	var options = require(__dirname + '/options.js')(_o);
-	
+
 	var _logger = require(__dirname + '/logger.js');
 	var logger = new _logger(options);
 
@@ -34,7 +34,7 @@ exports = module.exports = function(_o) {
 
 	var document_store = new (require(__dirname + '/document_store.js'))(options);
 	app.set('document_store', document_store);
-	
+
 	logger.info('Starting application (pid ' + process.pid + ') with options: ' + util.inspect(options));
 
 	//if database loading is requested
@@ -42,7 +42,7 @@ exports = module.exports = function(_o) {
 	{
 		var _db = require(__dirname + '/db.js');
 		var db = new _db({
-			dburi: app.get('config').dburi, 
+			dburi: app.get('config').dburi,
 			debug: app.get('config').debug,
 			debug_logger: function(s) { app.get('logger').db(s); },
 			error_logger: function(s) { app.get('logger').db(s); }
@@ -57,7 +57,7 @@ exports = module.exports = function(_o) {
 	 *
 	 * @param {string} relativedirname - Used by loadapifiles() to recursivly loop through the api directories
 	 */
-	function loadapifiles(dirname, relativedirname) 
+	function loadapifiles(dirname, relativedirname)
 	{
 		if (relativedirname[relativedirname.length - 1] != '/') relativedirname += '/';
 
@@ -65,28 +65,28 @@ exports = module.exports = function(_o) {
 
 		//app.get('logger').info('Loading api(s) from: ' + relativedirname);
 
-		if (options.apiIgnore.indexOf(relativedirname) != -1) 
+		if (options.apiIgnore.indexOf(relativedirname) != -1)
 		{
 			app.get('logger').info('Ignoring ' + relativedirname + ' - found it in app/apiignore.js');
 			return;
 		}
 
 		var files = fs.readdirSync(dirname);
-		for (var i = 0; i < files.length; i++) 
+		for (var i = 0; i < files.length; i++)
 		{
 			var file = files[i];
 			var fstat = fs.statSync(dirname + file);
-			if (fstat.isFile()) 
+			if (fstat.isFile())
 			{
 				var ar = file.split('.');
-				if (ar[ar.length - 1] == 'js' && options.apiIgnore.indexOf(file) === -1) 
+				if (ar[ar.length - 1] == 'js' && options.apiIgnore.indexOf(file) === -1)
 				{
 					// loads the api module and execute the export function with the app param.
 					require(dirname + file)(app);
 					app.get('logger').info("Loaded " + relativedirname + file);
 				}
 			}
-			else if (fstat.isDirectory()) 
+			else if (fstat.isDirectory())
 			{
 				loadapifiles(dirname + '/' + file, relativedirname + file);
 			}
@@ -102,11 +102,11 @@ exports = module.exports = function(_o) {
 		if (dirname[dirname.length - 1] != '/') dirname += '/';
 
 		var files = fs.readdirSync(dirname);
-		for (var i = 0; i < files.length; i++) 
+		for (var i = 0; i < files.length; i++)
 		{
 			var file = files[i];
 			var fstat = fs.statSync(dirname + file);
-			if (fstat.isFile()) 
+			if (fstat.isFile())
 			{
 				var ar = file.split('.');
 				if (ar[ar.length - 1] == 'js')
@@ -117,7 +117,7 @@ exports = module.exports = function(_o) {
 					app.get('logger').info("Loaded " + relativedirname + file);
 				}
 			}
-			else if (fstat.isDirectory()) 
+			else if (fstat.isDirectory())
 			{
 				data += loadpublicjsfiles(dirname + '/' + file, relativedirname + file);
 			}
@@ -127,11 +127,11 @@ exports = module.exports = function(_o) {
 
 	function setup_public_directory(dirname)
 	{
-		app.use(function(req, res, next) 
+		app.use(function(req, res, next)
 		{
 			var accepts_json = (req.headers.accept && req.headers.accept.indexOf('application/json') != -1);
-			
-			//GET which does not accept JSON 
+
+			//GET which does not accept JSON
 			if (req.method == 'GET' && !accepts_json)
 			{
 				console.log(req._parsedUrl.pathname);
@@ -142,7 +142,7 @@ exports = module.exports = function(_o) {
 					console.log("Sending file " + fileName);
 					res.sendfile(fileName);
 					return;
-				} 
+				}
 				else if (req._parsedUrl.pathname == '/download_public_js_files') //special path to download all javcascript files recursively in /public/pages/
 				{
 					var jsdata = loadpublicjsfiles(app.get('publicPath') + '/pages', '/');
@@ -152,7 +152,7 @@ exports = module.exports = function(_o) {
 				}
 				else if (req.path.slice(0, 9) == '/download') //skip the sending of index.html if path is /download (special case)
 				{
-				} 
+				}
 				else 	//send index.html to load app (this is for stuff like /search and /policy/:policy_id)
 				{
 					res.sendfile(app.get('publicPath') + '/index.html');
@@ -163,9 +163,9 @@ exports = module.exports = function(_o) {
 		});
 	}
 
-	
+
 	//first function to be called on a new request
-	app.use(function(req, res, next) 
+	app.use(function(req, res, next)
 	{
 		logger.trace([req.ip, req.method, req.url].join(' '));
 		res.locals.db = app.get('db');
@@ -185,6 +185,65 @@ exports = module.exports = function(_o) {
 		session_management(app);
 	}
 
+	app.add_api_calls = function (url_prefix, name, db_schema, ops)
+	{
+		if (!url_prefix || url_prefix == '')
+			url_prefix = '/';
+
+		var key_val = name + '_id';
+		var url;
+
+		ops.forEach(function(op) {
+			if(op == 'view')
+			{
+				url = url_prefix + name + '/:' + key_val;
+				logger.info('Loading dynamic API call ' + name + '.' + op + ' at GET - ' + url);
+
+				app.get(url, function(req, res) {
+					var obj = req.body;
+					obj[key_val] = req.params[key_val];
+
+					res.locals.db.json_call(db_schema + '.view_' + name, obj, null, {response: res});
+				});
+			}
+			else if (op == 'create')
+			{
+				url = url_prefix + name;
+				logger.info('Loading dynamic API call ' + name + '.' + op + ' at POST - ' + url);
+
+				app.post(url, function(req, res) {
+					var obj = req.body;
+
+					res.locals.db.json_call(db_schema + '.save' + name, obj, null, {response: res});
+				});
+			}
+			else if (op == 'update')
+			{
+				url = url_prefix + name + '/:' + key_val;
+				logger.info('Loading dynamic API call ' + name + '.' + op + ' at POST - ' + url);
+
+				app.post(url, function(req, res) {
+					var obj = req.body;
+					obj[key_val] = req.params[key_val];
+
+					res.locals.db.json_call(db_schema + '.save' + name, obj, null, {response: res});
+				});
+			}
+			else
+			{
+				url = url_prefix + name + '/:' + key_val + '/' + op;
+				logger.info('Loading dynamic API call ' + name + '.' + op + ' at POST - ' + url);
+
+				app.post(url, function(req, res) {
+					var obj = req.body;
+					obj[key_val] = req.params[key_val];
+
+					res.locals.db.json_call(db_schema + '.' + op + '_' + name, obj, null, {response: res});
+				});
+			}
+		});
+	};
+
 
 	// Load built-in API calls
 	var builtin_api_dir = __dirname + '/../api/';
@@ -195,7 +254,7 @@ exports = module.exports = function(_o) {
 	{
 		loadapifiles(options.api_directory, '');
 	}
-		
+
 
 	var http = require('http');
 	http.globalAgent.maxSockets = 50;
@@ -204,9 +263,7 @@ exports = module.exports = function(_o) {
 
 	logger.info('Listening on ' + options.port);
 
-	server.timeout = 50000;
-	
+	server.timeout = options.server_timeout;
+
 	return app;
 };
-
-

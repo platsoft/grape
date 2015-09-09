@@ -4,8 +4,8 @@ var fs = require('fs');
 
 exports = module.exports = function(_o) {
 	var options = {
-		session_management: false, 
-		api_directory: false, 
+		session_management: false,
+		api_directory: false,
 		apiIgnore: [],
 		port: 3000,
 		public_directory: false,
@@ -13,11 +13,12 @@ exports = module.exports = function(_o) {
 		instances: 1,
 		document_store: false,
 		base_directory: false,
-		log_directory: false
+		log_directory: false,
+		server_timeout: 50000
 	};
 
 	_.extend(options, _o);
-	
+
 	if (options.base_directory == false && options.public_directory != false)
 	{
 		options.base_directory = fs.realpathSync(options.public_directory + '/../');
