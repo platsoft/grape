@@ -264,6 +264,9 @@ exports = module.exports = function(_o) {
 		if (param.url_prefix.slice(-1) != '/')
 			param.url_prefix = param.url_prefix + '/';
 
+		if (!param.db_schema)
+			param.db_schema = 'public';
+
 		var key_val = param.param_id;
 		if( !key_val )
 			key_val = param.name + '_id';
