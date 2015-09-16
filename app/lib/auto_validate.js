@@ -21,7 +21,6 @@ function decode_validation_string (validate_string)
 
 	function save ()
 	{
-
 		if (typeof var_info == 'object')
 		{
 			ret.push({'name': var_name, 'data_type': 'o', 'fields': var_info});
@@ -159,12 +158,18 @@ function auto_validate(obj, validate_string)
 					{
 						p['error'] = p.name + ' cannot be null';
 						validation_errors.push(p['error']);
+						p.valid = false;
+						continue;
 					}
-					continue;
+					else
+					{
+						p.valid = true;
+						p.value = null;
+						continue;
+					}
 				}
 
 				var str_value = value_in_object.toString();
-
 				if (str_value == '' && p.empty_becomes_null == true)
 				{
 					p.value = null;
@@ -221,7 +226,7 @@ function auto_validate(obj, validate_string)
 						p.value = parseFloat(str_value);
 					}
 				}
-				else if (p.data_type == 'd')
+				else if (p.data_type == 'd' || p.data_type == 't')
 				{
 					if (str_value.match (/[0-9]{1,2}(\/|-)[0-9]{1,2}(\/|-)[0-9]{4}/) != null)
 					{
@@ -235,8 +240,8 @@ function auto_validate(obj, validate_string)
 					}
 					else
 					{
-						p.valid = false;
 
+						p.valid = false;
 					}
 				}
 				else if (p.data_type == 'a')

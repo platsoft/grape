@@ -194,7 +194,17 @@ exports = module.exports = function(_o) {
 		{
 			throw new Error('Validation failure: ' + ret.errors[0]);
 		}
-		else return ret.obj;
+		else {
+			_.each(ret.obj, function(entry) {
+				if (entry.valid == false)
+				{
+					console.log(entry);
+					throw new Error('Invalid field data: ' + entry.name, entry);
+				}
+				obj[entry.name] = entry.value;
+			});
+			return obj;
+		};
 	}
 
 	/*
