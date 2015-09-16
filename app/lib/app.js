@@ -208,6 +208,7 @@ exports = module.exports = function(_o) {
 	 */
 	app.add_api_call = function(param)
 	{
+		var self = this;
 		function call_api_function(req, res) {
 			try
 			{
@@ -244,13 +245,13 @@ exports = module.exports = function(_o) {
 			throw new Error('No url provided');
 
 		logger.info('Registering API call ' + param.name + ' as ' + param.method + ':' + param.url);
-		if (param.method = 'get')
+		if (param.method == 'get')
 		{
-			app.get(param.url, call_api_function);
+			self.get(param.url, call_api_function);
 		}
-		else if (param.method = 'post')
+		else if (param.method == 'post')
 		{
-			app.post(param.url, call_api_function);
+			self.post(param.url, call_api_function);
 		}
 	}
 
