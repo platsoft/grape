@@ -5,17 +5,17 @@
  * 	begin_expr ::= "(" <begin_expr> "," <param-def> ")"
  *	param-def ::= <param-name> ":" <data-type> <modifier-list>
  *	modifier-list ::= <opt-modifier> <modifier-list>
- *	opt-modifier ::= "*" | "E" | "0" | "" 
- *	data-type ::= "s" | "i" | "f" | "b" | "d" | "dt"
- * 
- * 
- * 
+ *	opt-modifier ::= "*" | "E" | "0" | ""
+ *	data-type ::= "s" | "i" | "f" | "b" | "d" | "t"
+ *
+ *
+ *
  */
 function decode_validation_string (validate_string)
 {
 	var ret = [];
 	var i = 0;
-	var state = ''; 
+	var state = '';
 	var var_name = '';
 	var var_info = '';
 
@@ -28,13 +28,13 @@ function decode_validation_string (validate_string)
 		}
 		else // is a string
 		{
-			var modifiers = {'name': '', 
-				'data_type': '', 
-				'original_value': '', 
-				'value': '', 
-				'valid': false, 
-				'nullable': false, 
-				'optional': false, 
+			var modifiers = {'name': '',
+				'data_type': '',
+				'original_value': '',
+				'value': '',
+				'valid': false,
+				'nullable': false,
+				'optional': false,
 				'empty_becomes_null': false
 			};
 
@@ -42,7 +42,7 @@ function decode_validation_string (validate_string)
 			{
 				switch (var_info[i])
 				{
-					case 's': case 'i': case 'f': case 'b': case 'd': case 'dt': case 'a':
+					case 's': case 'i': case 'f': case 'b': case 'd': case 't': case 'a':
 						modifiers.data_type = var_info[i];
 						continue;
 					case '*':
@@ -54,7 +54,7 @@ function decode_validation_string (validate_string)
 					case 'E':
 						modifiers.empty_becomes_null = true;
 						continue;
-					default: 
+					default:
 						continue;
 				}
 			}
@@ -63,7 +63,7 @@ function decode_validation_string (validate_string)
 			ret.push(modifiers);
 		}
 	}
-	
+
 	for (i = 0; i < validate_string.length; i++)
 	{
 		var c = validate_string[i];
@@ -97,7 +97,7 @@ function decode_validation_string (validate_string)
 			case ')':
 				save();
 				return ret;
-			
+
 			default:
 				switch (state)
 				{
@@ -109,7 +109,7 @@ function decode_validation_string (validate_string)
 					case 'var_info':
 						var_info = var_info + c;
 						continue;
-					default: 
+					default:
 						console.log("SYNTAX ERROR AT POSITION ", i);
 						console.log(validate_string.substring(i));
 						continue;
@@ -164,7 +164,7 @@ function auto_validate(obj, validate_string)
 				}
 
 				var str_value = value_in_object.toString();
-				
+
 				if (str_value == '' && p.empty_becomes_null == true)
 				{
 					p.value = null;
@@ -205,7 +205,7 @@ function auto_validate(obj, validate_string)
 							p.value = false;
 						else
 							p.value = true;
-						
+
 					}
 				}
 				else if (p.data_type == 'f')
@@ -236,7 +236,7 @@ function auto_validate(obj, validate_string)
 					else
 					{
 						p.valid = false;
-						
+
 					}
 				}
 				else if (p.data_type == 'a')
@@ -251,16 +251,16 @@ function auto_validate(obj, validate_string)
 						p.valid = false;
 					}
 				}
-				else 
+				else
 				{
 					p.valid = true;
 					p.value = p.original_value;
 				}
-				
+
 				obj[p.name] = p.value;
 				if (p['error'])
 					validation_errors.push(p['error']);
-				
+
 			}
 		}
 
