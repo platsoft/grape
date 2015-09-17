@@ -41,7 +41,7 @@ function decode_validation_string (validate_string)
 			{
 				switch (var_info[i])
 				{
-					case 's': case 'i': case 'f': case 'b': case 'd': case 't': case 'a':
+					case 's': case 'i': case 'f': case 'b': case 'd': case 't': case 'a': case 'j' :
 						modifiers.data_type = var_info[i];
 						continue;
 					case '*':
@@ -183,7 +183,19 @@ function auto_validate(obj, validate_string)
 					continue;
 				}
 
-				if (p.data_type == 'i')
+				if (p.data_type == 'j')
+				{
+					try
+					{
+						p.value = JSON.parse(str);
+						p.valid = true;
+					}
+					catch (e) {
+						p.valid = false;
+						p['error'] = p.name + ' must be valid json';
+					}
+				}
+				else if (p.data_type == 'i')
 				{
 					if (str_value.match (/[0-9]*/) == null)
 					{
@@ -200,7 +212,6 @@ function auto_validate(obj, validate_string)
 				{
 					p.valid = true;
 					p.value = p.original_value;
-					obj[p.name] = p.value;
 				}
 				else if (p.data_type == 'b')
 				{
