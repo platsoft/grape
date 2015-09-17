@@ -187,7 +187,7 @@ function auto_validate(obj, validate_string)
 				{
 					try
 					{
-						p.value = JSON.parse(str);
+						p.value = JSON.parse(str_value);
 						p.valid = true;
 					}
 					catch (e) {
