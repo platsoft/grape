@@ -6,7 +6,7 @@
  *	param-def ::= <param-name> ":" <data-type> <modifier-list>
  *	modifier-list ::= <opt-modifier> <modifier-list>
  *	opt-modifier ::= "*" | "E" | "0" | ""
- *	data-type ::= "s" | "i" | "f" | "b" | "d" | "t"
+ *	data-type ::= "s" | "i" | "f" | "b" | "d" | "t" | "a"
  *
  *
  *
@@ -148,8 +148,14 @@ function auto_validate(obj, validate_string)
 					{
 						p['error'] = p.name + ' is a required field';
 						validation_errors.push(p['error']);
+						continue;
 					}
-					continue;
+					else
+					{
+						p.valid = true;
+						p.value = undefined;
+						continue;
+					}
 				}
 
 				if (value_in_object == null)
@@ -247,7 +253,7 @@ function auto_validate(obj, validate_string)
 				else if (p.data_type == 'a')
 				{
 					p.value = p.original_value;
-					if (typeof original_value == 'object')
+					if (typeof p.original_value == 'object')
 					{
 						p.valid = true;
 					}
