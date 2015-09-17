@@ -293,7 +293,7 @@ exports = module.exports = function(_o) {
 					name              : param.name + '.' + op,
 					method            : 'get',
 					url               : param.url_prefix + param.name + '/:' + key_val,
-					db_function       : param.db_schema + '.view_' + param.name,
+					db_function       : entry.db_function ? entry.db_function : param.db_schema + '.view_' + param.name,
 					validation_string : entry.validation_string
 				});
 			}
@@ -303,7 +303,7 @@ exports = module.exports = function(_o) {
 					name              : param.name + '.' + op,
 					method            : 'post',
 					url               : param.url_prefix + param.name,
-					db_function       : param.db_schema + '.save_' + param.name,
+					db_function       : entry.db_function ? entry.db_function : param.db_schema + '.save_' + param.name,
 					validation_string : entry.validation_string
 				});
 			}
@@ -313,7 +313,7 @@ exports = module.exports = function(_o) {
 					name              : param.name + '.' + op,
 					method            : 'post',
 					url               : param.url_prefix + param.name + '/:' + key_val,
-					db_function       : param.db_schema + '.save_' + param.name,
+					db_function       : entry.db_function ? entry.db_function : param.db_schema + '.save_' + param.name,
 					validation_string : entry.validation_string
 				});
 			}
@@ -323,7 +323,7 @@ exports = module.exports = function(_o) {
 					name              : param.name + '.' + op,
 					method            : 'post',
 					url               : param.url_prefix + param.name + '/:' + key_val + '/' + op,
-					db_function       : param.db_schema + '.' + op + '_' + param.name,
+					db_function       : entry.db_function ? entry.db_function : param.db_schema + '.' + op + '_' + param.name,
 					validation_string : entry.validation_string
 				});
 			}
