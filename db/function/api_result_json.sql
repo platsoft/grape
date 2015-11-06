@@ -1,5 +1,4 @@
-
-/** 
+/**
  * Construct a JSON object with 3 fields, status, code and message. status is set to ERROR, message to the value of the _message parameter and code to the _code parameter. If _code is NULL this parameter is ignored
  */
 CREATE OR REPLACE FUNCTION grape.api_result_error(_message TEXT, _code INTEGER) RETURNS JSON AS $$
@@ -7,10 +6,10 @@ DECLARE
 	_ret JSON;
 BEGIN
 	IF _code IS NULL THEN
-		SELECT to_json(b) INTO _ret FROM 
+		SELECT to_json(b) INTO _ret FROM
 			(SELECT 'ERROR' AS "status", _message AS "message") AS b;
 	ELSE
-		SELECT to_json(b) INTO _ret FROM 
+		SELECT to_json(b) INTO _ret FROM
 			(SELECT 'ERROR' AS "status", _message AS "message", _code AS "code") AS b;
 	END IF;
 
@@ -64,9 +63,9 @@ BEGIN
 
 	_sql := _sql || ' ) AS b';
 
-	RAISE NOTICE 'SQL: %', _sql;
+	-- RAISE NOTICE 'SQL: %', _sql;
 	EXECUTE _sql INTO _ret;
-	
+
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
 
@@ -106,5 +105,3 @@ BEGIN
 	SELECT to_json(b) INTO _ret FROM (SELECT 'OK' AS "status") AS b;
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
-
-
