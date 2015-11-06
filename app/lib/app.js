@@ -207,6 +207,20 @@ exports = module.exports = function(_o) {
 		};
 	}
 
+	app.validate_input = function(req, validation_string) {
+		var obj = req.body;
+		_.each(_.keys(req.params), function(field) {
+			req.body[field] = req.params[field];
+		});
+
+		if (validation_string)
+		{
+			obj = validate_object(obj, validation_string);
+		}
+
+		return obj;
+	};
+
 	/*
 	param : {
 		name,
@@ -219,49 +233,46 @@ exports = module.exports = function(_o) {
 	app.add_api_call = function(param)
 	{
 		var self = this;
-		function call_api_function(req, res) {
-			try
-			{
-				var obj = req.body;
-				_.each(_.keys(req.params), function(field) {
-					req.body[field] = req.params[field];
-				});
+		if(!param.api_function || typeof(param.api_function) != typeof Function)
+		{
+			if (!param.db_function)
+				throw new Error('No db_function provided');
 
-				if (param.validation_string)
+			param.api_function = function(req, res) {
+				try
 				{
-					obj = validate_object(obj, param.validation_string);
-				}
+					var obj = self.validate_input(req, param.validation_string);
 
-				res.locals.db.json_call(param.db_function, obj, null, {response: res});
-			}
-			catch (e)
-			{
-				logger.error(e.stack);
-				res.send({
-					status: 'ERROR',
-					message: e.message,
-					code: -99,
-					error: e
-				});
+					res.locals.db.json_call(param.db_function, obj, null, {response: res});
+				}
+				catch (e)
+				{
+					logger.error(e.stack);
+					res.send({
+						status: 'ERROR',
+						message: e.message,
+						code: -99,
+						error: e
+					});
+				}
 			}
 		}
+
 		// Validation
 		if (!param) return;
 		if (param.method != 'get' && param.method != 'post')
 			throw new Error('Invalid API method provided: ' + param.method);
-		if (!param.db_function)
-			throw new Error('No db_function provided');
 		if (!param.url)
 			throw new Error('No url provided');
 
 		logger.info('Registering API call ' + param.name + ' as ' + param.method + ':' + param.url);
 		if (param.method == 'get')
 		{
-			self.get(param.url, call_api_function);
+			self.get(param.url, param.api_function);
 		}
 		else if (param.method == 'post')
 		{
-			self.post(param.url, call_api_function);
+			self.post(param.url, param.api_function);
 		}
 	}
 
