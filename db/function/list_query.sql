@@ -21,7 +21,7 @@ END; $$ LANGUAGE plpgsql;
  * 	offset (optional) integer default 0
  * 	filter (optional) array of fields:
  *		field text
- *		operand text of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE'
+ *		operand text of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE', 'IS_NULL', 'IS_NOT_NULL'
  *		value text
  * Returns a list object:  { total: INT, offset: INT, limit: INT, result_count: INT, records: [ {} ] }
  */
@@ -79,7 +79,7 @@ BEGIN
 		_sortfield := '';
 		_sortsql := '';
         END IF;
-        
+
         IF json_extract_path($1, 'limit') IS NOT NULL THEN
 		_limit := ($1->>'limit')::INTEGER;
         ELSE
@@ -112,11 +112,16 @@ BEGIN
 				_oper := _filter_json->>'op';
 			END IF;
 
-			IF NOT _oper IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
+			IF _oper IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
+				_filter_sql := quote_ident(_filter_json->>'field') || ' ' || _oper || ' ' || quote_literal(_filter_json->>'value') || '';
+			ELSIF _oper = 'IS_NULL' THEN
+				_filter_sql := quote_ident(_filter_json->>'field') || ' IS NULL';
+			ELSIF _oper = 'IS_NOT_NULL' THEN
+				_filter_sql := quote_ident(_filter_json->>'field') || ' IS NOT NULL';
+			ELSE
 				CONTINUE;
 			END IF;
 
-			_filter_sql := quote_ident(_filter_json->>'field') || ' ' || _oper || ' ' || quote_literal(_filter_json->>'value') || '';
 			_filters := array_append(_filters, _filter_sql);
 		END LOOP;
 		IF array_length(_filters, 1) > 0 THEN
@@ -147,11 +152,8 @@ BEGIN
 			'$5 AS "total_pages" '
 		' FROM '
 			'(SELECT * FROM '  || quote_ident(_schema) || '.' || quote_ident(_tablename) || ' ' || _filter_sql || ' ' || _sortsql || ' OFFSET $1 LIMIT $2) a'
-		') b' 
+		') b'
 		USING _offset, _limit, _page_number, _total, _total_pages INTO _ret;
 
         RETURN _ret;
 END; $$ LANGUAGE plpgsql;
-
-
-
