@@ -25,7 +25,7 @@ BEGIN
 		RETURN '{"success":"false","status":"ERROR","code":"1","message":"No such user"}'::JSON;
 	END IF;
 
-	IF rec.password != _password THEN
+	IF crypt(_password, rec.password) != rec.password THEN
 		RAISE DEBUG 'User % login failed. Password does not match', _user;
 		RETURN '{"success":"false","status":"ERROR","code":"2","message":"Invalid password"}'::JSON;
 	END IF;
