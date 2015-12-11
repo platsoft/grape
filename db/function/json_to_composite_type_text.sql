@@ -58,7 +58,7 @@ BEGIN
 		IF _type_data.is_array THEN
 			_result := _result || 'ARRAY[' ;
 			-- Loop over the array
-			FOR _param_value IN SELECT * FROM JSON_ARRAY_ELEMENTS(_param_value::JSON) LOOP
+			FOR _param_value IN SELECT * FROM JSON_ARRAY_ELEMENTS_TEXT(_param_value::JSON) LOOP
 				IF _type_data.is_composite THEN
 					_temp_value := grape.json_to_composite_type_text( _type_data.schema, _type_data.attribute_type, _param_value::JSON );
 					_result := _result ||  _temp_value || ',';
