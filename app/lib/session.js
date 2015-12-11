@@ -109,29 +109,52 @@ module.exports = function (app)
 
 		app.get('logger').session('Checking path ' + path + ' against session ' + session_id);
 
-		var cachename = [session_id, path, req.method].join('-');
-		app.get('cache').fetch(cachename, function(message) {
-			if (typeof message.v == 'undefined' || !message.v)
-			{
-				db.query('SELECT * FROM grape.session_check_path_select($1, $2, $3)', [session_id, path, req.method], function(err, result) { 
-					if (err)
-					{
-						app.get('logger').session('Could not load access paths for Session ' + session_id + ' against ' + path + ' ' + err);
-						session_fail();
-						return;
-					}
+		function check_session_path_in_database (session_id, path, method, cb)
+		{
+			db.query('SELECT * FROM grape.session_check_path_select($1, $2, $3)', [session_id, path, method], cb);
+		}
 
-					var ret = result.rows[0];
-					app.get('cache').set(cachename, ret);
-					handle_session_check(ret);
-				});
-			}
-			else
-			{
-				console.log("FOUND THIS QUERY IN CACHE");
-				handle_session_check(message.v);
-			}
-		});
+		var cache = app.get('cache');
+		if (!cache)
+		{
+			check_session_path_in_database(session_id, path, req.method, function(err, result) {
+				if (err)
+				{
+					app.get('logger').session('Could not load access paths for Session ' + session_id + ' against ' + path + ' ' + err);
+					session_fail();
+					return;
+				}
+
+				handle_session_check(result.rows[0]);
+			});
+
+		}
+		else
+		{
+			var cachename = [session_id, path, req.method].join('-');
+			app.get('cache').fetch(cachename, function(message) {
+				if (typeof message.v == 'undefined' || !message.v)
+				{
+					check_session_path_in_database(session_id, path, req.method, function(err, result) {
+						if (err)
+						{
+							app.get('logger').session('Could not load access paths for Session ' + session_id + ' against ' + path + ' ' + err);
+							session_fail();
+							return;
+						}
+
+						var ret = result.rows[0];
+						app.get('cache').set(cachename, ret);
+						handle_session_check(ret);
+					});
+				}
+				else
+				{
+					console.log("FOUND THIS QUERY IN CACHE");
+					handle_session_check(message.v);
+				}
+			});
+		}
 	});
 }
 
