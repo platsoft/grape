@@ -10,6 +10,7 @@ DECLARE
 	_active BOOLEAN;
 	_role_names TEXT[];
 	_role_name TEXT;
+	_hashed_password TEXT;
 
 	rec RECORD;
 BEGIN
@@ -20,6 +21,8 @@ BEGIN
 	_fullnames := $1->>'fullnames';
 	_active := ($1->>'active')::BOOLEAN;
 	_role_names := string_to_array($1->>'role_names', ',');
+
+	_hashed_password := crypto.crypt(_password, crypto.gen_salt('bf'));
 
 	-- Validate Username
 	IF _username IS NULL OR _username = '' THEN
@@ -38,7 +41,7 @@ BEGIN
 		IF NOT FOUND THEN
 			-- INSERT : Valid data
 			INSERT INTO grape."user" (username, password, email, fullnames, active)
-				VALUES (_username, _password, _email, _fullnames, _active)
+				VALUES (_username, _hashed_password, _email, _fullnames, _active)
 				RETURNING user_id INTO _user_id;
 
 			IF _role_names IS NOT NULL THEN
@@ -73,7 +76,7 @@ BEGIN
 			UPDATE grape."user" 
 				SET
 					username = _username,
-					password = _password,
+					password = _hashed_password,
 					email = _email,
 					fullnames = _fullnames,
 					active = _active
@@ -95,6 +98,10 @@ END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION grape.username (_user_id INTEGER) RETURNS TEXT AS $$
 	SELECT username FROM grape."user" WHERE user_id=_user_id::INTEGER;
+$$ LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION grape.user_id_from_name (_username TEXT) RETURNS INTEGER AS $$
+	SELECT user_id FROM grape."user" WHERE username=_username::TEXT;
 $$ LANGUAGE sql;
 
 
