@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.7.2" last-position="9,572" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.0" last-position="1,285" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -20,7 +20,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="access_role">
 	<schema name="grape"/>
 	<position x="116" y="471"/>
-	<column name="role_name">
+	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
 	<constraint name="access_role_pk" type="pk-constr" factor="10" table="grape.access_role">
@@ -31,10 +31,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="user_role">
 	<schema name="grape"/>
 	<position x="101" y="303"/>
-	<column name="user_id">
+	<column name="user_id" not-null="true">
 		<type name="integer"/>
 	</column>
-	<column name="role_name">
+	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
 	<constraint name="user_role_pk" type="pk-constr" factor="10" table="grape.user_role">
@@ -45,7 +45,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="session">
 	<schema name="grape"/>
 	<position x="487" y="47"/>
-	<column name="session_id">
+	<column name="session_id" not-null="true">
 		<type name="text"/>
 	</column>
 	<column name="ip_address">
@@ -68,13 +68,13 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="access_path">
 	<schema name="grape"/>
 	<position x="546" y="459"/>
-	<column name="role_name">
+	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
-	<column name="regex_path">
+	<column name="regex_path" not-null="true">
 		<type name="text"/>
 	</column>
-	<column name="method" default-value="'{POST, PUT, GET}'">
+	<column name="method" not-null="true" default-value="'{POST, PUT, GET}'">
 		<type name="text" dimension="1"/>
 		<comment><![CDATA[HTTP methods accepted by this path/route eg. (GET, POST, etc)]]></comment>
 	</column>
@@ -86,7 +86,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="user_history">
 	<schema name="grape"/>
 	<position x="481" y="246"/>
-	<column name="user_history_id">
+	<column name="user_history_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="user_id">
@@ -109,7 +109,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="user">
 	<schema name="grape"/>
 	<position x="112" y="41"/>
-	<column name="user_id">
+	<column name="user_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="password">
@@ -141,13 +141,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="proc" fill-color="#e1e1e1">
 </schema>
 
-<schema name="proc_cp" fill-color="#e1e1e1">
-</schema>
-
 <table name="process" oids="true">
 	<schema name="grape"/>
 	<position x="814" y="37"/>
-	<column name="process_id">
+	<column name="process_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="pg_function">
@@ -176,7 +173,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="schedule_log" oids="true">
 	<schema name="grape"/>
 	<position x="801" y="287"/>
-	<column name="schedule_log_id">
+	<column name="schedule_log_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="schedule_id">
@@ -196,7 +193,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="schedule" oids="true">
 	<schema name="grape"/>
 	<position x="1068" y="39"/>
-	<column name="schedule_id">
+	<column name="schedule_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="process_id">
@@ -232,8 +229,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import">
 	<schema name="grape"/>
-	<position x="836" y="454"/>
-	<column name="data_import_id">
+	<position x="836" y="421"/>
+	<column name="data_import_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="filename">
@@ -251,6 +248,18 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="date_done">
 		<type name="timestamp"/>
 	</column>
+	<column name="record_count">
+		<type name="integer"/>
+	</column>
+	<column name="valid_record_count">
+		<type name="integer"/>
+	</column>
+	<column name="data_import_status">
+		<type name="smallint"/>
+	</column>
+	<column name="processing_function">
+		<type name="text"/>
+	</column>
 	<constraint name="data_import_pk" type="pk-constr" factor="10" table="grape.data_import">
 		<columns names="data_import_id" ref-type="src-columns"/>
 	</constraint>
@@ -258,8 +267,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_row">
 	<schema name="grape"/>
-	<position x="1275" y="472"/>
-	<column name="data_import_row_id">
+	<position x="1276" y="464"/>
+	<column name="data_import_row_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="data_import_id">
@@ -277,7 +286,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="grape"/>
 	<comment><![CDATA[System-wide settings]]></comment>
 	<position x="272" y="573"/>
-	<column name="name">
+	<column name="name" not-null="true">
 		<type name="text"/>
 	</column>
 	<column name="value">
@@ -316,7 +325,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_endpoint">
 	<schema name="grape"/>
-	<position x="782" y="654"/>
+	<position x="726" y="782"/>
 	<column name="system_endpoint_id">
 		<type name="integer"/>
 	</column>
@@ -390,84 +399,112 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 </table>
 
+<table name="data_import_type">
+	<schema name="grape"/>
+	<position x="1269" y="614"/>
+	<column name="description" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="processing_function">
+		<type name="text"/>
+	</column>
+	<column name="full_description">
+		<type name="text"/>
+	</column>
+	<column name="file_format_info">
+		<type name="text"/>
+	</column>
+	<constraint name="data_import_type_pk" type="pk-constr" factor="100" table="grape.data_import_type">
+		<columns names="description" ref-type="src-columns"/>
+	</constraint>
+</table>
+
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_role">
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="user_id" ref-type="dst-columns"/>
 </constraint>
+
 <constraint name="role_name_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.access_role" table="grape.user_role">
 	<columns names="role_name" ref-type="src-columns"/>
 	<columns names="role_name" ref-type="dst-columns"/>
 </constraint>
+
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.session">
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="user_id" ref-type="dst-columns"/>
 </constraint>
+
 <constraint name="role_name_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.access_role" table="grape.access_path">
 	<columns names="role_name" ref-type="src-columns"/>
 	<columns names="role_name" ref-type="dst-columns"/>
 </constraint>
+
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_history">
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="user_id" ref-type="dst-columns"/>
 </constraint>
+
 <constraint name="schedule_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.schedule" table="grape.schedule_log">
 	<columns names="schedule_id" ref-type="src-columns"/>
 	<columns names="schedule_id" ref-type="dst-columns"/>
 </constraint>
+
 <constraint name="process_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.process" table="grape.schedule">
 	<columns names="process_id" ref-type="src-columns"/>
 	<columns names="process_id" ref-type="dst-columns"/>
 </constraint>
+
 <constraint name="data_import_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.data_import" table="grape.data_import_row">
 	<columns names="data_import_id" ref-type="src-columns"/>
 	<columns names="data_import_id" ref-type="dst-columns"/>
 </constraint>
+
 <relationship name="rel_user_role_user" type="relfk"
 	 src-table="grape.user_role"
 	 dst-table="grape.user"
-	 src-required="true" dst-required="true"/>
+	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_user_role_access_role" type="relfk"
 	 src-table="grape.user_role"
 	 dst-table="grape.access_role"
-	 src-required="true" dst-required="true"/>
+	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_access_path_access_role" type="relfk"
 	 src-table="grape.access_path"
 	 dst-table="grape.access_role"
-	 src-required="true" dst-required="true"/>
+	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_session_user" type="relfk"
 	 src-table="grape.session"
 	 dst-table="grape.user"
-	 src-required="true" dst-required="true"/>
+	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_user_history_user" type="relfk"
 	 src-table="grape.user_history"
 	 dst-table="grape.user"
-	 src-required="true" dst-required="true"/>
+	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_schedule_log_schedule" type="relfk"
 	 src-table="grape.schedule_log"
 	 dst-table="grape.schedule"
-	 src-required="true" dst-required="true"/>
+	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_schedule_process" type="relfk"
 	 src-table="grape.schedule"
 	 dst-table="grape.process"
-	 src-required="true" dst-required="true"/>
+	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_data_import_row_data_import" type="relfk"
 	 src-table="grape.data_import_row"
 	 dst-table="grape.data_import"
-	 src-required="true" dst-required="true"/>
+	 src-required="false" dst-required="false"/>
 
 </dbmodel>

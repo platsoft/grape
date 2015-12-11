@@ -1,5 +1,5 @@
 
-var Grape = require('grape');
+var Grape = require('ps-grape');
 
 var config = require('./config.js');
 
