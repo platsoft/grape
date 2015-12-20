@@ -46,6 +46,8 @@ DECLARE
 	_filter_json JSON;
 
 	_oper TEXT;
+
+	_extra_data JSON := ($1->'extra_data');
 BEGIN
 	_offset := 0;
 	_page_number := 0;
@@ -112,6 +114,7 @@ BEGIN
 				_oper := _filter_json->>'op';
 			END IF;
 
+			_oper := UPPER(_oper);
 			IF _oper IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
 				_filter_sql := quote_ident(_filter_json->>'field') || ' ' || _oper || ' ' || quote_literal(_filter_json->>'value') || '';
 			ELSIF _oper = 'IS_NULL' THEN
@@ -149,11 +152,12 @@ BEGIN
 			'$3 AS "page_number", '
 			'array_agg(a) AS records, '
 			'$4 AS "total", '
-			'$5 AS "total_pages" '
+			'$5 AS "total_pages", '
+			'$6 AS "extra_data"'
 		' FROM '
 			'(SELECT * FROM '  || quote_ident(_schema) || '.' || quote_ident(_tablename) || ' ' || _filter_sql || ' ' || _sortsql || ' OFFSET $1 LIMIT $2) a'
 		') b'
-		USING _offset, _limit, _page_number, _total, _total_pages INTO _ret;
+		USING _offset, _limit, _page_number, _total, _total_pages, _extra_data INTO _ret;
 
         RETURN _ret;
 END; $$ LANGUAGE plpgsql;
