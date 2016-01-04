@@ -116,7 +116,8 @@ exports = module.exports = function(_o) {
 			console.log("Worker exit with code", worker.process.exitCode);
 			if (worker.process.exitCode == 5)
 			{
-				console.log("Connectivity issue. Not restarting");
+				console.log("Connectivity issue. Restarting in 5 seconds...");
+				setTimeout(function() { self.createWorker(); }, 5000);
 			}
 			else
 			{
