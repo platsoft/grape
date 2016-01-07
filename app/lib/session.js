@@ -48,7 +48,7 @@ module.exports = function (app)
 			res.set('X-No-Permission', 'true');
 			if (req.headers.accept.indexOf('application/json') != -1)
 			{
-				res.json({error: 'Permission denied', code: "-1"});
+				res.json({status: 'ERROR', message: 'Permission denied', code: -1});
 			} 
 			else
 			{
@@ -59,23 +59,25 @@ module.exports = function (app)
 
 		function handle_session_check (ret)
 		{
-			if (ret.error_code == 2) // invalid session
+			if (ret.result_code == 1) // invalid session
 			{
 				res.clearCookie('session_id', '/');
 			}
 
 			var user_id = ret.user_id;
+			var session_id = ret.session_id;
 
-			app.get('logger').session((ret.check_path_result ? 'GRANTED' : 'DENIED') + ' ' + session_id + ' ' + path);
+			app.get('logger').session((ret.result_code == 0 ? 'GRANTED' : 'DENIED') + ' ' + session_id + ' ' + path);
 
-			if (!ret.check_path_result)
+			if (ret.result_code != 0)
 			{
 				session_fail();
 				return;
 			}
 
-			req.session = ret;
-			req.user_access_path = ret.user_role;
+
+			//req.session = ret;
+			//req.user_access_path = ret.user_role;
 
 			res.locals.session = ret;
 
@@ -111,7 +113,7 @@ module.exports = function (app)
 
 		function check_session_path_in_database (session_id, path, method, cb)
 		{
-			db.query('SELECT * FROM grape.session_check_path_select($1, $2, $3)', [session_id, path, method], cb);
+			db.query('SELECT * FROM grape.check_session_access($1, $2, $3)', [session_id, path, method], cb);
 		}
 
 		var cache = app.get('cache');
@@ -131,6 +133,7 @@ module.exports = function (app)
 		}
 		else
 		{
+			//create a cachename JMORI51EA94M8AZ-/session/new-POST
 			var cachename = [session_id, path, req.method].join('-');
 			app.get('cache').fetch(cachename, function(message) {
 				if (typeof message.v == 'undefined' || !message.v)
@@ -144,7 +147,11 @@ module.exports = function (app)
 						}
 
 						var ret = result.rows[0];
-						app.get('cache').set(cachename, ret);
+						//only save on access allowed
+						if (ret.result_code == 0)
+						{
+							app.get('cache').set(cachename, ret);
+						}
 						handle_session_check(ret);
 					});
 				}

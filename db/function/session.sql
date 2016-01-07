@@ -14,6 +14,8 @@ DECLARE
 	_user_roles TEXT[];
 
 	_ret JSON;
+
+	_check_password TEXT;
 BEGIN
 	_user := $1->>'username';
 	_password := $1->>'password';
@@ -22,17 +24,23 @@ BEGIN
 	SELECT * INTO rec FROM grape."user" WHERE username=_user::TEXT;
 	IF NOT FOUND THEN
 		RAISE DEBUG 'User % login failed. No such user', _user;
-		RETURN '{"success":"false","status":"ERROR","code":"1","message":"No such user"}'::JSON;
+		RETURN grape.api_result_error('No such user', 1);
 	END IF;
 
-	IF crypt(_password, rec.password) != rec.password THEN
+	IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
+		_check_password := crypt(_password, rec.password);
+	ELSE
+		_check_password := rec.password;
+	END IF;
+
+	IF _check_password != _password THEN
 		RAISE DEBUG 'User % login failed. Password does not match', _user;
-		RETURN '{"success":"false","status":"ERROR","code":"2","message":"Invalid password"}'::JSON;
+		RETURN grape.api_result_error('Invalid password', 2);
 	END IF;
 
 	IF rec.active = false THEN
 		RAISE DEBUG 'User % login failed. User is inactive', _user;
-		RETURN '{"success":"false","status":"ERROR","code":"3","message":"User not active"}'::JSON;
+		RETURN grape.api_result_error('User not active', 3);
 	END IF;
 
 
@@ -51,7 +59,8 @@ BEGIN
 
 	SELECT array_agg(role_name) INTO _user_roles FROM grape."user_role" WHERE user_id=rec.user_id::INTEGER;
 
-	INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity) VALUES (_session_id, _ip_address, rec.user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+	INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity) 
+		VALUES (_session_id, _ip_address, rec.user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 	SELECT to_json(a) INTO _ret FROM (
 		SELECT 'true' AS "success", 

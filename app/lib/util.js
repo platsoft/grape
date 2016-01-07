@@ -95,7 +95,36 @@ gutil.decodeMessage = function (buff)
 	return ret;
 };
 
+// Check for the existence of all fields in the array fields, in object obj
+// returns array of missing fields, or null if all fields are present 
+gutil.all_fields_exists = function (fields, obj) {
+	var ret = null;
+	
+	for (var i = 0; i < fields.length; i++)
+	{
+		var f = fields[i];
+		if (typeof obj[f] == 'undefined')
+		{
+			if (!ret)
+				ret = [];
+			ret.push(f);
+		}
+	}
+	
+	return ret;
+};
 
+gutil.generate_api_error = function (message, code, err_info) {
+	if (!err_info)
+		var err_info = {};
+	
+	return {
+		'status': 'ERROR',
+		'code': code,
+		'message': message,
+		'error': err_info
+	};
+};
 
 module.exports = gutil;
 

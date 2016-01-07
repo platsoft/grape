@@ -8,8 +8,20 @@
  *	opt-modifier ::= "*" | "E" | "0" | ""
  *	data-type ::= "s" | "i" | "f" | "b" | "d" | "t" | "a"
  *
+ * Data types:
+ * 	s text
+ *	i integer
+ * 	f
+ * 	b
+ * 	d
  *
- *
+ * Modifiers:
+ *	* optional is true (default = false)
+ *	E Empty becomes null
+ *	0 Nullable
+ *	
+ * Examples:
+ *	(batch_labreport_id: i, product_id: i, labreport)
  */
 function decode_validation_string (validate_string)
 {
