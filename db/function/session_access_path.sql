@@ -1,3 +1,4 @@
+
 DROP TYPE IF EXISTS grape.access_result_type CASCADE;
 CREATE TYPE grape.access_result_type AS
 (
@@ -52,6 +53,17 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION grape.set_session_user_id(JSON) RETURNS JSON AS $$
+DECLARE
+	_user_id INTEGER;
+BEGIN
+	_user_id := ($1->>'user_id')::INTEGER;
+	PERFORM set_config('grape.user_id'::TEXT, _user_id::TEXT, false);
+	RETURN '{}'::JSON;
+END; $$ LANGUAGE plpgsql;
+
+
+/*
 DROP TYPE IF EXISTS grape.session_check_path_type CASCADE;
 CREATE TYPE grape.session_check_path_type AS
 (
@@ -154,7 +166,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-
 CREATE OR REPLACE FUNCTION grape.session_check_path_select
 (
 	_session_id TEXT,
@@ -180,12 +191,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION grape.set_session_user_id(JSON) RETURNS JSON AS $$
-DECLARE
-	_user_id INTEGER;
-BEGIN
-	_user_id := ($1->>'user_id')::INTEGER;
-	PERFORM set_config('grape.user_id'::TEXT, _user_id::TEXT, false);
-	RETURN '{}'::JSON;
-END;
-$$ LANGUAGE plpgsql;
+*/
+
+
