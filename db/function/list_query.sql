@@ -21,7 +21,7 @@ END; $$ LANGUAGE plpgsql;
  * 	offset (optional) integer default 0
  * 	filter (optional) array of fields:
  *		field text
- *		operand text of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE', 'IS_NULL', 'IS_NOT_NULL'
+ *		operand text of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE', 'IS_NULL', 'IS_NOT_NULL', 'IN'
  *		value text
  * Returns a list object:  { total: INT, offset: INT, limit: INT, result_count: INT, records: [ {} ] }
  */
@@ -46,6 +46,7 @@ DECLARE
 	_filter_json JSON;
 
 	_oper TEXT;
+	_filter_array TEXT[];
 
 	_extra_data JSON := ($1->'extra_data');
 BEGIN
@@ -116,11 +117,18 @@ BEGIN
 
 			_oper := UPPER(_oper);
 			IF _oper IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
-				_filter_sql := quote_ident(_filter_json->>'field') || ' ' || _oper || ' ' || quote_literal(_filter_json->>'value') || '';
+				_filter_sql := CONCAT_WS(' ', quote_ident(_filter_json->>'field'), _oper, quote_literal(_filter_json->>'value'));
 			ELSIF _oper = 'IS_NULL' THEN
-				_filter_sql := quote_ident(_filter_json->>'field') || ' IS NULL';
+				_filter_sql := CONCAT_WS(' ', quote_ident(_filter_json->>'field'), 'IS NULL');
 			ELSIF _oper = 'IS_NOT_NULL' THEN
-				_filter_sql := quote_ident(_filter_json->>'field') || ' IS NOT NULL';
+				_filter_sql := CONCAT_WS(' ', quote_ident(_filter_json->>'field'), 'IS NOT NULL');
+			ELSIF _oper = 'IN' THEN
+				SELECT array_agg(val.quoted) INTO _filter_array FROM
+				(
+					SELECT quote_literal(json_array_elements_text(_filter_json->'value')) quoted
+				) val;
+
+				_filter_sql := CONCAT(quote_ident(_filter_json->>'field'), '::TEXT = ANY (ARRAY[',  array_to_string(_filter_array, ','), ']::TEXT[])');
 			ELSE
 				CONTINUE;
 			END IF;
