@@ -287,6 +287,22 @@ CREATE TABLE grape.data_import_type(
 );
 -- ddl-end --
 
+-- object: pgcrypto | type: EXTENSION --
+-- DROP EXTENSION IF EXISTS pgcrypto CASCADE;
+CREATE EXTENSION pgcrypto
+      WITH SCHEMA public;
+-- ddl-end --
+
+-- object: ix_schedule_log | type: INDEX --
+-- DROP INDEX IF EXISTS grape.ix_schedule_log CASCADE;
+CREATE INDEX ix_schedule_log ON grape.schedule_log
+	USING btree
+	(
+	  schedule_id ASC NULLS LAST,
+	  time ASC NULLS LAST
+	);
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
