@@ -100,12 +100,67 @@ BEGIN
 	END IF;
 END; $$ LANGUAGE plpgsql;
 
+/**
+ * Returns a username belonging to a user_id
+ */
 CREATE OR REPLACE FUNCTION grape.username (_user_id INTEGER) RETURNS TEXT AS $$
 	SELECT username FROM grape."user" WHERE user_id=_user_id::INTEGER;
 $$ LANGUAGE sql;
 
+/**
+ * Returns a user_id for a username
+ */
 CREATE OR REPLACE FUNCTION grape.user_id_from_name (_username TEXT) RETURNS INTEGER AS $$
 	SELECT user_id FROM grape."user" WHERE username=_username::TEXT;
 $$ LANGUAGE sql;
+
+/**
+ * Hashes a password for user and updates the user table afterwards
+ *
+ * If the hash length is the same as the password length and the password starts with a '$' sign, it is assumed that the password is already hashed and the update is ignored (return -1)
+ * If grape.setting  passwords_hashed isn't true, nothing is done (return -2)
+ * On success 0 is returned
+ */
+CREATE OR REPLACE FUNCTION grape.hash_user_password (_user_id INTEGER) RETURNS INTEGER AS $$
+DECLARE
+	_password TEXT;
+	_hashed_password TEXT;
+BEGIN
+
+	IF grape.get_value('passwords_hashed', 'false') != 'true' THEN
+		RAISE DEBUG 'passwords_hashed in settings is not true';
+		RETURN -2;
+	END IF;
+
+	SELECT password INTO _password FROM grape."user" WHERE user_id=_user_id::INTEGER;
+	
+	_hashed_password := crypt(_password, gen_salt('bf'));
+	
+	IF LENGTH(_hashed_password) = LENGTH(_password) AND SUBSTRING(_password, 1, 1) = '$' THEN
+		RAISE DEBUG 'Password hashed is the same length as password and it starts with a dollar sign, not updateing it';
+		RETURN -1;
+	END IF;
+
+	UPDATE grape."user" SET password=_hashed_password WHERE user_id=_user_id::INTEGER;
+	
+	RETURN 0;
+END; $$ LANGUAGE plpgsql;
+
+/**
+ * Overload for grape.hash_user_password (_user_id) taking a username instead of user_id
+ */
+CREATE OR REPLACE FUNCTION grape.hash_user_password (_username TEXT) RETURNS INTEGER AS $$
+DECLARE
+	_user_id INTEGER;
+BEGIN
+	_user_id := grape.user_id_from_name(_username);
+	
+	IF _user_id IS NULL THEN
+		RAISE DEBUG 'Username % not found', _username;
+		RETURN -1;
+	END IF;
+
+	RETURN grape.hash_user_password(_user_id);
+END; $$ LANGUAGE plpgsql;
 
 
