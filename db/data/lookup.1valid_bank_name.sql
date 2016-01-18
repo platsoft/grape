@@ -15,7 +15,7 @@ INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (
 INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (22, 'Nedbank Limited Incorporating BOE Bank', FALSE);
 INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (23, 'Peoples Bank Limited Incorporating NBS', FALSE);
 INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (24, 'Saambou Bank', FALSE);
-INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (27, 'Unibank Limited', FALSE); 
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (27, 'Unibank Limited', FALSE);
 INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (36, 'HBZ Bank Limited', FALSE);
 INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (38, 'Investec Bank Limited', FALSE);
 INSERT INTO lookup.valid_bank_name (bank_id, bank_name, universal_branch, supports_naedo) VALUES (40, 'ABSA Bank', 2900, TRUE);
@@ -29,3 +29,5 @@ INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (
 INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (76, 'Grindrod', FALSE);
 INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (77, 'Albaraka Bank', FALSE);
 INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (100, 'UBank Limited', TRUE);
+
+INSERT INTO lookup.valid_bank_name (bank_id, bank_name, supports_naedo) VALUES (101, 'Sasfin Bank Limited', TRUE);

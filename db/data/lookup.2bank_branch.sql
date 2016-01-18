@@ -4094,3 +4094,4 @@ INSERT INTO lookup.bank_branch (bank_branch_id, branch_name, branch_code, bank_i
 INSERT INTO lookup.bank_branch (bank_branch_id, branch_name, branch_code, bank_id) VALUES (4200, E'Overport City', '800000', 77);
 INSERT INTO lookup.bank_branch (bank_branch_id, branch_name, branch_code, bank_id) VALUES (4300, E'PEP Bank', '400001', 52);
 INSERT INTO lookup.bank_branch (bank_branch_id, branch_name, branch_code, bank_id) VALUES (10000, E'UBank', '431010', 100);
+INSERT INTO lookup.bank_branch (bank_branch_id, branch_name, branch_code, bank_id) VALUES (10100, E'Sasfin Bank Limited', '683000', 101);
