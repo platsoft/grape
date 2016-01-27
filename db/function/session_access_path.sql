@@ -14,6 +14,11 @@ CREATE TYPE grape.access_result_type AS
  * 1 - Invalid session
  * 2 - Permission denied
  * 9 - The path could not be found, and default_access_allowed setting is false
+ *
+ *
+ * Special roles for access paths:
+ * guest - allows immediately
+ * all - allows any access with a valid user_id
  */
 CREATE OR REPLACE FUNCTION grape.check_session_access (_session_id TEXT, _check_path TEXT, _check_method TEXT)
 	RETURNS grape.access_result_type AS $$
@@ -43,6 +48,12 @@ BEGIN
 	IF _user_id IS NULL THEN
 		RETURN (1, _user_id, _session_id)::grape.access_result_type;
 	END IF;
+
+	-- everyone has access to guest role
+	IF 'all' = ANY (_path_role) THEN
+		RETURN (0, _user_id, _session_id)::grape.access_result_type;
+	END IF;
+
 
 	-- role exists for this user and role
 	IF EXISTS (SELECT 1 FROM grape.user_role WHERE user_id=_user_id::INTEGER AND role_name = ANY (_path_role)) THEN
