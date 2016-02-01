@@ -1,6 +1,6 @@
 {
   "name": "ps-grape",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Platinum Software Grape Framework",
   "main": "app/index.js",
   "directories": {

@@ -10,7 +10,7 @@
 	"name": "myapp",
 	"main": "index.js",
 	"dependencies": {
-		"ps-grape": "0.0.2"
+		"ps-grape": "0.0.4"
 	}
 }
 ```
@@ -123,6 +123,7 @@ TODO
 	# function/
 	# data/
 	When the script scripts/setup_database.js is ran all SQL files in the directories listed will be loaded
+* sql_dirs - load database definition from directory or directories
 * debug - debugging on or off (boolean)
 * document_store - Path to system generated documents (string)
 * base_directory - Path to base directory (string) If not set it defaults to the parent directory of public_directory
