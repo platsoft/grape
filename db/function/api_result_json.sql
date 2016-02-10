@@ -22,6 +22,19 @@ BEGIN
 	RETURN grape.api_result_error(_message, _code);
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.api_error() RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN grape.api_result_error('Unknown error', -1);
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.api_error_invalid_input() RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN grape.api_result_error('Invalid input', -2);
+END; $$ LANGUAGE plpgsql;
+
+
 
 CREATE OR REPLACE FUNCTION grape.api_success(_keys TEXT[], _values TEXT[], _types TEXT[]) RETURNS JSON AS $$
 DECLARE
