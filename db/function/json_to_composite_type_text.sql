@@ -82,7 +82,7 @@ BEGIN
 	END LOOP;
 
 	-- Close the bracket loop and return
-	RETURN 'ROW(' || SUBSTRING(_result FROM 2) || ')::' || target_type;
+	RETURN 'ROW(' || SUBSTRING(_result FROM 2) || ')::' || target_schema || '.' || target_type;
 END; $$ LANGUAGE plpgsql;
 
 
