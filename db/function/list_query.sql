@@ -6,10 +6,18 @@ BEGIN
 	FOREACH _table IN ARRAY _tables LOOP
 		INSERT INTO grape.list_query_whitelist(schema, tablename)
 			SELECT _schema,_table WHERE NOT EXISTS
-			(SELECT * FROM grape.list_query_whitelist WHERE schema = _schema and tablename = _table);
+			(SELECT * FROM grape.list_query_whitelist WHERE schema = _schema::TEXT and tablename = _table::TEXT);
 	END LOOP;
 	RETURN true;
 END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.list_query_whitelist_delete(_schema TEXT, _tablename TEXT) RETURNS BOOLEAN AS $$
+DECLARE
+BEGIN
+	DELETE FROM grape.list_query_whitelist WHERE schema = _schema::TEXT and tablename = _tablename::TEXT;
+	RETURN TRUE;
+END; $$ LANGUAGE plpgsql;
+
 
 /**
  * Input fields:
