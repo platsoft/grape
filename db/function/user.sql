@@ -115,6 +115,21 @@ CREATE OR REPLACE FUNCTION grape.user_id_from_name (_username TEXT) RETURNS INTE
 $$ LANGUAGE sql;
 
 /**
+ * Returns user_id for fullnames
+ */
+CREATE OR REPLACE FUNCTION grape.user_id_from_fullnames(_fullnames TEXT) RETURNS INTEGER AS $$
+        SELECT user_id FROM grape."user" WHERE fullnames=_fullnames::TEXT;
+$$ LANGUAGE sql;
+
+/**
+ * Returns a username for fullnames
+ */
+CREATE OR REPLACE FUNCTION grape.username_from_fullnames(_fullnames TEXT) RETURNS TEXT AS $$
+        SELECT username FROM grape."user" WHERE fullnames=_fullnames::TEXT;
+$$ LANGUAGE sql;
+
+
+/**
  * Hashes a password for user and updates the user table afterwards
  *
  * If the hash length is the same as the password length and the password starts with a '$' sign, it is assumed that the password is already hashed and the update is ignored (return -1)
@@ -162,5 +177,6 @@ BEGIN
 
 	RETURN grape.hash_user_password(_user_id);
 END; $$ LANGUAGE plpgsql;
+
 
 
