@@ -1,0 +1,18 @@
+
+
+
+
+0.0.4
+
+
+0.0.5
+- Fixed bug in grape.json_to_composite_type related to using non-public schemas
+- New database functions: 
+	* grape.list_query_whitelist_delete
+	* grape.user_id_from_fullnames
+	* grape.username_from_fullnames
+	* grape.api_error()
+	* grape.clean_telephone_number (_tel TEXT)
+- Fix when granting access for guest
+
+
