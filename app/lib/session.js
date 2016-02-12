@@ -67,14 +67,14 @@ module.exports = function (app)
 			var user_id = ret.user_id;
 			var session_id = ret.session_id;
 
-			app.get('logger').session((ret.result_code == 0 ? 'GRANTED' : 'DENIED') + ' ' + session_id + ' ' + path);
+			if (session_id == null)
+				session_id = "guest";
 
 			if (ret.result_code != 0)
 			{
 				session_fail();
 				return;
 			}
-
 
 			//req.session = ret;
 			//req.user_access_path = ret.user_role;
@@ -109,25 +109,30 @@ module.exports = function (app)
 			}
 		}
 
-		app.get('logger').session('Checking path ' + path + ' against session ' + session_id);
 
 		function check_session_path_in_database (session_id, path, method, cb)
 		{
-			db.query('SELECT * FROM grape.check_session_access($1, $2, $3)', [session_id, path, method], cb);
+			app.get('logger').session('Checking path ' + path + ' against session ' + session_id);
+			db.query('SELECT * FROM grape.check_session_access($1, $2, $3)', [session_id, path, method], function(err, result) {
+				if (err)
+				{
+					app.get('logger').error('Could not load access paths for session ' + session_id + ' against ' + path + ' ' + err);
+					return;
+				}
+
+				var ret = result.rows[0];
+			
+				app.get('logger').session((ret.result_code == 0 ? 'GRANTED' : 'DENIED') + ' ' + session_id + ' ' + path);
+
+				cb(ret);
+			});
 		}
 
 		var cache = app.get('cache');
 		if (!cache)
 		{
-			check_session_path_in_database(session_id, path, req.method, function(err, result) {
-				if (err)
-				{
-					app.get('logger').session('Could not load access paths for Session ' + session_id + ' against ' + path + ' ' + err);
-					session_fail();
-					return;
-				}
-
-				handle_session_check(result.rows[0]);
+			check_session_path_in_database(session_id, path, req.method, function(result) {
+				handle_session_check(result);
 			});
 
 		}
@@ -138,21 +143,14 @@ module.exports = function (app)
 			app.get('cache').fetch(cachename, function(message) {
 				if (typeof message.v == 'undefined' || !message.v)
 				{
-					check_session_path_in_database(session_id, path, req.method, function(err, result) {
-						if (err)
-						{
-							app.get('logger').session('Could not load access paths for Session ' + session_id + ' against ' + path + ' ' + err);
-							session_fail();
-							return;
-						}
+					check_session_path_in_database(session_id, path, req.method, function(result) {
 
-						var ret = result.rows[0];
 						//only save on access allowed
-						if (ret.result_code == 0)
+						if (result.result_code == 0)
 						{
-							app.get('cache').set(cachename, ret);
+							app.get('cache').set(cachename, result);
 						}
-						handle_session_check(ret);
+						handle_session_check(result);
 					});
 				}
 				else
