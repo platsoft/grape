@@ -25,4 +25,6 @@
 - Bumped the following package versions: underscore, body-parser, cookie-parser, connect-multiparty
 - All the Logger functions will now join all arguments and log it
 - If the session id is found in cookies instead of X-SessionID header; a warning is printed
+- Added new API call /grape/login. This does the same as /session/new but doesn't set any cookies
+- Added new API call /grape/logout
 
