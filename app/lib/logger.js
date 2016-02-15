@@ -73,6 +73,12 @@ logger.prototype.getWriteStream = function(level) {
 		var fname = [this.options.log_directory, '/', level, '-', d.toJSON().slice(0, 10).replace(/\-/g, ''), '.log'].join('');
 		
 		this.streams[level] = fs.createWriteStream(fname, {flags: 'a'});
+
+		var symlinkname = [this.options.log_directory, '/', level, '-current.log'].join('');
+		try {
+			fs.unlinkSync(symlinkname);
+		} catch (e) { }
+		fs.symlinkSync(fname, symlinkname);
 	}
 
 	return this.streams[level];
