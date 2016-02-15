@@ -26,20 +26,20 @@ logger.prototype._join_arguments = function(args) {
 	return ret.join('');
 };
 
-logger.prototype.session = function(message) {
-	this.log('session', message, {});
+logger.prototype.session = function() {
+	this.log('session', logger.prototype._join_arguments(arguments), {});
 };
 logger.prototype.info = function(message) {
-	this.log('info', message, {});
+	this.log('info', logger.prototype._join_arguments(arguments), {});
 };
 logger.prototype.trace = function(message) {
-	this.log('trace', message, {});
+	this.log('trace', logger.prototype._join_arguments(arguments), {});
 };
 logger.prototype.debug = function(message) {
-	this.log('debug', message, {});
+	this.log('debug', logger.prototype._join_arguments(arguments), {});
 };
 logger.prototype.db = function(message) {
-	this.log('db', message, {});
+	this.log('db', logger.prototype._join_arguments(arguments), {});
 };
 logger.prototype.error = function() {
 	this.log('error', logger.prototype._join_arguments(arguments), {});

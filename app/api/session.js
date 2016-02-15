@@ -15,6 +15,25 @@ exports = module.exports = function(app_) {
  */
 	app.post('/session/new', create_session);
 
+
+/**
+ * @url /grape/login
+ * @method POST
+ * @desc New session
+ * @fields username TEXT, password TEXT
+ * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
+ */
+	app.post('/grape/login', login);
+
+/**
+ * @url /grape/logout
+ * @method POST
+ * @desc Logout
+ * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
+ */
+	app.post('/grape/logout', logout);
+
+
 	/**
 	 * @api /session/list
 	 * @desc list the active sessions
@@ -26,6 +45,36 @@ function select_session(req, res) {
 	var obj = { date: req.params.date};
 	req.db.json_call('session_select', obj, null, {response: res});
 };
+
+function login (req, res)
+{
+	console.log(req.body);
+	if (typeof req.body.username == "undefined" || typeof req.body.password == "undefined")
+	{
+		res.json({'status': "ERROR", code: -1, "message": "Invalid parameters"});
+		return;
+	}
+	
+	var username = req.body.username;
+	var password = req.body.password;
+	var ip_address = req.connection.remoteAddress;
+
+	app.get('logger').session('Login attempt from ', username, '@', ip_address);
+	
+	var obj = {
+		username: username,
+		password: password,
+		ip_address: ip_address
+	};
+
+	res.locals.db.json_call('grape.session_insert', obj, null, {response: res});
+}
+
+function logout (req, res)
+{
+	req.db.json_call('grape.logout', {}, null, {response: res});
+}
+
 
 function create_session(req, res) {
 	app.get('logger').debug('Creating session');

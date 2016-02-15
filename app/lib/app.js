@@ -145,7 +145,7 @@ exports = module.exports = function(_o) {
 				if (fs.existsSync(fileName)) //public file
 				{
 					console.log("Sending file " + fileName);
-					res.sendfile(fileName);
+					res.sendFile(fileName);
 					return;
 				}
 				else if (req._parsedUrl.pathname == '/download_public_js_files') //special path to download all javcascript files recursively in /public/pages/
@@ -160,7 +160,7 @@ exports = module.exports = function(_o) {
 				}
 				else 	//send index.html to load app (this is for stuff like /search and /policy/:policy_id)
 				{
-					res.sendfile(app.get('publicPath') + '/index.html');
+					res.sendFile(app.get('publicPath') + '/index.html');
 					return;
 				}
 			}

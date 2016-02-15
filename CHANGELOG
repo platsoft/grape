@@ -15,4 +15,14 @@
 	* grape.clean_telephone_number (_tel TEXT)
 - Fix when granting access for guest
 
+0.0.6
+- Support HTTPS
+- New options in config: use_https, sslkey and sslcert
+- Grape DocumentStore alias ds ( grape.get('ds')... )
+- DocumentStore supports new option use_date. This will create subdirectories based on the year and date when storing files
+- Logger will now create a symlink to the current log file (for example all-current.log, session-current.log, etc.)
+- Express bumped to version 4.13.4
+- Bumped the following package versions: underscore, body-parser, cookie-parser, connect-multiparty
+- All the Logger functions will now join all arguments and log it
+- If the session id is found in cookies instead of X-SessionID header; a warning is printed
 

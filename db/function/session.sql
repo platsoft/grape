@@ -1,3 +1,17 @@
+
+
+/**
+ * Given username, password and ip_address
+ * 
+ * status = ERROR 
+ * code 1 = No such user
+ * code 2 = Wrong password
+ * code 3 = User is inactive
+ *
+ * On success: status = OK
+ * and following fields: session_id, user_id, username and user_roles
+ * 
+ */
 CREATE OR REPLACE FUNCTION grape.session_insert (JSON) RETURNS JSON AS $$
 DECLARE
 	_user TEXT;
@@ -71,3 +85,14 @@ BEGIN
 
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION grape.logout (JSON) RETURNS JSON AS $$
+DECLARE
+	_session_id TEXT;
+BEGIN
+	_session_id := $1->>'session_id';
+	DELETE FROM grape."session" WHERE session_id=_session_id::TEXT;
+	RETURN grape.api_success();
+END; $$ LANGUAGE plpgsql;
+

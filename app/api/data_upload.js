@@ -70,7 +70,6 @@ function api_data_upload(req, res)
 				{
 					if (headers.hasOwnProperty(col))
 						data[headers[col]] = row.getFormattedCellValueAt('' + col + (j+1));
-					
 				}
 				data['data_import_id'] = data_import_id;
 				item_queue.push(data);

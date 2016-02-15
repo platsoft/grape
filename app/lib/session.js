@@ -18,7 +18,13 @@ module.exports = function (app)
 		}
 		
 		var accepts_json = (req.headers.accept.indexOf('application/json') != -1);
-		var session_id = req.header('X-SessionID') || req.cookies.session_id;
+		var session_id = req.header('X-SessionID');
+
+		if (!session_id && req.cookies.session_id)
+		{
+			app.get('logger').info("Deprecated use of cookies!");
+			session_id = req.cookies.session_id;
+		}
 
 		//Do not do session management checking if session id is not set and the request do not want json. We need to check if it is json because it might be a guest API call
 		if ((!session_id || session_id == 0) && !accepts_json)
@@ -64,15 +70,21 @@ module.exports = function (app)
 				res.clearCookie('session_id', '/');
 			}
 
-			var user_id = ret.user_id;
-			var session_id = ret.session_id;
-
-			if (session_id == null)
-				session_id = "guest";
-
 			if (ret.result_code != 0)
 			{
 				session_fail();
+				return;
+			}
+
+
+			var user_id = ret.user_id;
+			var session_id = ret.session_id;
+
+			// not logged in and access granted
+			if (session_id == null)
+			{
+				req.db = res.locals.db = app.get('db');
+				next();
 				return;
 			}
 
