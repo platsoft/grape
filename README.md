@@ -128,6 +128,8 @@ TODO
 * document_store - Path to system generated documents (string)
 * base_directory - Path to base directory (string) If not set it defaults to the parent directory of public_directory
 * instances - The number of instances to start (defaults to 1)
-
+* use_https - True to use https. Also need to set options sslkey and sslcert files to use this
+* sslkey - file containing private key
+* sslcert - file containing public certificate
 
 

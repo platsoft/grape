@@ -20,10 +20,20 @@ var documentStore = function(_opt) {
 
 	/*
  		Get directory for storing files of type 'filetype', claims
+		If use_date is set
 		Returns full path
 	*/
-	this.getDirectory = function(filetype) {
-		var dir = self.options.document_store + '/' + filetype;
+	this.getDirectory = function(filetype, use_date) {
+		if (!use_date)
+		{
+			var dir = [self.options.document_store, filetype].join('/');
+		}
+		else
+		{
+			var d = new Date();
+			var dir = [self.options.document_store, filetype, d.getFullYear(), (d.getMonth()+1)].join('/');
+		}
+			
 		this.makeDirRecursiveSync(dir);
 		return dir;
 	};
@@ -31,16 +41,16 @@ var documentStore = function(_opt) {
 	/*
  		Get relative directory for storing files of type 'filetype'
 	*/
-	this.getRelativeDirectory = function(filetype) {
-		var dir = this.getDirectory(filetype);
+	this.getRelativeDirectory = function(filetype, use_date) {
+		var dir = this.getDirectory(filetype, use_date);
 		return path.relative(self.options.base_directory, dir);
 	};
 
 	/*
  		Copies a file from path to repo dir for filetype
 	*/
-	this.saveFile = function(filetype, currentpath, filename) {
-		var dir = self.getDirectory(filetype);
+	this.saveFile = function(filetype, currentpath, filename, use_date) {
+		var dir = self.getDirectory(filetype, use_date);
 		if (!filename)
 		{
 			var ar = currentpath.split('/');
@@ -50,7 +60,6 @@ var documentStore = function(_opt) {
 		fs.writeFileSync(newfilename, fs.readFileSync(currentpath));
 		return dir;
 	};
-
 
 	this.makeDirRecursiveSync = function(dir) {
 		var ar = dir.split('/');

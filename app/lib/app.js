@@ -12,6 +12,8 @@ var util = require('util');
 
 var auto_validate = require('./auto_validate.js');
 
+var DEFAULT_MAXSOCKETS = 500;
+
 exports = module.exports = function(_o) {
 	var app = express();
 
@@ -36,6 +38,7 @@ exports = module.exports = function(_o) {
 
 	var document_store = new (require(__dirname + '/document_store.js'))(options);
 	app.set('document_store', document_store);
+	app.set('ds', document_store);
 
 	logger.info('Starting application (pid ' + process.pid + ') with options: ' + util.inspect(options));
 
@@ -133,7 +136,7 @@ exports = module.exports = function(_o) {
 		{
 			var accepts_json = (req.headers.accept && req.headers.accept.indexOf('application/json') != -1);
 
-			//GET which does not accept JSON
+			//If a GET request does not accept JSON, we assume it to be an attempt to fetch something from the public directory
 			if (req.method == 'GET' && !accepts_json)
 			{
 				console.log(req._parsedUrl.pathname);
@@ -352,15 +355,27 @@ exports = module.exports = function(_o) {
 		loadapifiles(options.api_directory, '');
 	}
 
+	if (options.use_https && options.use_https === true)
+	{
+		var https = require('https');
+		https.globalAgent.maxSockets = options.maxsockets || DEFAULT_MAXSOCKETS;
 
-	var http = require('http');
-	http.globalAgent.maxSockets = 50;
+		var privateKey = fs.readFileSync(options.sslkey);
+		var certificate = fs.readFileSync(options.sslcert);
 
-	var server = app.listen(options.port);
-
-	logger.info('Listening on ' + options.port);
-
-	server.timeout = options.server_timeout;
+		var server = https.createServer({key: privateKey, cert: certificate}, app).listen(options.port);
+		
+		logger.info('SSL listening on ' + options.port);
+	}
+	else
+	{
+		var http = require('http');
+		http.globalAgent.maxSockets = options.maxsockets || DEFAULT_MAXSOCKETS;
+		var server = app.listen(options.port);
+		server.timeout = options.server_timeout;
+	
+		logger.info('Listening on ' + options.port);
+	}
 
 	return app;
 };
