@@ -132,4 +132,10 @@ TODO
 * sslkey - file containing private key
 * sslcert - file containing public certificate
 
+## Settings
+Settings are stored in a table grape.setting and can be accessed with the 2 functions grape.set_value and grape.get_value
+
+* default_access_allowed If an access path could not be found, allow access by default (true)
+* passwords_hashed Hash passwords
+
 

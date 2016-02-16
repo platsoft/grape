@@ -1,4 +1,8 @@
 
+/**
+ *  passwords_hashed - false or true
+ *  
+ */
 
 CREATE OR REPLACE FUNCTION grape.set_value(_name TEXT, _value TEXT) RETURNS TEXT AS $$
 DECLARE
