@@ -32,6 +32,7 @@ exports = module.exports = function(_o) {
 	app.set('config', options);
 
 	app.set("jsonp callback", true);
+	app.enable("trust proxy");
 
 	var gutil = require(__dirname + '/util.js');
 	app.set('gutil', new gutil());

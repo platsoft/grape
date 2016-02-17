@@ -48,7 +48,10 @@ module.exports = function (app)
 			}
 		}
 
-		
+		/* 
+ 		* ret must have a result_code, user_id and session_id
+ 		* 
+ 		*/
 		function handle_session_check (ret)
 		{
 			res.set('X-Permission-Code', ret.result_code);

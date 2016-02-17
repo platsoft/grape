@@ -11,6 +11,7 @@
  * On success: status = OK
  * and following fields: session_id, user_id, username and user_roles
  * 
+ * Setting passwords_hashed is used to decide if passwords are hashed or not
  */
 CREATE OR REPLACE FUNCTION grape.session_insert (JSON) RETURNS JSON AS $$
 DECLARE
