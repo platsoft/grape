@@ -81,7 +81,10 @@ BEGIN
 			_session_id AS "session_id",
 			rec.user_id AS "user_id",
 			_user AS "username",
-			_user_roles AS "user_roles"
+			_user_roles AS "user_roles",
+			rec.fullnames AS "fullnames",
+			rec.email AS "email",
+			rec.employee_guid AS "employee_guid"
 		) a;
 
 	RETURN _ret;
