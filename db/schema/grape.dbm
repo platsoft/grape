@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.0" last-position="1,285" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.2-beta" last-position="3,2" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -19,7 +19,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="access_role">
 	<schema name="grape"/>
-	<position x="116" y="471"/>
+	<position x="101" y="455"/>
 	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
@@ -44,7 +44,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="session">
 	<schema name="grape"/>
-	<position x="487" y="47"/>
+	<position x="499" y="13"/>
 	<column name="session_id" not-null="true">
 		<type name="text"/>
 	</column>
@@ -67,7 +67,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="access_path">
 	<schema name="grape"/>
-	<position x="546" y="459"/>
+	<position x="522" y="455"/>
 	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
@@ -85,7 +85,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user_history">
 	<schema name="grape"/>
-	<position x="481" y="246"/>
+	<position x="485" y="202"/>
 	<column name="user_history_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -96,7 +96,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="timestamp"/>
 	</column>
 	<column name="data">
-		<type name="public.hstore"/>
+		<type name="public.hstore" precision="59"/>
 	</column>
 	<column name="blame_id">
 		<type name="integer"/>
@@ -108,7 +108,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user">
 	<schema name="grape"/>
-	<position x="112" y="41"/>
+	<position x="95" y="39"/>
 	<column name="user_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -133,7 +133,13 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="blame_id">
 		<type name="integer"/>
 	</column>
-	<constraint name="user_pk" type="pk-constr" factor="10" table="grape.user">
+	<column name="employee_guid">
+		<type name="uuid"/>
+	</column>
+	<column name="employee_info">
+		<type name="json"/>
+	</column>
+	<constraint name="user_pk" type="pk-constr" factor="10" table="grape.&quot;user&quot;">
 		<columns names="user_id" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -172,7 +178,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule_log" oids="true">
 	<schema name="grape"/>
-	<position x="801" y="287"/>
+	<position x="837" y="294"/>
 	<column name="schedule_log_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -192,7 +198,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule" oids="true">
 	<schema name="grape"/>
-	<position x="1068" y="39"/>
+	<position x="1120" y="23"/>
 	<column name="schedule_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -220,7 +226,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="integer"/>
 	</column>
 	<column name="status" default-value="'NewTask'">
-		<type name="grape.e_schedule_status"/>
+		<type name="grape.e_schedule_status" precision="59"/>
 	</column>
 	<constraint name="schedule_pk" type="pk-constr" factor="10" table="grape.schedule">
 		<columns names="schedule_id" ref-type="src-columns"/>
@@ -267,7 +273,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_row">
 	<schema name="grape"/>
-	<position x="1276" y="464"/>
+	<position x="1280" y="406"/>
 	<column name="data_import_row_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -430,12 +436,20 @@ CAUTION: Do not modify this file unless you know what you are doing.
 			<column name="schedule_id"/>
 		</idxelement>
 		<idxelement use-sorting="true" nulls-first="false" asc-order="true">
-			<column name="time"/>
+			<column name="&quot;time&quot;"/>
+		</idxelement>
+</index>
+
+<index name="gu_username_idx" table="grape.&quot;user&quot;"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="username"/>
 		</idxelement>
 </index>
 
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_role">
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_role">
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="user_id" ref-type="dst-columns"/>
 </constraint>
@@ -447,7 +461,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 </constraint>
 
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.session">
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.session">
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="user_id" ref-type="dst-columns"/>
 </constraint>
@@ -459,7 +473,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 </constraint>
 
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.user" table="grape.user_history">
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_history">
 	<columns names="user_id" ref-type="src-columns"/>
 	<columns names="user_id" ref-type="dst-columns"/>
 </constraint>
@@ -484,7 +498,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <relationship name="rel_user_role_user" type="relfk"
 	 src-table="grape.user_role"
-	 dst-table="grape.user"
+	 dst-table="grape.&quot;user&quot;"
 	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_user_role_access_role" type="relfk"
@@ -499,12 +513,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <relationship name="rel_session_user" type="relfk"
 	 src-table="grape.session"
-	 dst-table="grape.user"
+	 dst-table="grape.&quot;user&quot;"
 	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_user_history_user" type="relfk"
 	 src-table="grape.user_history"
-	 dst-table="grape.user"
+	 dst-table="grape.&quot;user&quot;"
 	 src-required="false" dst-required="false"/>
 
 <relationship name="rel_schedule_log_schedule" type="relfk"

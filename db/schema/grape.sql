@@ -1,6 +1,6 @@
 -- Database generated with pgModeler (PostgreSQL Database Modeler).
--- pgModeler  version: 0.8.0
--- PostgreSQL version: 9.4
+-- pgModeler  version: 0.8.2-beta
+-- PostgreSQL version: 9.5
 -- Project Site: pgmodeler.com.br
 -- Model Author: ---
 
@@ -96,9 +96,9 @@ CREATE TABLE grape.user_history(
 );
 -- ddl-end --
 
--- object: grape.user | type: TABLE --
--- DROP TABLE IF EXISTS grape.user CASCADE;
-CREATE TABLE grape.user(
+-- object: grape."user" | type: TABLE --
+-- DROP TABLE IF EXISTS grape."user" CASCADE;
+CREATE TABLE grape."user"(
 	user_id serial NOT NULL,
 	password text,
 	username text,
@@ -107,6 +107,8 @@ CREATE TABLE grape.user(
 	active boolean DEFAULT true,
 	external smallint DEFAULT 0,
 	blame_id integer,
+	employee_guid uuid,
+	employee_info json,
 	CONSTRAINT user_pk PRIMARY KEY (user_id)
 	 WITH (FILLFACTOR = 10)
 
@@ -140,7 +142,7 @@ CREATE TYPE grape.e_schedule_status AS
 CREATE TABLE grape.schedule_log(
 	schedule_log_id serial NOT NULL,
 	schedule_id integer,
-	time timestamp,
+	"time" timestamp,
 	message text,
 	CONSTRAINT schedule_log_pk PRIMARY KEY (schedule_log_id)
 	 WITH (FILLFACTOR = 10)
@@ -299,14 +301,23 @@ CREATE INDEX ix_schedule_log ON grape.schedule_log
 	USING btree
 	(
 	  schedule_id ASC NULLS LAST,
-	  time ASC NULLS LAST
+	  "time" ASC NULLS LAST
+	);
+-- ddl-end --
+
+-- object: gu_username_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.gu_username_idx CASCADE;
+CREATE INDEX gu_username_idx ON grape."user"
+	USING btree
+	(
+	  username
 	);
 -- ddl-end --
 
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
-REFERENCES grape.user (user_id) MATCH FULL
+REFERENCES grape."user" (user_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
@@ -320,7 +331,7 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.session DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.session ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
-REFERENCES grape.user (user_id) MATCH FULL
+REFERENCES grape."user" (user_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
@@ -334,7 +345,7 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_history DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_history ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
-REFERENCES grape.user (user_id) MATCH FULL
+REFERENCES grape."user" (user_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
