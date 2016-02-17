@@ -49,30 +49,35 @@ module.exports = function (app)
 		}
 
 		
-		function session_fail () 
-		{
-			res.set('X-No-Permission', 'true');
-			if (req.headers.accept.indexOf('application/json') != -1)
-			{
-				res.json({status: 'ERROR', message: 'Permission denied', code: -1});
-			} 
-			else
-			{
-				res.send('No permission to access this page. Please ask your manager to contact Platinum Software if you should have access.');
-			}
-			return;
-		}
-
 		function handle_session_check (ret)
 		{
-			if (ret.result_code == 1) // invalid session
-			{
-				res.clearCookie('session_id', '/');
-			}
+			res.set('X-Permission-Code', ret.result_code);
 
 			if (ret.result_code != 0)
 			{
-				session_fail();
+				res.set('X-No-Permission', 'true');
+
+				var error_message = '';
+				if (ret.result_code == 1)
+				{  // invalid session
+					error_message = 'Invalid session';
+				}
+				else if (ret.result_code == 2)
+				{ // permission denied
+					error_message = 'Permission denied';
+				}
+				else if (ret.result_code == 9)
+				{ // path not found and default_access_allowed is false
+					error_message = 'Path not found and default_access_allowed is false';
+				}
+				
+				res.set('X-Permission-Error', error_message);
+
+				if (req.headers.accept.indexOf('application/json') != -1)
+					res.json({status: 'ERROR', message: error_message});
+				else
+					res.send(error_message);
+
 				return;
 			}
 
