@@ -28,3 +28,9 @@
 - Added new API call /grape/login. This does the same as /session/new but doesn't set any cookies
 - Added new API call /grape/logout
 
+0.0.7:
+- API responses will now include the headers X-Permission-Code and X-Permission-Error for better error handling
+- Added user.employee_guid and user.employee_data to store employee info from Savanna
+- Enable "trust proxy" setting
+
+
