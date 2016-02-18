@@ -12,7 +12,7 @@
 -- CREATE DATABASE grape
 -- ;
 -- -- ddl-end --
--- 
+--
 
 -- object: grape | type: SCHEMA --
 -- DROP SCHEMA IF EXISTS grape CASCADE;
@@ -38,7 +38,7 @@ CREATE EXTENSION hstore
 CREATE TABLE grape.access_role(
 	role_name text NOT NULL,
 	CONSTRAINT access_role_pk PRIMARY KEY (role_name)
-	 WITH (FILLFACTOR = 10)
+
 
 );
 -- ddl-end --
@@ -49,7 +49,7 @@ CREATE TABLE grape.user_role(
 	user_id integer NOT NULL,
 	role_name text NOT NULL,
 	CONSTRAINT user_role_pk PRIMARY KEY (user_id,role_name)
-	 WITH (FILLFACTOR = 10)
+
 
 );
 -- ddl-end --
@@ -63,7 +63,7 @@ CREATE TABLE grape.session(
 	date_inserted timestamp,
 	last_activity timestamp,
 	CONSTRAINT session_pk PRIMARY KEY (session_id)
-	 WITH (FILLFACTOR = 10)
+
 
 );
 -- ddl-end --
@@ -75,7 +75,7 @@ CREATE TABLE grape.access_path(
 	regex_path text NOT NULL,
 	method text[] NOT NULL DEFAULT '{POST, PUT, GET}',
 	CONSTRAINT access_path_pk PRIMARY KEY (role_name,regex_path,method)
-	 WITH (FILLFACTOR = 10)
+
 
 );
 -- ddl-end --
@@ -91,7 +91,7 @@ CREATE TABLE grape.user_history(
 	data public.hstore,
 	blame_id integer,
 	CONSTRAINT user_history_id_pk PRIMARY KEY (user_history_id)
-	 WITH (FILLFACTOR = 10)
+
 
 );
 -- ddl-end --
@@ -110,7 +110,7 @@ CREATE TABLE grape."user"(
 	employee_guid uuid,
 	employee_info json,
 	CONSTRAINT user_pk PRIMARY KEY (user_id)
-	 WITH (FILLFACTOR = 10)
+
 
 );
 -- ddl-end --
@@ -124,7 +124,7 @@ CREATE TABLE grape.process(
 	param json,
 	process_type text,
 	CONSTRAINT process_pk PRIMARY KEY (process_id)
-	 WITH (FILLFACTOR = 10)
+
 
 )WITH ( OIDS = TRUE );
 -- ddl-end --
@@ -145,7 +145,7 @@ CREATE TABLE grape.schedule_log(
 	"time" timestamp,
 	message text,
 	CONSTRAINT schedule_log_pk PRIMARY KEY (schedule_log_id)
-	 WITH (FILLFACTOR = 10)
+
 
 )WITH ( OIDS = TRUE );
 -- ddl-end --
@@ -163,7 +163,7 @@ CREATE TABLE grape.schedule(
 	user_id integer,
 	status grape.e_schedule_status DEFAULT 'NewTask',
 	CONSTRAINT schedule_pk PRIMARY KEY (schedule_id)
-	 WITH (FILLFACTOR = 10)
+
 
 )WITH ( OIDS = TRUE );
 -- ddl-end --
@@ -186,7 +186,7 @@ CREATE TABLE grape.data_import(
 	data_import_status smallint,
 	processing_function text,
 	CONSTRAINT data_import_pk PRIMARY KEY (data_import_id)
-	 WITH (FILLFACTOR = 10)
+
 
 );
 -- ddl-end --
@@ -198,7 +198,7 @@ CREATE TABLE grape.data_import_row(
 	data_import_id integer,
 	data json,
 	CONSTRAINT data_import_row_pk PRIMARY KEY (data_import_row_id)
-	 WITH (FILLFACTOR = 10)
+
 
 );
 -- ddl-end --
@@ -210,7 +210,7 @@ CREATE TABLE grape.setting(
 	value text,
 	json_value json,
 	CONSTRAINT setting_pk PRIMARY KEY (name)
-	 WITH (FILLFACTOR = 10)
+
 
 );
 -- ddl-end --
@@ -369,5 +369,3 @@ ALTER TABLE grape.data_import_row ADD CONSTRAINT data_import_fk FOREIGN KEY (dat
 REFERENCES grape.data_import (data_import_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
-
-

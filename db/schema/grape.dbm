@@ -23,7 +23,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
-	<constraint name="access_role_pk" type="pk-constr" factor="10" table="grape.access_role">
+	<constraint name="access_role_pk" type="pk-constr" table="grape.access_role">
 		<columns names="role_name" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -37,7 +37,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
-	<constraint name="user_role_pk" type="pk-constr" factor="10" table="grape.user_role">
+	<constraint name="user_role_pk" type="pk-constr" table="grape.user_role">
 		<columns names="user_id,role_name" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -60,7 +60,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="last_activity">
 		<type name="timestamp"/>
 	</column>
-	<constraint name="session_pk" type="pk-constr" factor="10" table="grape.session">
+	<constraint name="session_pk" type="pk-constr" table="grape.session">
 		<columns names="session_id" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -78,7 +78,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="text" dimension="1"/>
 		<comment><![CDATA[HTTP methods accepted by this path/route eg. (GET, POST, etc)]]></comment>
 	</column>
-	<constraint name="access_path_pk" type="pk-constr" factor="10" table="grape.access_path">
+	<constraint name="access_path_pk" type="pk-constr" table="grape.access_path">
 		<columns names="role_name,regex_path,method" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -101,7 +101,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="blame_id">
 		<type name="integer"/>
 	</column>
-	<constraint name="user_history_id_pk" type="pk-constr" factor="10" table="grape.user_history">
+	<constraint name="user_history_id_pk" type="pk-constr" table="grape.user_history">
 		<columns names="user_history_id" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -139,7 +139,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="employee_info">
 		<type name="json"/>
 	</column>
-	<constraint name="user_pk" type="pk-constr" factor="10" table="grape.&quot;user&quot;">
+	<constraint name="user_pk" type="pk-constr" table="grape.&quot;user&quot;">
 		<columns names="user_id" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -166,7 +166,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="text"/>
 		<comment><![CDATA[PG_FUNCTION; COMMAND]]></comment>
 	</column>
-	<constraint name="process_pk" type="pk-constr" factor="10" table="grape.process">
+	<constraint name="process_pk" type="pk-constr" table="grape.process">
 		<columns names="process_id" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -191,7 +191,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="message">
 		<type name="text"/>
 	</column>
-	<constraint name="schedule_log_pk" type="pk-constr" factor="10" table="grape.schedule_log">
+	<constraint name="schedule_log_pk" type="pk-constr" table="grape.schedule_log">
 		<columns names="schedule_log_id" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -228,7 +228,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="status" default-value="'NewTask'">
 		<type name="grape.e_schedule_status" precision="59"/>
 	</column>
-	<constraint name="schedule_pk" type="pk-constr" factor="10" table="grape.schedule">
+	<constraint name="schedule_pk" type="pk-constr" table="grape.schedule">
 		<columns names="schedule_id" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -266,7 +266,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="processing_function">
 		<type name="text"/>
 	</column>
-	<constraint name="data_import_pk" type="pk-constr" factor="10" table="grape.data_import">
+	<constraint name="data_import_pk" type="pk-constr" table="grape.data_import">
 		<columns names="data_import_id" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -283,7 +283,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="data">
 		<type name="json"/>
 	</column>
-	<constraint name="data_import_row_pk" type="pk-constr" factor="10" table="grape.data_import_row">
+	<constraint name="data_import_row_pk" type="pk-constr" table="grape.data_import_row">
 		<columns names="data_import_row_id" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -301,7 +301,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="json_value">
 		<type name="json"/>
 	</column>
-	<constraint name="setting_pk" type="pk-constr" factor="10" table="grape.setting">
+	<constraint name="setting_pk" type="pk-constr" table="grape.setting">
 		<columns names="name" ref-type="src-columns"/>
 	</constraint>
 </table>
