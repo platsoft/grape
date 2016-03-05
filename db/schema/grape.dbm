@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.2-beta" last-position="3,2" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.2-beta" last-position="0,576" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -96,7 +96,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="timestamp"/>
 	</column>
 	<column name="data">
-		<type name="public.hstore" precision="59"/>
+		<type name="public.hstore" precision="32694"/>
 	</column>
 	<column name="blame_id">
 		<type name="integer"/>
@@ -198,7 +198,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule" oids="true">
 	<schema name="grape"/>
-	<position x="1120" y="23"/>
+	<position x="1120" y="28"/>
 	<column name="schedule_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -226,7 +226,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="integer"/>
 	</column>
 	<column name="status" default-value="'NewTask'">
-		<type name="grape.e_schedule_status" precision="59"/>
+		<type name="grape.e_schedule_status" precision="32694"/>
 	</column>
 	<constraint name="schedule_pk" type="pk-constr" table="grape.schedule">
 		<columns names="schedule_id" ref-type="src-columns"/>
@@ -235,7 +235,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import">
 	<schema name="grape"/>
-	<position x="836" y="421"/>
+	<position x="834" y="544"/>
 	<column name="data_import_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -273,7 +273,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_row">
 	<schema name="grape"/>
-	<position x="1280" y="406"/>
+	<position x="1365" y="475"/>
 	<column name="data_import_row_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -291,7 +291,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="setting">
 	<schema name="grape"/>
 	<comment><![CDATA[System-wide settings]]></comment>
-	<position x="272" y="573"/>
+	<position x="51" y="587"/>
 	<column name="name" not-null="true">
 		<type name="text"/>
 	</column>
@@ -308,7 +308,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_registry">
 	<schema name="grape"/>
-	<position x="454" y="758"/>
+	<position x="297" y="1212"/>
 	<column name="system_registry_id">
 		<type name="serial"/>
 	</column>
@@ -331,7 +331,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_endpoint">
 	<schema name="grape"/>
-	<position x="726" y="782"/>
+	<position x="324" y="1401"/>
 	<column name="system_endpoint_id">
 		<type name="integer"/>
 	</column>
@@ -339,7 +339,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_routing">
 	<schema name="grape"/>
-	<position x="701" y="1029"/>
+	<position x="528" y="1229"/>
 	<column name="system_routing_id">
 		<type name="serial"/>
 	</column>
@@ -353,7 +353,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_message_rcv">
 	<schema name="grape"/>
-	<position x="982" y="756"/>
+	<position x="775" y="1230"/>
 	<column name="system_message_rcv_id">
 		<type name="serial"/>
 	</column>
@@ -388,7 +388,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_public_key">
 	<schema name="grape"/>
-	<position x="395" y="927"/>
+	<position x="17" y="1209"/>
 	<column name="system_registry_id">
 		<type name="integer"/>
 	</column>
@@ -399,7 +399,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_private">
 	<schema name="grape"/>
-	<position x="310" y="1037"/>
+	<position x="47" y="1310"/>
 	<column name="my_secret">
 		<type name="bytea"/>
 	</column>
@@ -407,7 +407,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_type">
 	<schema name="grape"/>
-	<position x="1269" y="614"/>
+	<position x="1380" y="625"/>
 	<column name="description" not-null="true">
 		<type name="text"/>
 	</column>
@@ -445,6 +445,70 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 index-type="btree" factor="0">
 		<idxelement use-sorting="false">
 			<column name="username"/>
+		</idxelement>
+</index>
+
+<table name="report">
+	<schema name="grape"/>
+	<position x="55" y="745"/>
+	<column name="report_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="name">
+		<type name="text"/>
+	</column>
+	<column name="function_name">
+		<type name="text"/>
+	</column>
+	<column name="function_schema">
+		<type name="text"/>
+	</column>
+	<column name="input_fields" default-value="'{}'::JSON">
+		<type name="json"/>
+		<comment><![CDATA[JSON array with fields, Ex. [{name: date_begin, type: date}, {name: date_end, type: date}]]]></comment>
+	</column>
+	<constraint name="report_pk" type="pk-constr" table="grape.report">
+		<columns names="report_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="reports_executed">
+	<schema name="grape"/>
+	<position x="466" y="732"/>
+	<column name="reports_executed_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="report_id">
+		<type name="integer"/>
+	</column>
+	<column name="user_id">
+		<type name="integer"/>
+	</column>
+	<column name="date_inserted" default-value="NOW()">
+		<type name="timestamptz"/>
+	</column>
+	<column name="result_table_schema">
+		<type name="text"/>
+	</column>
+	<column name="result_table_name">
+		<type name="text"/>
+	</column>
+	<column name="is_deleted" default-value="TRUE">
+		<type name="boolean"/>
+	</column>
+	<column name="report_seq">
+		<type name="integer"/>
+	</column>
+	<constraint name="reports_executed_pk" type="pk-constr" table="grape.reports_executed">
+		<columns names="reports_executed_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="re_report_idx" table="grape.reports_executed"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="report_id"/>
 		</idxelement>
 </index>
 
@@ -496,6 +560,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="data_import_id" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="re_reports_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report" table="grape.reports_executed">
+	<columns names="report_id" ref-type="src-columns"/>
+	<columns names="report_id" ref-type="dst-columns"/>
+</constraint>
+
 <relationship name="rel_user_role_user" type="relfk"
 	 src-table="grape.user_role"
 	 dst-table="grape.&quot;user&quot;"
@@ -534,6 +604,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <relationship name="rel_data_import_row_data_import" type="relfk"
 	 src-table="grape.data_import_row"
 	 dst-table="grape.data_import"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_reports_executed_report" type="relfk"
+	 src-table="grape.reports_executed"
+	 dst-table="grape.report"
 	 src-required="false" dst-required="false"/>
 
 </dbmodel>

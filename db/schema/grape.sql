@@ -12,7 +12,7 @@
 -- CREATE DATABASE grape
 -- ;
 -- -- ddl-end --
---
+-- 
 
 -- object: grape | type: SCHEMA --
 -- DROP SCHEMA IF EXISTS grape CASCADE;
@@ -39,7 +39,6 @@ CREATE TABLE grape.access_role(
 	role_name text NOT NULL,
 	CONSTRAINT access_role_pk PRIMARY KEY (role_name)
 
-
 );
 -- ddl-end --
 
@@ -49,7 +48,6 @@ CREATE TABLE grape.user_role(
 	user_id integer NOT NULL,
 	role_name text NOT NULL,
 	CONSTRAINT user_role_pk PRIMARY KEY (user_id,role_name)
-
 
 );
 -- ddl-end --
@@ -64,7 +62,6 @@ CREATE TABLE grape.session(
 	last_activity timestamp,
 	CONSTRAINT session_pk PRIMARY KEY (session_id)
 
-
 );
 -- ddl-end --
 
@@ -75,7 +72,6 @@ CREATE TABLE grape.access_path(
 	regex_path text NOT NULL,
 	method text[] NOT NULL DEFAULT '{POST, PUT, GET}',
 	CONSTRAINT access_path_pk PRIMARY KEY (role_name,regex_path,method)
-
 
 );
 -- ddl-end --
@@ -91,7 +87,6 @@ CREATE TABLE grape.user_history(
 	data public.hstore,
 	blame_id integer,
 	CONSTRAINT user_history_id_pk PRIMARY KEY (user_history_id)
-
 
 );
 -- ddl-end --
@@ -111,7 +106,6 @@ CREATE TABLE grape."user"(
 	employee_info json,
 	CONSTRAINT user_pk PRIMARY KEY (user_id)
 
-
 );
 -- ddl-end --
 
@@ -124,7 +118,6 @@ CREATE TABLE grape.process(
 	param json,
 	process_type text,
 	CONSTRAINT process_pk PRIMARY KEY (process_id)
-
 
 )WITH ( OIDS = TRUE );
 -- ddl-end --
@@ -146,7 +139,6 @@ CREATE TABLE grape.schedule_log(
 	message text,
 	CONSTRAINT schedule_log_pk PRIMARY KEY (schedule_log_id)
 
-
 )WITH ( OIDS = TRUE );
 -- ddl-end --
 
@@ -163,7 +155,6 @@ CREATE TABLE grape.schedule(
 	user_id integer,
 	status grape.e_schedule_status DEFAULT 'NewTask',
 	CONSTRAINT schedule_pk PRIMARY KEY (schedule_id)
-
 
 )WITH ( OIDS = TRUE );
 -- ddl-end --
@@ -187,7 +178,6 @@ CREATE TABLE grape.data_import(
 	processing_function text,
 	CONSTRAINT data_import_pk PRIMARY KEY (data_import_id)
 
-
 );
 -- ddl-end --
 
@@ -199,7 +189,6 @@ CREATE TABLE grape.data_import_row(
 	data json,
 	CONSTRAINT data_import_row_pk PRIMARY KEY (data_import_row_id)
 
-
 );
 -- ddl-end --
 
@@ -210,7 +199,6 @@ CREATE TABLE grape.setting(
 	value text,
 	json_value json,
 	CONSTRAINT setting_pk PRIMARY KEY (name)
-
 
 );
 -- ddl-end --
@@ -314,6 +302,46 @@ CREATE INDEX gu_username_idx ON grape."user"
 	);
 -- ddl-end --
 
+-- object: grape.report | type: TABLE --
+-- DROP TABLE IF EXISTS grape.report CASCADE;
+CREATE TABLE grape.report(
+	report_id serial NOT NULL,
+	name text,
+	function_name text,
+	function_schema text,
+	input_fields json DEFAULT '{}'::JSON,
+	CONSTRAINT report_pk PRIMARY KEY (report_id)
+
+);
+-- ddl-end --
+COMMENT ON COLUMN grape.report.input_fields IS 'JSON array with fields, Ex. [{name: date_begin, type: date}, {name: date_end, type: date}]';
+-- ddl-end --
+
+-- object: grape.reports_executed | type: TABLE --
+-- DROP TABLE IF EXISTS grape.reports_executed CASCADE;
+CREATE TABLE grape.reports_executed(
+	reports_executed_id serial NOT NULL,
+	report_id integer,
+	user_id integer,
+	date_inserted timestamptz DEFAULT NOW(),
+	result_table_schema text,
+	result_table_name text,
+	is_deleted boolean DEFAULT TRUE,
+	report_seq integer,
+	CONSTRAINT reports_executed_pk PRIMARY KEY (reports_executed_id)
+
+);
+-- ddl-end --
+
+-- object: re_report_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.re_report_idx CASCADE;
+CREATE INDEX re_report_idx ON grape.reports_executed
+	USING btree
+	(
+	  report_id
+	);
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
@@ -369,3 +397,12 @@ ALTER TABLE grape.data_import_row ADD CONSTRAINT data_import_fk FOREIGN KEY (dat
 REFERENCES grape.data_import (data_import_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
+
+-- object: re_reports_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.reports_executed DROP CONSTRAINT IF EXISTS re_reports_fk CASCADE;
+ALTER TABLE grape.reports_executed ADD CONSTRAINT re_reports_fk FOREIGN KEY (report_id)
+REFERENCES grape.report (report_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+
