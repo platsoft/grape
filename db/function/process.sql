@@ -1,28 +1,71 @@
 
 /**
- * process_id or process_name
+ * Add a new entry to process schedule table
+ * 
+ * Provide a process_id and params
+ */
+CREATE OR REPLACE FUNCTION grape.start_process (_process_id INTEGER, _param JSON) RETURNS INTEGER AS $$
+DECLARE
+	_schedule_id INTEGER;
+BEGIN
+	INSERT INTO grape.schedule (process_id, time_sched, param, user_id) 
+		VALUES (_process_id, CURRENT_TIMESTAMP, _param, current_user_id()) 
+		RETURNING schedule_id INTO _schedule_id;
+
+	RETURN _schedule_id;
+END; $$ LANGUAGE plpgsql;
+
+/**
+ * Add a new entry to process schedule table
+ * 
+ * Provide a process_id and params
+ */
+CREATE OR REPLACE FUNCTION grape.start_process (_process_name TEXT, _param JSON) RETURNS INTEGER AS $$
+DECLARE
+	_process_id INTEGER;
+	_schedule_id INTEGER;
+BEGIN
+	
+	SELECT process_id INTO _process_id FROM grape.process WHERE pg_function=_process_name::TEXT;
+
+	IF _process_id IS NULL THEN
+		RETURN -1;
+	END IF;
+
+	_schedule_id := grape.start_process(_process_id, _param);
+
+	RETURN _schedule_id;
+END; $$ LANGUAGE plpgsql;
+
+
+/**
+ * Wrapper to start function
  */
 CREATE OR REPLACE FUNCTION grape.start_process (JSON) RETURNS JSON AS $$
 DECLARE
 	_process_id INTEGER;
 	_process_name TEXT;
 	_param JSON;
-	ret INTEGER;
+	_schedule_id INTEGER;
 BEGIN
-	IF json_extract_path($1, 'process_id') IS NOT NULL THEN
-		_process_id := ($1->>'process_id')::INTEGER;
-	ELSE
-		_process_name := ($1->>'process_name')::TEXT;
-		SELECT process_id INTO _process_id FROM grape.process WHERE pg_function=_process_name::TEXT;
-	END IF;
-
 	_param := $1->'param';
 
-	INSERT INTO grape.schedule (process_id, time_sched, param, user_id) VALUES (_process_id, CURRENT_TIMESTAMP, _param, current_user_id()) RETURNING schedule_id INTO ret;
+	IF json_extract_path($1, 'process_id') IS NOT NULL THEN
+		_process_id := ($1->>'process_id')::INTEGER;
+		_schedule_id := grape.start_process(_process_id, _param);
+	ELSIF json_extract_path($1, 'process_name') IS NOT NULL THEN
+		_process_name := ($1->>'process_name')::TEXT;
+		_schedule_id := grape.start_process(_process_name, _param);
+	ELSE
+		RETURN grape.api_error_invalid_input();
+	END IF;
 
-	RETURN row_to_json(b) FROM (SELECT ret AS "schedule_id") b;
+	RETURN grape.api_success('schedule_id', _schedule_id);
 END; $$ LANGUAGE plpgsql;
 
+/**
+ * Returns list of processes and totals
+ */
 CREATE OR REPLACE FUNCTION grape.list_processes (JSON) RETURNS JSON AS $$
 DECLARE
 	_ret JSON;
@@ -42,5 +85,7 @@ BEGIN
 
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
+
+
 
 

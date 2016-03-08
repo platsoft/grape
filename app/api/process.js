@@ -1,4 +1,7 @@
 "use strict";
+var fs = require('fs');
+var readline = require(readline);
+
 var app;
 
 exports = module.exports = function(_app) {
@@ -39,6 +42,9 @@ exports = module.exports = function(_app) {
  * @example [{"process_id":1,"pg_function":"create_combined_tape","description":"Create combine tape","new":1,"completed":0,"error":0,"running":1},{"process_id":2,"pg_function":"apply_tapefile","description":"Apply debit orders","new":0,"completed":0,"error":0,"running":0}]
  **/
 	app.get("/grape/process/list", api_list_processes);
+
+
+	app.get("/grape/schedule/:process_id/:schedule_id/get_logfile", api_get_schedule_logfile);
 };
 
 function api_start_process(req, res)
@@ -53,5 +59,17 @@ function api_list_processes(req, res)
 	res.locals.db.json_call('grape.list_processes', obj, null, {response: res})
 }
 
+
+function api_get_schedule_logfile (req, res)
+{
+	var schedule_id = req.params.schedule_id;
+	console.log(req);
+
+	var line_num_start = 0;
+	
+	var dte = '';
+
+	file = fs.createReadStream();
+}
 
 
