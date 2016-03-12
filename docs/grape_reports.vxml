@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape Reports">
+<h1>Grape Reports</h1>
+<i>Introduced in Grape 0.0.8</i>
+<p>
+Grape provides a rudimentary infrastructure for writing and executing reports. Reports are written as stored producedures and stored in the table <tname>grape.report</tname>. A history of executed reports are stored in <tname>grape.reports_executed</tname>.<br />
+When saving a report, a JSON field <fname>input_fields</fname> can be specified. The input parameters for the report should be specified in a JSON array. Each of the fields having the following values:<br />
+<ul>
+	<li><u>name</u> - Containing the field name</li>
+	<li><u>type</u> - Containing the field type (for example, date)</li>
+</ul>
+The report functions (stored procedures), is given one JSON parameter as input. <br />
+Report output are used as follows:
+<ul>
+	<li>If the reporting function's return type is JSON, the value is returned without any changes, to the API</li>
+	<li>If the return type is a record (like a TABLE), the results will be put in an array and returned to the API call in a field called "result"</li>
+	<li>Otherwise, the output will be automatically converted to JSON, and returned to the API call in a field called "result"</li>
+
+</p>
+<h2>API Calls</h2>
+<h2>Future ideas</h2>
+<ul>
+	<li>Add the ability to write reports that does not return or accept JSON</li>
+	<li>Save report results</li>
+</ul>
+
+</ps_doc>
