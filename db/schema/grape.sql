@@ -342,6 +342,15 @@ CREATE INDEX re_report_idx ON grape.reports_executed
 	);
 -- ddl-end --
 
+-- object: report_name_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.report_name_idx CASCADE;
+CREATE INDEX report_name_idx ON grape.report
+	USING btree
+	(
+	  name
+	);
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
