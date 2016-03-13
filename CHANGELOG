@@ -33,4 +33,10 @@
 - Added user.employee_guid and user.employee_data to store employee info from Savanna
 - Enable "trust proxy" setting
 
+0.0.8:
+- Removing extremely low fill factors. Performance difference noticeable on serial columns
+- Changes to accommodate ps_bgworker's writing to logfiles instead of database
+- Reporting framework
+- Caching comms: Only connect to messagesocket once socket create were successful
+
 
