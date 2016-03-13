@@ -1,6 +1,5 @@
 "use strict";
 var fs = require('fs');
-var readline = require('readline');
 
 var app;
 
@@ -43,8 +42,15 @@ exports = module.exports = function(_app) {
  **/
 	app.get("/grape/process/list", api_list_processes);
 
-
-	app.get("/grape/schedule/:process_id/:schedule_id/get_logfile", api_get_schedule_logfile);
+/**
+ * @desc Get lines from schedule logfile
+ * @method GET
+ * @url /grape/schedule/:schedule_id/get_logfile
+ * @param offset INTEGER Start at line optional
+ * @param limit INTEGER Number of lines to retrieve. default 100 optional
+ * 
+ */
+	app.get("/grape/schedule/:schedule_id/get_logfile", api_get_schedule_logfile);
 };
 
 function api_start_process(req, res)
@@ -63,13 +69,37 @@ function api_list_processes(req, res)
 function api_get_schedule_logfile (req, res)
 {
 	var schedule_id = req.params.schedule_id;
-	console.log(req);
+	var offset = 0;
 
-	var line_num_start = 0;
-	
-	var dte = '';
+	if (req.query.offset)
+		offset = parseInt(req.query.offset);
 
-	file = fs.createReadStream();
+	var limit = 100;
+	if (req.query.limit)
+		limit = parseInt(req.query.limit);
+
+	res.locals.db.json_call('grape.schedule_info', {schedule_id: req.params.schedule_id}, function(err, result) {
+		if (err)
+		{
+			res.json('{}').end(); //ERROR
+			return;
+		}
+		
+		var obj = result.rows[0]['grapeschedule_info'];
+		console.log(obj.schedule);
+		
+		var config = app.get('config');
+		
+		var logfilename = config.document_store + '/' + schedule.logfile;
+		
+		var file_contents = fs.readFileSync(logfilename, {encoding: 'utf8'});
+		var lines = file_contents.split("\n");
+
+		var return_lines = lines.splice(offset, limit);
+
+		res.json(return_lines);
+	});
+
 }
 
 
