@@ -87,5 +87,27 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 
+/**
+ * Returns schedule information.
+ * Provide a schedule_id
+ */
+CREATE OR REPLACE FUNCTION grape.schedule_info (JSON) RETURNS JSON AS $$
+DECLARE
+	_ret JSON;
+	_schedule_id INTEGER;
+BEGIN
+	_schedule_id := ($1->>'schedule_id')::INTEGER;
+
+	SELECT to_json(g) 
+		INTO _ret 
+		FROM grape.schedule g
+		WHERE schedule_id=_schedule_id::INTEGER;
+
+	RETURN grape.api_success('schedule', _ret);
+END; $$ LANGUAGE plpgsql;
+
+
+
+
 
 
