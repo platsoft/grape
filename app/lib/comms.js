@@ -162,16 +162,23 @@ var WorkerFIFO = function (_opt) {
 		this.fifo = this.options.log_directory + '/grape.fifo';
 		this.socket = net.connect({path: this.fifo});
 
-		var ms = new MessageSocket(this.socket);
-		ms.on('message', function(message) {
-			//console.log("CLIENT RECEIVED ON PIPE: " );
-			//console.log(message);
-			if (message.command == 1)
-			{
-				var callback = self.callbacks[message.muid];
-		
-				callback(message.data);
-			}
+		this.socket.on('error', function(e) {
+			console.log("Error connecting to socket", e);
+			
+		});
+
+		this.socket.on('connect', function() {
+			var ms = new MessageSocket(self.socket);
+			ms.on('message', function(message) {
+				//console.log("CLIENT RECEIVED ON PIPE: " );
+				//console.log(message);
+				if (message.command == 1)
+				{
+					var callback = self.callbacks[message.muid];
+			
+					callback(message.data);
+				}
+			});
 		});
 	};
 
