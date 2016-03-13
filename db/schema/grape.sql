@@ -307,6 +307,7 @@ CREATE INDEX gu_username_idx ON grape."user"
 CREATE TABLE grape.report(
 	report_id serial NOT NULL,
 	name text,
+	description text,
 	function_name text,
 	function_schema text,
 	input_fields json DEFAULT '{}'::JSON,

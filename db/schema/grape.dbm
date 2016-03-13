@@ -96,7 +96,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="timestamp"/>
 	</column>
 	<column name="data">
-		<type name="public.hstore"/>
+		<type name="public.hstore" precision="32671"/>
 	</column>
 	<column name="blame_id">
 		<type name="integer"/>
@@ -226,7 +226,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="integer"/>
 	</column>
 	<column name="status" default-value="'NewTask'">
-		<type name="grape.e_schedule_status"/>
+		<type name="grape.e_schedule_status" precision="32671"/>
 	</column>
 	<constraint name="schedule_pk" type="pk-constr" table="grape.schedule">
 		<columns names="schedule_id" ref-type="src-columns"/>
@@ -455,6 +455,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="serial"/>
 	</column>
 	<column name="name">
+		<type name="text"/>
+	</column>
+	<column name="description">
 		<type name="text"/>
 	</column>
 	<column name="function_name">

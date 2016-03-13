@@ -1,30 +1,58 @@
 
 
-CREATE OR REPLACE FUNCTION grape.save_report (_report_id INTEGER, _name TEXT, _function_schema TEXT, _function_name TEXT, _input_fields JSON) RETURNS INTEGER AS $$
+CREATE OR REPLACE FUNCTION grape.save_report (
+		_report_id INTEGER, 
+		_name TEXT, 
+		_description TEXT, 
+		_function_schema TEXT, 
+		_function_name TEXT, 
+		_input_fields JSON
+	) RETURNS INTEGER AS $$
 DECLARE
 	_new_report_id INTEGER;
+	_desc TEXT;
 BEGIN
+	IF _description IS NULL OR _description = '' THEN
+		_desc := _name;
+	ELSE
+		_desc := _description;
+	END IF;
+
 	IF _report_id IS NOT NULL THEN
 		UPDATE grape.report SET 
 			name=_name,
+			description=_desc,
 			function_schema=_function_schema, 
 			function_name=_function_name,
 			input_fields=_input_fields 
 			WHERE report_id=_report_id::INTEGER
 			RETURNING report_id INTO _new_report_id;
 	ELSE
-		INSERT INTO grape.report (name, function_schema, function_name, input_fields)
-			VALUES (_name, _function_schema, _function_name, _input_fields)
+		INSERT INTO grape.report (name, description, function_schema, function_name, input_fields)
+			VALUES (_name, _desc, _function_schema, _function_name, _input_fields)
 			RETURNING report_id INTO _new_report_id;
 	END IF;
 
 	RETURN _report_id;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.save_report (
+		_name TEXT, 
+		_function_name TEXT, 
+		_description TEXT DEFAULT '',
+		_input_fields JSON DEFAULT '[]'::JSON
+	) RETURNS INTEGER AS $$
+DECLARE
+BEGIN
+	RETURN grape.save_report(NULL, _name, _description, 'public', _function_name, _input_fields);
+END; $$ LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION grape.save_report (JSON) RETURNS JSON AS $$
 DECLARE
 	_report_id INTEGER;
 	_name TEXT;
+	_description TEXT;
 	_function_name TEXT;
 	_function_schema TEXT;
 	_input_fields JSON;
@@ -35,6 +63,7 @@ BEGIN
 	END IF;
 
 	_name := $1->>'name';
+	_description := $1->>'description';
 	_function_name := $1->>'function_name';
 	_function_schema := $1->>'function_schema';
 	_input_fields := $1->'input_fields';
@@ -68,7 +97,7 @@ BEGIN
 			quote_ident(_report.function_schema), 
 			'.', 
 			quote_ident(_report.function_name),
-			'(%::JSON) AS a');
+			'($1::JSON) AS a');
 
 	ELSIF _dtype = 'user-defined' THEN
 
@@ -76,7 +105,7 @@ BEGIN
 			quote_ident(_report.function_schema), 
 			'.', 
 			quote_ident(_report.function_name),
-			'(%::JSON) AS a');
+			'($1::JSON) AS a');
 
 	ELSIF _dtype = 'record' THEN
 
@@ -84,14 +113,14 @@ BEGIN
 			quote_ident(_report.function_schema), 
 			'.', 
 			quote_ident(_report.function_name),
-			'(%::JSON) AS a');
+			'($1::JSON) AS a');
 	ELSE
 
 		_sql := CONCAT('SELECT json_build_object(''result'', to_json(a)) FROM ', 
 			quote_ident(_report.function_schema), 
 			'.', 
 			quote_ident(_report.function_name),
-			'(%::JSON) AS a');
+			'($1::JSON) AS a');
 
 	END IF;
 	
