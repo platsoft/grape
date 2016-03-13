@@ -225,6 +225,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="user_id">
 		<type name="integer"/>
 	</column>
+	<column name="logfile">
+		<type name="text"/>
+	</column>
 	<column name="status" default-value="'NewTask'">
 		<type name="grape.e_schedule_status" precision="32671"/>
 	</column>

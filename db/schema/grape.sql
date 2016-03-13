@@ -153,6 +153,7 @@ CREATE TABLE grape.schedule(
 	pid integer,
 	param json,
 	user_id integer,
+	logfile text,
 	status grape.e_schedule_status DEFAULT 'NewTask',
 	CONSTRAINT schedule_pk PRIMARY KEY (schedule_id)
 
