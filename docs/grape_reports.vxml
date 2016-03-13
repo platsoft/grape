@@ -15,8 +15,47 @@ Report output are used as follows:
 	<li>If the reporting function's return type is JSON, the value is returned without any changes, to the API</li>
 	<li>If the return type is a record (like a TABLE), the results will be put in an array and returned to the API call in a field called "result"</li>
 	<li>Otherwise, the output will be automatically converted to JSON, and returned to the API call in a field called "result"</li>
-
+</ul>
 </p>
+
+<h2>Examples</h2>
+<h3>Example 1</h3>
+<b>Table: </b> temps
+<table>
+	<thead>
+		<th width="25%">city</th>
+		<th width="25%">date</th>
+		<th width="25%">time</th>
+		<th width="25%">temperature</th>
+	</thead>
+	<tr><td>Pretoria</td><td>2016/01/01</td><td>06:00</td><td>20</td></tr>
+	<tr><td>Pretoria</td><td>2016/01/01</td><td>12:00</td><td>31</td></tr>
+	<tr><td>Pretoria</td><td>2016/01/02</td><td>06:00</td><td>20</td></tr>
+	<tr><td>Pretoria</td><td>2016/01/02</td><td>12:00</td><td>33</td></tr>
+	<tr><td>Cape Town</td><td>2016/01/01</td><td>06:00</td><td>17</td></tr>
+	<tr><td>Cape Town</td><td>2016/01/01</td><td>12:00</td><td>34</td></tr>
+	<tr><td>Cape Town</td><td>2016/01/02</td><td>06:00</td><td>19</td></tr>
+	<tr><td>Cape Town</td><td>2016/01/02</td><td>12:00</td><td>25</td></tr>
+</table>
+<code lang="sql">
+CREATE OR REPLACE FUNCTION maximum_city_for_date (JSON) RETURNS TEXT AS $$
+DECLARE
+	_date DATE;
+	_city TEXT;
+BEGIN
+	_date := ($1->>'date')::DATE;
+
+	SELECT city INTO _city FROM temps WHERE date = _date ORDER BY temperature DESC LIMIT 1;
+
+	RETURN _city;
+END; $$ LANGUAGE plpgsql;
+
+SELECT grape.save_report (NULL, 'City with highest temperature for a date', 
+				'public', 'maximum_city_for_date', 
+				'[{"name":"date","type":"date"}]'::JSON);
+
+</code>
+
 <h2>API Calls</h2>
 <h2>Future ideas</h2>
 <ul>

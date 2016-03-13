@@ -1,6 +1,6 @@
 "use strict";
 var fs = require('fs');
-var readline = require(readline);
+var readline = require('readline');
 
 var app;
 
