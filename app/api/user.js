@@ -68,10 +68,11 @@ function toggle_user(req, res) {
 			res.json({error: err});
 		}
 	});
+	return res;
 }
 
 function save_user_password(req, res) {
-	alert("him");
+
 	if(req.body.user_id)
 		logger.debug('Updating user');
 	else
