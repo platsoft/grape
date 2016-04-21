@@ -15,7 +15,6 @@ BEGIN
 
 	-- Select appropriate operations
 	IF _user_id IS NOT NULL THEN
-			-- UPDATE : Valid data
 			UPDATE grape."user"
 				SET
 					active = _active
@@ -120,11 +119,7 @@ BEGIN
 	_user_id := ($1->>'user_id')::INTEGER;
 	_password := $1->>'password';
 
-	IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
-		_hashed_password := crypto.crypt(_password, crypto.gen_salt('bf'));
-	ELSE
-		_hashed_password := _password;
-	END IF;
+	_hashed_password := crypt(_password, gen_salt('bf'));
 
 	-- Select appropriate operations
 	IF _user_id IS NOT NULL THEN
