@@ -1,33 +1,8 @@
-CREATE OR REPLACE FUNCTION grape.toggle_user (JSON) RETURNS JSON AS $$
-DECLARE
-	_user_id INTEGER;
-	_active BOOLEAN;
-
-	rec RECORD;
-BEGIN
-	_user_id := ($1->>'user_id')::INTEGER;
-	_active := ($1->>'active')::BOOLEAN;
-
-	-- Default Active to True
-	IF _active IS NULL THEN
-		_active := TRUE;
-	END IF;
-
-	-- Select appropriate operations
-	IF _user_id IS NOT NULL THEN
-			UPDATE grape."user"
-				SET
-					active = _active
-				WHERE
-					user_id = _user_id;
-			RETURN ('{"success":"true","code":"0","new":"false","user_id":"' || _user_id || '"}')::JSON;
-	END IF;
-END; $$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION grape.user_save (JSON) RETURNS JSON AS $$
 DECLARE
 	_user_id INTEGER;
 	_username TEXT;
+	_password TEXT;
 	_email TEXT;
 	_fullnames TEXT;
 	_active BOOLEAN;
@@ -39,13 +14,26 @@ DECLARE
 BEGIN
 	_user_id := ($1->>'user_id')::INTEGER;
 	_username := $1->>'username';
+	_password := $1->>'password';
 	_email := $1->>'email';
 	_fullnames := $1->>'fullnames';
+	_active := ($1->>'active')::BOOLEAN;
 	_role_names := string_to_array($1->>'role_names', ',');
+
+	IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
+		_hashed_password := crypto.crypt(_password, crypto.gen_salt('bf'));
+	ELSE
+		_hashed_password := _password;
+	END IF;
 
 	-- Validate Username
 	IF _username IS NULL OR _username = '' THEN
 		RETURN ('{"success":"false","code":"1","message":"Invalid data - Username is mandatory."}')::JSON;
+	END IF;
+
+	-- Default Active to True
+	IF _active IS NULL THEN
+		_active := TRUE;
 	END IF;
 
 	-- Select appropriate operations
@@ -54,8 +42,8 @@ BEGIN
 		SELECT * INTO rec FROM grape."user" WHERE username = _username;
 		IF NOT FOUND THEN
 			-- INSERT : Valid data
-			INSERT INTO grape."user" (username, email, fullnames)
-				VALUES (_username, _email, _fullnames)
+			INSERT INTO grape."user" (username, password, email, fullnames, active)
+				VALUES (_username, _hashed_password, _email, _fullnames, _active)
 				RETURNING user_id INTO _user_id;
 
 			IF _role_names IS NOT NULL THEN
@@ -90,8 +78,10 @@ BEGIN
 			UPDATE grape."user"
 				SET
 					username = _username,
+					password = _hashed_password,
 					email = _email,
-					fullnames = _fullnames
+					fullnames = _fullnames,
+					active = _active
 				WHERE
 					user_id = _user_id;
 
@@ -101,41 +91,6 @@ BEGIN
 					INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
 				END LOOP;
 			END IF;
-
-			RETURN ('{"success":"true","code":"0","new":"false","user_id":"' || _user_id || '"}')::JSON;
-
-		END IF;
-	END IF;
-END; $$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION grape.user_save_password (JSON) RETURNS JSON AS $$
-DECLARE
-	_user_id INTEGER;
-	_password TEXT;
-	_hashed_password TEXT;
-
-	rec RECORD;
-BEGIN
-	_user_id := ($1->>'user_id')::INTEGER;
-	_password := $1->>'password';
-
-	_hashed_password := crypt(_password, gen_salt('bf'));
-
-	-- Select appropriate operations
-	IF _user_id IS NOT NULL THEN
-		-- UPDATE Existing User
-		SELECT * INTO rec FROM grape."user" WHERE user_id = _user_id;
-		IF NOT FOUND THEN
-			-- UPDATE : Invalid user_id
-			RETURN ('{"success":"false","code":"3","message":"Unable to update user. The specified user_id does not exist"}')::JSON;
-
-		ELSE
-			-- UPDATE : Valid data
-			UPDATE grape."user"
-				SET
-					password = _hashed_password
-				WHERE
-					user_id = _user_id;
 
 			RETURN ('{"success":"true","code":"0","new":"false","user_id":"' || _user_id || '"}')::JSON;
 
