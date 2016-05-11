@@ -56,6 +56,7 @@ module.exports = function (app)
 		{
 			res.set('X-Permission-Code', ret.result_code);
 
+			// Permission denied
 			if (ret.result_code != 0)
 			{
 				res.set('X-No-Permission', 'true');
@@ -63,18 +64,26 @@ module.exports = function (app)
 				var error_message = '';
 				if (ret.result_code == 1)
 				{  // invalid session
+					res.status(403);
 					error_message = 'Invalid session';
 				}
 				else if (ret.result_code == 2)
 				{ // permission denied
+					res.status(403);
 					error_message = 'Permission denied';
 				}
 				else if (ret.result_code == 9)
 				{ // path not found and default_access_allowed is false
+					res.status(403);
 					error_message = 'Path not found and default_access_allowed is false';
+				}
+				else
+				{
+					res.status(403);
 				}
 				
 				res.set('X-Permission-Error', error_message);
+	
 
 				if (req.headers.accept.indexOf('application/json') != -1)
 					res.json({status: 'ERROR', message: error_message});
@@ -137,6 +146,9 @@ module.exports = function (app)
 				if (err)
 				{
 					app.get('logger').error('Could not load access paths for session ' + session_id + ' against ' + path + ' ' + err);
+
+					ret = {};
+
 					return;
 				}
 
