@@ -225,6 +225,8 @@ exports = module.exports = function(_o) {
 		return obj;
 	};
 
+	app.default_api_schema = 'public';
+
 	/*
 	param : {
 		name,
@@ -291,7 +293,7 @@ exports = module.exports = function(_o) {
 			param.url_prefix = param.url_prefix + '/';
 
 		if (!param.db_schema)
-			param.db_schema = 'public';
+			param.db_schema = app.default_api_schema || 'public';
 
 		var key_val = param.param_id;
 		if( !key_val )
@@ -365,7 +367,7 @@ exports = module.exports = function(_o) {
 		var certificate = fs.readFileSync(options.sslcert);
 
 		var server = https.createServer({key: privateKey, cert: certificate}, app).listen(options.port);
-		
+
 		logger.info('SSL listening on ' + options.port);
 	}
 	else
@@ -374,11 +376,9 @@ exports = module.exports = function(_o) {
 		http.globalAgent.maxSockets = options.maxsockets || DEFAULT_MAXSOCKETS;
 		var server = app.listen(options.port);
 		server.timeout = options.server_timeout;
-	
+
 		logger.info('Listening on ' + options.port);
 	}
 
 	return app;
 };
-
-
