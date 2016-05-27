@@ -21,7 +21,7 @@ BEGIN
 	_role_names := string_to_array($1->>'role_names', ',');
 
 	IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
-		_hashed_password := crypto.crypt(_password, crypto.gen_salt('bf'));
+		_hashed_password := crypt(_password, gen_salt('bf'));
 	ELSE
 		_hashed_password := _password;
 	END IF;
@@ -175,6 +175,3 @@ BEGIN
 
 	RETURN grape.hash_user_password(_user_id);
 END; $$ LANGUAGE plpgsql;
-
-
-
