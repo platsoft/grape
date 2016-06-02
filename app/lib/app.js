@@ -161,7 +161,10 @@ exports = module.exports = function(_o) {
 				}
 				else 	//send index.html to load app (this is for stuff like /search and /policy/:policy_id)
 				{
-					res.sendFile(app.get('publicPath') + '/index.html');
+					if (req._parsedUrl.pathname.indexOf('.') == -1)
+						res.sendFile(app.get('publicPath') + '/index.html');
+					else
+						res.status(404).send('Path not found');
 					return;
 				}
 			}

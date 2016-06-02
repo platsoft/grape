@@ -1,3 +1,5 @@
+
+
 CREATE OR REPLACE FUNCTION grape.user_save (JSON) RETURNS JSON AS $$
 DECLARE
 	_user_id INTEGER;
@@ -18,7 +20,12 @@ BEGIN
 	_email := $1->>'email';
 	_fullnames := $1->>'fullnames';
 	_active := ($1->>'active')::BOOLEAN;
-	_role_names := string_to_array($1->>'role_names', ',');
+
+	IF json_typeof ($1->'role_names') = 'string' THEN
+		_role_names := string_to_array($1->>'role_names', ',');
+	ELSIF json_typeof ($1->'role_names') = 'array' THEN
+		_role_names := ($1->'role_names')::TEXT[];
+	END IF;
 
 	IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
 		_hashed_password := crypt(_password, gen_salt('bf'));

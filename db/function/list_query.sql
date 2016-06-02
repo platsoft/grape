@@ -31,6 +31,7 @@ END; $$ LANGUAGE plpgsql;
  *		field text
  *		operand text of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE', 'IS_NULL', 'IS_NOT_NULL', 'IN'
  *		value text
+ *	filters_join (optional) indicate if filters should be joined with an AND or an OR. Defaults to AND
  * Returns a list object:  { total: INT, offset: INT, limit: INT, result_count: INT, records: [ {} ] }
  */
 CREATE TABLE IF NOT EXISTS grape.list_query_whitelist (schema text, tablename text, PRIMARY KEY (schema, tablename));
@@ -55,6 +56,7 @@ DECLARE
 
 	_oper TEXT;
 	_filter_array TEXT[];
+	_filters_join TEXT;
 
 	_extra_data JSON := ($1->'extra_data');
 BEGIN
@@ -70,6 +72,14 @@ BEGIN
 
 	IF json_extract_path($1, 'schema') IS NOT NULL THEN
 		_schema := $1->>'schema';
+	END IF;
+
+	IF json_extract_path($1, 'filters_join') IS NOT NULL THEN
+		_filters_join := UPPER($1->>'filters_join');
+	END IF;
+
+	IF _filters_join != 'OR' THEN
+		_filters_join := 'AND';
 	END IF;
 
 	PERFORM schema, tablename FROM grape.list_query_whitelist
@@ -144,7 +154,7 @@ BEGIN
 			_filters := array_append(_filters, _filter_sql);
 		END LOOP;
 		IF array_length(_filters, 1) > 0 THEN
-			_filter_sql := ' WHERE ' || array_to_string(_filters, ' AND ');
+			_filter_sql := ' WHERE ' || array_to_string(_filters, ' ' || _filters_join || ' ');
 		ELSE
 			_filter_sql := '';
 		END IF;
