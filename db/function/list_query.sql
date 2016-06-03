@@ -78,10 +78,9 @@ BEGIN
 		_filters_join := UPPER($1->>'filters_join');
 	END IF;
 
-	IF _filters_join != 'OR' THEN
+	IF _filters_join IS NULL OR _filters_join != 'OR' THEN
 		_filters_join := 'AND';
 	END IF;
-	_filters_join := COALESCE(_filters_join, 'AND');
 
 	PERFORM schema, tablename FROM grape.list_query_whitelist
 		WHERE schema = _schema AND tablename = _tablename;
