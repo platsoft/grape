@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.2-beta" last-position="0,532" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.2-beta" last-position="0,573" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -96,7 +96,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="timestamp"/>
 	</column>
 	<column name="data">
-		<type name="public.hstore" precision="32671"/>
+		<type name="public.hstore" precision="59"/>
 	</column>
 	<column name="blame_id">
 		<type name="integer"/>
@@ -229,7 +229,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="text"/>
 	</column>
 	<column name="status" default-value="'NewTask'">
-		<type name="grape.e_schedule_status" precision="32671"/>
+		<type name="grape.e_schedule_status" precision="59"/>
 	</column>
 	<constraint name="schedule_pk" type="pk-constr" table="grape.schedule">
 		<columns names="schedule_id" ref-type="src-columns"/>
@@ -453,7 +453,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report">
 	<schema name="grape"/>
-	<position x="55" y="745"/>
+	<position x="44" y="745"/>
 	<column name="report_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -472,6 +472,15 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="input_fields" default-value="'{}'::JSON">
 		<type name="json"/>
 		<comment><![CDATA[JSON array with fields, Ex. [{name: date_begin, type: date}, {name: date_end, type: date}]]]></comment>
+	</column>
+	<column name="report_type">
+		<type name="text"/>
+	</column>
+	<column name="active" default-value="TRUE">
+		<type name="boolean"/>
+	</column>
+	<column name="cache_time">
+		<type name="interval"/>
 	</column>
 	<constraint name="report_pk" type="pk-constr" table="grape.report">
 		<columns names="report_id" ref-type="src-columns"/>
@@ -504,6 +513,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="report_seq">
 		<type name="integer"/>
+	</column>
+	<column name="input_fields">
+		<type name="json"/>
 	</column>
 	<constraint name="reports_executed_pk" type="pk-constr" table="grape.reports_executed">
 		<columns names="reports_executed_id" ref-type="src-columns"/>
