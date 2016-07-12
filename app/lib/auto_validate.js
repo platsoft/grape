@@ -168,10 +168,13 @@ function auto_validate(obj, validate_string)
 					}
 				}
 
-				var str_value = value_in_object.toString();
-				if (str_value == '' && p.empty_becomes_null == true)
+				if (value_in_object !== null)
 				{
-					value_in_object = null;
+					var str_value = value_in_object.toString();
+					if (str_value == '' && p.empty_becomes_null == true)
+					{
+						value_in_object = null;
+					}
 				}
 
 				if (value_in_object == null)
