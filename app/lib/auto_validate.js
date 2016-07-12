@@ -1,5 +1,3 @@
-
-
 /**
  * Validate string syntax:
  * 	begin_expr ::= "(" <begin_expr> "," <param-def> ")"
@@ -19,7 +17,7 @@
  *	* optional is true (default = false)
  *	E Empty becomes null
  *	0 Nullable
- *	
+ *
  * Examples:
  *	(batch_labreport_id: i, product_id: i, labreport)
  */
@@ -170,6 +168,12 @@ function auto_validate(obj, validate_string)
 					}
 				}
 
+				var str_value = value_in_object.toString();
+				if (str_value == '' && p.empty_becomes_null == true)
+				{
+					value_in_object = null;
+				}
+
 				if (value_in_object == null)
 				{
 					if (p.nullable == false)
@@ -185,14 +189,6 @@ function auto_validate(obj, validate_string)
 						p.value = null;
 						continue;
 					}
-				}
-
-				var str_value = value_in_object.toString();
-				if (str_value == '' && p.empty_becomes_null == true)
-				{
-					p.value = null;
-					p.valid = true;
-					continue;
 				}
 
 				if (p.data_type == 'j')
@@ -307,5 +303,3 @@ function auto_validate(obj, validate_string)
 }
 
 module.exports.validate = auto_validate;
-
-
