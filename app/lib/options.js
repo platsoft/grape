@@ -17,12 +17,26 @@ exports = module.exports = function(_o) {
 		server_timeout: 50000
 	};
 
-	_.extend(options, _o);
-
-	if (options.base_directory == false && options.public_directory != false)
+	if (!_o.base_directory && _o.public_directory)
 	{
-		options.base_directory = fs.realpathSync(options.public_directory + '/../');
+		_o.base_directory = fs.realpathSync(_o.public_directory + '/../');
 	}
+
+
+	if (_o.base_directory)
+	{
+		try {
+			var stat = fs.statSync(_o.base_directory + '/default_config.js');
+			if (stat.isFile())
+			{
+				var defaults = require(_o.base_directory + '/default_config.js'); 
+				_.extend(options, defaults);
+			}
+		} catch (e) { 
+		}
+	}
+	
+	_.extend(options, _o);
 
 	if (options.log_directory == false && options.base_directory != false)
 	{

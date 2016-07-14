@@ -177,6 +177,8 @@ CREATE TABLE grape.data_import(
 	valid_record_count integer,
 	data_import_status smallint,
 	processing_function text,
+	result_table text,
+	result_schema text,
 	CONSTRAINT data_import_pk PRIMARY KEY (data_import_id)
 
 );
@@ -199,6 +201,7 @@ CREATE TABLE grape.setting(
 	name text NOT NULL,
 	value text,
 	json_value json,
+	hidden boolean DEFAULT FALSE,
 	CONSTRAINT setting_pk PRIMARY KEY (name)
 
 );
@@ -312,6 +315,9 @@ CREATE TABLE grape.report(
 	function_name text,
 	function_schema text,
 	input_fields json DEFAULT '{}'::JSON,
+	report_type text,
+	active boolean DEFAULT TRUE,
+	cache_time interval,
 	CONSTRAINT report_pk PRIMARY KEY (report_id)
 
 );
@@ -330,6 +336,7 @@ CREATE TABLE grape.reports_executed(
 	result_table_name text,
 	is_deleted boolean DEFAULT TRUE,
 	report_seq integer,
+	input_fields json,
 	CONSTRAINT reports_executed_pk PRIMARY KEY (reports_executed_id)
 
 );

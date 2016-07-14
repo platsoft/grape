@@ -1,7 +1,6 @@
 
 var fs = require('fs');
 var path = require('path');
-var sys = require('sys');
 var AdmZip = require('adm-zip');
 
 var libxmljs = require("libxmljs");

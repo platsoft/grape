@@ -39,4 +39,10 @@
 - Reporting framework
 - Caching comms: Only connect to messagesocket once socket create were successful
 
+0.0.9:
+- Reading default_config.js if it exists 
+- Hidden grape settings
+- Fix deprecation warnings
+- Store grape_version in settings
+
 

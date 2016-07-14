@@ -4,11 +4,11 @@
  *  
  */
 
-CREATE OR REPLACE FUNCTION grape.set_value(_name TEXT, _value TEXT) RETURNS TEXT AS $$
+CREATE OR REPLACE FUNCTION grape.set_value(_name TEXT, _value TEXT, _hidden BOOLEAN DEFAULT FALSE) RETURNS TEXT AS $$
 DECLARE
 BEGIN
 	DELETE FROM grape.setting WHERE name=_name::TEXT;
-	INSERT INTO grape.setting (name, value) VALUES (_name, _value);
+	INSERT INTO grape.setting (name, value, hidden) VALUES (_name, _value, _hidden);
 	RETURN _value;
 END; $$ LANGUAGE plpgsql;
 

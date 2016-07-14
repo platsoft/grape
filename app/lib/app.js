@@ -17,7 +17,7 @@ var DEFAULT_MAXSOCKETS = 500;
 exports = module.exports = function(_o) {
 	var app = express();
 
-	app.use(bodyParser());
+	app.use(bodyParser.json());
 	app.use(cookieParser());
 	app.use(multipartParser());
 
