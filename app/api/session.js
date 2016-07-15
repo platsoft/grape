@@ -6,21 +6,17 @@ exports = module.exports = function(app_) {
 	app = app_;
 	logger = app.get('logger');
 
-/**
- * @api /session/new
- * @method POST
- * @desc New session
- * @fields username TEXT, password TEXT
- * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
- */
-	app.post('/session/new', create_session);
 
 
 /**
  * @url /grape/login
  * @method POST
- * @desc New session
- * @fields username TEXT, password TEXT
+ * @desc Create a new session for the user if the username and password provided matches a valid active user in the system
+ * @body
+ * { 
+ * 	username TEXT Username
+ * 	password TEXT Password
+ * }
  * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
  */
 	app.post('/grape/login', login);
@@ -34,11 +30,22 @@ exports = module.exports = function(app_) {
 	app.post('/grape/logout', logout);
 
 
-	/**
-	 * @api /session/list
-	 * @desc list the active sessions
-	 */
+/**
+ * @url /session/list
+ * @desc List all active sessions
+ */
 	app.get('/session/list/:date', select_session);
+
+/**
+ * @url /session/new
+ * @deprecated
+ * @method POST
+ * @desc New session
+ * @fields username TEXT, password TEXT
+ * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
+ */
+	app.post('/session/new', create_session);
+
 };
 
 function select_session(req, res) {

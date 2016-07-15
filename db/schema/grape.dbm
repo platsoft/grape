@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.2-beta" last-position="0,0" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.2" last-position="0,0" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -96,7 +96,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="timestamp"/>
 	</column>
 	<column name="data">
-		<type name="public.hstore" precision="32699"/>
+		<type name="public.hstore"/>
 	</column>
 	<column name="blame_id">
 		<type name="integer"/>
@@ -229,7 +229,13 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="text"/>
 	</column>
 	<column name="status" default-value="'NewTask'">
-		<type name="grape.e_schedule_status" precision="32699"/>
+		<type name="grape.e_schedule_status"/>
+	</column>
+	<column name="progress_completed">
+		<type name="integer"/>
+	</column>
+	<column name="progress_total">
+		<type name="integer"/>
 	</column>
 	<constraint name="schedule_pk" type="pk-constr" table="grape.schedule">
 		<columns names="schedule_id" ref-type="src-columns"/>
@@ -320,8 +326,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_registry">
 	<schema name="grape"/>
-	<position x="297" y="1212"/>
-	<column name="system_registry_id">
+	<position x="343" y="1209"/>
+	<column name="system_registry_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="product_name">
@@ -336,23 +342,15 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="guid">
 		<type name="uuid"/>
 	</column>
-	<column name="public_key">
-		<type name="text"/>
-	</column>
-</table>
-
-<table name="system_endpoint">
-	<schema name="grape"/>
-	<position x="395" y="1380"/>
-	<column name="system_endpoint_id">
-		<type name="integer"/>
-	</column>
+	<constraint name="system_registry_pk" type="pk-constr" table="grape.system_registry">
+		<columns names="system_registry_id" ref-type="src-columns"/>
+	</constraint>
 </table>
 
 <table name="system_routing">
 	<schema name="grape"/>
-	<position x="528" y="1229"/>
-	<column name="system_routing_id">
+	<position x="647" y="1213"/>
+	<column name="system_routing_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="final_destination_id">
@@ -361,60 +359,37 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="routing_via_id">
 		<type name="integer"/>
 	</column>
-</table>
-
-<table name="system_message_rcv">
-	<schema name="grape"/>
-	<position x="774" y="1223"/>
-	<column name="system_message_rcv_id">
-		<type name="serial"/>
-	</column>
-	<column name="type_indicator">
-		<type name="smallint"/>
-	</column>
-	<column name="source_system">
-		<type name="uuid"/>
-	</column>
-	<column name="destination_system">
-		<type name="uuid"/>
-	</column>
-	<column name="message_id">
-		<type name="integer"/>
-	</column>
-	<column name="frame_idx">
-		<type name="integer"/>
-	</column>
-	<column name="last_frame_idx">
-		<type name="integer"/>
-	</column>
-	<column name="date_received">
-		<type name="timestamp"/>
-	</column>
-	<column name="date_sent">
-		<type name="timestamp"/>
-	</column>
-	<column name="data">
-		<type name="bytea"/>
-	</column>
+	<constraint name="system_routing_pk" type="pk-constr" table="grape.system_routing">
+		<columns names="system_routing_id" ref-type="src-columns"/>
+	</constraint>
 </table>
 
 <table name="system_public_key">
 	<schema name="grape"/>
-	<position x="17" y="1209"/>
-	<column name="system_registry_id">
+	<position x="56" y="1205"/>
+	<column name="system_registry_id" not-null="true">
 		<type name="integer"/>
 	</column>
 	<column name="data">
 		<type name="bytea"/>
 	</column>
+	<constraint name="system_public_key_pk" type="pk-constr" table="grape.system_public_key">
+		<columns names="system_registry_id" ref-type="src-columns"/>
+	</constraint>
 </table>
 
 <table name="system_private">
 	<schema name="grape"/>
 	<position x="47" y="1310"/>
+	<column name="system_private_id" not-null="true">
+		<type name="serial"/>
+	</column>
 	<column name="my_secret">
 		<type name="bytea"/>
 	</column>
+	<constraint name="system_private_pk" type="pk-constr" table="grape.system_private">
+		<columns names="system_private_id" ref-type="src-columns"/>
+	</constraint>
 </table>
 
 <table name="data_import_type">

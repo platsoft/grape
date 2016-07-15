@@ -11,6 +11,9 @@ ALTER TABLE grape.report ADD COLUMN cache_time INTERVAL;
 
 ALTER TABLE grape.reports_executed ADD COLUMN input_fields JSON;
 
+ALTER TABLE grape.schedule ADD COLUMN progress_completed INTEGER DEFAULT 0;
+ALTER TABLE grape.schedule ADD COLUMN progress_total INTEGER DEFAULT 0;
+
 SELECT grape.set_value('grape_version', '0.9');
 
 

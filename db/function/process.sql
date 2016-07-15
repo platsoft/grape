@@ -107,7 +107,19 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION grape.update_schedule_progress(_schedule_id INTEGER, _completed INTEGER, _total INTEGER) RETURNS VOID AS $$
+DECLARE
+BEGIN
+	IF _completed > -1 AND _total > -1 THEN
+		UPDATE grape.schedule SET progress_total=_total, progress_completed=_completed WHERE schedule_id=_schedule_id::INTEGER;
+	ELSIF _completed > -1 THEN
+		UPDATE grape.schedule SET progress_completed=_completed WHERE schedule_id=_schedule_id::INTEGER;
+	ELSIF _total > -1 THEN
+		UPDATE grape.schedule SET progress_total=_total WHERE schedule_id=_schedule_id::INTEGER;
+	END IF;
 
+	RETURN;
+END; $$ LANGUAGE plpgsql;
 
 
 

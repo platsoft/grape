@@ -1,5 +1,5 @@
 -- Database generated with pgModeler (PostgreSQL Database Modeler).
--- pgModeler  version: 0.8.2-beta
+-- pgModeler  version: 0.8.2
 -- PostgreSQL version: 9.5
 -- Project Site: pgmodeler.com.br
 -- Model Author: ---
@@ -155,6 +155,8 @@ CREATE TABLE grape.schedule(
 	user_id integer,
 	logfile text,
 	status grape.e_schedule_status DEFAULT 'NewTask',
+	progress_completed integer,
+	progress_total integer,
 	CONSTRAINT schedule_pk PRIMARY KEY (schedule_id)
 
 )WITH ( OIDS = TRUE );
@@ -212,59 +214,44 @@ COMMENT ON TABLE grape.setting IS 'System-wide settings';
 -- object: grape.system_registry | type: TABLE --
 -- DROP TABLE IF EXISTS grape.system_registry CASCADE;
 CREATE TABLE grape.system_registry(
-	system_registry_id serial,
+	system_registry_id serial NOT NULL,
 	product_name text,
 	physical_host text,
 	system_name text,
 	guid uuid,
-	public_key text
-);
--- ddl-end --
+	CONSTRAINT system_registry_pk PRIMARY KEY (system_registry_id)
 
--- object: grape.system_endpoint | type: TABLE --
--- DROP TABLE IF EXISTS grape.system_endpoint CASCADE;
-CREATE TABLE grape.system_endpoint(
-	system_endpoint_id integer
 );
 -- ddl-end --
 
 -- object: grape.system_routing | type: TABLE --
 -- DROP TABLE IF EXISTS grape.system_routing CASCADE;
 CREATE TABLE grape.system_routing(
-	system_routing_id serial,
+	system_routing_id serial NOT NULL,
 	final_destination_id integer,
-	routing_via_id integer
-);
--- ddl-end --
+	routing_via_id integer,
+	CONSTRAINT system_routing_pk PRIMARY KEY (system_routing_id)
 
--- object: grape.system_message_rcv | type: TABLE --
--- DROP TABLE IF EXISTS grape.system_message_rcv CASCADE;
-CREATE TABLE grape.system_message_rcv(
-	system_message_rcv_id serial,
-	type_indicator smallint,
-	source_system uuid,
-	destination_system uuid,
-	message_id integer,
-	frame_idx integer,
-	last_frame_idx integer,
-	date_received timestamp,
-	date_sent timestamp,
-	data bytea
 );
 -- ddl-end --
 
 -- object: grape.system_public_key | type: TABLE --
 -- DROP TABLE IF EXISTS grape.system_public_key CASCADE;
 CREATE TABLE grape.system_public_key(
-	system_registry_id integer,
-	data bytea
+	system_registry_id integer NOT NULL,
+	data bytea,
+	CONSTRAINT system_public_key_pk PRIMARY KEY (system_registry_id)
+
 );
 -- ddl-end --
 
 -- object: grape.system_private | type: TABLE --
 -- DROP TABLE IF EXISTS grape.system_private CASCADE;
 CREATE TABLE grape.system_private(
-	my_secret bytea
+	system_private_id serial NOT NULL,
+	my_secret bytea,
+	CONSTRAINT system_private_pk PRIMARY KEY (system_private_id)
+
 );
 -- ddl-end --
 
