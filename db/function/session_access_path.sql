@@ -28,10 +28,10 @@ DECLARE
 BEGIN
 	SELECT user_id INTO _user_id FROM grape."session" WHERE session_id=_session_id::TEXT;
 
-	-- get the path
+	-- a list of allowed role names for this path
 	SELECT array_agg(role_name) INTO _path_role FROM grape.access_path WHERE (_check_path ~ regex_path)=TRUE;
 	IF NOT FOUND THEN
-		-- not found, allow it?
+		-- path not found. we should allow it if the grape setting default_access_allowed is true
 		IF grape.get_value('default_access_allowed', 'true') = 'true' THEN
 			RETURN (0, _user_id, _session_id)::grape.access_result_type;
 		ELSE
@@ -39,7 +39,7 @@ BEGIN
 		END IF;
 	END IF;
 
-	-- everyone (event when not logged in) has access to "guest" role
+	-- everyone (even when not logged in) has access to "guest" role
 	IF 'guest' = ANY (_path_role) THEN
 		RETURN (0, _user_id, _session_id)::grape.access_result_type;
 	END IF;
@@ -55,11 +55,12 @@ BEGIN
 	END IF;
 
 
-	-- role exists for this user and role
+	-- user_role exists for this user and one of the path's roles
 	IF EXISTS (SELECT 1 FROM grape.user_role WHERE user_id=_user_id::INTEGER AND role_name = ANY (_path_role)) THEN
 		RETURN (0, _user_id, _session_id)::grape.access_result_type;
 	END IF;
 
+	-- the user is not added to any of the roles for this path, Permission denied
 	RETURN (2, _user_id, _session_id)::grape.access_result_type;
 END; $$ LANGUAGE plpgsql;
 
