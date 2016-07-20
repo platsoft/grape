@@ -1,3 +1,12 @@
+
+CREATE TYPE grape.grape_result_type AS
+(
+	success BOOLEAN,
+	reason TEXT,
+	data JSON
+);
+
+
 /**
  * Construct a JSON object with 3 fields, status, code and message. status is set to ERROR, message to the value of the _message parameter and code to the _code parameter. If _code is NULL this parameter is ignored
  */
@@ -110,13 +119,37 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 
-
 CREATE OR REPLACE FUNCTION grape.api_success() RETURNS JSON AS $$
 DECLARE
 	_ret JSON;
 BEGIN
 	SELECT to_json(b) INTO _ret FROM (SELECT 'OK' AS "status") AS b;
 	RETURN _ret;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.api_success(JSON) RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN (jsonb_build_object('status', 'OK') || $1::JSONB)::JSON;
+END; $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION grape.api_result(res grape.grape_result_type) RETURNS JSON AS $$
+DECLARE
+	_code INTEGER;
+BEGIN
+	IF res.success = false THEN
+		_code := -1;
+		IF json_extract_path(res.data, 'code') IS NOT NULL THEN
+			_code := (res.data->>'code')::INTEGER;
+		END IF;
+
+		RETURN grape.api_error(res.reason, _code);
+	ELSIF res.success = true THEN
+		RETURN grape.api_success('data', res.data);
+	END IF;
+	
+	RETURN grape.api_error();
 END; $$ LANGUAGE plpgsql;
 
 

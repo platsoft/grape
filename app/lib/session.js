@@ -6,9 +6,30 @@ module.exports = function (app)
 	var dbs = [];
 	app.set('dbs', dbs);
 
+	//figure out what route was matched and assign it to req
+	app.use(function(req, res, next) {
+		var path = req.url;
+
+		req.matched_path = '';
+
+		for (var i = 0; i < app._router.stack.length; i++)
+		{
+			if (!app._router.stack[i].route) 
+				continue;
+
+			var stack = app._router.stack[i];
+			var route = stack.route;
+			if (stack.match(req.path))
+			{
+				req.matched_path = route.path;
+				break;
+			}
+		}
+		next();
+	});
+
 	// Session management
 	app.use(function(req, res, next) {
-
 
 		var db = app.get('db');
 		if (!db)
@@ -18,7 +39,10 @@ module.exports = function (app)
 		}
 		
 		var accepts_json = (req.headers.accept.indexOf('application/json') != -1);
-		var session_id = req.header('X-SessionID');
+
+		req.session_id = req.header('X-SessionID');
+
+		var session_id = req.session_id;
 
 		if (!session_id && req.cookies.session_id)
 		{
@@ -33,24 +57,10 @@ module.exports = function (app)
 			return;
 		}
 
-		//find the route that matches this request
-		var path = req.url;
-		for (var i = 0; i < app._router.stack.length; i++)
-		{
-			if (!app._router.stack[i].route) continue;
-			var stack = app._router.stack[i];
-			var route = stack.route;
-			if (stack.match(req.path))
-			{
-				console.log("MATCHED " + req.path + " TO " + route.path);
-				path = route.path;
-				break;
-			}
-		}
 
 		/* 
- 		* ret must have a result_code, user_id and session_id
- 		* 
+ 		* handles the result of a session check. 
+		* ret must have a result_code (0 for success), user_id and session_id
  		*/
 		function handle_session_check (ret)
 		{
@@ -163,7 +173,7 @@ module.exports = function (app)
 		var cache = app.get('cache');
 		if (!cache)
 		{
-			check_session_path_in_database(session_id, path, req.method, function(result) {
+			check_session_path_in_database(session_id, req.matched_path, req.method, function(result) {
 				handle_session_check(result);
 			});
 
@@ -171,11 +181,11 @@ module.exports = function (app)
 		else
 		{
 			//create a cachename JMORI51EA94M8AZ-/session/new-POST
-			var cachename = [session_id, path, req.method].join('-');
+			var cachename = [session_id, req.matched_path, req.method].join('-');
 			app.get('cache').fetch(cachename, function(message) {
 				if (typeof message.v == 'undefined' || !message.v)
 				{
-					check_session_path_in_database(session_id, path, req.method, function(result) {
+					check_session_path_in_database(session_id, req.matched_path, req.method, function(result) {
 
 						//only save on access allowed
 						if (result.result_code == 0)

@@ -111,6 +111,7 @@ var ServerFIFO = function (_opt) {
 				console.log(err);
 				console.log("Error creating pipe ", self.fifo, ". Error code: ", err.code);
 			}
+			this.emit('error', err);
 		});
 
 		server.listen(this.fifo, function() {});

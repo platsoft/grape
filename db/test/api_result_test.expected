@@ -1,0 +1,16 @@
+Test 1
+{"status":"OK"}
+Test 2
+{"status":"ERROR","message":"An error","code":-10}
+Test 3
+{"status":"OK","data":{"something":{"aaa":10}}}
+Test 4
+{"status":"OK","data":{"something":{"aaa":10}}}
+Test 5
+{"status":"ERROR","message":"Meh","code":-10}
+Test 6
+{"status":"ERROR","message":"Meh","code":-1}
+Test 7
+{"status": "OK", "something_text": "bah", "something_numeric": 30}
+Test 8
+{"status":"ERROR","message":"An error","code":-20}
