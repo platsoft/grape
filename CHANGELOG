@@ -44,5 +44,8 @@
 - Hidden grape settings
 - Fix deprecation warnings
 - Store grape_version in settings
+- user.username and process.pg_function is now UNIQUE
+- Use XLSX.js for parsing of XLSX and XLS files
+- Added GrapeClient class
 
 

@@ -1,9 +1,10 @@
 "use strict";
 var app;
 var fs = require('fs');
-var e = require(__dirname + '/../lib/excel2007');
-var h = require(__dirname + '/../lib/hexavigesimal');
+//var e = require(__dirname + '/../lib/excel2007');
+//var h = require(__dirname + '/../lib/hexavigesimal');
 var async = require('async');
+var XLSX = require('xlsx');
 
 exports = module.exports = function(_app) {
 	app = _app;
@@ -43,18 +44,63 @@ function api_data_upload(req, res)
 		}
 	};
 	
-	var fieldnames = Object.keys(req.files);
+	var filefields = Object.keys(req.files);
 
-	for (var i = 0; i < fieldnames.length; i++)
+	if (filefields.length == 0)
 	{
-		var file = req.files[fieldnames[i]];
+		res.status(200).json({'status': 'ERROR', 'message': 'No files', 'code': -1});
+	}
 
-		res.locals.db.json_call('grape.data_import_insert', {filename: file.originalFilename, description: fieldnames[i]}, function(err, result) { 
+	for (var i = 0; i < filefields.length; i++)
+	{
+		var file = req.files[filefields[i]];
+
+		res.locals.db.json_call('grape.data_import_insert', {filename: file.originalFilename, description: filefields[i]}, function(err, result) { 
 
 			var data_import_id = result.rows[0].grapedata_import_insert.data_import_id;
 			data_import_ids.push(data_import_id);
 
-			//TODO handle csv and xls
+			var workbook = XLSX.readFile(file.path);
+			var first_sheet_name = workbook.SheetNames[0];
+			var worksheet = workbook.Sheets[first_sheet_name];
+			
+			var range = worksheet['!ref'];
+			var ar = range.split(':');
+
+			var d = XLSX.utils.decode_range(range);
+
+			var max_col = d.e.c;
+			var max_row = d.e.r;
+
+			var headers = [];
+			for (var col = 0; col <= max_col; col++)
+			{
+				var address = XLSX.utils.encode_cell({r: 0, c: col});
+				headers.push(worksheet[address].v);
+			}
+
+			for (var row = 1; row <= max_row; row++)
+			{
+				var data = {};
+				data['data_import_id'] = data_import_id;
+				for (var col = 0; col <= max_col; col++)
+				{
+					var val = '';
+					var address = XLSX.utils.encode_cell({r: row, c: col});
+					if (worksheet[address])
+						val = worksheet[address].v;
+					
+					data[headers[col]] = val;
+				}
+				
+				item_queue.push(data);
+
+			}
+
+			if (row == 1)
+				item_queue.drain();
+
+			/*
 			var doc = new e.Document();
 			var reader = new e.Excel2007Reader(file.path, doc);
 			reader.openFile();
@@ -79,6 +125,7 @@ function api_data_upload(req, res)
 			{
 				item_queue.drain();
 			}
+			*/
 		});
 	}
 }
