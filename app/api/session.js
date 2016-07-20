@@ -37,6 +37,14 @@ exports = module.exports = function(app_) {
 	app.get('/session/list/:date', select_session);
 
 /**
+ * @url /grape/session_ping
+ * @param session_id Session ID to check
+ * @desc Retrieve current server and session information
+ */
+	app.get('/grape/session_ping', session_ping);
+
+
+/**
  * @url /session/new
  * @deprecated
  * @method POST
@@ -79,8 +87,14 @@ function login (req, res)
 
 function logout (req, res)
 {
-	req.db.json_call('grape.logout', {}, null, {response: res});
+	req.db.json_call('grape.logout', {session_id: req.session_id}, null, {response: res});
 }
+
+function session_ping(req, res)
+{
+	req.db.json_call('grape.session_ping', {'session_id': req.query.session_id}, null, {response: res});
+}
+
 
 
 function create_session(req, res) {

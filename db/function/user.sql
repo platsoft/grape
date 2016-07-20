@@ -182,3 +182,5 @@ BEGIN
 
 	RETURN grape.hash_user_password(_user_id);
 END; $$ LANGUAGE plpgsql;
+
+
