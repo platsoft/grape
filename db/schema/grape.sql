@@ -104,7 +104,8 @@ CREATE TABLE grape."user"(
 	blame_id integer,
 	employee_guid uuid,
 	employee_info json,
-	CONSTRAINT user_pk PRIMARY KEY (user_id)
+	CONSTRAINT user_pk PRIMARY KEY (user_id),
+	CONSTRAINT username_uq UNIQUE (username)
 
 );
 -- ddl-end --
@@ -117,7 +118,8 @@ CREATE TABLE grape.process(
 	description text,
 	param json,
 	process_type text,
-	CONSTRAINT process_pk PRIMARY KEY (process_id)
+	CONSTRAINT process_pk PRIMARY KEY (process_id),
+	CONSTRAINT process_uq UNIQUE (pg_function)
 
 )WITH ( OIDS = TRUE );
 -- ddl-end --
@@ -219,6 +221,7 @@ CREATE TABLE grape.system_registry(
 	physical_host text,
 	system_name text,
 	guid uuid,
+	public_key text,
 	CONSTRAINT system_registry_pk PRIMARY KEY (system_registry_id)
 
 );
@@ -347,6 +350,20 @@ CREATE INDEX report_name_idx ON grape.report
 	);
 -- ddl-end --
 
+-- object: grape.session_history | type: TABLE --
+-- DROP TABLE IF EXISTS grape.session_history CASCADE;
+CREATE TABLE grape.session_history(
+	session_id text NOT NULL,
+	ip_address text,
+	user_id integer,
+	date_inserted timestamptz,
+	last_activity timestamptz,
+	date_logout timestamptz,
+	CONSTRAINT session_history_pk PRIMARY KEY (session_id)
+
+);
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
@@ -407,6 +424,13 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ALTER TABLE grape.reports_executed DROP CONSTRAINT IF EXISTS re_reports_fk CASCADE;
 ALTER TABLE grape.reports_executed ADD CONSTRAINT re_reports_fk FOREIGN KEY (report_id)
 REFERENCES grape.report (report_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: session_user_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.session_history DROP CONSTRAINT IF EXISTS session_user_fk CASCADE;
+ALTER TABLE grape.session_history ADD CONSTRAINT session_user_fk FOREIGN KEY (user_id)
+REFERENCES grape."user" (user_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
