@@ -13,3 +13,5 @@ INSERT INTO grape.access_path (role_name, regex_path) VALUES ('all', '/grape/log
 INSERT INTO grape.access_role (role_name) VALUES ('admin');
 INSERT INTO grape.access_path (role_name, regex_path) VALUES ('admin', '.*');
 
+INSERT INTO grape.user_role (grape.user_id_from_name('System'), 'admin');
+
