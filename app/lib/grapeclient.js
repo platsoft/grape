@@ -5,6 +5,7 @@ var http = require('http');
 var url = require('url');
 var util = require('util');
 var fs = require('fs');
+var querystring = require('querystring');
 var _path = require('path');
 
 /**
@@ -70,6 +71,45 @@ var GrapeClient = function(_o) {
 
 		return req;
 	};
+
+	this.getJSON = function(path, obj, cb) {
+		var data = querystring.stringify(obj);
+
+		if (this.session)
+			var session_id = this.session.session_id;
+		else
+			var session_id = '';
+
+		var options = {
+			hostname: this.hostname,
+			port: this.port,
+			method: 'GET',
+			path: path + '?' + data,
+			headers: {
+				'Accept': 'application/json',
+				'X-SessionID': session_id
+			}
+		};
+
+		var callback = function(res) {
+			res.setEncoding('utf8');
+			var chunks = [];
+			res.on('data', function(chunk) {
+				chunks.push(chunk);
+			});
+
+			res.on('end', function() {
+				var obj = JSON.parse(chunks.join(''));
+				cb(obj);
+			});
+		};
+
+		var req = http.request(options, callback);
+		req.end();
+
+		return req;
+	};
+
 
 	this.login = function(username, password) {
 		this.postJSON('/grape/login', {'username': username, 'password': password}, function(data) {

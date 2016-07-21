@@ -23,4 +23,11 @@ BEGIN
 	RETURN _val;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.setting(_name TEXT, _default_value TEXT) RETURNS TEXT AS $$
+DECLARE
+BEGIN
+	RETURN grape.get_value (_name, _default_value); 
+END; $$ LANGUAGE plpgsql;
+
+
 

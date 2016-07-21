@@ -47,5 +47,7 @@
 - user.username and process.pg_function is now UNIQUE
 - Use XLSX.js for parsing of XLSX and XLS files
 - Added GrapeClient class
+- Data import will now create a table for each import containing the rows
+- Added API calls to manipulate bgworker (/grape/bgworker/status, /grape/bgworker/start, /grape/bgworker/stop)
 
 

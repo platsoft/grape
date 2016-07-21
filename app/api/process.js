@@ -1,5 +1,6 @@
 "use strict";
 var fs = require('fs');
+var child_process = require('child_process');
 
 var app;
 
@@ -51,6 +52,34 @@ exports = module.exports = function(_app) {
  * 
  */
 	app.get("/grape/schedule/:schedule_id/get_logfile", api_get_schedule_logfile);
+
+/**
+ * @desc Get ps_bgworker status
+ * @method GET
+ * @url /grape/bgworker/status
+ * @return Will return field state with either Running or Not running. If the process is running
+ * @returnsample { status: 'OK', state: 'Not running' }
+ * @returnsample { status: 'OK', state: 'Running', pid: '12497', cmdline: 'ps_bgworker raisin@localhost/raisin [/home/hans/platsoft/raisin]' }
+ */
+	app.get("/grape/bgworker/status", api_bgworker_status);
+
+/**
+ * @desc Start ps_bgworker process
+ * @method POST
+ * @url /grape/bgworker/start
+ * 
+ */
+	app.post("/grape/bgworker/start", api_bgworker_start);
+
+/**
+ * @desc Kills ps_bgworker process
+ * @method POST
+ * @url /grape/bgworker/stop
+ * 
+ */
+	app.post("/grape/bgworker/stop", api_bgworker_stop);
+
+
 };
 
 function api_start_process(req, res)
@@ -101,5 +130,153 @@ function api_get_schedule_logfile (req, res)
 	});
 
 }
+
+function get_bgworker_status(cb)
+{
+	var config = app.get('config');
+	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
+	
+	child_process.exec([ps_bgworker_path, '--status'].join(' '), 
+		{
+			timeout: 2000, 
+			encoding: 'utf8'
+		}, 
+		function(err, stdout, stderr) {
+			if (err && !stdout)
+			{
+				cb(err, {stdout: stdout, stderr: stderr});
+				return;
+			}
+
+			var obj = {pid: 0, cmdline: ''};
+
+			var lines = stdout.split("\n");
+			if (lines[0] == "Not running")
+			{
+				cb(null, obj);
+			}
+			else
+			{
+				lines.forEach(function(line) {
+					if (line.trim() != '')
+					{
+						var ar = line.split(':');
+						if (ar.length == 2)
+						{
+							var k = ar[0];
+							if (k == 'PID')
+							{
+								obj.pid = parseInt(ar[1]);
+							}
+							else if (k == 'CMDLINE')
+							{
+								obj.cmdline = ar[1];
+							}
+						}
+					}
+				});
+			
+				cb(null, obj);
+			}
+		}
+	);
+
+}
+
+function api_bgworker_status(req, res)
+{
+	get_bgworker_status(function(err, obj) {
+		if (err)
+		{
+			res.status(500).json({'status': 'ERROR', 'error': err}).end();
+			return;
+		}
+
+		res.status(200).json({
+			'status': 'OK', 
+			'state': obj.pid == 0 ? 'Not running' : 'Running', 
+			'pid': obj.pid, 
+			'cmdline': obj.cmdline}
+		).end();
+	});
+	/*
+	var config = app.get('config');
+	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
+	child_process.exec([ps_bgworker_path, '--status'].join(' '), 
+		{
+			timeout: 2000, 
+			encoding: 'utf8'
+		}, 
+		function(err, stdout, stderr) {
+			if (err && !stdout)
+			{
+			}
+
+			var lines = stdout.split("\n");
+			if (lines[0] == "Not running")
+			{
+				res.status(200).json({'status': 'OK', 'state': 'Not running'}).end();
+				return;
+			}
+			else
+			{
+				var obj = {'status': 'OK', 'state': 'Running'};
+				lines.forEach(function(line) {
+					if (line.trim() != '')
+					{
+						var ar = line.split(':');
+						if (ar.length == 2)
+						{
+							obj[ar[0]] = ar[1].trim();
+						}
+						else
+						{
+							obj['line'] = line.trim();
+						}
+					}
+				});
+
+				res.status(200).json(obj).end();
+				return;
+			}
+		}
+	);
+	*/
+}
+
+function api_bgworker_start(req, res)
+{
+	var config = app.get('config');
+	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
+	child_process.exec([ps_bgworker_path].join(' '), 
+		{
+			timeout: 2000, 
+			encoding: 'utf8'
+		}, 
+		function(err, stdout, stderr) {
+			if (err && !stdout)
+			{
+				res.status(500).json({'status': 'ERROR', 'error': err}).end();
+				return;
+			}
+
+			res.status(200).json({'status': 'OK', 'stdout': stdout}).end();
+		}
+	);
+}
+
+function api_bgworker_stop (req, res)
+{
+	get_bgworker_status(function(err, obj) {
+		if (err)
+		{
+			res.status(500).json({'status': 'ERROR', 'error': err}).end();
+			return;
+		}
+		child_process.execSync('kill ' + obj.pid);
+		res.status(200).json({'status': 'OK', 'pid': obj.pid}).end();
+	});
+}
+
 
 
