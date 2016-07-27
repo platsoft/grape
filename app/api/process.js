@@ -1,5 +1,6 @@
 "use strict";
 var fs = require('fs');
+var path = require('path');
 var child_process = require('child_process');
 
 var app;
@@ -10,17 +11,17 @@ exports = module.exports = function(_app) {
 /**
  * @desc Add a process to the background process queue
  * @method POST
- * @url 
+ * @url
  * @body JSON object containing fields:
- * { 
+ * {
  * 	process_id INTEGER Process ID to start. Provide either this or a process name
  * 	process_name TEXT Process name to start. Provide either this or a process ID
  * 	param JSON Process spesicifc options
  * }
  * @example {"process_name":"create_combined_tape","param":{"submission_date":"2014/05/01"}}
  * @return JSON object containing fields:
- * 	
- * 
+ *
+ *
  **/
 	app.post("/grape/process/start", api_start_process);
 
@@ -30,7 +31,7 @@ exports = module.exports = function(_app) {
  * @url /grape/process/list
  * @example {"process_name":"create_combined_tape","param":{"submission_date":"2014/05/01"}}
  * @return JSON array with objects containing fields:
- * {  
+ * {
  * 	process_id INTEGER
  * 	pg_function TEXT
  * 	description TEXT
@@ -49,7 +50,7 @@ exports = module.exports = function(_app) {
  * @url /grape/schedule/:schedule_id/get_logfile
  * @param offset INTEGER Start at line optional
  * @param limit INTEGER Number of lines to retrieve. default 100 optional
- * 
+ *
  */
 	app.get("/grape/schedule/:schedule_id/get_logfile", api_get_schedule_logfile);
 
@@ -67,7 +68,7 @@ exports = module.exports = function(_app) {
  * @desc Start ps_bgworker process
  * @method POST
  * @url /grape/bgworker/start
- * 
+ *
  */
 	app.post("/grape/bgworker/start", api_bgworker_start);
 
@@ -75,7 +76,7 @@ exports = module.exports = function(_app) {
  * @desc Kills ps_bgworker process
  * @method POST
  * @url /grape/bgworker/stop
- * 
+ *
  */
 	app.post("/grape/bgworker/stop", api_bgworker_stop);
 
@@ -113,20 +114,28 @@ function api_get_schedule_logfile (req, res)
 			res.json('{}').end(); //ERROR
 			return;
 		}
-		
+
 		var obj = result.rows[0]['grapeschedule_info'];
-		console.log(obj.schedule);
-		
-		var config = app.get('config');
-		
-		var logfilename = config.document_store + '/' + schedule.logfile;
-		
-		var file_contents = fs.readFileSync(logfilename, {encoding: 'utf8'});
-		var lines = file_contents.split("\n");
+		var schedule = obj.schedule;
 
-		var return_lines = lines.splice(offset, limit);
+		if (schedule.logfile[0] === '~') {
+			schedule.logfile = path.join(process.env.HOME, schedule.logfile.slice(1));
+		}
+		var logfilename = path.resolve(schedule.logfile);
 
-		res.json(return_lines);
+		try {
+			var file_contents = fs.readFileSync(logfilename, {encoding: 'utf8'});
+			var lines = file_contents.split("\n");
+			schedule.lines = lines.splice(offset, limit);
+
+			res.json(schedule);
+		}
+		catch (e) {
+			console.log(e);
+			schedule.lines = null;
+			res.json(schedule).end(); //ERROR
+			return;
+		}
 	});
 
 }
@@ -135,12 +144,12 @@ function get_bgworker_status(cb)
 {
 	var config = app.get('config');
 	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
-	
-	child_process.exec([ps_bgworker_path, '--status'].join(' '), 
+
+	child_process.exec([ps_bgworker_path, '--status'].join(' '),
 		{
-			timeout: 2000, 
+			timeout: 2000,
 			encoding: 'utf8'
-		}, 
+		},
 		function(err, stdout, stderr) {
 			if (err && !stdout)
 			{
@@ -175,7 +184,7 @@ function get_bgworker_status(cb)
 						}
 					}
 				});
-			
+
 				cb(null, obj);
 			}
 		}
@@ -193,20 +202,20 @@ function api_bgworker_status(req, res)
 		}
 
 		res.status(200).json({
-			'status': 'OK', 
-			'state': obj.pid == 0 ? 'Not running' : 'Running', 
-			'pid': obj.pid, 
+			'status': 'OK',
+			'state': obj.pid == 0 ? 'Not running' : 'Running',
+			'pid': obj.pid,
 			'cmdline': obj.cmdline}
 		).end();
 	});
 	/*
 	var config = app.get('config');
 	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
-	child_process.exec([ps_bgworker_path, '--status'].join(' '), 
+	child_process.exec([ps_bgworker_path, '--status'].join(' '),
 		{
-			timeout: 2000, 
+			timeout: 2000,
 			encoding: 'utf8'
-		}, 
+		},
 		function(err, stdout, stderr) {
 			if (err && !stdout)
 			{
@@ -248,11 +257,11 @@ function api_bgworker_start(req, res)
 {
 	var config = app.get('config');
 	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
-	child_process.exec([ps_bgworker_path].join(' '), 
+	child_process.exec([ps_bgworker_path].join(' '),
 		{
-			timeout: 2000, 
+			timeout: 2000,
 			encoding: 'utf8'
-		}, 
+		},
 		function(err, stdout, stderr) {
 			if (err && !stdout)
 			{
@@ -277,6 +286,3 @@ function api_bgworker_stop (req, res)
 		res.status(200).json({'status': 'OK', 'pid': obj.pid}).end();
 	});
 }
-
-
-
