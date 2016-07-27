@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.2" last-position="0,0" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.2" last-position="0,264" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -184,7 +184,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule_log" oids="true">
 	<schema name="grape"/>
-	<position x="1030" y="341"/>
+	<position x="1029" y="351"/>
 	<column name="schedule_log_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -375,7 +375,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_public_key">
 	<schema name="grape"/>
-	<position x="252" y="999"/>
+	<position x="297" y="999"/>
 	<column name="system_registry_id" not-null="true">
 		<type name="integer"/>
 	</column>
@@ -403,11 +403,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_type">
 	<schema name="grape"/>
-	<position x="1380" y="620"/>
-	<column name="description" not-null="true">
-		<type name="text"/>
-	</column>
-	<column name="processing_function">
+	<position x="1372" y="622"/>
+	<column name="processing_function" not-null="true">
 		<type name="text"/>
 	</column>
 	<column name="full_description">
@@ -416,8 +413,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="file_format_info">
 		<type name="text"/>
 	</column>
+	<column name="function_schema">
+		<type name="text"/>
+	</column>
 	<constraint name="data_import_type_pk" type="pk-constr" factor="100" table="grape.data_import_type">
-		<columns names="description" ref-type="src-columns"/>
+		<columns names="processing_function" ref-type="src-columns"/>
 	</constraint>
 </table>
 

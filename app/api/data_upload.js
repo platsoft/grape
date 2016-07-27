@@ -99,33 +99,6 @@ function api_data_upload(req, res)
 
 			if (row == 1)
 				item_queue.drain();
-
-			/*
-			var doc = new e.Document();
-			var reader = new e.Excel2007Reader(file.path, doc);
-			reader.openFile();
-			console.log(doc.workSheetNames);
-			var w = doc.getWorkSheetByName(doc.workSheetNames[0]);
-			var headers = w.rows[0].getAllCellValues();
-
-			for (var j = 1; j < w.rows.length; j++)
-			{
-				var data = {};
-				var row = w.rows[j];
-				for (var col in headers)
-				{
-					if (headers.hasOwnProperty(col))
-						data[headers[col]] = row.getFormattedCellValueAt('' + col + (j+1));
-				}
-				data['data_import_id'] = data_import_id;
-				item_queue.push(data);
-			}
-
-			if (j == 1) 
-			{
-				item_queue.drain();
-			}
-			*/
 		});
 	}
 }

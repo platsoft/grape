@@ -80,18 +80,22 @@ DECLARE
 	_processing_function TEXT;
 
 	_function_schema TEXT;
+	_data_import_row_id INTEGER;
 
 	_data JSON;
+	_result JSON;
 	_ret JSON;
 BEGIN
 	SELECT result_table, result_schema, processing_function INTO _tablename, _schema, _processing_function FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
 	
 	SELECT function_schema INTO _function_schema FROM grape.data_import_type WHERE processing_function=_processing_function::TEXT;
 
-	FOR _data IN EXECUTE FORMAT('SELECT data FROM "%s"."%s" WHERE processed=FALSE', _schema, _tablename) LOOP
-		
+	FOR _data_import_row_id, _data IN EXECUTE FORMAT('SELECT data_import_row_id, data FROM "%s"."%s" WHERE processed=FALSE', _schema, _tablename) LOOP
+		EXECUTE FORMAT ('SELECT "%s"."%s" ($1)', _function_schema, _processing_function) USING _data INTO _result;
+		EXECUTE FORMAT ('UPDATE "%s"."%s" SET processed=TRUE, result=$1 WHERE data_import_row_id=$2', _schema, _tablename) USING _result, _data_import_row_id;
 	END LOOP;
 	
+	RETURN 1;
 END; $$ LANGUAGE plpgsql;
 
 
