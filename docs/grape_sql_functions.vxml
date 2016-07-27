@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape SQL Function Reference" titlepage="yes" tocpage="yes">
+
+<h1>API result functions</h1>
+This functions deal with the creation of standardized API results (in JSON format) to be sent back to the API call. They can be found in <fname>api_result_json.sql</fname>
+
+<h2>api_result_error(_message TEXT, _code INTEGER)</h2>
+Returns a JSON object with the following fields:
+<ul>
+	<li><b>status</b> - always set to "ERROR"</li>
+	<li><b>message</b> - set to the value of the first parameter _message</li>
+	<li><b>code</b> - if provided, set to the value of the second parameter _code</li>
+</ul>
+
+<h2>api_error(_message TEXT, _code INTEGER)</h2>
+Overload function for <i>api_result_error(_message TEXT, _code INTEGER)</i>
+
+<h2>api_error()</h2>
+Similar to calling <icode>api_result_error("Unknown error", -1)</icode>
+
+<h2>api_error_invalid_input()</h2>
+Similar to calling <icode>api_result_error("Invalid input", -2)</icode>
+
+<h2>api_success(_keys TEXT[], _values TEXT[], _types TEXT[])</h2>
+This function will construct a JSON object containing at least one field, "status" with the value "OK". The 3 input parameters should be arrays containing additional keys, values and the associated types (n/i/number/integer, j/json or nothing for text).
+
+<h2>api_success(_keys TEXT[], _values INTEGER[])</h2>
+Create an API result success JSON object with a list of integer fields as return.
+
+<h2>api_success(_key1 TEXT, _val1 INTEGER)</h2>
+Create an API result success JSON object with one integer field added.
+
+<h2>api_success(_key1 TEXT, _val1 INTEGER, _key2 TEXT, _val2 INTEGER)</h2>
+Create an API result success JSON object with two integer fields added.
+
+<h2>api_success(_key1 TEXT, _val1 JSON)</h2>
+Create an API result success JSON object with a JSON field merged into the result.
+
+<h2>api_success()</h2>
+Returns a API result object with a status field set to "OK".
+
+
+<h2>data_import_insert(JSON)</h2>
+<b>Filename: </b> data_upload.sql<br />
+
+<h2>data_upload_done(JSON)</h2>
+<b>Filename: </b> data_upload.sql<br />
+
+<h2>data_import_row_insert(JSON)</h2>
+<b>Filename: </b> data_upload.sql<br />
+
+<h1>JSON helpers</h1>
+<h2>json2xml(_data JSON, _root TEXT)</h2>
+<b>Filename: </b> json2xml.sql
+
+<h2>json_diff (_old JSONB, _new JSONB)</h2>
+<b>Filename: </b> json_diff.sql
+
+<h2>json_diff (_old JSON, _new JSON)</h2>
+<b>Filename: </b> json_diff.sql
+
+<h2>json_object_diff (_old JSONB, _new JSONB)</h2>
+<b>Filename: </b> json_diff.sql
+
+<h2>json_array_diff (_old JSONB, _new JSONB)</h2>
+<b>Filename: </b> json_diff.sql
+
+
+<h2>json_to_composite_type_text(target_schema TEXT, target_type TEXT, data JSON)</h2>
+
+<h2>json_to_composite_type(target_schema TEXT, target_type TEXT, data JSON)</h2>
+This function will populate a custom type from a JSON object. What sets it apart from the functions available in PostgreSQL, is the fact that it supports complicated multi-level nested objects.
+<b>Filename: </b> json_to_composite_type_text.sql<br />
+
+<h2>cast_json_array_to_int_array (JSON)</h2>
+Provides an implicit cast from JSON to INT[] (<fname>cast_json_array_to_int_array.sql</fname>).
+<code lang="sql">
+# select cast_json_array_to_int_array('[1,2,3]'::JSON);
+ cast_json_array_to_int_array 
+ ------------------------------
+  {1,2,3}
+
+</code>
+
+<h2>cast_json_array_to_text_array (JSON)</h2>
+Provides an implicit cast from JSON to TEXT[] (<fname>cast_json_array_to_text_array.sql</fname>).
+
+<h1>List query</h1>
+Grape's list_query call provides an easy way to retrieve rows from a table. Before the contents of a table can be retrieved this way it needs to be added to a whitelist. This functions can be found in <fname>list_query.sql</fname>
+
+<h2>list_query(JSON)</h2>
+This function returns row from a database table. The following input fields are recognized:
+<ul>
+	<li>tablename</li>
+	<li>schema (optional) TEXT</li>
+	<li>sortfield (optional) TEXT</li>
+	<li>sortorder (optional) TEXT DESC</li>
+	<li>limit (optional) INTEGER default 50</li>
+	<li>offset (optional) INTEGER default 0</li>
+	<li>filter (optional) array of fields:</li>
+	<li>field TEXT</li>
+	<li>operand TEXT of '=', '#x003E;', '#x003C;', '#x003E;=', '#x003C;=', 'LIKE', 'ILIKE', 'IS_NULL', 'IS_NOT_NULL', 'IN'</li>
+	<li>value text</li>
+</ul>
+
+<h2>list_query_whitelist_add(_schema text, _tables text[])</h2>
+Adds tables to the whitelist for use in grape list_query.
+
+<h2>list_query_whitelist_delete(_schema TEXT, _tablename TEXT)</h2>
+Removes a table from the whitelist.
+
+
+
+<h1>Process</h1>
+This functions deal with tables that are used by ps_bgworker. ps_bgworker provides a way for systems to run tasks and processes in the background and at specific times. This functions can be found in <fname>process.sql</fname>.<br /> 
+<h2>start_process (_process_id INTEGER, _param JSON)</h2>
+
+<h2>start_process (_process_name TEXT, _param JSON)</h2>
+Similar to <i>start_process (_process_id INTEGER, _param JSON)</i>, but taking a process name as first parameter.
+
+<h2>start_process (JSON)</h2>
+API access function to <i>start_process (_process_id INTEGER, _param JSON)</i>
+
+<h2>list_processes (JSON)</h2>
+<h2>schedule_info (JSON)</h2>
+
+<h1>Reports</h1>
+This functions can be found in <fname>reports.sql</fname>.
+
+<h2>save_report ( ) </h2>
+<h2>save_report ( ) </h2>
+<h2>save_report (JSON) </h2>
+<h2>execute_report (_report_id INTEGER, _parameters JSON) </h2>
+<h2>execute_report (JSON) </h2>
+
+
+<h1>User and session related functions</h1>
+<h2>toggle_user (JSON)</h2>
+<b>Filename: </b> user.sql<br />
+
+<h2>user_save (JSON)</h2>
+Save user field. Also used to add a new user to the system.
+<b>API Call: </b> POST /grape/user/save<br />
+<b>Filename: </b> user.sql<br />
+
+<h2>user_save_password (JSON)</h2>
+<b>Filename: </b> user.sql<br />
+
+<h2>username (_user_id INTEGER)</h2>
+Returns a TEXT field containing the username matching the user ID provided<br />
+<b>Filename: </b> user.sql<br />
+
+<h2>user_id_from_name (_username TEXT)</h2>
+Returns the user ID (or NULL if not found) for the user matching the username provided.<br />
+<b>Filename: </b> user.sql<br />
+
+<h2>user_id_from_fullnames(_fullnames TEXT)</h2>
+Returns an integer containing the user ID matching the full names provided<br />
+<b>Filename: </b> user.sql<br />
+
+<h2>username_from_fullnames(_fullnames TEXT)</h2>
+Returns the username for the user matching the fullnames provided <br />
+<b>Filename: </b> user.sql<br />
+
+<h2>hash_user_password (_user_id INTEGER)</h2>
+Hashes a password for user and updates the user table afterwards.
+<ul>
+	<li>If the hash length is the same as the password length and the password starts with a '$' sign, it is assumed that the password is already hashed and the update is ignored (-1 is returned)</li>
+	<li>If grape.setting  passwords_hashed isn't true, nothing is done (return -2)</li>
+	<li>On success 0 is returned</li>
+</ul>
+
+<b>Filename: </b> user.sql<br />
+
+<h2>hash_user_password (_username TEXT)</h2>
+Overload function for <i>hash_user_password (_user_id INTEGER)</i>, taking a username instead of a user ID as input.<br />
+<b>Filename: </b> user.sql<br />
+
+<h2>current_user_id()</h2>
+Returns the integer value of the current session's "grape.user_id" setting. This is typically set with grape before any API call is called.<br />
+<b>Filename: </b> current_user_id.sql<br />
+
+<h2>check_session_access (_session_id TEXT, _check_path TEXT, _check_method TEXT)</h2>
+This function performs access control on an API call (based on the path and session ID). It is automatically called by the express app before any API call is performed:
+<ol>
+	<li>Check that the path has access control on it. If it cannot be found, the grape setting <i>default_access_allowed</i> is checked, and if true, access will be granted. If not, it will be denied and code 9 will be returned</li>
+	<li>If the path has a role 'guest' granted access to it, everyone will be allowed (even if the session is invalid)</li>
+	<li>If the session is invalid, access will be denied and code 1 returned</li>
+	<li>If the path has a role 'all', only, and all, valid sessions will be granted access</li>
+	<li>If the user has access granted to the access path's role, access is granted</li>
+	<li>If all the above fails, access is denied with code 2</li>
+</ol>
+<b>Filename: </b> session_access_path.sql<br />
+
+<h2>set_session_user_id (JSON)</h2>
+Sets the current database session's <i>grape.user_id</i> config variable for use in stored procedures to identify the current user.<br />
+<b>Filename: </b> session_access_path.sql<br />
+<b>Returns: </b> JSON
+
+<h2>session_insert (JSON)</h2>
+This function inserts a new session for a valid username and password provided. <br />
+<b>Filename: </b> session.sql<br />
+
+<h2>logout (JSON)</h2>
+<b>Filename: </b> session.sql<br />
+
+<h1>Other utility functions</h1>
+<h2>month_diff(DATE, DATE)</h2>
+Returns an integer containing the number of months between the two dates provided. If the first parameter is after the second (higher date), the return value will be negative.<br />
+<b>Filename: </b> month_diff.sql<br />
+
+
+<h2>set_value(_name TEXT, _value TEXT)</h2>
+Sets the value (insert if new, replace if exist) in the key-value pair table <tname>grape.setting</tname> returning _value. <br />
+<b>Filename: </b> setting.sql<br />
+
+<h2>get_value(_name TEXT, _default_value TEXT)</h2>
+Returns the value matching the _name parameter found in the key-value pair table <tname>grape.setting</tname>, or _default_value if the name was not found.<br />
+<b>Filename: </b> setting.sql<br />
+
+
+<h2>generate_uuid()</h2>
+Generates a unique UUID (for example b1086d35-e973-4356-3adc-2eeb6f4963e2).<br />
+<b>Filename: </b> uuid.sql
+
+<h2>array_lowercase(TEXT[])</h2>
+<b>Filename: </b> array_lowercase.sql<br />
+
+<h2>clean_telephone_number (_tel TEXT)</h2>
+<b>Filename: </b> clean_telephone_number.sql<br />
+
+<h2>random_string(length INTEGER)</h2>
+Generates a random string of <i>length</i> length
+<code lang="sql">
+# select grape.random_string(10);
+random_string 
+---------------
+UBSDIHGQX6
+
+</code>
+<b>Filename: </b> random_string.sql<br />
+
+
+</ps_doc>
+

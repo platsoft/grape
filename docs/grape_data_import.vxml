@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape Reports">
+<h1>Grape Data Import</h1>
+<i>Introduced in Grape 0.0.9</i>
+Grape provides a set of API calls to upload data files for further processing. The files are usually Microsoft Excel (XLSX and XLS are supported).
+
+<h2>Processing functions</h2>
+Uploaded files can be registered against a pre-defined processing function. These functions must:
+<ol>
+	<li>Return a JSON object</li>
+	<li>Accept one parameter, a JSON object. The following fields will always be available: data_import_id and data_import_row_id</li>
+</ol>
+
+API calls:
+POST /grape/data_upload
+
+
+</ps_doc>

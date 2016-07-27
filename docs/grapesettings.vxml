@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ps_doc title="PlatSoft Developer Manual" titlepage="no">
+<h1>Known Grape settings</h1>
+<table>
+	<thead>
+		<th width="25%">Name</th><th width="50%">Description</th><th width="25%">Default value</th>
+	</thead>
+	<tr><td>hash_passwords</td><td>Indicate whether passwords in grape.user is hashed</td><td>false</td></tr>
+	<tr><td>allow_default_paths</td><td>If a path is not found and this setting is true, access will be granted</td><td>false</td></tr>
+	<tr><td>grape_version</td><td>Current Grape version</td><td></td></tr>
+	<tr><td>product_name</td><td>Name of the current system</td><td></td></tr>
+	<tr><td>product_uuid</td><td>Unique identifier for the product/system</td><td></td></tr>
+	<tr><td>product_version</td><td>Product version</td><td></td></tr>
+	<tr><td>data_upload_schema</td><td>Default schema for data import tables</td><td>grape</td></tr>
+</table>
+</ps_doc>

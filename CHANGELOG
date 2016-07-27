@@ -40,7 +40,7 @@
 - Caching comms: Only connect to messagesocket once socket create were successful
 
 0.0.9:
-- Reading default_config.js if it exists 
+- Read default_config.js if it exists 
 - Hidden grape settings
 - Fix deprecation warnings
 - Store grape_version in settings
@@ -49,5 +49,6 @@
 - Added GrapeClient class
 - Data import will now create a table for each import containing the rows
 - Added API calls to manipulate bgworker (/grape/bgworker/status, /grape/bgworker/start, /grape/bgworker/stop)
+- New API call session_ping
 
 
