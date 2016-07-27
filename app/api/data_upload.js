@@ -1,8 +1,6 @@
 "use strict";
 var app;
 var fs = require('fs');
-//var e = require(__dirname + '/../lib/excel2007');
-//var h = require(__dirname + '/../lib/hexavigesimal');
 var async = require('async');
 var XLSX = require('xlsx');
 
