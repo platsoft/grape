@@ -194,6 +194,8 @@ CREATE TABLE grape.data_import_row(
 	data_import_row_id serial NOT NULL,
 	data_import_id integer,
 	data json,
+	processed boolean DEFAULT FALSE,
+	result json,
 	CONSTRAINT data_import_row_pk PRIMARY KEY (data_import_row_id)
 
 );
@@ -261,11 +263,11 @@ CREATE TABLE grape.system_private(
 -- object: grape.data_import_type | type: TABLE --
 -- DROP TABLE IF EXISTS grape.data_import_type CASCADE;
 CREATE TABLE grape.data_import_type(
-	description text NOT NULL,
-	processing_function text,
+	processing_function text NOT NULL,
 	full_description text,
 	file_format_info text,
-	CONSTRAINT data_import_type_pk PRIMARY KEY (description)
+	function_schema text,
+	CONSTRAINT data_import_type_pk PRIMARY KEY (processing_function)
 	 WITH (FILLFACTOR = 100)
 
 );

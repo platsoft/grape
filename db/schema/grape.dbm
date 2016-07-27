@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.2" last-position="0,264" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.2" last-position="2,199" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -184,7 +184,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule_log" oids="true">
 	<schema name="grape"/>
-	<position x="1029" y="351"/>
+	<position x="1381" y="304"/>
 	<column name="schedule_log_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -294,7 +294,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_row">
 	<schema name="grape"/>
-	<position x="1360" y="480"/>
+	<position x="1340" y="480"/>
 	<column name="data_import_row_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -302,6 +302,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="integer"/>
 	</column>
 	<column name="data">
+		<type name="json"/>
+	</column>
+	<column name="processed" default-value="FALSE">
+		<type name="boolean"/>
+	</column>
+	<column name="result">
 		<type name="json"/>
 	</column>
 	<constraint name="data_import_row_pk" type="pk-constr" table="grape.data_import_row">
@@ -482,7 +488,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="reports_executed">
 	<schema name="grape"/>
-	<position x="460" y="740"/>
+	<position x="463" y="724"/>
 	<column name="reports_executed_id" not-null="true">
 		<type name="serial"/>
 	</column>

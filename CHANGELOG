@@ -51,4 +51,9 @@
 - Added API calls to manipulate bgworker (/grape/bgworker/status, /grape/bgworker/start, /grape/bgworker/stop)
 - New API call session_ping
 
+0.1.0:
+- Fix authentication bug (allowing any password)
+
+
+
 

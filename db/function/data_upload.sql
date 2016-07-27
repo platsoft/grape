@@ -15,6 +15,7 @@ DECLARE
 
 	_schema TEXT;
 	_tablename TEXT;
+	_idxname TEXT;
 
 	_processing_function TEXT;
 BEGIN
@@ -31,8 +32,10 @@ BEGIN
 	
 	_schema := grape.setting('data_upload_schema', 'grape');
 	_tablename := FORMAT('data_import_%s', _data_import_id);
+	_idxname := FORMAT('%s_data_import_row_idx', _tablename);
 
-	EXECUTE FORMAT('CREATE UNLOGGED TABLE "%s"."%s" (data_import_row_id SERIAL, data JSON, processed BOOLEAN DEFAULT FALSE, result JSON)', _schema, _tablename);
+	EXECUTE FORMAT('CREATE UNLOGGED TABLE "%s"."%s" () INHERITS (grape.data_import_row)', _schema, _tablename);
+	EXECUTE FORMAT('CREATE INDEX "%s" ON "%s"."%s" (data_import_row_id)', _idxname, _schema, _tablename);
 
 	UPDATE grape.data_import SET result_table=_tablename, result_schema=_schema WHERE data_import_id=_data_import_id::INTEGER;
 
@@ -65,7 +68,7 @@ BEGIN
 
 	SELECT result_table, result_schema INTO _tablename, _schema FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
 
-	EXECUTE FORMAT ('INSERT INTO "%s"."%s" (data) VALUES ($1)', _schema, _tablename) USING $1;
+	EXECUTE FORMAT ('INSERT INTO "%s"."%s" (data_import_id, data) VALUES ($1, $2)', _schema, _tablename) USING _data_import_id, $1;
 	
 	RETURN '{}'::JSON;
 END; $$ LANGUAGE plpgsql;
