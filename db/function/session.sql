@@ -40,12 +40,13 @@ BEGIN
 	END IF;
 
 	IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
-		_check_password := crypt(_password, rec.password);
+		_password := crypt(_password, rec.password);
+		_check_password := rec.password;
 	ELSE
 		_check_password := rec.password;
 	END IF;
 
-	IF _check_password != rec.password THEN
+	IF _check_password != _password THEN
 		RAISE DEBUG 'User % login failed. Password does not match', _user;
 		RETURN grape.api_result_error('Invalid password', 2);
 	END IF;
