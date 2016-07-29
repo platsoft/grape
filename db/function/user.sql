@@ -35,7 +35,7 @@ BEGIN
 
 	-- Validate Username
 	IF _username IS NULL OR _username = '' THEN
-		RETURN ('{"success":"false","code":"1","message":"Invalid data - Username is mandatory."}')::JSON;
+		RETURN grape.api_error('Invalid data - Username is missing', 1);
 	END IF;
 
 	-- Default Active to True
@@ -59,11 +59,11 @@ BEGIN
 				END LOOP;
 			END IF;
 
-			RETURN ('{"success":"true","code":"0","new":"true","user_id":"' || _user_id || '"}')::JSON;
+			RETURN grape.api_success(json_build_object('new', 'true', 'user_id', _user_id));
 
 		ELSE
 			-- INSERT : Username taken
-			RETURN ('{"success":"false","code":"2","message":"Unable to insert user. The username already exists"}')::JSON;
+			RETURN grape.api_error('Unable to insert user. The username already exists', 2);
 
 		END IF;
 	ELSE
@@ -71,13 +71,13 @@ BEGIN
 		SELECT * INTO rec FROM grape."user" WHERE user_id = _user_id;
 		IF NOT FOUND THEN
 			-- UPDATE : Invalid user_id
-			RETURN ('{"success":"false","code":"3","message":"Unable to update user. The specified user_id does not exist"}')::JSON;
+			RETURN grape.api_error('Unable to update user. The specified user_id does not exist', 3);
 
 		ELSE
 			SELECT * INTO rec FROM grape."user" WHERE username = _username;
 			IF FOUND AND rec.user_id <> _user_id THEN
 				-- UPDATE : Existing username
-				RETURN ('{"success":"false","code":"4","message":"Unable to update user. The username already exists"}')::JSON;
+				RETURN grape.api_error('Unable to update user. The username already exists', 4);
 
 			END IF;
 
@@ -99,8 +99,7 @@ BEGIN
 				END LOOP;
 			END IF;
 
-			RETURN ('{"success":"true","code":"0","new":"false","user_id":"' || _user_id || '"}')::JSON;
-
+			RETURN grape.api_success(json_build_object('new', 'false', 'user_id', _user_id));
 		END IF;
 	END IF;
 END; $$ LANGUAGE plpgsql;
@@ -182,5 +181,73 @@ BEGIN
 
 	RETURN grape.hash_user_password(_user_id);
 END; $$ LANGUAGE plpgsql;
+
+/**
+ * Set user password 
+ * is_hashed should be TRUE if the password given to this function is already hashed
+ */
+CREATE OR REPLACE FUNCTION grape.set_user_password (_user_id INTEGER, _password TEXT, _is_hashed BOOLEAN) RETURNS BOOLEAN AS $$
+DECLARE
+	_hashed_locally BOOLEAN;
+	_password_to_save TEXT;
+BEGIN
+	-- do we hash local passwords?
+	_hashed_locally := grape.get_value('passwords_hashed', 'false')::BOOLEAN;
+
+	IF _hashed_locally = _is_hashed THEN
+		_password_to_save := _password;
+	ELSIF _hashed_locally = FALSE AND _is_hashed = TRUE THEN
+		RAISE NOTICE 'Cannot save a clear-text password from a hash';
+		RETURN FALSE;
+	ELSIF _hashed_locally = TRUE AND _is_hashed = FALSE THEN
+		_password_to_save := crypt(_password, gen_salt('bf'));
+	END IF;
+
+	UPDATE grape."user" SET password=_password_to_save WHERE user_id=_user_id::INTEGER;
+	
+	RETURN TRUE;
+END; $$ LANGUAGE plpgsql;
+
+/**
+ * Set user password 
+ * is_hashed should be TRUE if the password given to this function is already hashed
+ */
+CREATE OR REPLACE FUNCTION grape.set_user_password (_username TEXT, _password TEXT, _is_hashed BOOLEAN) RETURNS BOOLEAN AS $$
+DECLARE
+BEGIN
+	RETURN grape.set_user_password(grape.user_id_from_name(_username), _password, _is_hashed);
+END; $$ LANGUAGE plpgsql;
+
+/**
+ * Set user password 
+ */
+CREATE OR REPLACE FUNCTION grape.set_user_password (JSON) RETURNS JSON AS $$
+DECLARE
+	_user_id INTEGER;
+	_username TEXT;
+	_is_hashed BOOLEAN;
+	_password TEXT;
+
+	_ret BOOLEAN;
+BEGIN
+	_password := $1->>'password';
+	_is_hashed := ($1->>'is_hashed')::BOOLEAN;
+	
+	IF json_extract_path($1, 'username') IS NOT NULL THEN
+		_username := $1->>'username';
+		_user_id := grape.user_id_from_name(_username);
+	ELSIF json_extract_path($1, 'user_id') IS NOT NULL THEN
+		_user_id := ($1->>'user_id')::INTEGER;
+	END IF;
+
+	_ret := grape.set_user_password(_user_id, _password, _is_hashed);
+
+	IF _ret = FALSE THEN
+		RETURN grape.api_error('Could not save password', -1);
+	END IF;
+	
+	RETURN grape.api_success();
+END; $$ LANGUAGE plpgsql;
+
 
 
