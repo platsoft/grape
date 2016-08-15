@@ -10,7 +10,7 @@
 	"name": "myapp",
 	"main": "index.js",
 	"dependencies": {
-		"ps-grape": "0.0.5"
+		"ps-grape": "0.1.0"
 	}
 }
 ```
