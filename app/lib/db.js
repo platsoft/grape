@@ -1,11 +1,7 @@
 /**
  * Grape Database Object
- * @typedef {object} db
- * @property {object} client - A open instance of pgClient.
- * @property {function} query - a short hand function to query data.  
- * @property {object} models - Dynamicly generated models as specified in the `models` variable.
- * @property {object} collections - Dynamicly generated collactions for the models.
  */
+
 'use strict';
 var pg = require('pg');
 var util = require('util');
@@ -13,21 +9,10 @@ var _ = require('underscore');
 var events = require('events');
 
 /**
- * Database singleton, allowing us to only have one db object and share that between
- * all the modules that requires this module.
- * 
- * @todo This might not be needed due to the fact that nodejs share the require modules. 
- * But it needs to get checked. Better save then sorry.
- * 
- * @param app {object} The app initializer normally a Express Application instance using
- * the following getters:
- * 
  * app.get('logger').error - function(msg) 
  * app.get('logger').debug - function(msg)
  * app.get('dburi') - string
  * 
- * If you supply the above attributes in a dummy object you can easily unit test
- * this module.
  */
 function db (_o) {
 
@@ -39,9 +24,11 @@ function db (_o) {
 	var options = {
 		dburi: 'postgres@localhost:postgres', 
 		debug: false, 
+		session_id: null,
+		user_id: null,
+		timeout: null,
 		debug_logger: function(s) { console.log(s); }, 
-		error_logger: function(s) { console.log(s); },
-		connected_callback: function() { }
+		error_logger: function(s) { console.log(s); }
 	};
 	if (typeof _o == 'string')
 	{
@@ -51,49 +38,118 @@ function db (_o) {
 	{
 		_.extend(options, _o);
 	}
+
 	self.options = options;
+	self.client = null;
+	self.state = 'close';
+	self.last_query_time = null;
+	self.query_counter = 0;
 
-	self.options.debug_logger("Connecting to " + util.inspect(options.dburi));
-	self.client = new pg.Client(options.dburi);
-	self.client.connect(function(err) {
-		if (err != null) 
+	self.connect = function() {
+		
+		if (self.state == "connecting" || self.state == "open")
 		{
-			self.options.error_logger("Could not connect to database", options.dburi);
-			process.exit(5);
-		};
-		if (self.options.connected_callback) 
-		{
-			self.options.connected_callback(self);
+			self.options.debug_logger("Already open or busy connecting...");
+			return;
 		}
-		self.emit('connected');
-	});
 
-	self.client.on('notice', function(msg) {
-		self.emit('notice', msg);
+		self.options.debug_logger("Connecting to " + util.inspect(options.dburi) + " for session [" + self.options.session_id + "]");
+		self.client = new pg.Client(options.dburi);
+		self.state = 'connecting';
 
-		if (msg.where && msg.where != '')
-			msg.where = ' at ' + msg.where;
+		self.client.connect(function(err) {
 
-		var str = ['Notice ', msg.severity, ':', msg.message, msg.where].join(' ');
-		self.options.debug_logger(str);
-	});
-	self.client.on('error', function(msg) {
-		console.log("ERRRRRRRROR", msg);
-		self.emit('error', msg);
+			if (err != null) 
+			{
+				self.options.error_logger("Could not connect to database", options.dburi);
+				process.exit(5);
+			}
 
-		if (msg.where && msg.where != '')
-			msg.where = ' at ' + msg.where;
+			if (self.options.user_id != null)
+			{
+				self.json_call('grape.set_session_user_id', {user_id: self.options.user_id}, function(err, d) { 
+					self.state = 'open';
+					self.emit('connected');
+				});
+				
+			}
+			else
+			{
+				self.state = 'open';
+				self.emit('connected');
+			}
 
-		var str = ['DB Error', msg.severity, ':', msg.message, msg.where].join(' ');
-		self.options.error_logger(str);
-	});
+		});
 
+		self.client.on('notice', function(msg) {
+			self.emit('notice', msg);
 
+			if (msg.where && msg.where != '')
+				msg.where = ' at ' + msg.where;
+
+			var str = ['Notice ', msg.severity, ':', msg.message, msg.where].join(' ');
+			self.options.debug_logger(str);
+		});
+
+		self.client.on('error', function(msg) {
+			console.log("ERRRRRRRROR", msg);
+			self.state = 'error';
+			self.emit('error', msg);
+
+			if (msg.where && msg.where != '')
+				msg.where = ' at ' + msg.where;
+
+			var str = ['DB Error', msg.severity, ':', msg.message, msg.where].join(' ');
+			self.options.error_logger(str);
+		});
+
+		self.client.on('end', function() {
+			self.state = 'close';
+			self.emit('end', {
+				session_id: self.options.session_id, 
+				user_id: self.options.user_id
+			});
+		});
+
+	}
+
+	self.connect();
+
+	/*
+	 * Checks if connection can be closed.
+	 *
+	 * Returns true if the following conditions are met:
+	 * 	- query_counter = 0
+	 * 	- last_query_time is more than timeout milliseconds ago
+	 */
+	self.checkTimeout = function() {
+		if (!self.options.timeout)
+			return false;
+		if (self.query_counter > 0)
+			return false;
+		if (!self.last_query_time)
+			return false;
+
+		if ((new Date()).getTime() - self.last_query_time.getTime() > self.options.timeout)
+			return true;
+
+		return false;
+	};
+
+	if (self.options.timeout)
+	{
+		self.timeoutTimer = setInterval(function() { 
+			if (self.checkTimeout() === true)
+			{
+				console.log("Idle timeout. Ending client for session [" + self.options.session_id + "]");
+				clearInterval(self.timeoutTimer);
+				self.client.end();
+			}
+		}, 5000);
+	}
 
 	/**
 	 * Short hand function for client.query which also logs query information
-	 * 
-	 * @deprecated - Used by backbone generate models or old(but in use) API modules
 	 */
 	self.query = function(config, values, callback) {
 		if (self.options.debug)
@@ -101,20 +157,38 @@ function db (_o) {
 			self.options.debug_logger('Query ' + config + ' ' + values.join(', '));
 		}
 
+		self.query_counter++;
+		console.log("Query counter: " + self.query_counter);
+
+		self.last_query_time = new Date();
+
 		var qry = self.client.query(config, values, callback);
+
 		qry.on('error', function(err) { 
 			self.emit('error', err);
 			self.options.error_logger('DB Error ' + err.toString());
+			self.query_counter--;
+			console.log("Query counter [" + self.options.session_id + "]: " + self.query_counter);
 		});
+		qry.on('end', function(err, result) {
+			self.query_counter--;
+			console.log("Query counter [" + self.options.session_id + "]: " + self.query_counter);
+		});
+
 		return qry;
 	};
 	
 	/**
-	 * call db function name with input json and return json 
-	 * options.response - httpresponse object, json sent there
+	 * Calls a db function with one JSON parameter as input, and returning a JSON object
+	 *
+	 * @param name name of JSON function to call
+	 * @param input JSON object
+	 * @param callback Callback function taking 2 parameters, error and result. Rows are accessible through result.rows. If it is provided, options.response will be ignored
+	 * @param options can contain the following members:
+	 * 	response - a node HTTP Response object. If it is provided the out of the function will be send to this HTTP response using res.jsonp
 	 *
 	 */ 
-	self.jsonCall =  function(name, input, callback, options) {
+	self.json_call =  function(name, input, callback, options) {
 		options = options || {};
 		var alias = name;
 		alias = alias.replace(/\./g, '');
@@ -150,7 +224,6 @@ function db (_o) {
 			result = self.query("SELECT " + name + "($1::JSON) AS " + alias, [JSON.stringify(input)], callback);
 		return result;
 	};
-	self.json_call = self.jsonCall;
 };
 db.prototype.__proto__ = events.EventEmitter.prototype;
 exports = module.exports = db;

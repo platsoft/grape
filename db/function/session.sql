@@ -38,17 +38,20 @@ BEGIN
 		RAISE DEBUG 'User % login failed. No such user', _user;
 		RETURN grape.api_result_error('No such user', 1);
 	END IF;
+	
+	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
 
-	IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
-		_password := crypt(_password, rec.password);
-		_check_password := rec.password;
-	ELSE
-		_check_password := rec.password;
-	END IF;
+		IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
+			_password := crypt(_password, rec.password);
+			_check_password := rec.password;
+		ELSE
+			_check_password := rec.password;
+		END IF;
 
-	IF _check_password != _password THEN
-		RAISE DEBUG 'User % login failed. Password does not match', _user;
-		RETURN grape.api_result_error('Invalid password', 2);
+		IF _check_password != _password THEN
+			RAISE DEBUG 'User % login failed. Password does not match', _user;
+			RETURN grape.api_result_error('Invalid password', 2);
+		END IF;
 	END IF;
 
 	IF rec.active = false THEN

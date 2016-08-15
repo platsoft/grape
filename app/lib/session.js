@@ -110,13 +110,10 @@ module.exports = function (app)
 			// not logged in and access granted
 			if (session_id == null)
 			{
-				req.db = res.locals.db = app.get('db');
+				req.db = res.locals.db = app.get('guest_db');
 				next();
 				return;
 			}
-
-			//req.session = ret;
-			//req.user_access_path = ret.user_role;
 
 			res.locals.session = ret;
 
@@ -132,6 +129,9 @@ module.exports = function (app)
 				var _db = require(__dirname + '/db.js');
 				var db = new _db({
 					dburi: app.get('config').dburi, 
+					session_id: session_id,
+					user_id: user_id,
+					timeout: 10000,
 					debug: app.get('config').debug,
 					debug_logger: function(s) { app.get('logger').db(s); },
 					error_logger: function(s) { app.get('logger').db(s); }
@@ -139,12 +139,19 @@ module.exports = function (app)
 
 				dbs[session_id] = db;
 				db.on('connected', function() {
-					db.json_call('grape.set_session_user_id', {user_id: user_id}, function(d) { 
-						req.db = dbs[session_id];
-						res.locals.db = dbs[session_id];
-						next();
-					});
+					req.db = dbs[session_id];
+					res.locals.db = dbs[session_id];
+					next();
 				});
+				db.on('end', function(obj) {
+					if (obj.session_id != null)
+					{
+						var dbs = app.get('dbs');
+						if (dbs[obj.session_id])
+							dbs[obj.session_id] = null;
+					}
+				});
+
 			}
 		}
 

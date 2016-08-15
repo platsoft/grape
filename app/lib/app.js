@@ -50,11 +50,23 @@ exports = module.exports = function(_o) {
 		var db = new _db({
 			dburi: app.get('config').dburi,
 			debug: app.get('config').debug,
+			session_id: null,
 			debug_logger: function(s) { app.get('logger').db(s); },
 			error_logger: function(s) { app.get('logger').db(s); }
 		});
 
 		app.set('db', db);
+
+		//database connection for guest sessions. This might allow us to, in future, to specify a different DB username for guest sessions
+		var guest_db = new _db({
+			dburi: app.get('config').dburi,
+			debug: app.get('config').debug,
+			session_id: null,
+			debug_logger: function(s) { app.get('logger').db(s); },
+			error_logger: function(s) { app.get('logger').db(s); }
+		});
+
+		app.set('guest_db', guest_db);
 	}
 
 

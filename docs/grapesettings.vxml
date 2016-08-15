@@ -12,5 +12,6 @@
 	<tr><td>product_uuid</td><td>Unique identifier for the product/system</td><td></td></tr>
 	<tr><td>product_version</td><td>Product version</td><td></td></tr>
 	<tr><td>data_upload_schema</td><td>Default schema for data import tables</td><td>grape</td></tr>
+	<tr><td>disable_passwords</td><td>If true, authentication will not check whether the password is correct</td><td>false</td></tr>
 </table>
 </ps_doc>
