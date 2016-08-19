@@ -31,7 +31,14 @@ var documentStore = function(_opt) {
 		else
 		{
 			var d = new Date();
-			var dir = [self.options.document_store, filetype, d.getFullYear(), (d.getMonth()+1)].join('/');
+			var m = d.getMonth() + 1;
+
+			var dir = [
+				self.options.document_store, 
+				filetype, 
+				d.getFullYear(), 
+				m < 10 ? '0' + m : m
+			].join('/');
 		}
 			
 		this.makeDirRecursiveSync(dir);
