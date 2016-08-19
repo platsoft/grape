@@ -126,6 +126,9 @@ gutil.generate_api_error = function (message, code, err_info) {
 	};
 };
 
+gutil.generate_random_string = function(length) {
+	return Math.random().toString(36).substr(2, length);
+};
 
 module.exports = gutil;
 
