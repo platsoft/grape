@@ -63,6 +63,5 @@
 - Grape now supports multiple public directories through config.public_directories
 - Grape now supports multiple API directories through config.api_directories
 - Several security improvements when serving public files
-- Unmatched non-JSON requests will not 
 
 

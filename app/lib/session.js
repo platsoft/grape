@@ -38,7 +38,6 @@ module.exports = function (app)
 			return;
 		}
 		
-		req.session_id = req.header('X-SessionID');
 
 		var session_id = req.session_id;
 
@@ -148,6 +147,10 @@ module.exports = function (app)
 						if (dbs[obj.session_id])
 							dbs[obj.session_id] = null;
 					}
+				});
+				db.on('error', function(err) {
+					app.get('logger').db(err);
+					app.get('logger').error(err);
 				});
 
 			}
