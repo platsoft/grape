@@ -44,6 +44,12 @@ exports = module.exports = function(_o) {
 				error_logger: function(s) { app.get('logger').db(s); }
 			});
 
+			db.on('error', function(err) {
+				app.get('logger').db(err);
+				app.get('logger').error(err);
+			});
+
+
 			app.set('db', db);
 
 			//database connection for guest sessions. This might allow us to, in future, to specify a different DB username for guest sessions
@@ -53,6 +59,11 @@ exports = module.exports = function(_o) {
 				session_id: null,
 				debug_logger: function(s) { app.get('logger').db(s); },
 				error_logger: function(s) { app.get('logger').db(s); }
+			});
+			
+			guest_db.on('error', function(err) {
+				app.get('logger').db(err);
+				app.get('logger').error(err);
 			});
 
 			app.set('guest_db', guest_db);
@@ -227,10 +238,18 @@ exports = module.exports = function(_o) {
 	var create_api_calls = require(__dirname + '/create_api_calls.js');
 	create_api_calls(app);
 
-	//first function to be called on a new request
+
+	// The first handler to be called on a new request
 	app.use(function(req, res, next)
 	{
-		logger.trace([req.ip, req.method, req.url, req.headers.accept].join(' '));
+		req.session_id = null;
+
+		if (req.header('X-SessionID'))
+			req.session_id = req.header('X-SessionID');
+
+		var accept = req.headers.accept.substring(0, req.headers.accept.indexOf(';'));
+
+		logger.trace([req.ip, req.method, req.url, req.session_id, req.header('Content-Length'), accept].join(' '));
 
 		// if first character of path is a . return error
 		if (req.path[0] == '.')
