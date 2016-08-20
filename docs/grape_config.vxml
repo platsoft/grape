@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape config file" titlepage="no">
+<h1>Grape config file</h1>
+The following options are recognized in the config passed to Grape:
+
+<table>
+	<thead>
+		<th width="25%">Name</th><th width="40%">Description</th><th width="30%">Default value</th>
+	</thead>
+	<tr><td>dburi</td><td>DB connection settings</td><td></td></tr>
+	<tr><td>guest_dburi</td><td>DB connection settings for guest users</td><td></td></tr>
+	<tr><td>api_directory</td><td></td><td></td></tr>
+	<tr><td>db_definition</td><td>Array containing directories with DB definitions</td><td></td></tr>
+	<tr><td>sql_dirs</td><td>Array containing directories with DB definitions</td><td></td></tr>
+	<tr><td>pg_temp_directory</td><td>Path to a directory to which PostgreSQL has write access</td><td></td></tr>
+	<tr><td>port</td><td>Port on which the UI will be available</td><td></td></tr>
+	<tr><td>public_directory</td><td>Directory containing public files</td><td></td></tr>
+	<tr><td>public_directories</td><td>List of directories containing public files</td><td></td></tr>
+	<tr><td>debug</td><td></td><td>true</td></tr>
+	<tr><td>maxsockets</td><td>Controls the maximum number of sockets supported</td><td>500</td></tr>
+	<tr><td>bordeaux_config_file</td><td>Path to Bordeaux config file</td><td>__dirname + '/bordeaux_config.json'</td></tr>
+	<tr><td>document_store</td><td>Path to document store</td><td></td></tr>
+	<tr><td>use_https</td><td>Enable or disable HTTPS. sslkey and sslcert need to be set up correctly</td><td>false</td></tr>
+	<tr><td>session_management</td><td>Enable or disable session management</td><td>true</td></tr>
+	<tr><td>use_https</td><td></td><td></td></tr>
+	<tr><td>smtp</td><td></td><td></td></tr>
+	<tr><td>server_timeout</td><td>The number of milliseconds of inactivity before a socket is presumed to have timed out</td><td>50000</td></tr>
+	<tr><td>sslkey</td><td>Path to private SSL key file</td><td>__dirname + '/cert/private.pem'</td></tr>
+	<tr><td>sslcert</td><td>Path to private SSL public certificate</td><td>__dirname + '/cert/public_nopass.pem'</td></tr>
+	<tr><td>hr_system</td><td>URL to get access to the Bordeaux system running on Savanna HR system</td><td>https://192.168.50.86:3999/</td></tr>
+	<tr><td>email_template_directory</td><td>Path to email templates</td><td>__dirname + '/email_templates'</td></tr>
+</table>
+</ps_doc>

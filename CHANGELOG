@@ -54,6 +54,15 @@
 0.1.0:
 - Fix authentication bug (allowing any password)
 
-
+0.1.1:
+- Add all functions in gutil to the prototype
+- Added DB function set_user_password with JSON access
+- Added column user.local_only BOOL to indicate if a user should be linked up to Savanna 
+- Added column user.pg_role TEXT for future use
+- New config setting guest_dburi to allow for a seperate guest DB connection
+- Grape now supports multiple public directories through config.public_directories
+- Grape now supports multiple API directories through config.api_directories
+- Several security improvements when serving public files
+- Unmatched non-JSON requests will not 
 
 

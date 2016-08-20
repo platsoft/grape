@@ -6,7 +6,7 @@ exports = module.exports = function(_o) {
 	var options = {
 		session_management: false,
 		api_directory: false,
-		apiIgnore: [],
+		api_ignore: [], //files to ignore when loading api files
 		port: 3000,
 		public_directory: false,
 		debug: false,
@@ -14,7 +14,9 @@ exports = module.exports = function(_o) {
 		document_store: false,
 		base_directory: false,
 		log_directory: false,
-		server_timeout: 50000
+		server_timeout: 50000,
+		public_directories: [],
+		api_directories: []
 	};
 
 	if (!_o.base_directory && _o.public_directory)
@@ -47,7 +49,6 @@ exports = module.exports = function(_o) {
 
 	if (options.document_store == false)
 	{
-
 		if (options.base_directory != false)
 		{
 			if (!fs.existsSync(options.base_directory + '/repo/'))
@@ -55,6 +56,12 @@ exports = module.exports = function(_o) {
 			options.document_store = fs.realpathSync(options.base_directory + '/repo/');
 		}
 	}
+
+	if (options.public_directory && typeof options.public_directory == 'string')
+		options.public_directories.push(options.public_directory);
+
+	if (options.api_directory)
+		options.api_directories.push(options.api_directory);
 
 	return options;
 };

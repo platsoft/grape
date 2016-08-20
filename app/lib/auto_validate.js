@@ -9,9 +9,10 @@
  * Data types:
  * 	s text
  *	i integer
- * 	f
- * 	b
- * 	d
+ * 	f float
+ * 	b boolean
+ * 	d date
+ * 	t date
  *
  * Modifiers:
  *	* optional is true (default = false)

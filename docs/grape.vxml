@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<ps_doc title="PlatSoft Developer Manual" titlepage="yes" tocpage="yes">
+<h1>Grape</h1>
+<h2>Structure of a Grape Application</h2>
+TODO
+
+<h2>Authentication and access control</h2>
+<p>
+	Grape manages authentication, sessions, users, passwords and provide access control. 
+	Sessions are tracked using a session ID. Session IDs can be obtained by making a call to <i>POST /grape/login</i>, providing a valid username and password. On success, this call will return with the session ID, the user's ID, username, roles and employee GUID.
+	In subsequent calls, the session ID is sent to the server using a custom header <i>X-SessionID</i> in the HTTP requests. Before an API call is executed, Grape will check the validity of the session ID, and do access control on the path against the user's roles. 
+</p>
+<p>
+	Users and user-related information is stored in <tname>grape.user</tname>. Users can belong to one or more access roles, stored in <tname>grape.access_path</tname>. The link-table for these are <tname>grape.user_role</tname>. 
+</p>
+<p>
+	Grape includes the following roles and access paths by default:
+	<table>
+		<thead>
+			<th width="20%">Role</th>
+			<th width="40%">Description</th>
+			<th width="40%">Paths allowed</th>
+		</thead>
+		<tr>
+			<td>guest</td>
+			<td>No or invalid login</td>
+			<td align="left"><ul>
+				<li>/grape/login</li>
+			</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>all</td>
+			<td>All logged in users</td>
+			<td align="left">
+				<ul>
+					<li>/lookup/*</li>
+					<li>/grape/list</li>
+					<li>/grape/api_list</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>admin</td>
+			<td>Administrator</td>
+			<td align="left">
+				<ul>
+					<li>* (all paths allowed)</li>
+				</ul>
+			</td>
+		</tr>
+
+	</table>
+</p>
+
+<h2>API Calls</h2>
+<p>
+A typical Grape API call consists of:
+<ol>
+	<li>A call to register the route in the Node layer</li>
+	<li>A call to connect this route to a function in PostgreSQL</li>
+	<li>A PostgreSQL function, taking in one JSON value and returning a JSON object</li>
+	<li>A PostgreSQL function containing the business logic for the call</li>
+	<li>If applicable, this call should be added to Grape's list of allowed routes</li>
+</ol>
+</p>
+<p>
+	For example, let's create an API call to calculate the square root of a value in the database:
+	<ol>
+		<li>When Grape starts up, it reads a directory containing API files. This directory is controlled by setting the <i>api_directory</i> option.</li>
+		<li>In this directory, add a file to register this API call in.
+<code lang="js">exports = module.exports = function(app) {
+	<blue>// register the route</blue>
+	app.get("/maths/sqrt/:input", api_maths_sqrt);
+}
+function api_maths_sqrt (req, res)
+{
+	<blue>// call the stored procedure for this API call</blue>
+	res.locals.db.json_call("maths_sqrt", <blue>// the name of the PL/pgSQL function</blue>
+		{input: req.params.input}, <blue>// JSON object as input for this function</blue>
+		null, <blue>// Optional callback (not used here)</blue>
+		{response: res} <blue>// Send the response to res</blue>
+	);
+}
+</code>
+		</li>
+	</ol>
+</p>
+
+<!-- include grape settings-->
+<include href="grapesettings.vxml" parse="vxml" /> 
+
+<!-- include grape config -->
+<include href="grape_config.vxml" parse="vxml" /> 
+
+</ps_doc>

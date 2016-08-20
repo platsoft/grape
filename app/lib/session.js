@@ -6,7 +6,7 @@ module.exports = function (app)
 	var dbs = [];
 	app.set('dbs', dbs);
 
-	//figure out what route was matched and assign it to req
+	//figure out what route was matched and assign it to req.matched_path
 	app.use(function(req, res, next) {
 		var path = req.url;
 
@@ -38,8 +38,6 @@ module.exports = function (app)
 			return;
 		}
 		
-		var accepts_json = (req.headers.accept.indexOf('application/json') != -1);
-
 		req.session_id = req.header('X-SessionID');
 
 		var session_id = req.session_id;
@@ -51,7 +49,7 @@ module.exports = function (app)
 		}
 
 		//Do not do session management checking if session id is not set and the request do not want json. We need to check if it is json because it might be a guest API call
-		if ((!session_id || session_id == 0) && !accepts_json)
+		if ((!session_id || session_id == 0) && !req.accepts_json)
 		{
 			next();
 			return;
@@ -96,7 +94,7 @@ module.exports = function (app)
 	
 
 				if (req.headers.accept.indexOf('application/json') != -1)
-					res.json({status: 'ERROR', message: error_message});
+					res.json({status: 'ERROR', message: error_message, code: ret.result_code});
 				else
 					res.send(error_message);
 

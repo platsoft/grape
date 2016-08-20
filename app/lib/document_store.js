@@ -20,7 +20,7 @@ var documentStore = function(_opt) {
 
 	/*
  		Get directory for storing files of type 'filetype', claims
-		If use_date is set
+		If use_date is set subdirectories will be created for this date
 		Returns full path
 	*/
 	this.getDirectory = function(filetype, use_date) {

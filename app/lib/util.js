@@ -1,10 +1,10 @@
 
 var gutil = function(){ };
 
-gutil.prototype.trim = function(str) { 
+gutil.trim = function(str) { 
 	return str.replace(/^[\s]+/, '').replace(/[\s]+$/, '');
 };
-gutil.prototype.formatDate = function(dte) { 
+gutil.formatDate = function(dte) { 
 	if (!dte)
 		return '';
 	if (typeof dte == 'string')
@@ -14,7 +14,7 @@ gutil.prototype.formatDate = function(dte) {
 	var d = dte.getDate();
 	return y + '/' + (m < 10 ? '0' : '') + m + '/' + (d < 10 ? '0' : '') + d;
 };
-gutil.prototype.formatDateTime = function(dte) {
+gutil.formatDateTime = function(dte) {
 	if (!dte)
 		return '';
 	if (typeof dte == 'string')
@@ -129,6 +129,7 @@ gutil.generate_api_error = function (message, code, err_info) {
 gutil.generate_random_string = function(length) {
 	return Math.random().toString(36).substr(2, length);
 };
+
 
 module.exports = gutil;
 
