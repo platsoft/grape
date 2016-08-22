@@ -1,0 +1,3 @@
+- email queuer
+- check permissions in javascript (sync from DB)
+- static data loader keeping cache of users and sessions
