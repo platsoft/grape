@@ -11,8 +11,6 @@ var fs = require('fs');
 var util = require('util');
 var path = require('path');
 
-var auto_validate = require('./auto_validate.js');
-
 var DEFAULT_MAXSOCKETS = 500;
 
 exports = module.exports = function(_o) {
@@ -27,7 +25,7 @@ exports = module.exports = function(_o) {
 
 
 
-	/** 
+	/**
 	 * Sets up database
 	 */
 	function setup_database(app)
@@ -60,7 +58,7 @@ exports = module.exports = function(_o) {
 				debug_logger: function(s) { app.get('logger').db(s); },
 				error_logger: function(s) { app.get('logger').db(s); }
 			});
-			
+
 			guest_db.on('error', function(err) {
 				app.get('logger').db(err);
 				app.get('logger').error(err);
@@ -160,7 +158,7 @@ exports = module.exports = function(_o) {
 			{
 				jsdata.push(loadpublicjsfiles(public_directories[i] + '/pages', '/'));
 			}
-			
+
 			res.set('Content-Type', 'application/javascript');
 			res.send(jsdata.join(''));
 			return;
@@ -176,7 +174,7 @@ exports = module.exports = function(_o) {
 			{
 				pathname = '/index.html';
 			}
-			
+
 			// check if the path exists in one of our public directories
 			// only do this check if the request is a GET
 			// if it accepts JSON, and the path ends with .json, also look for the file
@@ -262,7 +260,7 @@ exports = module.exports = function(_o) {
 				res.send('Permission denied');
 			return;
 		}
-		
+
 		// true if this request accepts json as return
 		req.accepts_json = (req.headers.accept && req.headers.accept.indexOf('application/json') != -1);
 
@@ -275,7 +273,7 @@ exports = module.exports = function(_o) {
 	var logger = new grapelib.logger(options);
 	app.set('logger', logger);
 	app.set('log', logger);
-	
+
 	app.use(bodyParser.json());
 	app.use(cookieParser());
 	app.use(multipartParser());
@@ -350,5 +348,3 @@ exports = module.exports = function(_o) {
 	start();
 	return app;
 };
-
-

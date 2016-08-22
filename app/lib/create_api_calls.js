@@ -1,3 +1,5 @@
+var _ = require('underscore');
+var auto_validate = require('./auto_validate.js');
 
 module.exports = function(app) {
 	function validate_object(obj, validation_string)
@@ -62,7 +64,7 @@ module.exports = function(app) {
 				}
 				catch (e)
 				{
-					logger.error(e.stack);
+					app.get('logger').error(e.stack);
 					res.send({
 						status: 'ERROR',
 						message: e.message,
@@ -80,7 +82,7 @@ module.exports = function(app) {
 		if (!param.url)
 			throw new Error('No url provided');
 
-		logger.info('Registering API call ' + param.name + ' as ' + param.method + ':' + param.url);
+		app.get('logger').info('Registering API call ' + param.name + ' as ' + param.method + ':' + param.url);
 		if (param.method == 'get')
 		{
 			self.get(param.url, param.api_function);
@@ -157,5 +159,3 @@ module.exports = function(app) {
 	};
 
 };
-
-
