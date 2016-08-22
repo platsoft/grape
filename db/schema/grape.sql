@@ -104,6 +104,8 @@ CREATE TABLE grape."user"(
 	blame_id integer,
 	employee_guid uuid,
 	employee_info json,
+	pg_role text,
+	is_local boolean DEFAULT FALSE,
 	CONSTRAINT user_pk PRIMARY KEY (user_id),
 	CONSTRAINT username_uq UNIQUE (username)
 
@@ -326,6 +328,7 @@ CREATE TABLE grape.reports_executed(
 	date_inserted timestamptz DEFAULT NOW(),
 	result_table_schema text,
 	result_table_name text,
+	result_filename text,
 	is_deleted boolean DEFAULT TRUE,
 	report_seq integer,
 	input_fields json,

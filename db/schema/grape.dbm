@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.2" last-position="2,199" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.2" last-position="0,0" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -19,7 +19,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="access_role">
 	<schema name="grape"/>
-	<position x="119" y="461"/>
+	<position x="120" y="460"/>
 	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
@@ -30,7 +30,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user_role">
 	<schema name="grape"/>
-	<position x="100" y="300"/>
+	<position x="80" y="320"/>
 	<column name="user_id" not-null="true">
 		<type name="integer"/>
 	</column>
@@ -44,7 +44,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="session">
 	<schema name="grape"/>
-	<position x="519" y="23"/>
+	<position x="520" y="20"/>
 	<column name="session_id" not-null="true">
 		<type name="text"/>
 	</column>
@@ -67,7 +67,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="access_path">
 	<schema name="grape"/>
-	<position x="500" y="446"/>
+	<position x="500" y="440"/>
 	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
@@ -85,7 +85,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user_history">
 	<schema name="grape"/>
-	<position x="438" y="307"/>
+	<position x="440" y="300"/>
 	<column name="user_history_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -108,7 +108,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user">
 	<schema name="grape"/>
-	<position x="85" y="35"/>
+	<position x="80" y="40"/>
 	<column name="user_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -139,6 +139,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="employee_info">
 		<type name="json"/>
 	</column>
+	<column name="pg_role">
+		<type name="text"/>
+	</column>
+	<column name="is_local" default-value="FALSE">
+		<type name="boolean"/>
+	</column>
 	<constraint name="user_pk" type="pk-constr" table="grape.&quot;user&quot;">
 		<columns names="user_id" ref-type="src-columns"/>
 	</constraint>
@@ -152,7 +158,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="process" oids="true">
 	<schema name="grape"/>
-	<position x="1564" y="84"/>
+	<position x="1560" y="80"/>
 	<column name="process_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -184,7 +190,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule_log" oids="true">
 	<schema name="grape"/>
-	<position x="1381" y="304"/>
+	<position x="1380" y="300"/>
 	<column name="schedule_log_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -204,7 +210,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule" oids="true">
 	<schema name="grape"/>
-	<position x="977" y="36"/>
+	<position x="980" y="40"/>
 	<column name="schedule_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -338,7 +344,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_registry">
 	<schema name="grape"/>
-	<position x="587" y="991"/>
+	<position x="580" y="1000"/>
 	<column name="system_registry_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -364,7 +370,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_routing">
 	<schema name="grape"/>
-	<position x="923" y="992"/>
+	<position x="920" y="1000"/>
 	<column name="system_routing_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -381,7 +387,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_public_key">
 	<schema name="grape"/>
-	<position x="297" y="999"/>
+	<position x="300" y="1000"/>
 	<column name="system_registry_id" not-null="true">
 		<type name="integer"/>
 	</column>
@@ -395,7 +401,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_private">
 	<schema name="grape"/>
-	<position x="35" y="1001"/>
+	<position x="40" y="1000"/>
 	<column name="system_private_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -409,7 +415,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_type">
 	<schema name="grape"/>
-	<position x="1372" y="622"/>
+	<position x="1340" y="620"/>
 	<column name="processing_function" not-null="true">
 		<type name="text"/>
 	</column>
@@ -488,7 +494,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="reports_executed">
 	<schema name="grape"/>
-	<position x="463" y="724"/>
+	<position x="500" y="720"/>
 	<column name="reports_executed_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -505,6 +511,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="text"/>
 	</column>
 	<column name="result_table_name">
+		<type name="text"/>
+	</column>
+	<column name="result_filename">
 		<type name="text"/>
 	</column>
 	<column name="is_deleted" default-value="TRUE">
@@ -539,7 +548,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="session_history">
 	<schema name="grape"/>
-	<position x="521" y="147"/>
+	<position x="520" y="140"/>
 	<column name="session_id" not-null="true">
 		<type name="text"/>
 	</column>
