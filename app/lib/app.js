@@ -23,8 +23,6 @@ exports = module.exports = function(_o) {
 	var options = grapelib.options(_o);
 	app.set('config', options);
 
-
-
 	/**
 	 * Sets up database
 	 */
@@ -245,7 +243,10 @@ exports = module.exports = function(_o) {
 		if (req.header('X-SessionID'))
 			req.session_id = req.header('X-SessionID');
 
-		var accept = req.headers.accept.substring(0, req.headers.accept.indexOf(';'));
+		if (req.headers.accept)
+			var accept = req.headers.accept.substring(0, req.headers.accept.indexOf(';'));
+		else
+			accept = null;
 
 		logger.trace([req.ip, req.method, req.url, req.session_id, req.header('Content-Length'), accept].join(' '));
 
