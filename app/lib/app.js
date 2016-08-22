@@ -44,9 +44,12 @@ exports = module.exports = function(_o) {
 				app.get('logger').db(err);
 				app.get('logger').error(err);
 			});
-
-
+			
 			app.set('db', db);
+
+			var StaticData = require(__dirname + '/static_data.js');
+			var SD = new StaticData({db: db});
+			app.set('SD', SD);
 
 			//database connection for guest sessions. This might allow us to, in future, to specify a different DB username for guest sessions
 			var guest_db = new _db({

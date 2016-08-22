@@ -16,7 +16,6 @@ function db (_o) {
 
 	events.EventEmitter.call(this);
 
-	/** @type db */
 	var self = this;
 
 	var options = {
@@ -36,13 +35,19 @@ function db (_o) {
 		_.extend(options, _o);
 	}
 
-	self.options = options;
-	self.client = null;
-	self.state = 'close';
-	self.last_query_time = null;
-	self.query_counter = 0;
+	this.options = options;
+	this.client = null;
+	this.state = 'close';
+	this.last_query_time = null;
+	this.query_counter = 0;
 
-	self.connect = function() {
+	this.notification_callbacks = {};
+	this.notification_listener = false;
+	this.installed_channels = [];
+	this.pending_channels = [];
+
+
+	this.connect = function() {
 		
 		if (self.state == "connecting" || self.state == "open")
 		{
@@ -76,6 +81,7 @@ function db (_o) {
 			{
 				self.state = 'open';
 				self.emit('connected');
+				self.setup_notification_listener();
 			}
 
 		});
@@ -110,7 +116,7 @@ function db (_o) {
 
 	}
 
-	self.connect();
+	this.connect();
 
 	/*
 	 * Checks if connection can be closed.
@@ -119,7 +125,7 @@ function db (_o) {
 	 * 	- query_counter = 0
 	 * 	- last_query_time is more than timeout milliseconds ago
 	 */
-	self.checkTimeout = function() {
+	this.checkTimeout = function() {
 		if (!self.options.timeout)
 			return false;
 		if (!self.last_query_time)
@@ -140,9 +146,9 @@ function db (_o) {
 		return false;
 	};
 
-	if (self.options.timeout)
+	if (this.options.timeout)
 	{
-		self.timeoutTimer = setInterval(function() { 
+		this.timeoutTimer = setInterval(function() { 
 			if (self.checkTimeout() === true)
 			{
 				if (self.options.debug)
@@ -157,7 +163,7 @@ function db (_o) {
 	/**
 	 * Short hand function for client.query which also logs query information
 	 */
-	self.query = function(config, values, callback) {
+	this.query = function(config, values, callback) {
 		if (self.options.debug)
 			self.options.debug_logger('Query ' + config + ' ' + values.join(', '));
 
@@ -194,7 +200,7 @@ function db (_o) {
 	 * 	response - a node HTTP Response object. If it is provided the out of the function will be send to this HTTP response using res.jsonp
 	 *
 	 */ 
-	self.json_call =  function(name, input, callback, options) {
+	this.json_call =  function(name, input, callback, options) {
 		options = options || {};
 		var alias = name;
 		alias = alias.replace(/\./g, '');
@@ -231,6 +237,44 @@ function db (_o) {
 		else
 			result = self.query("SELECT " + name + "($1::JSON) AS " + alias, [JSON.stringify(input)], callback);
 		return result;
+	};
+
+	this.setup_notification_listener = function() {
+
+		if (self.state != 'open')
+			return;  // will have to wait for later
+
+		//only do it the first time
+		if (self.notification_listener == false)
+		{
+			self.client.on('notification', function(msg) {
+				var available = Object.keys(self.notification_callbacks);
+				if (available.indexOf(msg.channel) >= 0)
+				{
+					try {
+						(self.notification_callbacks[msg.channel])();
+					} catch (e) { }
+				}
+			});
+
+			self.notification_listener = true;
+		}
+		
+		if (self.pending_channels.length > 0)
+		{
+			self.pending_channels.forEach(function(channel) {
+				self.client.query("LISTEN " + channel);
+			});
+			self.installed_channels = self.installed_channels.concat(self.pending_channels);
+			self.pending_channels = [];
+		}
+
+	};
+
+	this.new_notify_handler = function(channel, handler) {
+		self.notification_callbacks[channel] = handler;
+		self.pending_channels.push(channel);
+		this.setup_notification_listener();
 	};
 };
 db.prototype.__proto__ = events.EventEmitter.prototype;

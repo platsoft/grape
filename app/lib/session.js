@@ -152,7 +152,6 @@ module.exports = function (app)
 					app.get('logger').db(err);
 					app.get('logger').error(err);
 				});
-
 			}
 		}
 

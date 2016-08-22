@@ -59,7 +59,7 @@ MessageSocket.prototype.processData = function(_buf) {
 		this._read_len = this._read_len + buf.length;
 		buf = buf.slice(buf.length);
 	}
-	else //we got more than what we need, so the buffer probably contains the next message as well
+	else //we got more than what we need, so the buffer probably contains the next message (or part of it) as well
 	{
 		buf.copy(this._buffer, this._read_len, 0, left);
 		this._read_len = this._read_len + left;

@@ -92,6 +92,8 @@ BEGIN
 			rec.email AS "email",
 			rec.employee_guid AS "employee_guid"
 		) a;
+	
+	NOTIFY 'new_session', _ret::TEXT;
 
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
@@ -114,6 +116,9 @@ BEGIN
 		VALUES (_rec.session_id, _rec.ip_address, _rec.user_id, _rec.date_inserted, _rec.last_activity, CURRENT_TIMESTAMP);
 
 	DELETE FROM grape."session" WHERE session_id=_session_id::TEXT;
+	
+	NOTIFY 'logout', _session_id::TEXT;
+
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;
 

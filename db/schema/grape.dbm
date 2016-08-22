@@ -142,8 +142,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="pg_role">
 		<type name="text"/>
 	</column>
-	<column name="is_local" default-value="FALSE">
+	<column name="local_only" default-value="FALSE">
 		<type name="boolean"/>
+		<comment><![CDATA[If this is true, this user will not be linked to any external systems]]></comment>
 	</column>
 	<constraint name="user_pk" type="pk-constr" table="grape.&quot;user&quot;">
 		<columns names="user_id" ref-type="src-columns"/>

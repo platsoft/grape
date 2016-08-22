@@ -5,7 +5,7 @@ The following options are recognized in the config passed to Grape:
 
 <table>
 	<thead>
-		<th width="25%">Name</th><th width="40%">Description</th><th width="30%">Default value</th>
+		<th width="25%">Name</th><th width="40%">Description</th><th width="35%">Default value</th>
 	</thead>
 	<tr><td>dburi</td><td>DB connection settings</td><td></td></tr>
 	<tr><td>guest_dburi</td><td>DB connection settings for guest users</td><td></td></tr>
@@ -23,11 +23,11 @@ The following options are recognized in the config passed to Grape:
 	<tr><td>use_https</td><td>Enable or disable HTTPS. sslkey and sslcert need to be set up correctly</td><td>false</td></tr>
 	<tr><td>session_management</td><td>Enable or disable session management</td><td>true</td></tr>
 	<tr><td>use_https</td><td></td><td></td></tr>
-	<tr><td>smtp</td><td></td><td></td></tr>
+	<tr><td>smtp</td><td>SMTP settings for GrapeMailer</td><td></td></tr>
 	<tr><td>server_timeout</td><td>The number of milliseconds of inactivity before a socket is presumed to have timed out</td><td>50000</td></tr>
 	<tr><td>sslkey</td><td>Path to private SSL key file</td><td>__dirname + '/cert/private.pem'</td></tr>
 	<tr><td>sslcert</td><td>Path to private SSL public certificate</td><td>__dirname + '/cert/public_nopass.pem'</td></tr>
 	<tr><td>hr_system</td><td>URL to get access to the Bordeaux system running on Savanna HR system</td><td>https://192.168.50.86:3999/</td></tr>
-	<tr><td>email_template_directory</td><td>Path to email templates</td><td>__dirname + '/email_templates'</td></tr>
+	<tr><td>email_template_directory</td><td>Path to email templates (See GrapeMailer for more information)</td><td>__dirname + '/email_templates'</td></tr>
 </table>
 </ps_doc>

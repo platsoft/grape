@@ -65,5 +65,7 @@
 - Several security improvements when serving public files
 - Moved all functions in gutils to object (instead of the prototype)
 - Bumped versions of pg, express, body-parser, libxmljs, async
+- Easy installer for DB notifications using new_notify_handler(channel, handler_callback)
+- Static data manager
 
 
