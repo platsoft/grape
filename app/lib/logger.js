@@ -77,8 +77,8 @@ logger.prototype.getWriteStream = function(level) {
 		var symlinkname = [this.options.log_directory, '/', level, '-current.log'].join('');
 		try {
 			fs.unlinkSync(symlinkname);
+			fs.symlinkSync(fname, symlinkname);
 		} catch (e) { }
-		fs.symlinkSync(fname, symlinkname);
 	}
 
 	return this.streams[level];
