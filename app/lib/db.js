@@ -145,7 +145,9 @@ function db (_o) {
 		self.timeoutTimer = setInterval(function() { 
 			if (self.checkTimeout() === true)
 			{
-				console.log("Idle timeout on session [" + self.options.session_id + "]");
+				if (debug)
+					self.options.debug_logger("Idle timeout on session [" + self.options.session_id + "]");
+
 				clearInterval(self.timeoutTimer);
 				self.client.end();
 			}
@@ -160,7 +162,8 @@ function db (_o) {
 			self.options.debug_logger('Query ' + config + ' ' + values.join(', '));
 
 		self.query_counter++;
-		console.log("Query counter [" + self.options.session_id + "]: " + self.query_counter);
+		if (debug)
+			self.options.debug_logger("Query counter [" + self.options.session_id + "]: " + self.query_counter);
 
 		self.last_query_time = new Date();
 
@@ -169,11 +172,13 @@ function db (_o) {
 		qry.on('error', function(err) { 
 			self.emit('error', err);
 			self.query_counter--;
-			console.log("Query counter [" + self.options.session_id + "]: " + self.query_counter);
+			if (debug)
+				self.options.debug_logger("Query counter [" + self.options.session_id + "]: " + self.query_counter);
 		});
 		qry.on('end', function(err, result) {
 			self.query_counter--;
-			console.log("Query counter [" + self.options.session_id + "]: " + self.query_counter);
+			if (debug)
+				self.options.debug_logger("Query counter [" + self.options.session_id + "]: " + self.query_counter);
 		});
 
 		return qry;
