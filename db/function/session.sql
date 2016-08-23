@@ -116,7 +116,7 @@ BEGIN
 
 	DELETE FROM grape."session" WHERE session_id=_session_id::TEXT;
 
-	NOTIFY 'logout', _session_id::TEXT;
+	PERFORM pg_notify('logout', _session_id::TEXT);
 
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;

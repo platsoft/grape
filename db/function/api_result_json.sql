@@ -1,4 +1,5 @@
 
+DROP TYPE IF EXISTS grape.grape_result_type CASCADE;
 CREATE TYPE grape.grape_result_type AS
 (
 	success BOOLEAN,
