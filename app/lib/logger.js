@@ -65,8 +65,6 @@ var logger = function(opts) {
 	};
 
 
-
-
 	this.info = function() {
 		var args = ['info'].concat(self._join_args(arguments));
 		self.log.apply(self, args);
@@ -148,8 +146,8 @@ var logger = function(opts) {
 		if (process.stdout.isTTY)
 		{
 			console.log(
-					self.channel_tty_colors[channel] + streamname + "\033[0m: " + 
-					self.level_tty_colors[level] + message + "\033[0m");
+					self.channel_tty_colors[channel] + channel + "\033[0m " + 
+					self.level_tty_colors[level] + level + ": " + message + "\033[0m");
 		}
 		self.logToStream('all', streamname + ": " + message);
 		self.logToStream(streamname, message);
