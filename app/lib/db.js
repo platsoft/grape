@@ -287,7 +287,7 @@ function db (_o) {
 				if (available.indexOf(msg.channel) >= 0)
 				{
 					try {
-						(self.notification_callbacks[msg.channel])();
+						(self.notification_callbacks[msg.channel])(msg.payload);
 					} catch (e) { }
 				}
 			});
