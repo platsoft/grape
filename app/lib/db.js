@@ -177,9 +177,9 @@ function db (_o) {
 	/**
 	 * Short hand function for client.query which also logs query information
 	 */
-	this.query = function(config, values, callback) {
+	this.query = function(_qry_config, values, callback) {
 		if (self.options.debug)
-			self.emit('debug', 'Query ' + config + ' ' + values.join(', '));
+			self.emit('debug', 'Query ' + _qry_config + ' ' + values.join(', '));
 
 		self.query_counter++;
 		if (self.options.debug)
@@ -187,7 +187,7 @@ function db (_o) {
 
 		self.last_query_time = new Date();
 
-		var qry = self.client.query(config, values);
+		var qry = self.client.query(_qry_config, values);
 
 		if (callback)
 		{
