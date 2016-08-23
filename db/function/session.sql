@@ -1,15 +1,14 @@
-
 /**
  * Given username, password and ip_address
- * 
- * status = ERROR 
+ *
+ * status = ERROR
  * code 1 = No such user
  * code 2 = Wrong password
  * code 3 = User is inactive
  *
  * On success: status = OK
  * and following fields: session_id, user_id, username and user_roles
- * 
+ *
  * Setting passwords_hashed is used to decide if passwords are hashed or not
  */
 CREATE OR REPLACE FUNCTION grape.session_insert (JSON) RETURNS JSON AS $$
@@ -38,7 +37,7 @@ BEGIN
 		RAISE DEBUG 'User % login failed. No such user', _user;
 		RETURN grape.api_result_error('No such user', 1);
 	END IF;
-	
+
 	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
 
 		IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
@@ -63,9 +62,9 @@ BEGIN
 	_found = TRUE;
 	WHILE _found = TRUE LOOP
 		_session_id := grape.random_string(15);
-		IF 
-			EXISTS (SELECT session_id FROM grape."session" WHERE session_id=_session_id::TEXT) 
-			OR EXISTS (SELECT session_id FROM grape."session_history" WHERE session_id=_session_id::TEXT) 
+		IF
+			EXISTS (SELECT session_id FROM grape."session" WHERE session_id=_session_id::TEXT)
+			OR EXISTS (SELECT session_id FROM grape."session_history" WHERE session_id=_session_id::TEXT)
 		THEN
 			_found := TRUE;
 		ELSE
@@ -92,8 +91,8 @@ BEGIN
 			rec.email AS "email",
 			rec.employee_guid AS "employee_guid"
 		) a;
-	
-	NOTIFY 'new_session', _ret::TEXT;
+
+	PERFORM pg_notify('new_session', _ret::TEXT);
 
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
@@ -116,7 +115,7 @@ BEGIN
 		VALUES (_rec.session_id, _rec.ip_address, _rec.user_id, _rec.date_inserted, _rec.last_activity, CURRENT_TIMESTAMP);
 
 	DELETE FROM grape."session" WHERE session_id=_session_id::TEXT;
-	
+
 	NOTIFY 'logout', _session_id::TEXT;
 
 	RETURN grape.api_success();
@@ -129,8 +128,8 @@ DECLARE
 BEGIN
 	_session_id := $1->>'session_id';
 
-	SELECT s.session_id, u.username, s.user_id, u.fullnames, u.email, u.employee_guid, NULL::TEXT[] AS "user_roles" INTO _rec FROM 
-		grape."session" s 
+	SELECT s.session_id, u.username, s.user_id, u.fullnames, u.email, u.employee_guid, NULL::TEXT[] AS "user_roles" INTO _rec FROM
+		grape."session" s
 		JOIN grape."user" u USING (user_id)
 		WHERE s.session_id=_session_id::TEXT;
 
@@ -142,4 +141,3 @@ BEGIN
 
 	RETURN grape.api_success(to_json(_rec));
 END; $$ LANGUAGE plpgsql;
-
