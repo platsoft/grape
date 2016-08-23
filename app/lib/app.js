@@ -35,34 +35,40 @@ exports = module.exports = function(_o) {
 			var db = new _db({
 				dburi: options.dburi,
 				debug: options.debug,
-				session_id: null,
-				debug_logger: function(s) { app.get('logger').db(s); },
-				error_logger: function(s) { app.get('logger').db(s); }
+				session_id: 'default'
 			});
 
 			db.on('error', function(err) {
-				app.get('logger').db(err);
-				app.get('logger').error(err);
+				app.get('logger').log('db', 'error', err);
 			});
+
+			db.on('debug', function(msg) {
+				app.get('logger').log('db', 'debug', msg);
+			});
+
 			
 			app.set('db', db);
 
+			/*
 			var StaticData = require(__dirname + '/static_data.js');
 			var SD = new StaticData({db: db});
 			app.set('SD', SD);
+			*/
 
 			//database connection for guest sessions. This might allow us to, in future, to specify a different DB username for guest sessions
 			var guest_db = new _db({
 				dburi: options.guest_dburi || options.dburi,
 				debug: options.debug,
-				session_id: null,
-				debug_logger: function(s) { app.get('logger').db(s); },
-				error_logger: function(s) { app.get('logger').db(s); }
+				session_id: 'guest',
+				debug_logger: function(s) { app.get('logger').db(s); }
 			});
 
 			guest_db.on('error', function(err) {
-				app.get('logger').db(err);
-				app.get('logger').error(err);
+				app.get('logger').log('db', 'error', err);
+			});
+			
+			guest_db.on('debug', function(msg) {
+				app.get('logger').log('db', 'debug', msg);
 			});
 
 			app.set('guest_db', guest_db);
@@ -79,8 +85,6 @@ exports = module.exports = function(_o) {
 		if (relativedirname[relativedirname.length - 1] != '/') relativedirname += '/';
 
 		if (dirname[dirname.length - 1] != '/') dirname += '/';
-
-		//app.get('logger').info('Loading api(s) from: ' + relativedirname);
 
 		if (options.api_ignore.indexOf(relativedirname) != -1)
 		{
@@ -99,8 +103,12 @@ exports = module.exports = function(_o) {
 				if (ar[ar.length - 1] == 'js' && options.api_ignore.indexOf(file) === -1)
 				{
 					// loads the api module and execute the export function with the app param.
-					require(dirname + file)(app);
-					app.get('logger').info("Loaded " + relativedirname + file);
+					try {
+						require(dirname + file)(app);
+						app.get('logger').info('api', "Loaded API file " + relativedirname + file);
+					} catch (e) {
+						app.get('logger').error('api', "Failed to load API file " + relativedirname + file);
+					}
 				}
 			}
 			else if (fstat.isDirectory())
@@ -135,7 +143,7 @@ exports = module.exports = function(_o) {
 					// loads the api module and execute the export function with the app param.
 					data += '// JAVASCRIPT FILE ' + dirname + file + "\n";
 					data += fs.readFileSync(dirname + file);
-					app.get('logger').info("Loaded " + relativedirname + file);
+					app.get('logger').info('app', "Loaded public JS file " + relativedirname + file);
 				}
 			}
 			else if (fstat.isDirectory())
@@ -251,7 +259,7 @@ exports = module.exports = function(_o) {
 		else
 			accept = null;
 
-		logger.trace([req.ip, req.method, req.url, req.session_id, req.header('Content-Length'), accept].join(' '));
+		logger.log('app', 'trace', [req.ip, req.method, req.url, req.session_id, req.header('Content-Length'), accept].join(' '));
 
 		// if first character of path is a . return error
 		if (req.path[0] == '.')
@@ -312,7 +320,7 @@ exports = module.exports = function(_o) {
 
 	// Load built-in API calls
 	var builtin_api_dir = __dirname + '/../api/';
-	logger.info("Loading built-in API calls from " + builtin_api_dir);
+	logger.info('api', "Loading built-in API calls from " + builtin_api_dir);
 	loadapifiles(builtin_api_dir, '');
 
 	if (options.api_directories)
@@ -325,7 +333,9 @@ exports = module.exports = function(_o) {
 	function start()
 	{
 		var options = app.get('config');
-		logger.info('Starting application (pid ' + process.pid + ') with options: ' + util.inspect(options));
+		logger.info('app', 'Starting application (pid ' + process.pid + ')');
+		logger.debug('app', 'Starting with options: ' + util.inspect(options));
+
 		if (options.use_https && options.use_https === true)
 		{
 			var https = require('https');

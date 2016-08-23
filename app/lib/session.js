@@ -54,7 +54,6 @@ module.exports = function (app)
 			return;
 		}
 
-
 		/* 
  		* handles the result of a session check. 
 		* ret must have a result_code (0 for success), user_id and session_id
@@ -129,9 +128,7 @@ module.exports = function (app)
 					session_id: session_id,
 					user_id: user_id,
 					timeout: 10000,
-					debug: app.get('config').debug,
-					debug_logger: function(s) { app.get('logger').db(s); },
-					error_logger: function(s) { app.get('logger').db(s); }
+					debug: app.get('config').debug
 				});
 
 				dbs[session_id] = db;
@@ -149,8 +146,10 @@ module.exports = function (app)
 					}
 				});
 				db.on('error', function(err) {
-					app.get('logger').db(err);
-					app.get('logger').error(err);
+					app.get('logger').log('db', 'error', err);
+				});
+				db.on('debug', function(msg) {
+					app.get('logger').log('db', 'debug', msg);
 				});
 			}
 		}
@@ -158,7 +157,7 @@ module.exports = function (app)
 
 		function check_session_path_in_database (session_id, path, method, cb)
 		{
-			app.get('logger').session('Checking path ' + path + ' against session ' + session_id);
+			app.get('logger').session('info', 'Checking path ' + path + ' against session ' + session_id);
 			db.query('SELECT * FROM grape.check_session_access($1, $2, $3)', [session_id, path, method], function(err, result) {
 				if (err)
 				{
@@ -204,7 +203,6 @@ module.exports = function (app)
 				}
 				else
 				{
-					console.log("FOUND THIS QUERY IN CACHE");
 					handle_session_check(message.v);
 				}
 			});

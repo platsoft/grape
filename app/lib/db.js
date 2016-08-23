@@ -23,8 +23,8 @@ function db (_o) {
 		debug: false, 
 		session_id: null,
 		user_id: null,
-		timeout: null,
-		debug_logger: function(s) { console.log(s); }
+		username: null,
+		timeout: null
 	};
 	if (typeof _o == 'string')
 	{
@@ -46,18 +46,17 @@ function db (_o) {
 	this.installed_channels = [];
 	this.pending_channels = [];
 
-
 	this.connect = function() {
 		
 		if (self.state == "connecting" || self.state == "open")
 		{
 			if (self.options.debug)
-				self.options.debug_logger("Already open or busy connecting...");
+				self.emit('debug', "Connect function called but I am already open or busy connecting...");
 			return;
 		}
 
 		if (self.options.debug)
-			self.options.debug_logger("Connecting to " + util.inspect(options.dburi) + " for session [" + self.options.session_id + "]");
+			self.emit('debug', "Connecting to " + util.inspect(options.dburi) + " for session [" + self.options.session_id + "]");
 		self.client = new pg.Client(options.dburi);
 		self.state = 'connecting';
 
@@ -94,16 +93,25 @@ function db (_o) {
 
 			var str = ['Notice ', msg.severity, ':', msg.message, msg.where].join(' ');
 			if (self.options.debug)
-				self.options.debug_logger(str);
+				self.emit('debug', str); 
 		});
 
 		self.client.on('error', function(msg) {
 			self.state = 'error';
 
+			self.query_counter--;
+			if (self.options.debug)
+			{
+				self.emit('debug', "Database error [" + self.options.session_id + "]:" + util.inspect(msg));
+				self.emit('debug', "Query counter [" + self.options.session_id + "]: " + self.query_counter);
+			}
+
+
 			if (msg.where && msg.where != '')
 				msg.where = ' at ' + msg.where;
-			
+
 			self.emit('error', msg);
+
 		});
 
 		self.client.on('end', function() {
@@ -112,6 +120,12 @@ function db (_o) {
 				session_id: self.options.session_id, 
 				user_id: self.options.user_id
 			});
+
+			if (self.options.debug)
+			{
+				self.emit('debug', "Database end [" + self.options.session_id + "]");
+			}
+
 		});
 
 	}
@@ -152,7 +166,7 @@ function db (_o) {
 			if (self.checkTimeout() === true)
 			{
 				if (self.options.debug)
-					self.options.debug_logger("Idle timeout on session [" + self.options.session_id + "]");
+					self.emit('debug', "Idle timeout on session [" + self.options.session_id + "]");
 
 				clearInterval(self.timeoutTimer);
 				self.client.end();
@@ -165,27 +179,39 @@ function db (_o) {
 	 */
 	this.query = function(config, values, callback) {
 		if (self.options.debug)
-			self.options.debug_logger('Query ' + config + ' ' + values.join(', '));
+			self.emit('debug', 'Query ' + config + ' ' + values.join(', '));
 
 		self.query_counter++;
 		if (self.options.debug)
-			self.options.debug_logger("Query counter [" + self.options.session_id + "]: " + self.query_counter);
+			self.emit('debug', "Query counter [" + self.options.session_id + "]: " + self.query_counter);
 
 		self.last_query_time = new Date();
 
-		var qry = self.client.query(config, values, callback);
+		var qry = self.client.query(config, values);
 
-		qry.on('error', function(err) { 
-			self.emit('error', err);
-			self.query_counter--;
-			if (self.options.debug)
-				self.options.debug_logger("Query counter [" + self.options.session_id + "]: " + self.query_counter);
-		});
-		qry.on('end', function(err, result) {
-			self.query_counter--;
-			if (self.options.debug)
-				self.options.debug_logger("Query counter [" + self.options.session_id + "]: " + self.query_counter);
-		});
+		if (callback)
+		{
+			qry.on('row', function(row, result) {
+				result.addRow(row);
+			});
+
+			qry.on('error', function(err) { 
+				self.emit('error', err);
+				self.query_counter--;
+				if (self.options.debug)
+					self.emit('debug', "Query counter [" + self.options.session_id + "]: " + self.query_counter);
+
+				callback(err, null);
+			});
+
+			qry.on('end', function(result) {
+				self.query_counter--;
+				if (self.options.debug)
+					self.emit('debug', "Query counter [" + self.options.session_id + "]: " + self.query_counter);
+				
+				callback(null, result);
+			});
+		}
 
 		return qry;
 	};
@@ -198,13 +224,17 @@ function db (_o) {
 	 * @param callback Callback function taking 2 parameters, error and result. Rows are accessible through result.rows. If it is provided, options.response will be ignored
 	 * @param options can contain the following members:
 	 * 	response - a node HTTP Response object. If it is provided the out of the function will be send to this HTTP response using res.jsonp
+	 * 	rows - if true the query will expect a SETOF return
 	 *
 	 */ 
-	this.json_call =  function(name, input, callback, options) {
-		options = options || {};
+	this.json_call =  function(name, input, _callback, options) {
+		options = options || { rows: false, single: false };
 		var alias = name;
 		alias = alias.replace(/\./g, '');
 
+		var callback = _callback;
+
+		// response is the express response object to return the result to
 		if (!callback && options.response)
 		{
 			alias = 'r';
@@ -217,7 +247,7 @@ function db (_o) {
 						'status': 'ERROR',
 						'message': err.toString(),
 						'code': -99,
-						error: err
+						'error': err
 					};
 
 					res.jsonp(error_object);
@@ -229,14 +259,15 @@ function db (_o) {
 		}
 
 		if (self.options.debug)
-			self.options.debug_logger('DB JSON ' + name + ' ' + JSON.stringify(input));
+			self.emit('debug', 'DB SELECT ' + name + " ('" + JSON.stringify(input) + "'::JSON) AS " + alias);
 
-		var result;
+		var qry;
 		if (options.rows)
-			result = self.query("SELECT * FROM " + name + "($1::JSON) AS " + alias, [JSON.stringify(input)], callback);
+			qry = self.query("SELECT * FROM " + name + "($1::JSON) AS " + alias, [JSON.stringify(input)], callback);
 		else
-			result = self.query("SELECT " + name + "($1::JSON) AS " + alias, [JSON.stringify(input)], callback);
-		return result;
+			qry = self.query("SELECT " + name + "($1::JSON) AS " + alias, [JSON.stringify(input)], callback);
+
+		return qry;
 	};
 
 	this.setup_notification_listener = function() {
