@@ -33,7 +33,8 @@ var logger = function(opts) {
 	this.levels = ['debug', 'info', 'warn', 'error', 'trace'];
 	this.channels = ['api', 'app', 'session', 'db', 'comms'];
 
-	this.level_tty_colors = {'debug': '', 'info': '', 'warn': '', 'error': '', 'trace': ''};
+	this.level_tty_colors = {'debug': "\033[35m", 'info': "\033[32m", 'warn': "\033[33m", 'error': "\033[31m", 'trace': "\033[36m"};
+	this.channel_tty_colors = {'api': "\033[42m", 'app': "\033[43m", 'session': "\033[47m", 'db': "\033[45m", 'comms': "\033[46m"};
 
 	this._join_args = function(args, skip) {
 		var ret = [];
@@ -50,6 +51,21 @@ var logger = function(opts) {
 		var args = ['db'].concat(self._join_args(arguments));
 		self.log.apply(self, args);
 	};
+	this.app = function() {
+		var args = ['app'].concat(self._join_args(arguments));
+		self.log.apply(self, args);
+	};
+	this.api = function() {
+		var args = ['api'].concat(self._join_args(arguments));
+		self.log.apply(self, args);
+	};
+	this.comms = function() {
+		var args = ['comms'].concat(self._join_args(arguments));
+		self.log.apply(self, args);
+	};
+
+
+
 
 	this.info = function() {
 		var args = ['info'].concat(self._join_args(arguments));
@@ -131,7 +147,9 @@ var logger = function(opts) {
 
 		if (process.stdout.isTTY)
 		{
-			console.log(streamname + ": " + message);
+			console.log(
+					self.channel_tty_colors[channel] + streamname + "\033[0m: " + 
+					self.level_tty_colors[level] + message + "\033[0m");
 		}
 		self.logToStream('all', streamname + ": " + message);
 		self.logToStream(streamname, message);
