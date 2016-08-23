@@ -9,4 +9,5 @@ module.exports.hexavigesimal = require('./lib/hexavigesimal');
 module.exports.document_store = require('./lib/document_store');
 module.exports.options = require('./lib/options');
 module.exports.logger = require('./lib/logger');
+module.exports.grapemailer = require('./lib/grapemailer');
 
