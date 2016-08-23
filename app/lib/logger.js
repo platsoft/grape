@@ -30,8 +30,10 @@ var logger = function(opts) {
 	var streams = new Object();
 	this.streams = streams;
 
-	this.levels = ['debug', 'info', 'warn', 'error'];
+	this.levels = ['debug', 'info', 'warn', 'error', 'trace'];
 	this.channels = ['api', 'app', 'session', 'db', 'comms'];
+
+	this.level_tty_colors = {'debug': '', 'info': '', 'warn': '', 'error': '', 'trace': ''};
 
 	this._join_args = function(args, skip) {
 		var ret = [];
