@@ -112,6 +112,10 @@ function db (_o) {
 
 			self.emit('error', msg);
 
+			if (msg.code == '57P01')
+			{
+				self.client.end();
+			}
 		});
 
 		self.client.on('end', function() {

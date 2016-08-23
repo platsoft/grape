@@ -129,7 +129,7 @@ $$ LANGUAGE sql;
  * Returns a username for fullnames
  */
 CREATE OR REPLACE FUNCTION grape.username_from_fullnames(_fullnames TEXT) RETURNS TEXT AS $$
-        SELECT username FROM grape."user" WHERE fullnames=_fullnames::TEXT;
+        SELECT username FROM grape."user" WHERE LOWER(fullnames)=LOWER(_fullnames)::TEXT;
 $$ LANGUAGE sql;
 
 

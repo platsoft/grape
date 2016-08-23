@@ -46,6 +46,12 @@ exports = module.exports = function(_o) {
 				app.get('logger').log('db', 'debug', msg);
 			});
 
+			db.on('end', function() {
+				app.get('logger').log('db', 'info', 'Database disconnected. Restarting');
+				db.connect();
+			});
+
+
 			
 			app.set('db', db);
 
@@ -69,7 +75,14 @@ exports = module.exports = function(_o) {
 			
 			guest_db.on('debug', function(msg) {
 				app.get('logger').log('db', 'debug', msg);
+
 			});
+
+			guest_db.on('end', function() {
+				app.get('logger').log('db', 'info', 'Guest db conn disconnected. Restarting');
+				guest_db.connect();
+			});
+
 
 			app.set('guest_db', guest_db);
 		}
