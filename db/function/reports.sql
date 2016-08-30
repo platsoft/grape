@@ -129,6 +129,33 @@ BEGIN
 	RETURN _result;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.execute_report_to_file (_report_id INTEGER, _reports_executed_id INTEGER, _parameters JSON) RETURNS JSON AS $$
+DECLARE
+	_sql TEXT;
+	_report RECORD;
+	_result JSON;
+	
+	_function_info RECORD;
+
+	_dtype TEXT;
+	_filename TEXT;
+BEGIN
+	SELECT * INTO _report FROM grape.report WHERE report_id=_report_id::INTEGER;
+	
+	SELECT * FROM information_schema.routines INTO _function_info WHERE routine_schema=_report.function_schema AND routine_name=_report.function_name;
+
+	_dtype := LOWER(_function_info.data_type);
+
+	_filename := CONCAT('/tmp/report_', _report_id, '_', _reports_executed_id, '.csv');
+
+	_sql := CONCAT('COPY (SELECT * FROM ', quote_ident(_report.function_schema), '.', quote_ident(_report.function_name), '(', quote_literal(_parameters), '::JSON)) TO ', quote_literal(_filename), ' WITH HEADER CSV');
+
+	EXECUTE _sql USING _parameters;
+
+	RETURN json_build_object('filename', _filename);
+END; $$ LANGUAGE plpgsql;
+
+
 /**
  * JSON object needs name field (with report name) and optional JSON params
  */
@@ -137,6 +164,8 @@ DECLARE
 	_name TEXT;
 	_report_id INTEGER;
 	_parameters JSON;
+	_destination TEXT;
+	_reports_executed_id INTEGER;
 BEGIN
 	IF json_extract_path($1, 'name') IS NOT NULL THEN
 		_name := $1->>'name';
@@ -150,7 +179,21 @@ BEGIN
 	ELSE
 		_parameters := $1->'params';
 	END IF;
-	RETURN grape.execute_report(_report_id, _parameters);
+
+	IF json_extract_path ($1, 'destination') IS NOT NULL THEN
+		_destination := $1->>'destination';
+	END IF;
+
+	IF _destination = 'file' THEN
+		INSERT INTO grape.reports_executed(report_id, user_id, date_inserted, result_filename, input_fields)
+		       	VALUES (_report_id, grape.current_user_id(), CURRENT_TIMESTAMP, $1->>'filename', _parameters) 
+			RETURNING reports_executed_id INTO _reports_executed_id;
+
+		RETURN grape.execute_report_to_file(_report_id, _reports_executed_id, _parameters);
+	ELSE
+		RETURN grape.execute_report(_report_id, _parameters);
+	END IF;
+
 END; $$ LANGUAGE plpgsql;
 
 

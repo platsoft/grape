@@ -14,6 +14,7 @@ The following options are recognized in the config passed to Grape:
 	<tr><td>sql_dirs</td><td>Array containing directories with DB definitions. All subdirectories will be recursively read</td><td></td></tr>
 	<tr><td>pg_temp_directory</td><td>Path to a directory to which PostgreSQL has write access</td><td></td></tr>
 	<tr><td>port</td><td>Port on which the UI will be available</td><td></td></tr>
+	<tr><td>http_port</td><td>If this is set, and HTTPS is enabled (use_https), then a normal HTTP server wil listen on this port</td><td></td></tr>
 	<tr><td>public_directory</td><td>Directory containing public files</td><td></td></tr>
 	<tr><td>public_directories</td><td>List of directories containing public files</td><td></td></tr>
 	<tr><td>debug</td><td></td><td>true</td></tr>

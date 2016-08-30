@@ -105,11 +105,13 @@ CREATE TABLE grape."user"(
 	employee_guid uuid,
 	employee_info json,
 	pg_role text,
-	is_local boolean DEFAULT FALSE,
+	local_only boolean DEFAULT FALSE,
 	CONSTRAINT user_pk PRIMARY KEY (user_id),
 	CONSTRAINT username_uq UNIQUE (username)
 
 );
+-- ddl-end --
+COMMENT ON COLUMN grape."user".local_only IS 'If this is true, this user will not be linked to any external systems';
 -- ddl-end --
 
 -- object: grape.process | type: TABLE --
@@ -120,6 +122,7 @@ CREATE TABLE grape.process(
 	description text,
 	param json,
 	process_type text,
+	function_schema text,
 	CONSTRAINT process_pk PRIMARY KEY (process_id),
 	CONSTRAINT process_uq UNIQUE (pg_function)
 
@@ -365,6 +368,21 @@ CREATE TABLE grape.session_history(
 	last_activity timestamptz,
 	date_logout timestamptz,
 	CONSTRAINT session_history_pk PRIMARY KEY (session_id)
+
+);
+-- ddl-end --
+
+-- object: grape.table_view | type: TABLE --
+-- DROP TABLE IF EXISTS grape.table_view CASCADE;
+CREATE TABLE grape.table_view(
+	table_view_id serial NOT NULL,
+	table_name text,
+	table_schema text,
+	columns jsonb,
+	settings jsonb,
+	primary_key_column text,
+	onclick_url text,
+	CONSTRAINT table_view_pk PRIMARY KEY (table_view_id)
 
 );
 -- ddl-end --

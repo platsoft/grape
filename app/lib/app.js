@@ -349,6 +349,8 @@ exports = module.exports = function(_o) {
 		logger.info('app', 'Starting application (pid ' + process.pid + ')');
 		logger.debug('app', 'Starting with options: ' + util.inspect(options));
 
+		var http_port = false;
+
 		if (options.use_https && options.use_https === true)
 		{
 			var https = require('https');
@@ -360,15 +362,23 @@ exports = module.exports = function(_o) {
 			var server = https.createServer({key: privateKey, cert: certificate}, app).listen(options.port);
 
 			logger.info('SSL listening on ' + options.port);
+
+			if (options.http_port)
+				http_port = options.http_port;
 		}
 		else
 		{
+			http_port = options.port;
+		}
+
+		if (http_port)
+		{
 			var http = require('http');
 			http.globalAgent.maxSockets = options.maxsockets || DEFAULT_MAXSOCKETS;
-			var server = app.listen(options.port);
+			var server = app.listen(http_port);
 			server.timeout = options.server_timeout;
 
-			logger.info('Listening on ' + options.port);
+			logger.info('HTTP listening on ' + http_port);
 		}
 	}
 

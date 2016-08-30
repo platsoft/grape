@@ -8,6 +8,7 @@ exports = module.exports = function(_o) {
 		api_directory: false,
 		api_ignore: [], //files to ignore when loading api files
 		port: 3000,
+		http_port: false,
 		public_directory: false,
 		debug: false,
 		instances: 1,

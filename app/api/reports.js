@@ -27,7 +27,7 @@ exports = module.exports = function(_app) {
 /**
  * @desc Execute a report
  * @method POST
- * @url /grape/report/save
+ * @url /grape/execute_report
  * @body JSON object containing fields:
  * { 
  * 	report_id INTEGER Report ID to execute optional
@@ -60,6 +60,9 @@ function api_save_report(req, res)
 function api_execute_report(req, res)
 {
 	var obj;
+	var destination = '';
+	var DS = app.get('document_store');
+	
 	if (req.method == 'GET')
 	{
 		obj = {};
@@ -84,6 +87,13 @@ function api_execute_report(req, res)
 
 		if (req.body.parameters)
 			obj['params'] = req.body.parameters;
+		else if (req.body.params)
+			obj['params'] = req.body.params;
+		
+		if (req.body.destination)
+		{
+			destination = req.body.destination;
+		}
 	}
 	else
 	{
@@ -92,6 +102,20 @@ function api_execute_report(req, res)
 		return;
 	}
 
-	res.locals.db.json_call('grape.execute_report', obj, null, {response: res});
+	if (destination == '')
+	{
+		res.locals.db.json_call('grape.execute_report', obj, null, {response: res});
+	}
+	else if (destination == 'file')
+	{
+		obj.pg_temp_directory = app.get('config').pg_temp_directory;
+		obj.destination = 'file';
+		var output_directory = DS.getDirectory('reports/' + req.params.reportname);
+		var filename = output_directory;
+
+		res.locals.db.json_call('grape.execute_report', obj, function(err, res) {
+			
+		}); 
+	}
 }
 

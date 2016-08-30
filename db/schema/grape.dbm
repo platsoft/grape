@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.2" last-position="0,0" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.2" last-position="0,792" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -175,6 +175,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="process_type">
 		<type name="text"/>
 		<comment><![CDATA[PG_FUNCTION; COMMAND]]></comment>
+	</column>
+	<column name="function_schema">
+		<type name="text"/>
 	</column>
 	<constraint name="process_pk" type="pk-constr" table="grape.process">
 		<columns names="process_id" ref-type="src-columns"/>
@@ -570,6 +573,35 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<constraint name="session_history_pk" type="pk-constr" table="grape.session_history">
 		<columns names="session_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="table_view">
+	<schema name="grape"/>
+	<position x="1240" y="800"/>
+	<column name="table_view_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="table_name">
+		<type name="text"/>
+	</column>
+	<column name="table_schema">
+		<type name="text"/>
+	</column>
+	<column name="columns">
+		<type name="jsonb"/>
+	</column>
+	<column name="settings">
+		<type name="jsonb"/>
+	</column>
+	<column name="primary_key_column">
+		<type name="text"/>
+	</column>
+	<column name="onclick_url">
+		<type name="text"/>
+	</column>
+	<constraint name="table_view_pk" type="pk-constr" table="grape.table_view">
+		<columns names="table_view_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
