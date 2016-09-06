@@ -6,10 +6,10 @@ var _ = require('underscore');
 
 function GrapeMailer(_o) 
 {
-	var transporter;
 	var self = this;
-	var app_config = _o;
-	var error = null;
+	self.app_config = _o;
+	self.error = null;
+	self.transporter = null;
 
 	/* 
 	 * 0 = success
@@ -120,7 +120,12 @@ function GrapeMailer(_o)
 
 module.exports.send_email = function(_config, _email, cb) {
 	var emailer = new GrapeMailer(_config);
-	emailer.create_transporter();
+	if (emailer.create_transporter() == -1)
+	{
+		cb(self.error, null);
+		return;
+	}
+
 	emailer.send(_email, cb);
 };
 
