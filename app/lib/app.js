@@ -120,7 +120,7 @@ exports = module.exports = function(_o) {
 						require(dirname + file)(app);
 						app.get('logger').info('api', "Loaded API file " + relativedirname + file);
 					} catch (e) {
-						app.get('logger').error('api', "Failed to load API file " + relativedirname + file);
+						app.get('logger').error('api', "Failed to load API file " + relativedirname + file + ' [' + util.inspect(e) + ']');
 					}
 				}
 			}

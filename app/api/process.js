@@ -80,19 +80,34 @@ exports = module.exports = function(_app) {
  */
 	app.post("/grape/bgworker/stop", api_bgworker_stop);
 
+/**
+ * @desc 
+ * @method GET
+ * @url /grape/process/:process_id
+ *
+ */
+	app.post("/grape/process/:process_id", api_process_info);
+
+/**
+ * @desc 
+ * @method GET
+ * @url /grape/process/:process_id
+ *
+ */
+	app.get("/download/schedule_logfile/:schedule_id", api_download_schedule_logfile);
 
 };
 
 function api_start_process(req, res)
 {
 	var obj = req.body;
-	res.locals.db.json_call('grape.start_process', obj, null, {response: res})
+	res.locals.db.json_call('grape.start_process', obj, null, {response: res});
 }
 
 function api_list_processes(req, res)
 {
 	var obj = {};
-	res.locals.db.json_call('grape.list_processes', obj, null, {response: res})
+	res.locals.db.json_call('grape.list_processes', obj, null, {response: res});
 }
 
 
@@ -139,6 +154,39 @@ function api_get_schedule_logfile (req, res)
 	});
 
 }
+
+function api_download_schedule_logfile (req, res)
+{
+	var schedule_id = req.params.schedule_id;
+	var offset = 0;
+
+	res.locals.db.json_call('grape.schedule_info', {schedule_id: req.params.schedule_id}, function(err, result) {
+		if (err)
+		{
+			res.json('{}').end(); //ERROR
+			return;
+		}
+
+		var obj = result.rows[0]['grapeschedule_info'];
+		var schedule = obj.schedule;
+
+		if (schedule.logfile[0] === '~') {
+			schedule.logfile = path.join(process.env.HOME, schedule.logfile.slice(1));
+		}
+		var logfilename = path.resolve(schedule.logfile);
+
+		try {
+			res.sendFile(logfilename); 
+		}
+		catch (e) {
+			console.log(e);
+			res.send(e).end(); //ERROR
+			return;
+		}
+	});
+
+}
+
 
 function get_bgworker_status(cb)
 {
@@ -208,49 +256,6 @@ function api_bgworker_status(req, res)
 			'cmdline': obj.cmdline}
 		).end();
 	});
-	/*
-	var config = app.get('config');
-	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
-	child_process.exec([ps_bgworker_path, '--status'].join(' '),
-		{
-			timeout: 2000,
-			encoding: 'utf8'
-		},
-		function(err, stdout, stderr) {
-			if (err && !stdout)
-			{
-			}
-
-			var lines = stdout.split("\n");
-			if (lines[0] == "Not running")
-			{
-				res.status(200).json({'status': 'OK', 'state': 'Not running'}).end();
-				return;
-			}
-			else
-			{
-				var obj = {'status': 'OK', 'state': 'Running'};
-				lines.forEach(function(line) {
-					if (line.trim() != '')
-					{
-						var ar = line.split(':');
-						if (ar.length == 2)
-						{
-							obj[ar[0]] = ar[1].trim();
-						}
-						else
-						{
-							obj['line'] = line.trim();
-						}
-					}
-				});
-
-				res.status(200).json(obj).end();
-				return;
-			}
-		}
-	);
-	*/
 }
 
 function api_bgworker_start(req, res)
@@ -286,3 +291,10 @@ function api_bgworker_stop (req, res)
 		res.status(200).json({'status': 'OK', 'pid': obj.pid}).end();
 	});
 }
+
+function api_process_info (req, res)
+{
+	var obj = req.body;
+	res.locals.db.json_call('grape.process_info', obj, null, {response: res})
+}
+

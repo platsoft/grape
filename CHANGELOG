@@ -65,7 +65,24 @@
 - Several security improvements when serving public files
 - Moved all functions in gutils to object (instead of the prototype)
 - Bumped versions of pg, express, body-parser, libxmljs, async
+
+0.1.2:
+- Bugfixes:
+  * Logger fails when accept header isn't present
+  * DB debugger was broken
+
+0.1.3:
 - Easy installer for DB notifications using new_notify_handler(channel, handler_callback)
 - Static data manager
+- Improve naming of log files
 
+0.1.4:
+- Do not try to do queries on dead connections
+- If a DB disconnect, try to reconnect
+
+0.1.5:
+- Added GrapeMailer class
+
+0.1.6:
+- Added option http_port
 

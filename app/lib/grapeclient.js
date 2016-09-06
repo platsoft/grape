@@ -118,7 +118,7 @@ var GrapeClient = function(_o) {
 				self.session = {
 					session_id: data.session_id
 				};
-				self.emit('login');
+				self.emit('login', data);
 			}
 
 		}).on('error', function(err) {

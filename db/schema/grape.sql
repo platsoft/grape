@@ -213,6 +213,8 @@ CREATE TABLE grape.setting(
 	value text,
 	json_value json,
 	hidden boolean DEFAULT FALSE,
+	description text,
+	data_type text,
 	CONSTRAINT setting_pk PRIMARY KEY (name)
 
 );
@@ -387,6 +389,32 @@ CREATE TABLE grape.table_view(
 );
 -- ddl-end --
 
+-- object: grape.auto_scheduler | type: TABLE --
+-- DROP TABLE IF EXISTS grape.auto_scheduler CASCADE;
+CREATE TABLE grape.auto_scheduler(
+	process_id integer NOT NULL,
+	scheduled_interval interval,
+	dow varchar(7) DEFAULT 0111110,
+	days_of_month text DEFAULT '*',
+	day_time time,
+	CONSTRAINT auto_scheduler_pk PRIMARY KEY (process_id)
+
+);
+-- ddl-end --
+COMMENT ON COLUMN grape.auto_scheduler.dow IS 'days of week represented by 0 and 1; starting on Sunday';
+-- ddl-end --
+COMMENT ON COLUMN grape.auto_scheduler.days_of_month IS 'Comma separated list of days of month';
+-- ddl-end --
+
+-- object: sch_process_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.sch_process_idx CASCADE;
+CREATE INDEX sch_process_idx ON grape.schedule
+	USING btree
+	(
+	  process_id
+	);
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
@@ -454,6 +482,13 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ALTER TABLE grape.session_history DROP CONSTRAINT IF EXISTS session_user_fk CASCADE;
 ALTER TABLE grape.session_history ADD CONSTRAINT session_user_fk FOREIGN KEY (user_id)
 REFERENCES grape."user" (user_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: as_process_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.auto_scheduler DROP CONSTRAINT IF EXISTS as_process_fk CASCADE;
+ALTER TABLE grape.auto_scheduler ADD CONSTRAINT as_process_fk FOREIGN KEY (process_id)
+REFERENCES grape.process (process_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
