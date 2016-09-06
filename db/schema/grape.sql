@@ -394,9 +394,10 @@ CREATE TABLE grape.table_view(
 CREATE TABLE grape.auto_scheduler(
 	process_id integer NOT NULL,
 	scheduled_interval interval,
-	dow varchar(7) DEFAULT 0111110,
+	dow varchar(7) DEFAULT '1111111',
 	days_of_month text DEFAULT '*',
 	day_time time,
+	run_as_user_id INTEGER,
 	CONSTRAINT auto_scheduler_pk PRIMARY KEY (process_id)
 
 );

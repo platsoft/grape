@@ -620,7 +620,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="scheduled_interval">
 		<type name="interval"/>
 	</column>
-	<column name="dow" default-value="0111110">
+	<column name="dow" default-value="'1111111'">
 		<type name="varchar" length="7"/>
 		<comment><![CDATA[days of week represented by 0 and 1; starting on Sunday]]></comment>
 	</column>
@@ -630,6 +630,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="day_time">
 		<type name="time"/>
+	</column>
+	<column name="run_as_user_id">
+		<type name="integer"/>
 	</column>
 	<constraint name="auto_scheduler_pk" type="pk-constr" table="grape.auto_scheduler">
 		<columns names="process_id" ref-type="src-columns"/>

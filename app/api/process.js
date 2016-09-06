@@ -26,6 +26,25 @@ exports = module.exports = function(_app) {
 	app.post("/grape/process/start", api_start_process);
 
 /**
+ * @desc Add a auto schedule to a process 
+ * @method POST
+ * @sqlfunc grape.save_process_auto_scheduler
+ * @url /grape/process/autoschedule
+ * @body JSON object containing fields:
+ * {
+ * 	process_id INTEGER Process ID to set autoscheduler for 
+ * 	time TIME Time to run
+ * 	scheduled_interval INTERVAL Interval to run (1 hour, 10 minutes, etc). Set either this, or time
+ * 	dow TEXT A 7 character string containing 0s or 1s with the date of weeks to run on. Starts on Monday
+ * 	days_of_month TEXT A comma separated list of days to run on, or a * to indicate every day
+ * }
+ * @return JSON object containing fields:
+ *
+ **/
+	app.post("/grape/process/autoschedule", api_process_autoschedule);
+
+
+/**
  * @desc List processes
  * @method GET
  * @url /grape/process/list
@@ -297,4 +316,10 @@ function api_process_info (req, res)
 	var obj = req.body;
 	res.locals.db.json_call('grape.process_info', obj, null, {response: res})
 }
+
+function api_process_autoschedule (req, res)
+{
+	res.locals.db.json_call('grape.save_process_auto_scheduler', req.body, null, {response: res});
+}
+
 

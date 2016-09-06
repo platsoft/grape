@@ -126,13 +126,19 @@ BEGIN
 	RETURN;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION grape.save_process_auto_scheduler (_process_id INTEGER, _scheduled_interval INTERVAL, _dow TEXT, _dom TEXT, _time TIME) RETURNS INTEGER AS $$
+CREATE OR REPLACE FUNCTION grape.save_process_auto_scheduler (_process_id INTEGER, _scheduled_interval INTERVAL, _dow TEXT, _dom TEXT, _time TIME, _run_as_user_id INTEGER DEFAULT NULL) RETURNS INTEGER AS $$
 DECLARE
 	
 BEGIN
+	IF _run_as_user_id IS NULL THEN
+		_run_as_user_id := current_user_id();
+	END IF;
+
 	DELETE FROM grape.auto_scheduler WHERE process_id=_process_id::INTEGER;
-	INSERT INTO grape.auto_scheduler (process_id, scheduled_interval, dow, days_of_month, day_time)
-		VALUES (_process_id, _scheduled_interval, _dow, _dom, _time);
+	INSERT INTO grape.auto_scheduler (process_id, scheduled_interval, dow, days_of_month, day_time, run_as_user_id)
+		VALUES (_process_id, _scheduled_interval, _dow, _dom, _time, _run_as_user_id);
+
+	PERFORM grape.autoschedule_next_process(_process_id);
 
 	RETURN _process_id;
 END; $$ LANGUAGE plpgsql;
@@ -145,6 +151,7 @@ DECLARE
 	_dow TEXT;
 	_dom TEXT;
 	_time TIME;
+	_run_as_user_id INTEGER;
 BEGIN
 	IF json_extract_path($1, 'process_id') IS NULL THEN
 		RETURN grape.api_error_invalid_input();
@@ -173,5 +180,108 @@ BEGIN
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION grape.autoschedule_for_date(_process_id INTEGER, _date DATE, _interval INTERVAL, _time TIME, _user_id INTEGER) RETURNS INTEGER AS $$
+DECLARE
+	_schedule_id INTEGER;
+	_start TIMESTAMP;
+BEGIN
+	DELETE FROM grape.schedule WHERE process_id=_process_id::INTEGER AND status='NewTask' AND time_sched::DATE=_date::DATE;
+
+	IF _interval IS NOT NULL THEN
+		_start := _date::TIMESTAMP;
+		WHILE _start::DATE = _date LOOP
+
+			IF _start >= NOW() THEN -- only schedule for after now
+				INSERT INTO grape.schedule (process_id, time_sched, param, user_id) 
+					VALUES (_process_id, _start, '{}'::JSON, _user_id) 
+					RETURNING schedule_id INTO _schedule_id;
+			END IF;
+
+			_start := _start + _interval;
+		END LOOP;
+	ELSIF _time IS NOT NULL THEN
+
+		IF  (_date + _time)::TIMESTAMP < NOW() THEN -- not scheduling for before now
+			RETURN -1;
+		END IF;
+
+		INSERT INTO grape.schedule (process_id, time_sched, param, user_id) 
+			VALUES (_process_id, (_date + _time)::TIMESTAMP, '{}'::JSON, _user_id) 
+			RETURNING schedule_id INTO _schedule_id;
+	END IF;
+
+	RETURN _schedule_id;
+END; $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION grape.autoschedule_next_process(_process_id INTEGER) RETURNS INTEGER AS $$
+DECLARE
+	_schedule_id INTEGER;
+	_rec RECORD;
+	_days_of_month_s TEXT[];
+	_days_of_month INTEGER[];
+	_dow VARCHAR(7);
+	_s TEXT;
+
+	_d DATE;
+
+	_every_dom BOOLEAN;
+	_every_dow BOOLEAN;
+BEGIN
+	SELECT * INTO _rec FROM grape.auto_scheduler WHERE process_id=_process_id::INTEGER;
+	IF NOT FOUND THEN
+		RETURN -1;
+	END IF;
+	
+	DELETE FROM grape.schedule WHERE process_id=_process_id::INTEGER AND status='NewTask' AND time_sched > NOW();
+
+	IF _rec.days_of_month = '*' OR _rec.days_of_month = '' OR _rec.days_of_month = NULL THEN -- every day of the month
+		_every_dom := TRUE;
+	ELSE
+		_every_dom := FALSE;
+		_days_of_month := '{}'::INTEGER[];
+		_days_of_month_s := string_to_array(_rec.days_of_month, ',');
+		FOREACH _s IN ARRAY _days_of_month_s LOOP
+			BEGIN
+				_days_of_month := array_append(_days_of_month, _s::INTEGER);
+			EXCEPTION WHEN OTHERS THEN
+			END;
+		END LOOP;
+	END IF;
+
+	IF _rec.dow = '1111111' OR _rec.dow = '0000000' THEN
+		_every_dow := TRUE;
+	ELSE
+		_every_dow := FALSE;
+	END IF;
+
+	_d := CURRENT_DATE;
+	WHILE _d < CURRENT_DATE + '1 week'::INTERVAL LOOP
+		IF _every_dom = TRUE AND _every_dow = TRUE THEN
+			_schedule_id := grape.autoschedule_for_date(_process_id, _d, _rec.scheduled_interval, _rec.day_time, _rec.run_as_user_id);
+		ELSIF _every_dom = TRUE AND _every_dow = FALSE THEN
+
+			IF SUBSTRING(_rec.dow::TEXT, EXTRACT('dow' FROM _d)::INTEGER, 1) = '1' THEN
+				_schedule_id := grape.autoschedule_for_date(_process_id, _d, _rec.scheduled_interval, _rec.day_time, _rec.run_as_user_id);
+			END IF;
+
+		ELSIF _every_dom = FALSE AND _every_dow = TRUE THEN
+
+			IF ARRAY_POSITION(_days_of_month, EXTRACT('day' FROM _d)::INTEGER) IS NOT NULL THEN
+				_schedule_id := grape.autoschedule_for_date(_process_id, _d, _rec.scheduled_interval, _rec.day_time, _rec.run_as_user_id);
+			END IF;
+
+		ELSIF _every_dom = FALSE AND _every_dow = FALSE THEN
+
+			IF ARRAY_POSITION(_days_of_month, EXTRACT('day' FROM _d)) IS NOT NULL
+				AND SUBSTRING(_rec.dow::TEXT, EXTRACT('dow' FROM _d)::INTEGER, 1) = '1' THEN
+					_schedule_id := grape.autoschedule_for_date(_process_id, _d, _rec.scheduled_interval, _rec.day_time, _rec.run_as_user_id);
+			END IF;
+		END IF;
+		_d := _d + INTERVAL '1 day';
+	END LOOP;
+	RETURN 1;
+END; $$ LANGUAGE plpgsql;
 
 
