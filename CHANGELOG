@@ -86,3 +86,7 @@
 0.1.6:
 - Added option http_port
 
+0.1.7:
+- Resolved error: 'column "is_local" of relation "user" does not exist' in 'db/data/grape.user.sql'
+- more (Hans?)
+
