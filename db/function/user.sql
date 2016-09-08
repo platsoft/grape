@@ -94,7 +94,7 @@ BEGIN
 					email = _email,
 					fullnames = _fullnames,
 					active = _active,
-					employee_guid=COLAESCE(_employee_guid, employee_guid)
+					employee_guid=COALESCE(_employee_guid, employee_guid)
 				WHERE
 					user_id = _user_id;
 
