@@ -51,11 +51,11 @@ BEGIN
 	-- Select appropriate operations
 	IF _user_id IS NULL THEN
 		-- INSERT New User
-		SELECT * INTO rec FROM grape."user" WHERE username = _username;
+		SELECT * INTO rec FROM grape."user" WHERE username = _username::TEXT;
 		IF NOT FOUND THEN
 			-- INSERT : Valid data
-			INSERT INTO grape."user" (username, password, email, fullnames, active)
-				VALUES (_username, _hashed_password, _email, _fullnames, _active)
+			INSERT INTO grape."user" (username, password, email, fullnames, active, employee_guid)
+				VALUES (_username, _hashed_password, _email, _fullnames, _active, _employee_guid)
 				RETURNING user_id INTO _user_id;
 
 			IF _role_names IS NOT NULL THEN
@@ -94,7 +94,7 @@ BEGIN
 					email = _email,
 					fullnames = _fullnames,
 					active = _active,
-					employee_guid=_employee_guid
+					employee_guid=COLAESCE(_employee_guid, employee_guid)
 				WHERE
 					user_id = _user_id;
 
