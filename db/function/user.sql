@@ -11,6 +11,7 @@ DECLARE
 	_role_names TEXT[];
 	_role_name TEXT;
 	_hashed_password TEXT;
+	_employee_guid UUID;
 
 	rec RECORD;
 BEGIN
@@ -25,6 +26,10 @@ BEGIN
 		_role_names := string_to_array($1->>'role_names', ',');
 	ELSIF json_typeof ($1->'role_names') = 'array' THEN
 		_role_names := ($1->'role_names')::TEXT[];
+	END IF;
+
+	IF json_extract_path($1, 'employee_guid') IS NOT NULL THEN
+		_employee_guid := ($1->>'employee_guid')::UUID;
 	END IF;
 
 	IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
@@ -88,7 +93,8 @@ BEGIN
 					password = _hashed_password,
 					email = _email,
 					fullnames = _fullnames,
-					active = _active
+					active = _active,
+					employee_guid=_employee_guid
 				WHERE
 					user_id = _user_id;
 
