@@ -20,6 +20,12 @@ exports = module.exports = function(_o) {
 		api_directories: []
 	};
 
+	if (_.isArray(_o.public_directory))
+	{
+		_o.public_directories = _o.public_directory;
+		_o.public_directory = _o.public_directories.splice(0, 1)[0];
+	}
+
 	if (!_o.base_directory && _o.public_directory)
 	{
 		_o.base_directory = fs.realpathSync(_o.public_directory + '/../');
@@ -61,8 +67,12 @@ exports = module.exports = function(_o) {
 	if (options.public_directory && typeof options.public_directory == 'string')
 		options.public_directories.push(options.public_directory);
 
+	options.public_directories = _.uniq(options.public_directories, false);
+
 	if (options.api_directory)
 		options.api_directories.push(options.api_directory);
+	
+	options.api_directories = _.uniq(options.api_directories, false);
 
 	return options;
 };

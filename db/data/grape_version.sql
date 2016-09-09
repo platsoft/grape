@@ -1,3 +1,3 @@
 
-SELECT grape.set_value('grape_version', '0.9');
+SELECT grape.set_value('grape_version', '1.0');
 

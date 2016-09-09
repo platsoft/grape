@@ -1,15 +1,25 @@
-CREATE OR REPLACE FUNCTION grape.list_query_whitelist_add(_schema text, _tables text[]) RETURNS BOOLEAN AS $$
+
+CREATE OR REPLACE FUNCTION grape.list_query_whitelist_add(_schema TEXT, _tables TEXT[], _roles TEXT[]) RETURNS BOOLEAN AS $$
 DECLARE
-	_success BOOLEAN = true;
-	_table text;
+	_table TEXT;
 BEGIN
 	FOREACH _table IN ARRAY _tables LOOP
-		INSERT INTO grape.list_query_whitelist(schema, tablename)
-			SELECT _schema,_table WHERE NOT EXISTS
-			(SELECT * FROM grape.list_query_whitelist WHERE schema = _schema::TEXT and tablename = _table::TEXT);
+		IF EXISTS (SELECT 1 FROM grape.list_query_whitelist WHERE schema = _schema::TEXT AND tablename = _table::TEXT) THEN
+			UPDATE grape.list_query_whitelist SET roles=_roles WHERE schema = _schema::TEXT AND tablename = _table::TEXT;
+		ELSE
+			INSERT INTO grape.list_query_whitelist(schema, tablename, roles)
+				VALUES (_schema, _table, _roles);
+		END IF;
 	END LOOP;
 	RETURN true;
 END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.list_query_whitelist_add (_schema TEXT, _tables TEXT[]) RETURNS BOOLEAN AS $$
+DECLARE
+BEGIN
+	RETURN grape.list_query_whitelist_add(_schema, _tables, '{admin}'::TEXT[]);
+END; $$ LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION grape.list_query_whitelist_delete(_schema TEXT, _tablename TEXT) RETURNS BOOLEAN AS $$
 DECLARE
@@ -58,6 +68,8 @@ DECLARE
 	_filter_array TEXT[];
 	_filters_join TEXT;
 
+	_roles TEXT[];
+
 	_extra_data JSON := ($1->'extra_data');
 BEGIN
 	_offset := 0;
@@ -82,10 +94,13 @@ BEGIN
 		_filters_join := 'AND';
 	END IF;
 
-	PERFORM schema, tablename FROM grape.list_query_whitelist
-		WHERE schema = _schema AND tablename = _tablename;
+	SELECT roles INTO _roles FROM grape.list_query_whitelist WHERE schema = _schema::TEXT AND tablename = _tablename::TEXT;
 	IF NOT FOUND THEN
-		RETURN grape.api_error('Table requested is not in whitelist', -1);
+		RETURN grape.api_error('Table requested is not in whitelist', -4);
+	END IF;
+
+	IF NOT _roles @> '{all}' AND grape.current_user_in_role(_roles) THEN
+		RETURN grape.api_error('Permission denied', -3);
 	END IF;
 
         IF json_extract_path($1, 'sortfield') IS NOT NULL THEN
@@ -187,3 +202,5 @@ BEGIN
 
         RETURN _ret;
 END; $$ LANGUAGE plpgsql;
+
+

@@ -33,10 +33,13 @@ exports = module.exports = function(_app) {
  * @body JSON object containing fields:
  * {
  * 	process_id INTEGER Process ID to set autoscheduler for 
- * 	time TIME Time to run
+ * 	day_time TIME Time to run
  * 	scheduled_interval INTERVAL Interval to run (1 hour, 10 minutes, etc). Set either this, or time
- * 	dow TEXT A 7 character string containing 0s or 1s with the date of weeks to run on. Starts on Monday
+ * 	dow TEXT A 7 character string containing 0s or 1s with the date of weeks to run on. Starts on Sunday
  * 	days_of_month TEXT A comma separated list of days to run on, or a * to indicate every day
+ * 	params JSON 
+ * 	user_id INTEGER
+ * 	active BOOLEAN
  * }
  * @return JSON object containing fields:
  *

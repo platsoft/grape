@@ -123,6 +123,7 @@ CREATE TABLE grape.process(
 	param json,
 	process_type text,
 	function_schema text,
+	process_category text,
 	CONSTRAINT process_pk PRIMARY KEY (process_id),
 	CONSTRAINT process_uq UNIQUE (pg_function)
 
@@ -164,6 +165,7 @@ CREATE TABLE grape.schedule(
 	status grape.e_schedule_status DEFAULT 'NewTask',
 	progress_completed integer,
 	progress_total integer,
+	auto_scheduler_id integer,
 	CONSTRAINT schedule_pk PRIMARY KEY (schedule_id)
 
 )WITH ( OIDS = TRUE );
@@ -383,7 +385,6 @@ CREATE TABLE grape.table_view(
 	columns jsonb,
 	settings jsonb,
 	primary_key_column text,
-	onclick_url text,
 	CONSTRAINT table_view_pk PRIMARY KEY (table_view_id)
 
 );
@@ -392,13 +393,16 @@ CREATE TABLE grape.table_view(
 -- object: grape.auto_scheduler | type: TABLE --
 -- DROP TABLE IF EXISTS grape.auto_scheduler CASCADE;
 CREATE TABLE grape.auto_scheduler(
-	process_id integer NOT NULL,
+	auto_scheduler_id serial NOT NULL,
+	process_id integer,
 	scheduled_interval interval,
 	dow varchar(7) DEFAULT '1111111',
 	days_of_month text DEFAULT '*',
 	day_time time,
-	run_as_user_id INTEGER,
-	CONSTRAINT auto_scheduler_pk PRIMARY KEY (process_id)
+	run_as_user_id integer,
+	run_with_params json,
+	active boolean DEFAULT TRUE,
+	CONSTRAINT auto_scheduler_pk PRIMARY KEY (auto_scheduler_id)
 
 );
 -- ddl-end --
@@ -414,6 +418,49 @@ CREATE INDEX sch_process_idx ON grape.schedule
 	(
 	  process_id
 	);
+-- ddl-end --
+
+-- object: proc_pg_function_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.proc_pg_function_idx CASCADE;
+CREATE INDEX proc_pg_function_idx ON grape.process
+	USING btree
+	(
+	  pg_function
+	);
+-- ddl-end --
+
+-- object: grape.list_query_whitelist | type: TABLE --
+-- DROP TABLE IF EXISTS grape.list_query_whitelist CASCADE;
+CREATE TABLE grape.list_query_whitelist(
+	schema text NOT NULL,
+	tablename text NOT NULL,
+	roles text[],
+	CONSTRAINT list_query_whitelist_pk PRIMARY KEY (schema,tablename)
+
+);
+-- ddl-end --
+
+-- object: auto_scheduler_process_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.auto_scheduler_process_idx CASCADE;
+CREATE INDEX auto_scheduler_process_idx ON grape.auto_scheduler
+	USING btree
+	(
+	  process_id
+	);
+-- ddl-end --
+
+-- object: grape.setting_history | type: TABLE --
+-- DROP TABLE IF EXISTS grape.setting_history CASCADE;
+CREATE TABLE grape.setting_history(
+	setting_history_id serial NOT NULL,
+	setting_name text,
+	value text,
+	json_value json,
+	date_inserted timestamptz,
+	user_id integer,
+	CONSTRAINT setting_history_pk PRIMARY KEY (setting_history_id)
+
+);
 -- ddl-end --
 
 -- object: user_id_rel | type: CONSTRAINT --
@@ -490,6 +537,13 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ALTER TABLE grape.auto_scheduler DROP CONSTRAINT IF EXISTS as_process_fk CASCADE;
 ALTER TABLE grape.auto_scheduler ADD CONSTRAINT as_process_fk FOREIGN KEY (process_id)
 REFERENCES grape.process (process_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: setting_name_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.setting_history DROP CONSTRAINT IF EXISTS setting_name_fk CASCADE;
+ALTER TABLE grape.setting_history ADD CONSTRAINT setting_name_fk FOREIGN KEY (setting_name)
+REFERENCES grape.setting (name) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 

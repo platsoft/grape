@@ -9,7 +9,7 @@ for i in `ls $SCRIPTPATH/*sql` ; do
 	RESULTFILE="`basename "$SQLFILE" .sql`.result"
 	if [ -f "$SCRIPTPATH/$EXPECTEDFILE" ] ; then
 		echo -n "Running ${SQLFILE}..."
-		cat "$SQLFILE" | psql -At raisin raisin >"$RESULTFILE"
+		cat "$SQLFILE" | psql -At merlot >"$RESULTFILE"
 		colordiff "$RESULTFILE" "$EXPECTEDFILE"
 		if [ "$?" = "0" ] ; then
 			echo -e "\E[0;32mOK\E[0m"

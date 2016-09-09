@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.2" last-position="0,88" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.2" last-position="0,132" last-zoom="1">
 <database name="grape">
 </database>
 
@@ -179,6 +179,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="function_schema">
 		<type name="text"/>
 	</column>
+	<column name="process_category">
+		<type name="text"/>
+	</column>
 	<constraint name="process_pk" type="pk-constr" table="grape.process">
 		<columns names="process_id" ref-type="src-columns"/>
 	</constraint>
@@ -194,7 +197,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule_log" oids="true">
 	<schema name="grape"/>
-	<position x="1340" y="360"/>
+	<position x="1360" y="360"/>
 	<column name="schedule_log_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -251,6 +254,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="integer"/>
 	</column>
 	<column name="progress_total">
+		<type name="integer"/>
+	</column>
+	<column name="auto_scheduler_id">
 		<type name="integer"/>
 	</column>
 	<constraint name="schedule_pk" type="pk-constr" table="grape.schedule">
@@ -380,7 +386,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_routing">
 	<schema name="grape"/>
-	<position x="920" y="1000"/>
+	<position x="860" y="1000"/>
 	<column name="system_routing_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -468,7 +474,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report">
 	<schema name="grape"/>
-	<position x="40" y="740"/>
+	<position x="40" y="780"/>
 	<column name="report_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -504,7 +510,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="reports_executed">
 	<schema name="grape"/>
-	<position x="500" y="720"/>
+	<position x="500" y="780"/>
 	<column name="reports_executed_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -584,7 +590,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="table_view">
 	<schema name="grape"/>
-	<position x="1260" y="900"/>
+	<position x="1300" y="920"/>
 	<column name="table_view_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -603,9 +609,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="primary_key_column">
 		<type name="text"/>
 	</column>
-	<column name="onclick_url">
-		<type name="text"/>
-	</column>
 	<constraint name="table_view_pk" type="pk-constr" table="grape.table_view">
 		<columns names="table_view_id" ref-type="src-columns"/>
 	</constraint>
@@ -614,7 +617,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="auto_scheduler">
 	<schema name="grape"/>
 	<position x="900" y="320"/>
-	<column name="process_id" not-null="true">
+	<column name="auto_scheduler_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="process_id">
 		<type name="integer"/>
 	</column>
 	<column name="scheduled_interval">
@@ -634,8 +640,14 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="run_as_user_id">
 		<type name="integer"/>
 	</column>
+	<column name="run_with_params">
+		<type name="json"/>
+	</column>
+	<column name="active" default-value="TRUE">
+		<type name="boolean"/>
+	</column>
 	<constraint name="auto_scheduler_pk" type="pk-constr" table="grape.auto_scheduler">
-		<columns names="process_id" ref-type="src-columns"/>
+		<columns names="auto_scheduler_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
@@ -654,6 +666,57 @@ CAUTION: Do not modify this file unless you know what you are doing.
 			<column name="pg_function"/>
 		</idxelement>
 </index>
+
+<table name="list_query_whitelist">
+	<schema name="grape"/>
+	<position x="860" y="820"/>
+	<column name="schema" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="tablename" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="roles">
+		<type name="text" dimension="1"/>
+	</column>
+	<constraint name="list_query_whitelist_pk" type="pk-constr" table="grape.list_query_whitelist">
+		<columns names="schema,tablename" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="auto_scheduler_process_idx" table="grape.auto_scheduler"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="process_id"/>
+		</idxelement>
+</index>
+
+<table name="setting_history">
+	<schema name="grape"/>
+	<position x="420" y="580"/>
+	<column name="setting_history_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="setting_name">
+		<type name="text"/>
+	</column>
+	<column name="value">
+		<type name="text"/>
+	</column>
+	<column name="json_value">
+		<type name="json"/>
+	</column>
+	<column name="date_inserted">
+		<type name="timestamptz"/>
+	</column>
+	<column name="user_id">
+		<type name="integer"/>
+	</column>
+	<constraint name="setting_history_pk" type="pk-constr" table="grape.setting_history">
+		<columns names="setting_history_id" ref-type="src-columns"/>
+	</constraint>
+</table>
 
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_role">
@@ -721,6 +784,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="process_id" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="setting_name_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.setting" table="grape.setting_history">
+	<columns names="setting_name" ref-type="src-columns"/>
+	<columns names="name" ref-type="dst-columns"/>
+</constraint>
+
 <relationship name="rel_user_role_user" type="relfk"
 	 src-table="grape.user_role"
 	 dst-table="grape.&quot;user&quot;"
@@ -774,6 +843,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <relationship name="rel_auto_scheduler_process" type="relfk"
 	 src-table="grape.auto_scheduler"
 	 dst-table="grape.process"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_setting_history_setting" type="relfk"
+	 src-table="grape.setting_history"
+	 dst-table="grape.setting"
 	 src-required="false" dst-required="false"/>
 
 </dbmodel>
