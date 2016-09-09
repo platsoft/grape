@@ -1,0 +1,90 @@
+CREATE FUNCTION
+every 1st and 15th at 01:00
+NOTICE:  Results for Auto Schedule: {"process_id":1,"days_of_month":"1,15","day_time":"01:00"}
+NOTICE:  2016-01-15 01:00:00, {}, 0
+NOTICE:  2016-02-01 01:00:00, {}, 0
+NOTICE:  2016-02-15 01:00:00, {}, 0
+NOTICE:  2016-03-01 01:00:00, {}, 0
+NOTICE:  2016-03-15 01:00:00, {}, 0
+
+every 1st and 15th at 23:00
+NOTICE:  Results for Auto Schedule: {"process_id":1,"days_of_month":"1,15","day_time":"23:00"}
+NOTICE:  2016-01-01 23:00:00, {}, 0
+NOTICE:  2016-01-15 23:00:00, {}, 0
+NOTICE:  2016-02-01 23:00:00, {}, 0
+NOTICE:  2016-02-15 23:00:00, {}, 0
+NOTICE:  2016-03-01 23:00:00, {}, 0
+
+every TODAYs day of the month at 01:00
+NOTICE:  Results for Auto Schedule: {"process_id":1,"days_of_month":"9","day_time":"01:00"}
+NOTICE:  2016-01-09 01:00:00, {}, 0
+NOTICE:  2016-02-09 01:00:00, {}, 0
+NOTICE:  2016-03-09 01:00:00, {}, 0
+NOTICE:  2016-04-09 01:00:00, {}, 0
+NOTICE:  2016-05-09 01:00:00, {}, 0
+
+every TODAYs day of the month at 23:00
+NOTICE:  Results for Auto Schedule: {"process_id":1,"days_of_month":"9","day_time":"23:00"}
+NOTICE:  2016-01-09 23:00:00, {}, 0
+NOTICE:  2016-02-09 23:00:00, {}, 0
+NOTICE:  2016-03-09 23:00:00, {}, 0
+NOTICE:  2016-04-09 23:00:00, {}, 0
+NOTICE:  2016-05-09 23:00:00, {}, 0
+
+every day at 01:00 with user id and parameters
+NOTICE:  Results for Auto Schedule: {"process_id":1,"day_time":"01:00","user_id":1,"params":{"a":20}}
+NOTICE:  2016-01-02 01:00:00, {"a":20}, 1
+NOTICE:  2016-01-03 01:00:00, {"a":20}, 1
+NOTICE:  2016-01-04 01:00:00, {"a":20}, 1
+NOTICE:  2016-01-05 01:00:00, {"a":20}, 1
+NOTICE:  2016-01-06 01:00:00, {"a":20}, 1
+
+every day at 23:00
+NOTICE:  Results for Auto Schedule: {"process_id":1,"day_time":"23:00"}
+NOTICE:  2016-01-01 23:00:00, {}, 0
+NOTICE:  2016-01-02 23:00:00, {}, 0
+NOTICE:  2016-01-03 23:00:00, {}, 0
+NOTICE:  2016-01-04 23:00:00, {}, 0
+NOTICE:  2016-01-05 23:00:00, {}, 0
+
+every weekday at 15:00
+NOTICE:  Results for Auto Schedule: {"process_id":1,"dow":"0111110","day_time":"15:00"}
+NOTICE:  2016-01-01 15:00:00, {}, 0
+NOTICE:  2016-01-04 15:00:00, {}, 0
+NOTICE:  2016-01-05 15:00:00, {}, 0
+NOTICE:  2016-01-06 15:00:00, {}, 0
+NOTICE:  2016-01-07 15:00:00, {}, 0
+
+every 3 hours on every weekday
+NOTICE:  Results for Auto Schedule: {"process_id":1,"dow":"0111110","scheduled_interval":"3 hours"}
+NOTICE:  2016-01-01 15:00:00, {}, 0
+NOTICE:  2016-01-01 18:00:00, {}, 0
+NOTICE:  2016-01-01 21:00:00, {}, 0
+NOTICE:  2016-01-04 00:00:00, {}, 0
+NOTICE:  2016-01-04 03:00:00, {}, 0
+
+every 6 hours on every saturday
+NOTICE:  Results for Auto Schedule: {"process_id":1,"dow":"0000001","scheduled_interval":"6 hours"}
+NOTICE:  2016-01-02 00:00:00, {}, 0
+NOTICE:  2016-01-02 06:00:00, {}, 0
+NOTICE:  2016-01-02 12:00:00, {}, 0
+NOTICE:  2016-01-02 18:00:00, {}, 0
+NOTICE:  2016-01-09 00:00:00, {}, 0
+
+every 8 hours every day
+NOTICE:  Results for Auto Schedule: {"process_id":1,"scheduled_interval":"8 hours"}
+NOTICE:  2016-01-01 16:00:00, {}, 0
+NOTICE:  2016-01-02 00:00:00, {}, 0
+NOTICE:  2016-01-02 08:00:00, {}, 0
+NOTICE:  2016-01-02 16:00:00, {}, 0
+NOTICE:  2016-01-03 00:00:00, {}, 0
+
+every 8 hours every 1st of the month
+NOTICE:  Results for Auto Schedule: {"process_id":1,"scheduled_interval":"8 hours","days_of_month":"1"}
+NOTICE:  2016-01-01 16:00:00, {}, 0
+NOTICE:  2016-02-01 00:00:00, {}, 0
+NOTICE:  2016-02-01 08:00:00, {}, 0
+NOTICE:  2016-02-01 16:00:00, {}, 0
+NOTICE:  2016-03-01 00:00:00, {}, 0
+
+DROP FUNCTION
