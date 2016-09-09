@@ -10,6 +10,7 @@ var _ = require('underscore');
 var fs = require('fs');
 var util = require('util');
 var path = require('path');
+var syntax_check = require('syntax-error');
 
 var DEFAULT_MAXSOCKETS = 500;
 
@@ -155,8 +156,19 @@ exports = module.exports = function(_o) {
 				{
 					// loads the api module and execute the export function with the app param.
 					data += '// JAVASCRIPT FILE ' + dirname + file + "\n";
-					data += fs.readFileSync(dirname + file);
-					app.get('logger').info('app', "Loaded public JS file " + relativedirname + file);
+					var file_data = fs.readFileSync(dirname + file);
+
+					var check_error = syntax_check(file_data, dirname + file);
+					if (check_error)
+					{
+						app.get('logger').error('app', "Syntax error in JS file " + relativedirname + file + " " + check_error);
+						data += '/* JAVASCRIPT ERROR ' + check_error + ' */';
+					}
+					else
+					{
+						data += file_data;
+						app.get('logger').info('app', "Loaded public JS file " + relativedirname + file);
+					}
 				}
 			}
 			else if (fstat.isDirectory())
