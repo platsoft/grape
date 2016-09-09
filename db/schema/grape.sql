@@ -124,6 +124,10 @@ CREATE TABLE grape.process(
 	process_type text,
 	function_schema text,
 	process_category text,
+	count_new integer DEFAULT 0,
+	count_completed integer DEFAULT 0,
+	count_error integer DEFAULT 0,
+	count_running integer DEFAULT 0,
 	CONSTRAINT process_pk PRIMARY KEY (process_id),
 	CONSTRAINT process_uq UNIQUE (pg_function)
 
@@ -461,6 +465,15 @@ CREATE TABLE grape.setting_history(
 	CONSTRAINT setting_history_pk PRIMARY KEY (setting_history_id)
 
 );
+-- ddl-end --
+
+-- object: sch_status_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.sch_status_idx CASCADE;
+CREATE INDEX sch_status_idx ON grape.schedule
+	USING btree
+	(
+	  status
+	);
 -- ddl-end --
 
 -- object: user_id_rel | type: CONSTRAINT --

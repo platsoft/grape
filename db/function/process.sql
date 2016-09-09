@@ -349,7 +349,9 @@ DECLARE
 BEGIN
 	SELECT auto_scheduler_id INTO _auto_scheduler_id FROM grape.schedule WHERE schedule_id=_schedule_id::INTEGER;
 	IF _auto_scheduler_id IS NOT NULL THEN
-		PERFORM grape.autoschedule_next(_auto_scheduler_id);
+		IF EXISTS (SELECT 1 FROM grape.auto_scheduler WHERE auto_scheduler_id=_auto_scheduler_id::INTEGER AND active=TRUE) THEN
+			PERFORM grape.autoschedule_next(_auto_scheduler_id);
+		END IF;
 	END IF;
 	RETURN;
 END; $$ LANGUAGE plpgsql;

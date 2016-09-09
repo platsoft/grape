@@ -34,10 +34,14 @@ BEGIN
 	_tablename := FORMAT('data_import_%s', _data_import_id);
 	_idxname := FORMAT('%s_data_import_row_idx', _tablename);
 
-	EXECUTE FORMAT('CREATE UNLOGGED TABLE "%s"."%s" () INHERITS (grape.data_import_row)', _schema, _tablename);
+	EXECUTE FORMAT('CREATE TABLE "%s"."%s" () INHERITS (grape.data_import_row)', _schema, _tablename);
 	EXECUTE FORMAT('CREATE INDEX "%s" ON "%s"."%s" (data_import_row_id)', _idxname, _schema, _tablename);
 
-	UPDATE grape.data_import SET result_table=_tablename, result_schema=_schema WHERE data_import_id=_data_import_id::INTEGER;
+	UPDATE grape.data_import SET 
+		result_table=_tablename, 
+		result_schema=_schema 
+	WHERE 
+		data_import_id=_data_import_id::INTEGER;
 
 	RETURN grape.api_success('data_import_id', _data_import_id);
 END; $$ LANGUAGE plpgsql;
