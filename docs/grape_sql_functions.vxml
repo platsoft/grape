@@ -103,7 +103,7 @@ This function returns row from a database table. The following input fields are 
 	<li>value text</li>
 </ul>
 
-<h2>list_query_whitelist_add(_schema text, _tables text[])</h2>
+<h2>list_query_whitelist_add(_schema text, _tables TEXT[], _roles TEXT[])</h2>
 Adds tables to the whitelist for use in grape list_query.
 
 <h2>list_query_whitelist_delete(_schema TEXT, _tablename TEXT)</h2>
