@@ -87,8 +87,12 @@ function api_maths_sqrt (req, res)
 	</ol>
 </p>
 
+<!-- include grape mailer -->
+<include href="grapemailer.vxml" parse="vxml" /> 
+
+
 <!-- include grape settings-->
-<include href="grapesettings.vxml" parse="vxml" /> 
+<include href="grapesettings.vxml" parse="vxml" level="1" /> 
 
 <!-- include grape config -->
 <include href="grape_config.vxml" parse="vxml" /> 

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ps_doc title="Grapemailer" titlepage="no">
+<h1>Sending emails from Grape</h1>
+The following needs to be set up in order to send emails from within SQL functions:
+<ol>
+	<li>smtp settings in config</li>
+	<li>email_template_directory in config containing templates</li>
+</ol>
+<h2>send_email</h2>
+Call <i>grape.send_email (to, template, data) </i> to send an email. The following parameters are needed:
+<ul>
+	<li><i>to</i> Email address of receiver</li>
+	<li><i>template</i> Template name</li>
+	<li><i>data</i> Template data</li>
+</ul>
+
+<h2>Email templates</h2>
+Email templates live in the email_template_directory defined in the app's config. The template engine reads 4 files (<i>templatename</i> is replaced by the name provided when calling grape.send_email):
+<ul>
+	<li><i>templatename<b>.subject</b></i> - To generate the subject</li>
+	<li><i>templatename<b>.text</b></i> - To generate the plain-text body of the email</li>
+	<li><i>templatename<b>.html</b></i> - To generate the HTML body of the email</li>
+	<li><i>templatename<b>.attachments</b></i> - To generate a list of attachments to include in the email</li>
+</ul>
+
+The data sent to <i>grape.send_email (to, template, data) </i> is accessible inside the template files. For example, if an email is called with the following data:
+<code>
+{ "firstname": "Piet" }
+</code>
+
+The field firstname is accessable inside of the templates using <icode><![CDATA[ <%= firstname %> ]]> </icode>
+
+</ps_doc>
