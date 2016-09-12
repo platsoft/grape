@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ps_doc title="PlatSoft Developer Manual" titlepage="no">
+<h1>Standardized Error Codes</h1>
+<table>
+	<thead>
+		<th width="25%">Code</th><th width="75%">Description</th>
+	</thead>
+	<tr><td>-1</td><td align="left">Unknown Error</td></tr>
+	<tr><td>-2</td><td align="left">Permission Denied</td></tr>
+	<tr><td>-3</td><td align="left">Invalid Input</td></tr>
+	<tr><td>-5</td><td align="left">Requested data not found</td></tr>
+	<tr><td>-99</td><td align="left">Database Error</td></tr>
+</table>
+</ps_doc>

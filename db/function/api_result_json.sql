@@ -11,25 +11,23 @@ CREATE TYPE grape.grape_result_type AS
 /**
  * Construct a JSON object with 3 fields, status, code and message. status is set to ERROR, message to the value of the _message parameter and code to the _code parameter. If _code is NULL this parameter is ignored
  */
-CREATE OR REPLACE FUNCTION grape.api_result_error(_message TEXT, _code INTEGER) RETURNS JSON AS $$
+CREATE OR REPLACE FUNCTION grape.api_result_error(_message TEXT, _code INTEGER, _error JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
 DECLARE
 	_ret JSON;
 BEGIN
 	IF _code IS NULL THEN
-		SELECT to_json(b) INTO _ret FROM
-			(SELECT 'ERROR' AS "status", _message AS "message") AS b;
+		RETURN json_build_object('status', 'ERROR', 'message', _message, 'error', _error);
 	ELSE
-		SELECT to_json(b) INTO _ret FROM
-			(SELECT 'ERROR' AS "status", _message AS "message", _code AS "code") AS b;
+		RETURN json_build_object('status', 'ERROR', 'message', _message, 'code', _code, 'error', _error);
 	END IF;
 
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION grape.api_error(_message TEXT, _code INTEGER) RETURNS JSON AS $$
+CREATE OR REPLACE FUNCTION grape.api_error(_message TEXT, _code INTEGER, _error JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
 DECLARE
 BEGIN
-	RETURN grape.api_result_error(_message, _code);
+	RETURN grape.api_result_error(_message, _code, _error);
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION grape.api_error() RETURNS JSON AS $$
@@ -38,11 +36,18 @@ BEGIN
 	RETURN grape.api_result_error('Unknown error', -1);
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION grape.api_error_invalid_input() RETURNS JSON AS $$
+CREATE OR REPLACE FUNCTION grape.api_error_invalid_input(_info JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
 DECLARE
 BEGIN
-	RETURN grape.api_result_error('Invalid input', -2);
+	RETURN grape.api_result_error('Invalid input', -3, _info);
 END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.api_error_permission_denied(_info JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN grape.api_result_error('Permission denied', -2, _info);
+END; $$ LANGUAGE plpgsql;
+
 
 
 

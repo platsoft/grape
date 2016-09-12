@@ -4,22 +4,52 @@
 <h1>API result functions</h1>
 This functions deal with the creation of standardized API results (in JSON format) to be sent back to the API call. They can be found in <fname>api_result_json.sql</fname>
 
-<h2>api_result_error(_message TEXT, _code INTEGER)</h2>
-Returns a JSON object with the following fields:
-<ul>
-	<li><b>status</b> - always set to "ERROR"</li>
-	<li><b>message</b> - set to the value of the first parameter _message</li>
-	<li><b>code</b> - if provided, set to the value of the second parameter _code</li>
-</ul>
+<table style="compact">
+	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
+	<tr>
+		<td>api_result_error</td>
+		<td align="left">
+			<i>message</i> TEXT<br />
+			<i>code</i> INTEGER<br />
+			<i>info</i> JSON<br />
+		</td>
+		<td align="left">Returns a standardized JSON error object with stats as "ERROR" and the other fields populated. 
+			Example: <br /><icode font-size="8pt">{"status":"ERROR", "message":"Message", "code": -2, "error": {} }</icode>
+		</td>
+	</tr>
+	<tr>
+		<td>api_error</td>
+		<td align="left">
+			<i>message</i> TEXT<br />
+			<i>code</i> INTEGER<br />
+			<i>info</i> JSON<br />
+		</td>
+		<td align="left">Overload for api_result_error</td>
+	</tr>
+	<tr>
+		<td>api_error</td>
+		<td align="left"></td>
+		<td align="left">With no arguments, an "Unknown error" message will be generated</td>
+	</tr>
+	<tr>
+		<td>api_error_invalid_input</td>
+		<td align="left"></td>
+		<td align="left">Similar to calling <icode>api_result_error("Invalid input", -2)</icode></td>
+	</tr>
 
-<h2>api_error(_message TEXT, _code INTEGER)</h2>
-Overload function for <i>api_result_error(_message TEXT, _code INTEGER)</i>
 
-<h2>api_error()</h2>
-Similar to calling <icode>api_result_error("Unknown error", -1)</icode>
 
-<h2>api_error_invalid_input()</h2>
-Similar to calling <icode>api_result_error("Invalid input", -2)</icode>
+	<!--
+	<tr>
+		<td>array_lowercase</td>
+		<td align="left"><i></i> <br /></td>
+		<td align="left"></td>
+	</tr>
+	-->
+
+
+</table>
+
 
 <h2>api_success(_keys TEXT[], _values TEXT[], _types TEXT[])</h2>
 This function will construct a JSON object containing at least one field, "status" with the value "OK". The 3 input parameters should be arrays containing additional keys, values and the associated types (n/i/number/integer, j/json or nothing for text).
@@ -40,14 +70,43 @@ Create an API result success JSON object with a JSON field merged into the resul
 Returns a API result object with a status field set to "OK".
 
 
-<h2>data_import_insert(JSON)</h2>
-<b>Filename: </b> data_upload.sql<br />
+<h1>Data importing functions</h1>
+<table style="compact">
+	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
+	<tr>
+		<td>data_import_insert</td>
+		<td align="left">
+		</td>
+		<td align="left">
+		</td>
+	</tr>
+	<tr>
+		<td>data_upload_done</td>
+		<td align="left">
+		</td>
+		<td align="left">
+		</td>
+	</tr>
+	<tr>
+		<td>data_import_row_insert</td>
+		<td align="left">
+		</td>
+		<td align="left">
+		</td>
+	</tr>
 
-<h2>data_upload_done(JSON)</h2>
-<b>Filename: </b> data_upload.sql<br />
 
-<h2>data_import_row_insert(JSON)</h2>
-<b>Filename: </b> data_upload.sql<br />
+
+	<!--
+	<tr>
+		<td>array_lowercase</td>
+		<td align="left"><i></i> <br /></td>
+		<td align="left"></td>
+	</tr>
+	-->
+
+
+</table>
 
 <h1>JSON helpers</h1>
 <h2>json2xml(_data JSON, _root TEXT)</h2>
@@ -104,7 +163,7 @@ This function returns row from a database table. The following input fields are 
 </ul>
 
 <h2>list_query_whitelist_add(_schema text, _tables TEXT[], _roles TEXT[])</h2>
-Adds tables to the whitelist for use in grape list_query.
+Adds tables to the whitelist for use in grape list_query. Users must be in _roles to be able to access the data in the table
 
 <h2>list_query_whitelist_delete(_schema TEXT, _tablename TEXT)</h2>
 Removes a table from the whitelist.
@@ -170,6 +229,11 @@ Hashes a password for user and updates the user table afterwards.
 	<li>On success 0 is returned</li>
 </ul>
 
+<h2>current_user_roles()</h2>
+Returns a list of all roles the current user belongs to
+<b>Filename: </b> user.sql<br />
+
+
 <b>Filename: </b> user.sql<br />
 
 <h2>hash_user_password (_username TEXT)</h2>
@@ -205,41 +269,54 @@ This function inserts a new session for a valid username and password provided. 
 <b>Filename: </b> session.sql<br />
 
 <h1>Other utility functions</h1>
-<h2>month_diff(DATE, DATE)</h2>
-Returns an integer containing the number of months between the two dates provided. If the first parameter is after the second (higher date), the return value will be negative.<br />
-<b>Filename: </b> month_diff.sql<br />
+<table style="compact">
+	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
+	<tr>
+		<td>month_diff</td>
+		<td align="left"><i>_d1</i> DATE<br /><i>_d2</i> DATE</td>
+		<td align="left">Returns an integer containing the number of months between the two dates provided. If the first parameter is after the second (higher date), the return value will be negative.</td>
+	</tr>
+	<tr>
+		<td>set_value</td>
+		<td align="left"><i>_name</i> TEXT<br /><i>_value</i> TEXT</td>
+		<td align="left">Sets the value (insert if new, replace if exist) in the key-value pair table <tname>grape.setting</tname> returning _value.</td>
+	</tr>
+	<tr>
+		<td>get_value</td>
+		<td align="left"><i>_name</i> TEXT<br /><i>_default_value</i> TEXT</td>
+		<td align="left">Gets the value for setting <i>_name</i>, and if not found it will return <i>_default_value</i>. Defined in <fname>setting.sql</fname></td>
+	</tr>
+	<tr>
+		<td>generate_uuid</td>
+		<td align="left"></td>
+		<td align="left">Generates a unique UUID (for example b1086d35-e973-4356-3adc-2eeb6f4963e2). Defined in <fname>uuid.sql</fname></td>
+	</tr>
+	<tr>
+		<td>array_lowercase</td>
+		<td align="left">TEXT[]</td>
+		<td align="left"></td>
+	</tr>
+	<tr>
+		<td>clean_telephone_number</td>
+		<td align="left"><i>_tel</i> TEXT<br /></td>
+		<td align="left"></td>
+	</tr>
+	<tr>
+		<td>random_string</td>
+		<td align="left"><i>length</i> INTEGER<br /></td>
+		<td align="left">Generates a random string of <i>length</i> length. Defined in <fname>random_string.sql</fname></td>
+	</tr>
+
+	<!--
+	<tr>
+		<td>array_lowercase</td>
+		<td align="left"><i></i> <br /></td>
+		<td align="left">Defined in <fname></fname></td>
+	</tr>
+	-->
 
 
-<h2>set_value(_name TEXT, _value TEXT)</h2>
-Sets the value (insert if new, replace if exist) in the key-value pair table <tname>grape.setting</tname> returning _value. <br />
-<b>Filename: </b> setting.sql<br />
-
-<h2>get_value(_name TEXT, _default_value TEXT)</h2>
-Returns the value matching the _name parameter found in the key-value pair table <tname>grape.setting</tname>, or _default_value if the name was not found.<br />
-<b>Filename: </b> setting.sql<br />
-
-
-<h2>generate_uuid()</h2>
-Generates a unique UUID (for example b1086d35-e973-4356-3adc-2eeb6f4963e2).<br />
-<b>Filename: </b> uuid.sql
-
-<h2>array_lowercase(TEXT[])</h2>
-<b>Filename: </b> array_lowercase.sql<br />
-
-<h2>clean_telephone_number (_tel TEXT)</h2>
-<b>Filename: </b> clean_telephone_number.sql<br />
-
-<h2>random_string(length INTEGER)</h2>
-Generates a random string of <i>length</i> length
-<code lang="sql">
-# select grape.random_string(10);
-random_string 
----------------
-UBSDIHGQX6
-
-</code>
-<b>Filename: </b> random_string.sql<br />
-
+</table>
 
 </ps_doc>
 

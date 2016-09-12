@@ -2,6 +2,10 @@
 
 ALTER TABLE grape.process ADD COLUMN function_schema TEXT;
 ALTER TABLE grape.process ADD COLUMN process_category TEXT;
+ALTER TABLE grape.process ADD COLUMN count_new INTEGER 0;
+ALTER TABLE grape.process ADD COLUMN count_completed INTEGER 0;
+ALTER TABLE grape.process ADD COLUMN count_error INTEGER 0;
+ALTER TABLE grape.process ADD COLUMN count_running INTEGER 0;
 
 ALTER TABLE grape.schedule ADD COLUMN auto_scheduler_id INTEGER;
 
@@ -36,7 +40,6 @@ CREATE TABLE grape.setting_history(
 	date_inserted timestamptz,
 	user_id integer,
 	CONSTRAINT setting_history_pk PRIMARY KEY (setting_history_id)
-
 );
 
 

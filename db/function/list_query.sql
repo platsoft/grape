@@ -17,7 +17,7 @@ END; $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION grape.list_query_whitelist_add (_schema TEXT, _tables TEXT[]) RETURNS BOOLEAN AS $$
 DECLARE
 BEGIN
-	RETURN grape.list_query_whitelist_add(_schema, _tables, '{admin}'::TEXT[]);
+	RETURN grape.list_query_whitelist_add(_schema, _tables, '{all}'::TEXT[]);
 END; $$ LANGUAGE plpgsql;
 
 
@@ -44,7 +44,6 @@ END; $$ LANGUAGE plpgsql;
  *	filters_join (optional) indicate if filters should be joined with an AND or an OR. Defaults to AND
  * Returns a list object:  { total: INT, offset: INT, limit: INT, result_count: INT, records: [ {} ] }
  */
-CREATE TABLE IF NOT EXISTS grape.list_query_whitelist (schema text, tablename text, PRIMARY KEY (schema, tablename));
 CREATE OR REPLACE FUNCTION grape.list_query(JSON) RETURNS JSON AS $$
 DECLARE
 	_offset INTEGER;
@@ -69,6 +68,7 @@ DECLARE
 	_filters_join TEXT;
 
 	_roles TEXT[];
+	_user_roles TEXT[];
 
 	_extra_data JSON := ($1->'extra_data');
 BEGIN
@@ -77,7 +77,7 @@ BEGIN
 	_schema := 'public';
 
 	IF json_extract_path($1, 'tablename') IS NULL THEN
-		RETURN grape.api_error('Table requested is null', -2);
+		RETURN grape.api_error('Table requested is null', -5);
 	END IF;
 
 	_tablename := $1->>'tablename';
@@ -96,11 +96,15 @@ BEGIN
 
 	SELECT roles INTO _roles FROM grape.list_query_whitelist WHERE schema = _schema::TEXT AND tablename = _tablename::TEXT;
 	IF NOT FOUND THEN
-		RETURN grape.api_error('Table requested is not in whitelist', -4);
+		RETURN grape.api_error('Table requested is not in whitelist', -2);
 	END IF;
 
-	IF NOT _roles @> '{all}' AND grape.current_user_in_role(_roles) THEN
-		RETURN grape.api_error('Permission denied', -3);
+	IF NOT _roles @> '{all}' AND grape.current_user_in_role(_roles) = FALSE THEN
+		SELECT array_agg(c) INTO _user_roles FROM grape.current_user_roles() c;
+		RETURN grape.api_error('Permission denied to table ' || _schema::TEXT || '.' || _tablename::TEXT, 
+			-2, 
+			json_build_object('allowed_roles', _roles, 'user_roles', _user_roles)
+		);
 	END IF;
 
         IF json_extract_path($1, 'sortfield') IS NOT NULL THEN
