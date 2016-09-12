@@ -2,10 +2,10 @@
 
 ALTER TABLE grape.process ADD COLUMN function_schema TEXT;
 ALTER TABLE grape.process ADD COLUMN process_category TEXT;
-ALTER TABLE grape.process ADD COLUMN count_new INTEGER 0;
-ALTER TABLE grape.process ADD COLUMN count_completed INTEGER 0;
-ALTER TABLE grape.process ADD COLUMN count_error INTEGER 0;
-ALTER TABLE grape.process ADD COLUMN count_running INTEGER 0;
+ALTER TABLE grape.process ADD COLUMN count_new INTEGER DEFAULT 0;
+ALTER TABLE grape.process ADD COLUMN count_completed INTEGER DEFAULT 0;
+ALTER TABLE grape.process ADD COLUMN count_error INTEGER DEFAULT 0;
+ALTER TABLE grape.process ADD COLUMN count_running INTEGER DEFAULT 0;
 
 ALTER TABLE grape.schedule ADD COLUMN auto_scheduler_id INTEGER;
 

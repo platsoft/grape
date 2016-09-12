@@ -232,7 +232,7 @@ function db (_o) {
 	 *
 	 */ 
 	this.json_call =  function(name, input, _callback, options) {
-		options = options || { rows: false, single: false };
+		options = options || { rows: false, single: false, jsonb: false };
 		var alias = name;
 		alias = alias.replace(/\./g, '');
 
@@ -265,13 +265,22 @@ function db (_o) {
 		if (self.options.debug)
 			self.emit('debug', 'DB SELECT ' + name + " ('" + JSON.stringify(input) + "'::JSON) AS " + alias);
 
+		var _type = 'JSON';
+		if (options.jsonb && options.jsonb === true)
+			_type = 'JSONB';
+
+
 		var qry;
 		if (options.rows)
-			qry = self.query("SELECT * FROM " + name + "($1::JSON) AS " + alias, [JSON.stringify(input)], callback);
+			qry = self.query(["SELECT * FROM ", name, "($1::", _type, ") AS ", alias].join(''), [JSON.stringify(input)], callback);
 		else
-			qry = self.query("SELECT " + name + "($1::JSON) AS " + alias, [JSON.stringify(input)], callback);
+			qry = self.query(["SELECT ", name, "($1::", _type, ") AS ", alias].join(''), [JSON.stringify(input)], callback);
 
 		return qry;
+	};
+	
+	this.jsonb_call =  function(name, input, _callback, options) {
+		return self.json_call(name, input, _callback, _.extend(options, {jsonb: true}));
 	};
 
 	this.setup_notification_listener = function() {

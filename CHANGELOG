@@ -97,3 +97,6 @@
 - Description and data_type for settings
 - API calls and functions for settings
 
+1.0.1:
+- Added db function jsonb call to write API functions accepting JSONB instead of JSON
+
