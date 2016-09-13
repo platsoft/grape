@@ -356,3 +356,54 @@ BEGIN
 	RETURN;
 END; $$ LANGUAGE plpgsql;
 
+/**
+ * Immediately run a process function
+ */
+CREATE OR REPLACE FUNCTION grape.run_process_function (_process_id INTEGER, _param JSON) RETURNS JSON AS $$
+DECLARE
+	_pg_function TEXT;
+	_pg_function_schema TEXT;
+	_sql TEXT;
+	_ret JSON;
+BEGIN
+	SELECT pg_function, function_schema INTO _pg_function, _pg_function_schema FROM grape.process WHERE process_id=_process_id::INTEGER;
+
+	IF _pg_function_schema IS NULL OR _pg_function_schema = '' THEN
+		_pg_function_schema := 'grape';
+	END IF;
+
+	_sql := FORMAT('SELECT "%s"."%s"($1)', _pg_function_schema, _pg_function);
+	
+	EXECUTE _sql USING _param INTO _ret;
+
+	RETURN _ret;
+END; $$ LANGUAGE plpgsql;
+
+/**
+ * Immediately run a process function
+ */
+CREATE OR REPLACE FUNCTION grape.run_process_function (JSONB) RETURNS JSON AS $$
+DECLARE
+	_process_id INTEGER;
+	_param JSON;
+BEGIN
+	IF $1 ? 'pg_function' THEN
+		_process_id := (SELECT process_id FROM grape.process WHERE pg_function=$1->>'pg_function');
+	ELSIF $1 ? 'process_id' THEN
+		_process_id := ($1->>'process_id')::INTEGER;
+	ELSE
+		RETURN grape.api_invalid_input_error();
+	END IF;
+
+	IF $1 ? 'param' THEN
+		_param := ($1->'param')::JSON;
+	ELSE
+		_param := '{}';
+	END IF;
+
+	RETURN grape.api_success('output', grape.run_process_function(_process_id, _param));
+END; $$ LANGUAGE plpgsql;
+
+
+
+

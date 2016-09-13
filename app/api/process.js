@@ -118,7 +118,23 @@ exports = module.exports = function(_app) {
  */
 	app.get("/download/schedule_logfile/:schedule_id", api_download_schedule_logfile);
 
+/**
+ * @desc Starts a process function - this should never be calle from a frontend
+ * @method POST
+ * @url /grape/process/:process_id/run
+ * @body will be passes as the parameters
+ * @return JSON object containing output of process
+ * 
+ *
+ **/
+	app.post("/grape/process/:process_name/run", api_run_process_now);
+
 };
+
+function api_run_process_now(req, res)
+{
+	res.locals.db.jsonb_call('grape.run_process_function', {pg_function: req.params.process_name, params: req.body}, null, {response: res});
+}
 
 function api_start_process(req, res)
 {
