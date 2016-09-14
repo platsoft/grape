@@ -149,6 +149,20 @@ DECLARE
 	_run_with_params JSON;
 	_active BOOLEAN;
 BEGIN
+	IF json_extract_path($1, 'auto_scheduler_id') IS NOT NULL THEN
+		_auto_scheduler_id := ($1->>'auto_scheduler_id')::INTEGER;
+
+		SELECT process_id, scheduled_interval, dow, days_of_month, day_time, params, user_id, active
+		INTO _process_id, _scheduled_interval, _dow, _dom, _time, _run_with_params, _run_as_user_id, _active
+			FROM grape.auto_scheduler
+			WHERE auto_scheduler_id=_auto_scheduler_id::INTEGER;
+	ELSE
+		-- defaults
+		_run_with_params := '{}';
+		_run_as_user_id := current_user_id();
+		_active := TRUE;
+	END IF;
+
 
 	IF json_extract_path($1, 'process_id') IS NOT NULL THEN
 		_process_id := ($1->>'process_id')::INTEGER;
@@ -164,44 +178,45 @@ BEGIN
 	IF json_extract_path($1, 'scheduled_interval') IS NOT NULL THEN
 		_scheduled_interval := ($1->>'scheduled_interval')::INTERVAL;
 	END IF;
+
 	IF json_extract_path($1, 'dow') IS NOT NULL THEN
 		_dow := $1->>'dow';
 		IF _dow !~* '^([01]){7}$' THEN
 			RETURN grape.api_result_error('Invalid input - dow should be a 7-character string containing ones and zeros', -2);
 		END IF;
 	END IF;
+
 	IF json_extract_path($1, 'days_of_month') IS NOT NULL THEN
 		_dom := $1->>'days_of_month';
 	END IF;
+
 	IF json_extract_path($1, 'day_time') IS NOT NULL THEN
 		_time := ($1->>'day_time')::TIME;
 	END IF;
-	IF json_extract_path($1, 'auto_scheduler_id') IS NOT NULL THEN
-		_auto_scheduler_id := ($1->>'auto_scheduler_id')::INTEGER;
-	END IF;
 
-	_run_with_params := '{}';
 	IF json_extract_path($1, 'params') IS NOT NULL THEN
 		_run_with_params := $1->'params';
 	END IF;
 
-	_run_as_user_id := current_user_id();
 	IF json_extract_path($1, 'user_id') IS NOT NULL THEN
 		_run_as_user_id := ($1->>'user_id')::INTEGER;
 	END IF;
 
-	_active := TRUE;
 	IF json_extract_path($1, 'active') IS NOT NULL THEN
 		_active := ($1->>'active')::BOOLEAN;
 	END IF;
 
 
 	IF _time IS NOT NULL AND _scheduled_interval IS NOT NULL THEN
-		RETURN grape.api_result_error('Invalid input - cannot provide interval and time', -2);
+		RETURN grape.api_result_error('Invalid input - cannot provide interval and time', -3);
 	END IF;
 
 	IF _scheduled_interval IS NOT NULL AND _scheduled_interval >= '1 day'::INTERVAL THEN
-		RETURN grape.api_result_error('Invalid input - interval cannot be longer than a day', -2);
+		RETURN grape.api_result_error('Invalid input - interval cannot be longer than a day', -3);
+	END IF;
+
+	IF _scheduled_interval IS NULL AND _time IS NULL THEN
+		RETURN grape.api_result_error('Invalid input - need to provide either day_time or scheduled_interval', -3);
 	END IF;
 
 	IF _auto_scheduler_id IS NOT NULL THEN
@@ -404,6 +419,13 @@ BEGIN
 	RETURN grape.api_success('output', grape.run_process_function(_process_id, _param));
 END; $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION grape.select_auto_scheduler(JSONB) RETURNS JSON AS $$
+	SELECT grape.api_success_if_not_null(
+		'auto_scheduler', 
+		(SELECT to_json(auto_scheduler) FROM grape.auto_scheduler WHERE auto_scheduler_id=($1->>'auto_scheduler_id')::INTEGER)
+	);
+$$ LANGUAGE sql;
 
 
 

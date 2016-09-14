@@ -99,4 +99,6 @@
 
 1.0.1:
 - Added db function jsonb call to write API functions accepting JSONB instead of JSON
+- API call /grape/process/:process_name/run to immediately run process function
+- Added grape.api_success_if_not_null and grape.api_error_data_not_found
 

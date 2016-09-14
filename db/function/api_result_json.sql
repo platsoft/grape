@@ -48,6 +48,12 @@ BEGIN
 	RETURN grape.api_result_error('Permission denied', -2, _info);
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.api_error_data_not_found(_info JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN grape.api_result_error('Data not found', -5, _info);
+END; $$ LANGUAGE plpgsql;
+
 
 
 
@@ -139,6 +145,19 @@ BEGIN
 	RETURN (jsonb_build_object('status', 'OK') || $1::JSONB)::JSON;
 END; $$ LANGUAGE plpgsql;
 
+/**
+ * Returns success message when data is not null, otherwise it returns grape.api_error_data_not_found
+ */
+CREATE OR REPLACE FUNCTION grape.api_success_if_not_null(_fieldname TEXT, _data JSON) RETURNS JSON AS $$
+	SELECT 
+		CASE WHEN _data IS NULL OR json_typeof(_data) = 'null' THEN 
+			grape.api_error_data_not_found() 
+		ELSE 
+			grape.api_success(_data)
+		END;
+$$ LANGUAGE sql;
+
+
 
 CREATE OR REPLACE FUNCTION grape.api_result(res grape.grape_result_type) RETURNS JSON AS $$
 DECLARE
@@ -157,5 +176,6 @@ BEGIN
 	
 	RETURN grape.api_error();
 END; $$ LANGUAGE plpgsql;
+
 
 

@@ -33,19 +33,19 @@ exports = module.exports = function(_app) {
  * @body JSON object containing fields:
  * {
  * 	process_id INTEGER Process ID to set autoscheduler for 
+ * 	auto_scheduler_id INTEGER Optional, and if given this will update the existing auto_scheduler
  * 	day_time TIME Time to run
  * 	scheduled_interval INTERVAL Interval to run (1 hour, 10 minutes, etc). Set either this, or time
  * 	dow TEXT A 7 character string containing 0s or 1s with the date of weeks to run on. Starts on Sunday
  * 	days_of_month TEXT A comma separated list of days to run on, or a * to indicate every day
  * 	params JSON 
- * 	user_id INTEGER
+ * 	user_id INTEGER Run as user id
  * 	active BOOLEAN
  * }
  * @return JSON object containing fields:
  *
  **/
 	app.post("/grape/process/autoschedule", api_process_autoschedule);
-
 
 /**
  * @desc List processes
@@ -128,6 +128,20 @@ exports = module.exports = function(_app) {
  *
  **/
 	app.post("/grape/process/:process_name/run", api_run_process_now);
+
+
+	/**
+	 * @desc
+	 * @url /grape/process/autoscheduler/:autoscheduler_id
+	 * @method GET
+	 * @sqlfunc 
+	 * @return
+	 */
+	app.get("/grape/process/autoscheduler/:autoscheduler_id", 
+			function (req, res)
+			{
+				res.locals.db.jsonb_call('grape.select_autoscheduler', {autoscheduler_id: req.params.autoscheduler_id}, null, {response: res});
+			});
 
 };
 
