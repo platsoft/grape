@@ -306,4 +306,87 @@ BEGIN
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;
 
+/**
+ * IN: 
+ * 	user_id 
+ * 	employee_guid
+ * 	employee_info 
+ */
+CREATE OR REPLACE FUNCTION grape.update_user_employee_info(JSONB) RETURNS JSON AS $$
+DECLARE
+	_user_id INTEGER;
+	_employee_guid UUID;
+	_employee_info JSONB;
+BEGIN
+	IF $1 ? 'user_id' THEN
+		_user_id := ($1->>'user_id')::INTEGER;
+	END IF;
+
+	IF $1 ? 'employee_guid' THEN
+		_employee_guid := ($1->>'employee_guid');
+	ELSIF $1 ? 'guid' THEN
+		_employee_guid := ($1->>'guid');
+	END IF;
+
+	IF _user_id IS NULL AND _employee_guid IS NOT NULL THEN
+		_user_id := (SELECT user_id FROM grape."user" WHERE employee_guid=_employee_guid::UUID);
+	END IF;
+
+	IF $1 ? 'employee_info' THEN
+		_employee_info := $1->'employee_info';
+	END IF;
+
+	IF _user_id IS NULL OR _employee_info IS NULL THEN
+		RETURN grape.api_error_invalid_input();
+	END IF;
+
+	UPDATE grape."user" SET 
+		employee_info=_employee_info
+		WHERE user_id=_user_id::INTEGER;
+	
+	RETURN grape.api_success();
+END; $$ LANGUAGE plpgsql;
+
+/**
+ * IN: 
+ * 	user_id 
+ * OUT:
+ * 	user
+ * 		email
+ * 		active
+ * 		employee_guid
+ * 		user_roles
+ */
+CREATE OR REPLACE FUNCTION grape.select_user(JSONB) RETURNS JSON AS $$
+DECLARE
+	_user_id INTEGER;
+	_user_roles TEXT[];
+	_ret JSONB;
+BEGIN
+	IF $1 ? 'user_id' THEN
+		_user_id := ($1->>'user_id')::INTEGER;
+	END IF;
+
+	IF _user_id IS NULL THEN
+		RETURN grape.api_invalid_input_error();
+	END IF;
+
+	IF grape.current_user_in_role('admin') = FALSE AND _user_id != current_user_id() THEN
+		RETURN grape.api_error_permission_denied();
+	END IF;
+
+	SELECT to_jsonb(u) INTO _ret FROM grape."user" u WHERE user_id=_user_id::INTEGER;
+
+	IF NOT FOUND THEN
+		RETURN grape.api_error_data_not_found();
+	END IF;
+	
+	SELECT array_agg(role_name) INTO _user_roles FROM grape."user_role" WHERE user_id=_user_id::INTEGER;
+
+	_ret := _ret || jsonb_build_object('user_roles', _user_roles);
+	
+	RETURN grape.api_success('user', _ret::JSON);
+END; $$ LANGUAGE plpgsql;
+
+
 
