@@ -8,6 +8,7 @@ var util = require('util');
 var cluster = require('cluster');
 var g_app = require(__dirname + '/app.js');
 var comms = require(__dirname + '/comms.js');
+var email_notification_listener = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
 var async = require('async');
 
 exports = module.exports = function(_o) {
@@ -74,6 +75,7 @@ exports = module.exports = function(_o) {
 					process.exit(1);
 				});
 
+				self.createDBNotificationListener();
 
 				console.log("Starting " + self.options.instances + " instances");
 				for (var i = 0; i < self.options.instances; i++)
@@ -95,21 +97,34 @@ exports = module.exports = function(_o) {
 				next();
 			};
 
+
 			async.series([start_pidfile, start_comms_channel, start_instances]);
 		}
 		else
 		{
-			// We are a worker/child process
-			var app = g_app(_o);
-			var cache = new comms.worker(_o);
-			cache.start();
-			app.set('cache', cache);
+			if (process.env.state && process.env.state == 'api_listener_worker')
+			{
+				// We are a worker/child process
+				var app = g_app(_o);
+				var cache = new comms.worker(_o);
+				cache.start();
+				app.set('cache', cache);
+			}
+			else if (process.env.state && process.env.state == 'db_notification_listener')
+			{
+				var e_notify = new email_notification_listener(_o);
+				e_notify.start();
+			}
+			else
+			{
+				console.log("UNKNOWN WORKER");
+			}
 		}
 	};
 
 	this.createWorker = function()
 	{
-		var worker = cluster.fork();
+		var worker = cluster.fork({"state": "api_listener_worker"});
 		worker.on('disconnect', function() {
 		});
 		worker.on('exit', function() {
@@ -127,6 +142,30 @@ exports = module.exports = function(_o) {
 		worker.on('death', function() {
 			console.log("Worker died");
 			self.createWorker();
+		});
+
+	};
+
+	this.createDBNotificationListener = function() {
+		console.log("Starting DB notification listener");
+		var worker = cluster.fork({"state": "db_notification_listener"});
+		worker.on('disconnect', function() {
+		});
+		worker.on('exit', function() {
+			console.log("DB Notify Worker exit with code", worker.process.exitCode);
+			if (worker.process.exitCode == 5)
+			{
+				console.log("Connectivity issue. Restarting in 5 seconds...");
+				setTimeout(function() { self.createDBNotificationListener(); }, 5000);
+			}
+			else
+			{
+				self.createWorker();
+			}
+		});
+		worker.on('death', function() {
+			console.log("DB Notify Worker died");
+			self.createDBNotificationListener();
 		});
 
 	};
