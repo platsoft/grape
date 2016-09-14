@@ -231,19 +231,19 @@ function db (_o) {
 	 * 	rows - if true the query will expect a SETOF return
 	 *
 	 */ 
-	this.json_call =  function(name, input, _callback, options) {
-		options = options || { rows: false, single: false, jsonb: false };
+	this.json_call =  function(name, input, _callback, qry_options) {
+		qry_options = qry_options || { rows: false, single: false, jsonb: false };
 		var alias = name;
 		alias = alias.replace(/\./g, '');
 
 		var callback = _callback;
 
 		// response is the express response object to return the result to
-		if (!callback && options.response)
+		if (!callback && qry_options.response)
 		{
 			alias = 'r';
 			callback = function(err, result) {
-				var res = options.response;
+				var res = qry_options.response;
 				if (err || !result.rows) 
 				{
 					self.emit('error', err);
@@ -266,12 +266,12 @@ function db (_o) {
 			self.emit('debug', 'DB SELECT ' + name + " ('" + JSON.stringify(input) + "'::JSON) AS " + alias);
 
 		var _type = 'JSON';
-		if (options.jsonb && options.jsonb === true)
+		if (qry_options.jsonb && qry_options.jsonb === true)
 			_type = 'JSONB';
 
 
 		var qry;
-		if (options.rows)
+		if (qry_options.rows)
 			qry = self.query(["SELECT * FROM ", name, "($1::", _type, ") AS ", alias].join(''), [JSON.stringify(input)], callback);
 		else
 			qry = self.query(["SELECT ", name, "($1::", _type, ") AS ", alias].join(''), [JSON.stringify(input)], callback);
@@ -279,8 +279,8 @@ function db (_o) {
 		return qry;
 	};
 	
-	this.jsonb_call =  function(name, input, _callback, options) {
-		return self.json_call(name, input, _callback, _.extend(options, {jsonb: true}));
+	this.jsonb_call =  function(name, input, _callback, qry_options) {
+		return self.json_call(name, input, _callback, _.extend(qry_options, {jsonb: true}));
 	};
 
 	this.setup_notification_listener = function() {
