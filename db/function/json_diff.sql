@@ -32,11 +32,11 @@ BEGIN
 		END IF;
 	END IF;
 	
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.json_diff (_old JSON, _new JSON) RETURNS JSON AS $$
 	SELECT grape.json_diff (_old::JSONB, _new::JSONB)::JSON;
-$$ LANGUAGE sql;
+$$ LANGUAGE sql IMMUTABLE;
 
 
 CREATE OR REPLACE FUNCTION grape.json_object_diff (_old JSONB, _new JSONB) RETURNS JSONB AS $$
@@ -64,7 +64,7 @@ BEGIN
 	END LOOP;
 
 	RETURN _ret;
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 /**
  * Compare two JSON arrays and return any values that exists in _new but not in _old
@@ -82,7 +82,7 @@ BEGIN
 	END LOOP;
 
 	RETURN to_jsonb(_ret_fields);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 
 
