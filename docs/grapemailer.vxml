@@ -1,21 +1,33 @@
 <?xml version="1.0"?>
 <ps_doc title="Grapemailer" titlepage="no">
-<h1>Sending emails from Grape</h1>
+<h1>How to send emails from Grape in PostgreSQL</h1>
+<h2>Setup</h2>
 The following needs to be set up in order to send emails from within SQL functions:
 <ol>
-	<li>smtp settings in config</li>
-	<li>email_template_directory in config containing templates</li>
+	<li><i>smtp</i> settings in config 
+<code><![CDATA[smtp: {
+	host: 'mail.platsoft.net',
+	from: 'Merlot <merlot-live@platsoft.net>',
+	secureConnection: true,
+	port: 465,
+	auth: {
+		user: 'username',
+		pass: 'password'
+	}
+}]]></code></li>
+	<li><i>email_template_directory</i> in config containing templates, typically <i>__dirname + '/email_templates'</i></li>
 </ol>
-<h2>send_email</h2>
-Call <i>grape.send_email (to, template, data) </i> to send an email. The following parameters are needed:
+<h2>Send an email</h2>
+Call <i>grape.send_email (to TEXT, template TEXT, data JSON) </i> to send an email. The values of the parameters should be as follows:
 <ul>
 	<li><i>to</i> Email address of receiver</li>
-	<li><i>template</i> Template name</li>
+	<li><i>template</i> Template name (see <b>Email templates</b> below)</li>
 	<li><i>data</i> Template data</li>
 </ul>
 
 <h2>Email templates</h2>
-Email templates live in the email_template_directory defined in the app's config. The template engine reads 4 files (<i>templatename</i> is replaced by the name provided when calling grape.send_email):
+<p>
+Email templates live in the <i>email_template_directory</i> defined in the app's config. Each template has 4 files (each starting with the specified <i>templatename</i>):
 <ul>
 	<li><i>templatename<b>.subject</b></i> - To generate the subject</li>
 	<li><i>templatename<b>.text</b></i> - To generate the plain-text body of the email</li>
@@ -23,11 +35,34 @@ Email templates live in the email_template_directory defined in the app's config
 	<li><i>templatename<b>.attachments</b></i> - To generate a list of attachments to include in the email</li>
 </ul>
 
+Underscore's template engine is used.
+
 The data sent to <i>grape.send_email (to, template, data) </i> is accessible inside the template files. For example, if an email is called with the following data:
-<code>
-{ "firstname": "Piet" }
-</code>
+<code>{ "firstname": "Piet" }</code>
 
 The field firstname is accessable inside of the templates using <icode><![CDATA[ <%= firstname %> ]]> </icode>
+</p>
+
+<pb />
+<h2>Example</h2>
+<p>
+	A typical welcome email will have the following templates (assuming the template name is <red>welcome</red>): <br />
+	<b><fname>welcome.subject</fname></b>:
+	<code><![CDATA[Hi <%= firstname %>! Welcome to <%= product_name %>]]></code>
+	<b><fname>welcome.text</fname></b>:
+	<code><![CDATA[Hi <%= firstname %>! 
+		Welcome to <%= product_name %>. 
+		
+		Your login details are as follows:
+		Username: <%= username %>
+		Password: <%= password %>
+
+		Goodbye]]></code>
+
+	The HTML file is optional, and follows the same pattern. 
+	<br />
+	This template must be called with a JSON object containing at least fields <i>firstname</i>, <i>product_name</i>, <i>username</i> and <i>password</i>. The send this email, call the grape.send_email function:
+	<code>SELECT grape.send_email('piet@platsoft.net', 'welcome', <br />'{"firstname": "Piet", <br />"product_name": "Some System", <br />"username": "Piet", <br />"password": "Piet123"}'::JSON);</code>
+</p>
 
 </ps_doc>
