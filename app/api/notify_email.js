@@ -28,7 +28,7 @@ function notification_email(d)
 			template_data: data.template_data
 		};
 
-		app.get('logger').debug('Sending ' + data.email_template + ' email to ' + data.email);
+		app.get('logger').debug('Sending ' + data.email_template + ' email to ' + data.email + ' with template data ' + JSON.stringify(data.template_data));
 
 		send_email(config, mail, function(err, data)
 		{

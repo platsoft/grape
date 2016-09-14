@@ -101,4 +101,9 @@
 - Added db function jsonb call to write API functions accepting JSONB instead of JSON
 - API call /grape/process/:process_name/run to immediately run process function
 - Added grape.api_success_if_not_null and grape.api_error_data_not_found
+- API call /grape/process/autoscheduler/:autoscheduler_id
+- Improved error handling for emailer
+- Directly send login details from grape
+- New grape setting system_url
+
 

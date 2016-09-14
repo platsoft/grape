@@ -64,6 +64,8 @@ function GrapeMailer(_o)
 			// TODO cache templates
 			function proc_template(template_name, type, d)
 			{
+				//console.log("Processing template ", template_name, type, d);
+
 				var template_file = [email_template_directory, '/', template_name, '.', type].join('');
 				var tmpl_data = null;
 
@@ -74,7 +76,19 @@ function GrapeMailer(_o)
 				if (tmpl_data)
 				{
 					var tmpl = _.template(tmpl_data);
-					return tmpl(d);
+					
+					//console.log("Found template data");
+
+					try {
+						var ret = tmpl(d);
+					} catch (e) { 
+						//console.log("Exception", e);  
+						self.error = 'Error when processing template file ' + template_file + ' (' + e + ')';
+						return -1;
+					}
+					//console.log("Returning ret");
+
+					return ret;
 				}
 				return null;
 			}
@@ -82,6 +96,13 @@ function GrapeMailer(_o)
 			mailOptions.text = proc_template(mailOptions.template, 'text', mailOptions.template_data) || mailOptions.text;
 			mailOptions.html = proc_template(mailOptions.template, 'html', mailOptions.template_data) || mailOptions.html;
 			mailOptions.subject = proc_template(mailOptions.template, 'subject', mailOptions.template_data) || mailOptions.subject;
+
+			if (mailOptions.text == -1)
+				return null;
+			if (mailOptions.html == -1)
+				return null;
+			if (mailOptions.subject == -1)
+				return null;
 
 			var attachments_file = [email_template_directory, '/', mailOptions.template, '.attachments'].join('');
 			var tmpl_attachments_data = null;
@@ -97,7 +118,7 @@ function GrapeMailer(_o)
 					var filepath = path.normalize(email_template_directory + '/' + row);
 					mailOptions.attachments.push({filename: filename, path: filepath, cid: filename});
 				});
-			} catch (e) { }
+			} catch (e) { console.log("Exception ", e); }
 		}
 
 		return mailOptions;
@@ -122,6 +143,7 @@ module.exports.send_email = function(_config, _email, cb) {
 	var emailer = new GrapeMailer(_config);
 	if (emailer.create_transporter() == -1)
 	{
+		console.log("ERR", self.error);
 		cb(self.error, null);
 		return;
 	}
