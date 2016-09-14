@@ -47,4 +47,6 @@ DROP FUNCTION IF EXISTS grape.api_error(_message TEXT, _code INTEGER);
 DROP FUNCTION IF EXISTS grape.api_error_invalid_input();
 DROP FUNCTION IF EXISTS grape.api_error_permission_denied();
 
+ALTER TABLE grape.setting ADD COLUMN description TEXT;
+ALTER TABLE grape.setting ADD COLUMN data_type TEXT;
 
