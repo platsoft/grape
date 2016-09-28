@@ -14,7 +14,37 @@ exports = module.exports = function(_app) {
  * @return JSON object 
  **/
 	app.post("/grape/data_upload", api_data_upload);
+
+/**
+ * @desc process given data_import_id data
+ * @method get
+ * @url /grape/data_upload/:data_import_id
+ *
+ * @return JSON object 
+ **/
+	app.get("/grape/data_upload/process/:data_import_id", api_data_upload_process);
+
+/**
+ * @desc process given data_import_id data
+ * @method get
+ * @url /grape/data_upload_row/:data_import_id
+ *
+ * @return JSON object 
+ **/
+	app.get("/grape/data_upload_rows/:data_import_id", api_data_upload_row);
 };
+
+function api_data_upload_row(req, res)
+{
+	var obj = {'data_import_id': req.params.data_import_id};
+	res.locals.db.json_call('grape.data_import_row', obj, null, {response: res});
+}
+
+function api_data_upload_process(req, res)
+{
+	var obj = {'data_import_id': req.params.data_import_id};
+	res.locals.db.json_call('grape.data_import_process', obj, null, {response: res});
+}
 
 function api_data_upload(req, res)
 {
@@ -52,10 +82,15 @@ function api_data_upload(req, res)
 	for (var i = 0; i < filefields.length; i++)
 	{
 		var file = req.files[filefields[i]];
+		var ds = app.get('document_store');
+		var processing_function = req.body.processing_function;
 
-		res.locals.db.json_call('grape.data_import_insert', {filename: file.originalFilename, description: filefields[i]}, function(err, result) { 
+		res.locals.db.json_call('grape.data_import_insert', {processing_function: processing_function, filename: file.originalFilename, description: filefields[i]}, function(err, result) { 
 
 			var data_import_id = result.rows[0].grapedata_import_insert.data_import_id;
+			var originalname = file.originalFilename; 
+			var filename = originalname.replace(/.*(\.[^.]*$)/, data_import_id+'$1')
+			ds.saveFile('dupload', file.path, filename, false);
 			data_import_ids.push(data_import_id);
 
 			var workbook = XLSX.readFile(file.path);
