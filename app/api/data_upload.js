@@ -89,7 +89,7 @@ function api_data_upload(req, res)
 
 			var data_import_id = result.rows[0].grapedata_import_insert.data_import_id;
 			var originalname = file.originalFilename; 
-			var filename = originalname.replace(/.*(\.[^.]*$)/, data_import_id+'$1')
+			var filename = originalname.replace(/.*(\.[^.]*$)/, 'data_import_'+data_import_id+'$1')
 			ds.saveFile('dupload', file.path, filename, false);
 			data_import_ids.push(data_import_id);
 
