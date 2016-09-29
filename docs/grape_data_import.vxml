@@ -12,7 +12,7 @@ Uploaded files can be registered against a pre-defined processing function. Thes
 </ol>
 
 API calls:
-POST /grape/data_upload
+POST /grape/data_import
 
 
 </ps_doc>
