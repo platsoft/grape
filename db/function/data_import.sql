@@ -30,7 +30,7 @@ BEGIN
 		VALUES (_filename, _description, $1, NULL, _processing_function, 0) 
 		RETURNING data_import_id INTO _data_import_id;
 	
-	_schema := grape.setting('data_upload_schema', 'grape');
+	_schema := grape.setting('data_import_schema', 'grape');
 	_tablename := FORMAT('data_import_%s', _data_import_id);
 	_idxname := FORMAT('%s_data_import_row_idx', _tablename);
 
@@ -46,7 +46,7 @@ BEGIN
 	RETURN grape.api_success('data_import_id', _data_import_id);
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION grape.data_upload_done(JSON) RETURNS JSON AS $$
+CREATE OR REPLACE FUNCTION grape.data_import_done(JSON) RETURNS JSON AS $$
 DECLARE
 	_data_import_id INTEGER;
 BEGIN

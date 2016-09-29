@@ -9,44 +9,44 @@ exports = module.exports = function(_app) {
 /**
  * @desc Upload generic excel data to grape.data_import and rows to data.data_import_row
  * @method POST
- * @url /grape/data_upload
+ * @url /grape/data_import
  *
  * @return JSON object 
  **/
-	app.post("/grape/data_upload", api_data_upload);
+	app.post("/grape/data_import", api_data_import);
 
 /**
  * @desc process given data_import_id data
  * @method get
- * @url /grape/data_upload/:data_import_id
+ * @url /grape/data_import/:data_import_id/process
  *
  * @return JSON object 
  **/
-	app.get("/grape/data_upload/process/:data_import_id", api_data_upload_process);
+	app.get("/grape/data_import/:data_import_id/process", api_data_import_process);
 
 /**
- * @desc process given data_import_id data
+ * @desc return data for data_import_id
  * @method get
- * @url /grape/data_upload_row/:data_import_id
+ * @url /grape/data_import/:data_import_id/detail
  *
  * @return JSON object 
  **/
-	app.get("/grape/data_upload_rows/:data_import_id", api_data_upload_row);
+	app.get("/grape/data_import/:data_import_id/detail", api_data_import_detail);
 };
 
-function api_data_upload_row(req, res)
+function api_data_import_detail(req, res)
 {
 	var obj = {'data_import_id': req.params.data_import_id};
 	res.locals.db.json_call('grape.data_import_rows', obj, null, {response: res});
 }
 
-function api_data_upload_process(req, res)
+function api_data_import_process(req, res)
 {
 	var obj = {'data_import_id': req.params.data_import_id};
 	res.locals.db.json_call('grape.data_import_process', obj, null, {response: res});
 }
 
-function api_data_upload(req, res)
+function api_data_import(req, res)
 {
 	var item_count = 0;
 	var errors = [];
@@ -62,7 +62,7 @@ function api_data_upload(req, res)
 		var count_done = data_import_ids.length;
 		for (var i = 0; i < data_import_ids.length; i++)
 		{
-			res.locals.db.json_call('grape.data_upload_done', {data_import_id: data_import_ids[i]}, function (err, result) {
+			res.locals.db.json_call('grape.data_import_done', {data_import_id: data_import_ids[i]}, function (err, result) {
 				count_done--;
 				if (count_done <= 0)
 				{
