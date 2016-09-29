@@ -37,7 +37,7 @@ exports = module.exports = function(_app) {
 function api_data_import_detail(req, res)
 {
 	var obj = {'data_import_id': req.params.data_import_id};
-	res.locals.db.json_call('grape.data_import_rows', obj, null, {response: res});
+	res.locals.db.json_call('grape.data_import_detail', obj, null, {response: res});
 }
 
 function api_data_import_process(req, res)
