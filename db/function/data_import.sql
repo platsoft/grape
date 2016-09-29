@@ -81,20 +81,25 @@ END; $$ LANGUAGE plpgsql;
  * return json with all the data rows
  * Required field data_import_id must be in the JSON data
  */
-CREATE OR REPLACE FUNCTION grape.data_import_rows(JSON) RETURNS JSON AS $$
+CREATE OR REPLACE FUNCTION grape.data_import_detail(JSON) RETURNS JSON AS $$
 DECLARE
 	_data_import_id INTEGER;
 	_schema TEXT;
 	_tablename TEXT;
-	_data_import_rows JSON;
+	_data_import_detail JSON;
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 
 	SELECT result_table, result_schema INTO _tablename, _schema FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
 
-	EXECUTE FORMAT ('SELECT json_agg(json_build_object(''data_import_row_id'', data_import_row_id, ''data_import_id'', data_import_id, ''data'', data, ''processed'', processed, ''result'', result)) FROM "%s"."%s" WHERE data_import_id=$1', _schema, _tablename) USING _data_import_id INTO _data_import_rows;
+	EXECUTE FORMAT ('SELECT to_json(b)
+					FROM
+						(SELECT count(*) AS result_count,
+							array_agg(a) AS records
+							FROM
+						(SELECT * FROM "%s"."%s") AS a) AS b', _schema, _tablename) INTO _data_import_detail;
 
-	RETURN grape.api_success('data_import_rows', _data_import_rows);
+	RETURN grape.api_success(_data_import_detail);
 END; $$ LANGUAGE plpgsql;
 
 /**
