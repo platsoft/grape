@@ -146,7 +146,7 @@ DECLARE
 	_schema TEXT;
 	_tablename TEXT;
 	_processing_function TEXT;
-	_processing_param TEXT;
+	_processing_param JSON;
 
 	_function_schema TEXT;
 	_data_import_row_id INTEGER;
