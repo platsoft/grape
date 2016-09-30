@@ -406,8 +406,10 @@ BEGIN
 		_process_id := (SELECT process_id FROM grape.process WHERE pg_function=$1->>'pg_function');
 	ELSIF $1 ? 'process_id' THEN
 		_process_id := ($1->>'process_id')::INTEGER;
-	ELSE
-		RETURN grape.api_invalid_input_error();
+	END IF;
+	
+	IF _process_id IS NULL THEN
+		RETURN grape.api_error_invalid_input();
 	END IF;
 
 	IF $1 ? 'param' THEN
