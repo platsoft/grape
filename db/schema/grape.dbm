@@ -309,6 +309,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="processing_function">
 		<type name="text"/>
 	</column>
+	<column name="processing_param">
+		<type name="json"/>
+	</column>
 	<column name="result_table">
 		<type name="text"/>
 	</column>

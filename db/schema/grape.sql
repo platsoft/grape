@@ -192,6 +192,7 @@ CREATE TABLE grape.data_import(
 	valid_record_count integer,
 	data_import_status smallint,
 	processing_function text,
+	processing_param json,
 	result_table text,
 	result_schema text,
 	CONSTRAINT data_import_pk PRIMARY KEY (data_import_id)

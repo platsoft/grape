@@ -16,18 +16,20 @@ DECLARE
 	_schema TEXT;
 	_tablename TEXT;
 	_idxname TEXT;
+	_processing_param JSON;
 
 	_processing_function TEXT;
 BEGIN
 	_filename := $1->>'filename';
 	_description := $1->>'description';
+	_processing_param := $1->'param';
 
 	IF json_extract_path($1, 'processing_function') IS NOT NULL THEN
 		_processing_function := $1->>'processing_function';
 	END IF;
 
-	INSERT INTO grape.data_import (filename, description, parameter, date_done, record_count, valid_record_count, processing_function, data_import_status) 
-		VALUES (_filename, _description, $1, NULL, 0, 0, _processing_function, 0) 
+	INSERT INTO grape.data_import (filename, description, parameter, date_done, record_count, valid_record_count, processing_function, processing_param, data_import_status) 
+		VALUES (_filename, _description, $1, NULL, 0, 0, _processing_function, _processing_param, 0) 
 		RETURNING data_import_id INTO _data_import_id;
 	
 	_schema := grape.setting('data_import_schema', 'grape');
@@ -144,6 +146,7 @@ DECLARE
 	_schema TEXT;
 	_tablename TEXT;
 	_processing_function TEXT;
+	_processing_param TEXT;
 
 	_function_schema TEXT;
 	_data_import_row_id INTEGER;
@@ -152,12 +155,14 @@ DECLARE
 	_result JSON;
 	_all_passed BOOLEAN := TRUE;
 BEGIN
-	SELECT result_table, result_schema, processing_function INTO _tablename, _schema, _processing_function FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
+	SELECT result_table, result_schema, processing_function, processing_param 
+	INTO _tablename, _schema, _processing_function, _processing_param
+	FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
 	
 	SELECT function_schema INTO _function_schema FROM grape.data_import_type WHERE processing_function=_processing_function::TEXT;
 
 	FOR _data_import_row_id, _data IN EXECUTE FORMAT('SELECT data_import_row_id, data FROM "%s"."%s" WHERE processed=FALSE', _schema, _tablename) LOOP
-		EXECUTE FORMAT ('SELECT "%s"."%s" ($1)', _function_schema, _processing_function) USING _data INTO _result;
+		EXECUTE FORMAT ('SELECT "%s"."%s" ($1, $2)', _function_schema, _processing_function) USING _data, _processing_param INTO _result;
 		EXECUTE FORMAT ('UPDATE "%s"."%s" SET processed=TRUE, result=$1 WHERE data_import_row_id=$2', _schema, _tablename) USING _result, _data_import_row_id;
 		IF _result->>'status'='OK' THEN
 			UPDATE grape.data_import SET valid_record_count=valid_record_count+1 WHERE data_import_id=_data_import_id::INTEGER;
