@@ -26,8 +26,8 @@ BEGIN
 		_processing_function := $1->>'processing_function';
 	END IF;
 
-	INSERT INTO grape.data_import (filename, description, parameter, date_done, processing_function, data_import_status) 
-		VALUES (_filename, _description, $1, NULL, _processing_function, 0) 
+	INSERT INTO grape.data_import (filename, description, parameter, date_done, record_count, valid_record_count, processing_function, data_import_status) 
+		VALUES (_filename, _description, $1, NULL, 0, 0, _processing_function, 0) 
 		RETURNING data_import_id INTO _data_import_id;
 	
 	_schema := grape.setting('data_import_schema', 'grape');
@@ -46,13 +46,45 @@ BEGIN
 	RETURN grape.api_success('data_import_id', _data_import_id);
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.data_import_delete(JSON) RETURNS JSON AS $$
+DECLARE
+	_data_import_id INTEGER;
+	_schema TEXT;
+	_tablename TEXT;
+	_data_import_status INTEGER;
+BEGIN
+	_data_import_id := $1->>'data_import_id';
+
+	IF _data_import_id IS NULL THEN
+		RETURN grape.api_error('data_import_id was not provided', -1);
+	END IF;
+
+	SELECT result_schema, result_table, data_import_status  
+	INTO _schema, _tablename, _data_import_status 
+	FROM grape.data_import
+	WHERE data_import_id=_data_import_id::INTEGER ;
+
+	IF _tablename IS NULL THEN
+		RETURN grape.api_error(FORMAT('Could not find data_import_id: %s', _data_import_id), -1);
+	ELSIF _data_import_status > 1 THEN
+		RETURN grape.api_error('Cannot delete this data_import_id as some or all of its data has been processed', -1);
+	END IF;
+
+	EXECUTE FORMAT('DROP TABLE "%s"."%s"', _schema, _tablename);
+
+	DELETE FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER; 
+
+	RETURN grape.api_success();
+
+END; $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION grape.data_import_done(JSON) RETURNS JSON AS $$
 DECLARE
 	_data_import_id INTEGER;
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 
-	UPDATE grape.data_import SET date_done=CURRENT_TIMESTAMP WHERE data_import_id=_data_import_id::INTEGER;
+	UPDATE grape.data_import SET date_done=CURRENT_TIMESTAMP, data_import_status=1 WHERE data_import_id=_data_import_id::INTEGER;
 	
 	RETURN grape.api_success('data_import_id', _data_import_id);
 END; $$ LANGUAGE plpgsql;
@@ -74,6 +106,8 @@ BEGIN
 
 	EXECUTE FORMAT ('INSERT INTO "%s"."%s" (data_import_id, data) VALUES ($1, $2)', _schema, _tablename) USING _data_import_id, $1;
 	
+	UPDATE grape.data_import SET record_count = record_count+1 WHERE data_import_id=_data_import_id::INTEGER;
+
 	RETURN '{}'::JSON;
 END; $$ LANGUAGE plpgsql;
 
@@ -116,7 +150,7 @@ DECLARE
 
 	_data JSON;
 	_result JSON;
-	_ret JSON;
+	_all_passed BOOLEAN := TRUE;
 BEGIN
 	SELECT result_table, result_schema, processing_function INTO _tablename, _schema, _processing_function FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
 	
@@ -125,8 +159,19 @@ BEGIN
 	FOR _data_import_row_id, _data IN EXECUTE FORMAT('SELECT data_import_row_id, data FROM "%s"."%s" WHERE processed=FALSE', _schema, _tablename) LOOP
 		EXECUTE FORMAT ('SELECT "%s"."%s" ($1)', _function_schema, _processing_function) USING _data INTO _result;
 		EXECUTE FORMAT ('UPDATE "%s"."%s" SET processed=TRUE, result=$1 WHERE data_import_row_id=$2', _schema, _tablename) USING _result, _data_import_row_id;
+		IF _result->>'status'='OK' THEN
+			UPDATE grape.data_import SET valid_record_count=valid_record_count+1 WHERE data_import_id=_data_import_id::INTEGER;
+		ELSE
+			_all_passed := FALSE;
+		END IF;
 	END LOOP;
 	
+	IF _all_passed THEN
+		UPDATE grape.data_import SET data_import_status=4 WHERE data_import_id=_data_import_id::INTEGER;
+	ELSE
+		UPDATE grape.data_import SET data_import_status=3 WHERE data_import_id=_data_import_id::INTEGER;
+	END IF;
+
 	RETURN 1;
 END; $$ LANGUAGE plpgsql;
 
@@ -135,8 +180,9 @@ END; $$ LANGUAGE plpgsql;
  */
 CREATE OR REPLACE FUNCTION grape.data_import_process(JSON) RETURNS JSON AS $$
 DECLARE
-	_ret INTEGER;
+	_return_code INTEGER;
 	_data_import_id INTEGER;
+	_info JSON;
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 	
@@ -144,10 +190,17 @@ BEGIN
 		RETURN grape.api_error('data_import_id not provided', -1);
 	END IF;
 
-	_ret := grape.data_import_process(_data_import_id);
+	_return_code := grape.data_import_process(_data_import_id);
 
-	IF _ret = 1 THEN
-		RETURN grape.api_success();
+	IF _return_code = 1 THEN
+		SELECT json_build_object('data_import_status', data_import_status,
+								'record_count', record_count,
+								'valid_record_count', valid_record_count)
+		INTO _info
+		FROM grape.data_import
+		WHERE data_import_id = _data_import_id::INTEGER;
+		
+		RETURN grape.api_success(_info);
 	ELSE
 		RETURN grape.api_error('data_import_process failed', -1);
 	END IF;

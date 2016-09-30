@@ -16,6 +16,15 @@ exports = module.exports = function(_app) {
 	app.post("/grape/data_import", api_data_import);
 
 /**
+ * @desc delete given data_import_id entries if not processed
+ * @method get
+ * @url /grape/data_import/:data_import_id/delete
+ *
+ * @return JSON object 
+ **/
+	app.get("/grape/data_import/:data_import_id/delete", api_data_import_delete);
+
+/**
  * @desc process given data_import_id data
  * @method get
  * @url /grape/data_import/:data_import_id/process
@@ -33,6 +42,12 @@ exports = module.exports = function(_app) {
  **/
 	app.get("/grape/data_import/:data_import_id/detail", api_data_import_detail);
 };
+
+function api_data_import_delete(req, res)
+{
+	var obj = {'data_import_id': req.params.data_import_id};
+	res.locals.db.json_call('grape.data_import_delete', obj, null, {response: res});
+}
 
 function api_data_import_detail(req, res)
 {
