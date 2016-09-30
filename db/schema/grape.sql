@@ -281,6 +281,7 @@ CREATE TABLE grape.data_import_type(
 	full_description text,
 	file_format_info text,
 	function_schema text,
+	param_definition json,
 	CONSTRAINT data_import_type_pk PRIMARY KEY (processing_function)
 	 WITH (FILLFACTOR = 100)
 

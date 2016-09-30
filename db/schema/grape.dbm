@@ -459,6 +459,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="function_schema">
 		<type name="text"/>
 	</column>
+	<column name="param_definition">
+		<type name="json"/>
+	</column>
 	<constraint name="data_import_type_pk" type="pk-constr" factor="100" table="grape.data_import_type">
 		<columns names="processing_function" ref-type="src-columns"/>
 	</constraint>

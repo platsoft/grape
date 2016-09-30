@@ -69,7 +69,7 @@ BEGIN
 	IF _tablename IS NULL THEN
 		RETURN grape.api_error(FORMAT('Could not find data_import_id: %s', _data_import_id), -1);
 	ELSIF _data_import_status > 1 THEN
-		RETURN grape.api_error('Cannot delete this data_import_id as some or all of its data has been processed', -1);
+		RETURN grape.api_error('Cannot delete this as some or all of its data has been processed', -1);
 	END IF;
 
 	EXECUTE FORMAT('DROP TABLE "%s"."%s"', _schema, _tablename);
