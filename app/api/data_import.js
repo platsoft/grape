@@ -98,9 +98,11 @@ function api_data_import(req, res)
 	{
 		var file = req.files[filefields[i]];
 		var ds = app.get('document_store');
+		var description = req.body.description;
 		var processing_function = req.body.processing_function;
+		var processing_param = req.body.processing_param;
 
-		res.locals.db.json_call('grape.data_import_insert', {processing_function: processing_function, filename: file.originalFilename, description: filefields[i]}, function(err, result) { 
+		res.locals.db.json_call('grape.data_import_insert', {processing_function: processing_function, filename: file.originalFilename, description: description, processing_param: processing_param}, function(err, result) { 
 
 			var data_import_id = result.rows[0].grapedata_import_insert.data_import_id;
 			var originalname = file.originalFilename; 
