@@ -1,5 +1,31 @@
 
 /**
+ * Process uploaded file accepting JSON argument
+ */
+CREATE OR REPLACE FUNCTION grape.upsert_data_import_type(
+	_processing_function TEXT, 
+	_full_description TEXT, 
+	_file_format_info TEXT, 
+	_function_schema TEXT, 
+	_param_definition JSON DEFAULT NULL) RETURNS VOID AS $$
+	INSERT INTO grape.data_import_type (
+		processing_function, 
+		full_description, 
+		file_format_info, 
+		function_schema, 
+		param_definition) 
+	VALUES (
+		_processing_function, 
+		_full_description, 
+		_file_format_info, 
+		_function_schema, 
+		_param_definition)
+	ON CONFLICT (processing_function) 
+	DO UPDATE SET full_description=EXCLUDED.full_description,
+		file_format_info=EXCLUDED.file_format_info, 
+		function_schema=EXCLUDED.function_schema;
+$$ LANGUAGE sql;
+/**
  * {
  *	filename TEXT
  *	description TEXT
