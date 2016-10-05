@@ -48,7 +48,7 @@ DECLARE
 BEGIN
 	_filename := $1->>'filename';
 	_description := $1->>'description';
-	_processing_param := $1->'param';
+	_processing_param := $1->'processing_param';
 
 	IF json_extract_path($1, 'processing_function') IS NOT NULL THEN
 		_processing_function := $1->>'processing_function';
