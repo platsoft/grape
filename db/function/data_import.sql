@@ -23,7 +23,8 @@ CREATE OR REPLACE FUNCTION grape.upsert_data_import_type(
 	ON CONFLICT (processing_function) 
 	DO UPDATE SET full_description=EXCLUDED.full_description,
 		file_format_info=EXCLUDED.file_format_info, 
-		function_schema=EXCLUDED.function_schema;
+		function_schema=EXCLUDED.function_schema,
+		param_definition=EXCLUDED.param_definition;
 $$ LANGUAGE sql;
 /**
  * {
