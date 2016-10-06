@@ -113,7 +113,7 @@ DECLARE
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 
-	UPDATE grape.data_import SET date_done=CURRENT_TIMESTAMP, data_import_status=1 WHERE data_import_id=_data_import_id::INTEGER;
+	UPDATE grape.data_import SET data_import_status=1 WHERE data_import_id=_data_import_id::INTEGER;
 	
 	RETURN grape.api_success('data_import_id', _data_import_id);
 END; $$ LANGUAGE plpgsql;
@@ -199,9 +199,9 @@ BEGIN
 	END LOOP;
 	
 	IF _all_passed THEN
-		UPDATE grape.data_import SET data_import_status=4 WHERE data_import_id=_data_import_id::INTEGER;
+		UPDATE grape.data_import SET date_done=CURRENT_TIMESTAMP, data_import_status=4 WHERE data_import_id=_data_import_id::INTEGER;
 	ELSE
-		UPDATE grape.data_import SET data_import_status=3 WHERE data_import_id=_data_import_id::INTEGER;
+		UPDATE grape.data_import SET date_done=CURRENT_TIMESTAMP, data_import_status=3 WHERE data_import_id=_data_import_id::INTEGER;
 	END IF;
 
 	RETURN 1;
