@@ -15,6 +15,7 @@ CREATE OR REPLACE FUNCTION grape.session_insert (JSON) RETURNS JSON AS $$
 DECLARE
 	_user TEXT;
 	_password TEXT;
+	_email TEXT;
 	_ip_address TEXT;
 
 	rec RECORD;
@@ -28,15 +29,28 @@ DECLARE
 
 	_check_password TEXT;
 BEGIN
-	_user := $1->>'username';
-	_password := $1->>'password';
-	_ip_address := $1->>'ip_address';
 
-	SELECT * INTO rec FROM grape."user" WHERE username=_user::TEXT;
-	IF NOT FOUND THEN
-		RAISE DEBUG 'User % login failed. No such user', _user;
+	IF json_extract_path($1, 'username') IS NOT NULL THEN
+		_user := $1->>'username';
+		SELECT * INTO rec FROM grape."user" WHERE username=_user::TEXT;
+	ELSIF json_extract_path($1, 'email') IS NOT NULL THEN
+		_email := $1->>'email';
+		SELECT * INTO rec FROM grape."user" WHERE email=_email::TEXT;
+	ELSE
+		RETURN grape.api_error_invalid_input('{"message":"Missing email or username"}');
+	END IF;
+
+	IF rec IS NULL THEN
+		RAISE DEBUG 'User % % login failed. No such user', _user, _email;
 		RETURN grape.api_result_error('No such user', 1);
 	END IF;
+
+	IF _user IS NULL THEN
+		_user := rec.username;
+	END IF;
+	
+	_password := $1->>'password';
+	_ip_address := $1->>'ip_address';
 
 	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
 

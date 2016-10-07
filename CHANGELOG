@@ -106,4 +106,12 @@
 - Directly send login details from grape
 - New grape setting system_url
 
+1.0.2:
+
+
+1.0.3:
+- log in using email instead of username
+
+
+
 

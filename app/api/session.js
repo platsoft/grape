@@ -63,24 +63,31 @@ function select_session(req, res) {
 
 function login (req, res)
 {
-	console.log(req.body);
-	if (typeof req.body.username == "undefined" || typeof req.body.password == "undefined")
+	if ((typeof req.body.username == "undefined" && typeof req.body.email == "undefined") || typeof req.body.password == "undefined")
 	{
 		res.json({'status': "ERROR", code: -1, "message": "Invalid parameters"});
 		return;
 	}
 	
-	var username = req.body.username;
-	var password = req.body.password;
 	var ip_address = req.connection.remoteAddress;
 
-	app.get('logger').session('Login attempt from ', username, '@', ip_address);
-	
 	var obj = {
-		username: username,
-		password: password,
+		password: req.body.password,
 		ip_address: ip_address
 	};
+	
+	if (req.body.email)
+	{
+		obj.email = req.body.email;
+		app.get('logger').session('Login attempt from [', obj.email, ']@', ip_address);
+	}
+	else
+	{
+		obj.username = req.body.username;
+		app.get('logger').session('Login attempt from ', obj.username, '@', ip_address);
+	}
+
+	
 
 	res.locals.db.json_call('grape.session_insert', obj, null, {response: res});
 }
