@@ -364,7 +364,7 @@ BEGIN
 						FROM "%s"."%s") AS a) as b
 						GROUP BY data_import_row_id) as c', _result_schema, _result_table) INTO _values;
 
-	_test_table_spec := json_build_object('test_table_name', _test_table_name
+	_test_table_spec := json_build_object('test_table_name', _test_table_name,
 		'columns', _columns,
 		'values', _values);
 
