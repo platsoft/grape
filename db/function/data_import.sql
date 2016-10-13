@@ -429,7 +429,7 @@ BEGIN
 
 	_result := grape.test_table_select(json_build_object('test_table_name', _test_table_name))
 
-	RETURN grape.api_success();
+	RETURN grape.api_success(_result);
 END; $$ LANGUAGE plpgsql;
 
 /**
