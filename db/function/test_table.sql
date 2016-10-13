@@ -31,7 +31,7 @@ BEGIN
 
 		EXECUTE FORMAT('CREATE TABLE IF NOT EXISTS "%s"."%s" (test_table_row_id SERIAL NOT NULL,
 			%s, 
-			CONSTRAINT test_table_row_id_pk PRIMARY KEY (test_table_row_id))', _schema_name, _table_name, _columns);
+			CONSTRAINT %s_row_id_pk PRIMARY KEY (test_table_row_id))', _schema_name, _table_name, _columns, _table_name);
 	END IF;
 
 	--TODO check that columns of new data match that of table specified
@@ -93,6 +93,8 @@ DECLARE
 BEGIN
 	_schema_name := grape.setting('test_table_schema', 'tmp');
 	_table_name := $1->>'test_table_name';
+
+	EXECUTE FORMAT('SELECT json_agg(row_to_json(test3.*)) FROM tmp.test3');
 
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;
