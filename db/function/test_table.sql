@@ -25,17 +25,17 @@ BEGIN
 		WHERE table_schema = _schema_name
 		AND table_name = _table_name) THEN
 		
-		SELECT string_agg(CONCAT(item, ' TEXT'), ', ')
+		SELECT string_agg(CONCAT('"',item, '" TEXT'), ', ')
 		INTO _columns
 		FROM (SELECT json_array_elements_text($1->'columns') AS item) as a;
 
 		EXECUTE FORMAT('CREATE TABLE IF NOT EXISTS "%s"."%s" (test_table_row_id SERIAL NOT NULL,
 			%s, 
-			CONSTRAINT %s_row_id_pk PRIMARY KEY (test_table_row_id))', _schema_name, _table_name, _columns, _table_name);
+			CONSTRAINT %s_row_id_pk PRIMARY KEY (test_table_row_id))', _schema_name, _table_name, _columns, regexp_replace(_table_name, '\s', '_', 'g'));
 	END IF;
 
 	--TODO check that columns of new data match that of table specified
-	SELECT string_agg(item, ', ')
+	SELECT string_agg(CONCAT('"',item,'"'), ', ')
 	INTO _columns
 	FROM (SELECT json_array_elements_text($1->'columns') AS item) as a;
 
@@ -95,7 +95,7 @@ BEGIN
 	_schema_name := grape.setting('test_table_schema', 'tmp');
 	_table_name := $1->>'test_table_name';
 
-	EXECUTE FORMAT('SELECT json_agg(row_to_json(%s.*)) FROM "%s"."%s"', _table_name, _schema_name, _table_name) INTO _records;
+	EXECUTE FORMAT('SELECT json_agg(row_to_json("%s".*)) FROM "%s"."%s"', _table_name, _schema_name, _table_name) INTO _records;
 
 
 	RETURN json_build_object('records', _records);
