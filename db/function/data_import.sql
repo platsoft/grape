@@ -427,7 +427,7 @@ BEGIN
 	FROM grape.data_import 
 	WHERE data_import_id = _data_import_id::INTEGER;
 
-	_result := grape.test_table_select(json_build_object('test_table_name', _test_table_name))
+	_result := grape.test_table_select(json_build_object('test_table_name', _test_table_name));
 
 	RETURN grape.api_success(_result);
 END; $$ LANGUAGE plpgsql;
