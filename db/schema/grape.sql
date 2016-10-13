@@ -195,6 +195,10 @@ CREATE TABLE grape.data_import(
 	processing_param json,
 	result_table text,
 	result_schema text,
+	user_id integer,
+	data_processed tstzrange,
+	test_table_name text,
+	test_table_schema text,
 	CONSTRAINT data_import_pk PRIMARY KEY (data_import_id)
 
 );
@@ -476,6 +480,81 @@ CREATE INDEX sch_status_idx ON grape.schedule
 	(
 	  status
 	);
+-- ddl-end --
+
+-- object: data_import_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.data_import_idx CASCADE;
+CREATE INDEX data_import_idx ON grape.data_import
+	USING btree
+	(
+	  data_import_id
+	);
+-- ddl-end --
+
+-- object: data_import_filename_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.data_import_filename_idx CASCADE;
+CREATE INDEX data_import_filename_idx ON grape.data_import
+	USING btree
+	(
+	  filename
+	);
+-- ddl-end --
+
+-- object: data_import_inserted_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.data_import_inserted_idx CASCADE;
+CREATE INDEX data_import_inserted_idx ON grape.data_import
+	USING btree
+	(
+	  date_inserted
+	);
+-- ddl-end --
+
+-- object: data_import_process_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.data_import_process_idx CASCADE;
+CREATE INDEX data_import_process_idx ON grape.data_import
+	USING btree
+	(
+	  processing_function
+	);
+-- ddl-end --
+
+-- object: data_import_user_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.data_import_user_idx CASCADE;
+CREATE INDEX data_import_user_idx ON grape.data_import
+	USING btree
+	(
+	  user_id
+	);
+-- ddl-end --
+
+-- object: data_import_row_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.data_import_row_idx CASCADE;
+CREATE INDEX data_import_row_idx ON grape.data_import_row
+	USING btree
+	(
+	  data_import_row_id
+	);
+-- ddl-end --
+
+-- object: data_import_id_row_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.data_import_id_row_idx CASCADE;
+CREATE INDEX data_import_id_row_idx ON grape.data_import_row
+	USING btree
+	(
+	  data_import_id
+	);
+-- ddl-end --
+
+-- object: grape.test_table | type: TABLE --
+-- DROP TABLE IF EXISTS grape.test_table CASCADE;
+CREATE TABLE grape.test_table(
+	test_table_id serial NOT NULL,
+	test_table_schema text NOT NULL,
+	test_table_name text NOT NULL,
+	CONSTRAINT test_table_id_pk PRIMARY KEY (test_table_id),
+	CONSTRAINT test_table_uq UNIQUE (test_table_schema,test_table_name)
+
+);
 -- ddl-end --
 
 -- object: user_id_rel | type: CONSTRAINT --

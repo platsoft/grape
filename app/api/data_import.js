@@ -41,7 +41,70 @@ exports = module.exports = function(_app) {
  * @return JSON object 
  **/
 	app.get("/grape/data_import/:data_import_id/detail", api_data_import_detail);
+
+/**
+ * @desc 
+ * @method post
+ * @url 
+ *
+ * @return JSON object 
+ **/
+	app.post("/grape/data_import/:data_import_id/create_table", api_data_import_test_table);
+
+/**
+ * @desc 
+ * @method post
+ * @url 
+ *
+ * @return JSON object 
+ **/
+	app.post("/grape/data_import/:data_import_id/remove_table", api_data_import_test_table_drop);
+
+/**
+ * @desc 
+ * @method post
+ * @url 
+ *
+ * @return JSON object 
+ **/
+	app.post("/grape/data_import/:data_import_id/view_table", api_data_import_test_table_select);
+
+/**
+ * @desc 
+ * @method post
+ * @url 
+ *
+ * @return JSON object 
+ **/
+	app.post("/grape/data_import/:data_import_id/alter_table", api_data_import_test_table_alter);
 };
+
+function api_data_import_test_table_select(req, res)
+{
+	var obj = {'data_import_id': req.params.data_import_id};
+	res.locals.db.json_call('grape.data_import_test_table_select', obj, null, {response: res});
+}
+
+function api_data_import_test_table_alter(req, res)
+{
+	var obj = {'data_import_id': req.params.data_import_id};
+	res.locals.db.json_call('grape.data_import_test_table_alter', obj, null, {response: res});
+}
+
+function api_data_import_test_table_drop(req, res)
+{
+	var obj = {'data_import_id': req.params.data_import_id};
+	res.locals.db.json_call('grape.data_import_test_table_drop', obj, null, {response: res});
+}
+
+function api_data_import_test_table(req, res)
+{
+	console.log(JSON.stringify(req.body));
+	console.log(req.params.data_import_id);
+	var obj = {'data_import_id': req.params.data_import_id,
+				'test_table_name': req.body.tablename};
+	res.locals.db.json_call('grape.data_import_test_table_insert', obj, null, {response: res});
+}
 
 function api_data_import_delete(req, res)
 {
@@ -131,7 +194,7 @@ function api_data_import(req, res)
 
 			for (var row = 1; row <= max_row; row++)
 			{
-				var data = {};
+				var data = {data:{}};
 				data['data_import_id'] = data_import_id;
 				for (var col = 0; col <= max_col; col++)
 				{
@@ -140,7 +203,7 @@ function api_data_import(req, res)
 					if (worksheet[address])
 						val = worksheet[address].v;
 					
-					data[headers[col]] = val;
+					data.data[headers[col]] = val;
 				}
 				
 				item_queue.push(data);

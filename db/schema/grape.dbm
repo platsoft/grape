@@ -318,6 +318,18 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="result_schema">
 		<type name="text"/>
 	</column>
+	<column name="user_id">
+		<type name="integer"/>
+	</column>
+	<column name="data_processed">
+		<type name="tstzrange"/>
+	</column>
+	<column name="test_table_name">
+		<type name="text"/>
+	</column>
+	<column name="test_table_schema">
+		<type name="text"/>
+	</column>
 	<constraint name="data_import_pk" type="pk-constr" table="grape.data_import">
 		<columns names="data_import_id" ref-type="src-columns"/>
 	</constraint>
@@ -325,7 +337,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_row">
 	<schema name="grape"/>
-	<position x="1340" y="600"/>
+	<position x="1262" y="540"/>
 	<column name="data_import_row_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -401,7 +413,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_routing">
 	<schema name="grape"/>
-	<position x="860" y="1000"/>
+	<position x="867" y="1046"/>
 	<column name="system_routing_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -446,7 +458,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_type">
 	<schema name="grape"/>
-	<position x="1300" y="760"/>
+	<position x="1265" y="708"/>
 	<column name="processing_function" not-null="true">
 		<type name="text"/>
 	</column>
@@ -608,7 +620,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="table_view">
 	<schema name="grape"/>
-	<position x="1300" y="920"/>
+	<position x="1266" y="1000"/>
 	<column name="table_view_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -687,7 +699,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="list_query_whitelist">
 	<schema name="grape"/>
-	<position x="860" y="820"/>
+	<position x="879" y="947"/>
 	<column name="schema" not-null="true">
 		<type name="text"/>
 	</column>
@@ -743,6 +755,82 @@ CAUTION: Do not modify this file unless you know what you are doing.
 			<column name="status"/>
 		</idxelement>
 </index>
+
+<index name="data_import_idx" table="grape.data_import"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="data_import_id"/>
+		</idxelement>
+</index>
+
+<index name="data_import_filename_idx" table="grape.data_import"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="filename"/>
+		</idxelement>
+</index>
+
+<index name="data_import_inserted_idx" table="grape.data_import"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="date_inserted"/>
+		</idxelement>
+</index>
+
+<index name="data_import_process_idx" table="grape.data_import"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="processing_function"/>
+		</idxelement>
+</index>
+
+<index name="data_import_user_idx" table="grape.data_import"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="user_id"/>
+		</idxelement>
+</index>
+
+<index name="data_import_row_idx" table="grape.data_import_row"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="data_import_row_id"/>
+		</idxelement>
+</index>
+
+<index name="data_import_id_row_idx" table="grape.data_import_row"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="data_import_id"/>
+		</idxelement>
+</index>
+
+<table name="test_table">
+	<schema name="grape"/>
+	<position x="1261" y="872"/>
+	<column name="test_table_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="test_table_schema" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="test_table_name" not-null="true">
+		<type name="text"/>
+	</column>
+	<constraint name="test_table_id_pk" type="pk-constr" table="grape.test_table">
+		<columns names="test_table_id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="test_table_uq" type="uq-constr" table="grape.test_table">
+		<columns names="test_table_schema,test_table_name" ref-type="src-columns"/>
+	</constraint>
+</table>
 
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_role">
