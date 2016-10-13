@@ -418,8 +418,16 @@ CREATE OR REPLACE FUNCTION grape.data_import_test_table_select(JSON) RETURNS JSO
 DECLARE
 	_data_import_id INTEGER;
 	_test_table_name TEXT;
+	_result JSON;
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
+
+	SELECT test_table_name
+	INTO _test_table_name
+	FROM grape.data_import 
+	WHERE data_import_id = _data_import_id::INTEGER;
+
+	_result := grape.test_table_select(json_build_object('test_table_name', _test_table_name))
 
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;

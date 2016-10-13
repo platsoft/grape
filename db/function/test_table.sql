@@ -90,11 +90,13 @@ CREATE OR REPLACE FUNCTION grape.test_table_select(JSON) RETURNS JSON AS $$
 DECLARE
 	_schema_name TEXT;
 	_table_name TEXT;
+	_records JSON;
 BEGIN
 	_schema_name := grape.setting('test_table_schema', 'tmp');
 	_table_name := $1->>'test_table_name';
 
-	EXECUTE FORMAT('SELECT json_agg(row_to_json(test3.*)) FROM tmp.test3');
+	EXECUTE FORMAT('SELECT json_agg(row_to_json(%s.*)) FROM "%s"."%s"', _table_name, _schema_name, _table_name) INTO _records;
 
-	RETURN grape.api_success();
+
+	RETURN json_build_object('records', _records);
 END; $$ LANGUAGE plpgsql;
