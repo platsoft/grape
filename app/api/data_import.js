@@ -119,8 +119,6 @@ function api_data_import_test_table_append(req, res)
 
 function api_data_import_test_table_create(req, res)
 {
-	console.log(JSON.stringify(req.body));
-	console.log(req.params.data_import_id);
 	var obj = {'data_import_id': req.params.data_import_id,
 				'test_table_name': req.body.tablename,
 				'description': req.body.description};
