@@ -40,7 +40,7 @@ exports = module.exports = function(_app) {
  *
  * @return JSON object 
  **/
-	app.get("/grape/data_import/:data_import_id/detail", api_data_import_detail);
+	app.post("/grape/data_import/:data_import_id/detail", api_data_import_detail);
 
 /**
  * @desc 
@@ -133,7 +133,7 @@ function api_data_import_delete(req, res)
 
 function api_data_import_detail(req, res)
 {
-	var obj = {'data_import_id': req.params.data_import_id};
+	var obj = {'data_import_id': req.params.data_import_id, 'offset', req.body.offset, 'limit', req.body.limit};
 	res.locals.db.json_call('grape.data_import_detail', obj, null, {response: res});
 }
 
