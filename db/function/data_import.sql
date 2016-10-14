@@ -229,6 +229,8 @@ DECLARE
 	_data_import_detail JSON;
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
+	_limit := $1->>'limit';
+	_offset := $1->>'offset';
 
 	SELECT result_table, result_schema INTO _tablename, _schema FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
 
@@ -237,7 +239,7 @@ BEGIN
 						(SELECT count(*) AS result_count,
 							array_agg(a) AS records
 							FROM
-						(SELECT * FROM "%s"."%s") AS a) AS b', _schema, _tablename) INTO _data_import_detail;
+						(SELECT * FROM "%s"."%s" offset %s limit %s) AS a) AS b', _schema, _tablename, _offset, _limit) INTO _data_import_detail;
 
 	RETURN grape.api_success(_data_import_detail);
 END; $$ LANGUAGE plpgsql;
