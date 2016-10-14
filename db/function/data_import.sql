@@ -346,6 +346,7 @@ BEGIN
 	--TODO make sure data import id exists
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 	_test_table_name := $1->>'test_table_name';
+	_description := $1->>'description';
 
 	SELECT result_table, result_schema
 	INTO _result_table, _result_schema
@@ -366,7 +367,8 @@ BEGIN
 
 	_test_table_spec := json_build_object('test_table_name', _test_table_name,
 		'columns', _columns,
-		'values', _values);
+		'values', _values,
+		'description', _description);
 
 	_test_table_id := grape.test_table_insert(_test_table_spec);
 

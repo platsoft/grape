@@ -90,7 +90,8 @@ exports = module.exports = function(_app) {
 
 function api_data_import_test_table_select(req, res)
 {
-	var obj = {'data_import_id': req.params.data_import_id};
+	var obj = {'data_import_id': req.params.data_import_id,
+				'options': req.body.options};
 	res.locals.db.json_call('grape.data_import_test_table_select', obj, null, {response: res});
 }
 
@@ -121,7 +122,8 @@ function api_data_import_test_table_create(req, res)
 	console.log(JSON.stringify(req.body));
 	console.log(req.params.data_import_id);
 	var obj = {'data_import_id': req.params.data_import_id,
-				'test_table_name': req.body.tablename};
+				'test_table_name': req.body.tablename,
+				'description': req.body.description};
 	res.locals.db.json_call('grape.data_import_test_table_insert', obj, null, {response: res});
 }
 

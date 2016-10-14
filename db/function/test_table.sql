@@ -20,7 +20,7 @@ BEGIN
 	_description := $1->>'description';
 	_append := ($1->>'append')::BOOLEAN;
 
-	INSERT INTO grape.test_table (table_schema, table_name, description) VALUES (_schema_name, _table_name)
+	INSERT INTO grape.test_table (table_schema, table_name, description) VALUES (_schema_name, _table_name, _description)
 	ON CONFLICT(table_schema, table_name) DO NOTHING RETURNING test_table_id INTO _test_table_id; 
 
 	IF NOT EXISTS (SELECT 1
@@ -123,7 +123,7 @@ BEGIN
 	INTO _schema_name, _table_name 
 	FROM grape.test_table 
 	WHERE test_table_id = _test_table_id::INTEGER;
-	
+
 	_limit := $1->'options'->>'limit';
 	_offset := $1->'options'->>'offset';
 
