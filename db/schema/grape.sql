@@ -548,10 +548,11 @@ CREATE INDEX data_import_id_row_idx ON grape.data_import_row
 -- DROP TABLE IF EXISTS grape.test_table CASCADE;
 CREATE TABLE grape.test_table(
 	test_table_id serial NOT NULL,
-	test_table_schema text NOT NULL,
-	test_table_name text NOT NULL,
+	table_schema text NOT NULL,
+	table_name text NOT NULL,
+	description text,
 	CONSTRAINT test_table_id_pk PRIMARY KEY (test_table_id),
-	CONSTRAINT test_table_uq UNIQUE (test_table_schema,test_table_name)
+	CONSTRAINT test_table_uq UNIQUE (table_schema,table_name)
 
 );
 -- ddl-end --
