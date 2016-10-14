@@ -227,6 +227,8 @@ DECLARE
 	_schema TEXT;
 	_tablename TEXT;
 	_data_import_detail JSON;
+	_limit TEXT;
+	_offset TEXT;
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 	_limit := $1->>'limit';
