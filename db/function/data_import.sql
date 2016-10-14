@@ -342,6 +342,7 @@ DECLARE
 	_columns JSON;
 	_values JSON;
 	_test_table_id INTEGER;
+	_description TEXT;
 BEGIN
 	--TODO make sure data import id exists
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
