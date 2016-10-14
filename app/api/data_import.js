@@ -133,7 +133,7 @@ function api_data_import_delete(req, res)
 
 function api_data_import_detail(req, res)
 {
-	var obj = {'data_import_id': req.params.data_import_id, 'offset', req.body.offset, 'limit', req.body.limit};
+	var obj = {'data_import_id': req.params.data_import_id, 'offset': req.body.offset, 'limit': req.body.limit};
 	res.locals.db.json_call('grape.data_import_detail', obj, null, {response: res});
 }
 
