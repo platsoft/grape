@@ -49,7 +49,16 @@ exports = module.exports = function(_app) {
  *
  * @return JSON object 
  **/
-	app.post("/grape/data_import/:data_import_id/create_table", api_data_import_test_table);
+	app.post("/grape/data_import/:data_import_id/create_table", api_data_import_test_table_create);
+
+/**
+ * @desc 
+ * @method post
+ * @url 
+ *
+ * @return JSON object 
+ **/
+	app.post("/grape/data_import/:data_import_id/append_table", api_data_import_test_table_append);
 
 /**
  * @desc 
@@ -97,7 +106,17 @@ function api_data_import_test_table_drop(req, res)
 	res.locals.db.json_call('grape.data_import_test_table_drop', obj, null, {response: res});
 }
 
-function api_data_import_test_table(req, res)
+function api_data_import_test_table_append(req, res)
+{
+	console.log(JSON.stringify(req.body));
+	console.log(req.params.data_import_id);
+	var obj = {'data_import_id': req.params.data_import_id,
+				'test_table_name': req.body.tablename,
+				'append': true};
+	res.locals.db.json_call('grape.data_import_test_table_insert', obj, null, {response: res});
+}
+
+function api_data_import_test_table_create(req, res)
 {
 	console.log(JSON.stringify(req.body));
 	console.log(req.params.data_import_id);

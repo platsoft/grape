@@ -4,24 +4,24 @@
  */
 CREATE OR REPLACE FUNCTION grape.upsert_data_import_type(
 	_processing_function TEXT, 
-	_full_description TEXT, 
+	_short_description TEXT, 
 	_file_format_info TEXT, 
 	_function_schema TEXT, 
 	_param_definition JSON DEFAULT NULL) RETURNS VOID AS $$
 	INSERT INTO grape.data_import_type (
 		processing_function, 
-		full_description, 
+		short_description, 
 		file_format_info, 
 		function_schema, 
 		param_definition) 
 	VALUES (
 		_processing_function, 
-		_full_description, 
+		_short_description, 
 		_file_format_info, 
 		_function_schema, 
 		_param_definition)
 	ON CONFLICT (processing_function) --if processing_function name is the same updatre all the other values 
-	DO UPDATE SET full_description=EXCLUDED.full_description,
+	DO UPDATE SET short_description=EXCLUDED.short_description,
 		file_format_info=EXCLUDED.file_format_info, 
 		function_schema=EXCLUDED.function_schema,
 		param_definition=EXCLUDED.param_definition;
@@ -341,7 +341,7 @@ DECLARE
 	_test_table_schema TEXT;
 	_columns JSON;
 	_values JSON;
-	_result INTEGER;
+	_test_table_id INTEGER;
 BEGIN
 	--TODO make sure data import id exists
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
@@ -368,15 +368,15 @@ BEGIN
 		'columns', _columns,
 		'values', _values);
 
-	_result := grape.test_table_insert(_test_table_spec);
+	_test_table_id := grape.test_table_insert(_test_table_spec);
 
-	IF _result = 1 THEN
+	IF _test_table_id IS NOT NULL THEN
 		UPDATE grape.data_import 
-		SET test_table_schema=_test_table_schema, test_table_name=_test_table_name
-		WHERE data_import_id=_data_import_id;
+		SET test_table_id=_test_table_id
+		WHERE data_import_id=_data_import_id::INTEGER;
+	ELSE
+		RETURN grape.api_error('Can not create Table as it already exists, maybe you meant to append to the table instead?', -1);
 	END IF;
-
-
 
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;
@@ -390,13 +390,15 @@ DECLARE
 	_test_table_name TEXT;
 	_test_table_schema TEXT;
 	_result INTEGER;
+	_test_table_id INTEGER;
 BEGIN
 	--TODO make sure data import id exists
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 
 	SELECT test_table_name, test_table_schema
 	INTO _test_table_name, _test_table_schema
-	FROM grape.data_import 
+	FROM grape.data_import AS di
+	JOIN grape.test_table AS tt USING(test_table_id) 
 	WHERE data_import_id = _data_import_id::INTEGER;
 
 	_result := grape.test_table_drop(json_build_object('test_table_schema', _test_table_schema, 
@@ -417,17 +419,19 @@ END; $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION grape.data_import_test_table_select(JSON) RETURNS JSON AS $$
 DECLARE
 	_data_import_id INTEGER;
-	_test_table_name TEXT;
+	_options JSON;
+	_test_table_id TEXT;
 	_result JSON;
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
+	_options := $1->'options';
 
-	SELECT test_table_name
-	INTO _test_table_name
+	SELECT test_table_id
+	INTO _test_table_id
 	FROM grape.data_import 
 	WHERE data_import_id = _data_import_id::INTEGER;
 
-	_result := grape.test_table_select(json_build_object('test_table_name', _test_table_name));
+	_result := grape.test_table_select(json_build_object('test_table_id', _test_table_id, 'options', _options));
 
 	RETURN grape.api_success(_result);
 END; $$ LANGUAGE plpgsql;

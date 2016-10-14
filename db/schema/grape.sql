@@ -197,8 +197,7 @@ CREATE TABLE grape.data_import(
 	result_schema text,
 	user_id integer,
 	data_processed tstzrange,
-	test_table_name text,
-	test_table_schema text,
+	test_table_id integer,
 	CONSTRAINT data_import_pk PRIMARY KEY (data_import_id)
 
 );
@@ -282,7 +281,7 @@ CREATE TABLE grape.system_private(
 -- DROP TABLE IF EXISTS grape.data_import_type CASCADE;
 CREATE TABLE grape.data_import_type(
 	processing_function text NOT NULL,
-	full_description text,
+	short_description text,
 	file_format_info text,
 	function_schema text,
 	param_definition json,
@@ -557,6 +556,24 @@ CREATE TABLE grape.test_table(
 );
 -- ddl-end --
 
+-- object: test_table_id_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.test_table_id_idx CASCADE;
+CREATE INDEX test_table_id_idx ON grape.data_import
+	USING btree
+	(
+	  test_table_id
+	);
+-- ddl-end --
+
+-- object: test_table_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.test_table_idx CASCADE;
+CREATE INDEX test_table_idx ON grape.test_table
+	USING btree
+	(
+	  test_table_id
+	);
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
@@ -603,6 +620,13 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ALTER TABLE grape.schedule DROP CONSTRAINT IF EXISTS process_fk CASCADE;
 ALTER TABLE grape.schedule ADD CONSTRAINT process_fk FOREIGN KEY (process_id)
 REFERENCES grape.process (process_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: test_table_id_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.data_import DROP CONSTRAINT IF EXISTS test_table_id_fk CASCADE;
+ALTER TABLE grape.data_import ADD CONSTRAINT test_table_id_fk FOREIGN KEY (test_table_id)
+REFERENCES grape.test_table (test_table_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 

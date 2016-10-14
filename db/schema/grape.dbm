@@ -324,11 +324,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="data_processed">
 		<type name="tstzrange"/>
 	</column>
-	<column name="test_table_name">
-		<type name="text"/>
-	</column>
-	<column name="test_table_schema">
-		<type name="text"/>
+	<column name="test_table_id">
+		<type name="integer"/>
 	</column>
 	<constraint name="data_import_pk" type="pk-constr" table="grape.data_import">
 		<columns names="data_import_id" ref-type="src-columns"/>
@@ -462,7 +459,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="processing_function" not-null="true">
 		<type name="text"/>
 	</column>
-	<column name="full_description">
+	<column name="short_description">
 		<type name="text"/>
 	</column>
 	<column name="file_format_info">
@@ -818,19 +815,38 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="test_table_id" not-null="true">
 		<type name="serial"/>
 	</column>
-	<column name="test_table_schema" not-null="true">
+	<column name="table_schema" not-null="true">
 		<type name="text"/>
 	</column>
-	<column name="test_table_name" not-null="true">
+	<column name="table_name" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="description">
 		<type name="text"/>
 	</column>
 	<constraint name="test_table_id_pk" type="pk-constr" table="grape.test_table">
 		<columns names="test_table_id" ref-type="src-columns"/>
 	</constraint>
 	<constraint name="test_table_uq" type="uq-constr" table="grape.test_table">
-		<columns names="test_table_schema,test_table_name" ref-type="src-columns"/>
+		<columns names="table_schema,table_name" ref-type="src-columns"/>
 	</constraint>
 </table>
+
+<index name="test_table_id_idx" table="grape.data_import"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="test_table_id"/>
+		</idxelement>
+</index>
+
+<index name="test_table_idx" table="grape.test_table"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="test_table_id"/>
+		</idxelement>
+</index>
 
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_role">
@@ -872,6 +888,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.process" table="grape.schedule">
 	<columns names="process_id" ref-type="src-columns"/>
 	<columns names="process_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="test_table_id_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.test_table" table="grape.data_import">
+	<columns names="test_table_id" ref-type="src-columns"/>
+	<columns names="test_table_id" ref-type="dst-columns"/>
 </constraint>
 
 <constraint name="data_import_fk" type="fk-constr" comparison-type="MATCH FULL"
@@ -962,6 +984,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <relationship name="rel_setting_history_setting" type="relfk"
 	 src-table="grape.setting_history"
 	 dst-table="grape.setting"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_data_import_test_table" type="relfk"
+	 src-table="grape.data_import"
+	 dst-table="grape.test_table"
 	 src-required="false" dst-required="false"/>
 
 </dbmodel>
