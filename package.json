@@ -20,6 +20,7 @@
 		"connect-multiparty": "2.0.0",
 		"adm-zip": "~0.4.4",
 		"libxmljs": "0.18.0",
+		"csv-parse": "1.1.7",
 		"commander": "2.2.0",
 		"async": "2.0.1",
 		"xlsx": "0.8.0",

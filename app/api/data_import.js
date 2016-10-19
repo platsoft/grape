@@ -3,6 +3,7 @@ var app;
 var fs = require('fs');
 var async = require('async');
 var XLSX = require('xlsx');
+var csvparse = require('csv-parse');
 
 exports = module.exports = function(_app) {
 	app = _app;
@@ -186,52 +187,70 @@ function api_data_import(req, res)
 		var processing_param = JSON.parse(req.body.processing_param);
 
 		res.locals.db.json_call('grape.data_import_insert', {processing_function: processing_function, filename: file.originalFilename, description: description, processing_param: processing_param}, function(err, result) { 
-
+			
 			var data_import_id = result.rows[0].grapedata_import_insert.data_import_id;
 			var originalname = file.originalFilename; 
 			var filename = originalname.replace(/.*(\.[^.]*$)/, 'data_import_'+data_import_id+'$1')
 			ds.saveFile('dupload', file.path, filename, false);
 			data_import_ids.push(data_import_id);
+			if (file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || file.type == 'application/vnd.ms-excel') {
+				var workbook = XLSX.readFile(file.path);
+				var first_sheet_name = workbook.SheetNames[0];
+				var worksheet = workbook.Sheets[first_sheet_name];
+				
+				var range = worksheet['!ref'];
+				var ar = range.split(':');
 
-			var workbook = XLSX.readFile(file.path);
-			var first_sheet_name = workbook.SheetNames[0];
-			var worksheet = workbook.Sheets[first_sheet_name];
-			
-			var range = worksheet['!ref'];
-			var ar = range.split(':');
+				var d = XLSX.utils.decode_range(range);
 
-			var d = XLSX.utils.decode_range(range);
+				var max_col = d.e.c;
+				var max_row = d.e.r;
 
-			var max_col = d.e.c;
-			var max_row = d.e.r;
-
-			var headers = [];
-			for (var col = 0; col <= max_col; col++)
-			{
-				var address = XLSX.utils.encode_cell({r: 0, c: col});
-				headers.push(worksheet[address].v);
-			}
-
-			for (var row = 1; row <= max_row; row++)
-			{
-				var data = {data:{}};
-				data['data_import_id'] = data_import_id;
+				var headers = [];
 				for (var col = 0; col <= max_col; col++)
 				{
-					var val = '';
-					var address = XLSX.utils.encode_cell({r: row, c: col});
-					if (worksheet[address])
-						val = worksheet[address].v;
+					var address = XLSX.utils.encode_cell({r: 0, c: col});
+					headers.push(worksheet[address].v);
+				}
+
+				for (var row = 1; row <= max_row; row++)
+				{
+					var data = {data:{}};
+					data['data_import_id'] = data_import_id;
+					for (var col = 0; col <= max_col; col++)
+					{
+						var val = '';
+						var address = XLSX.utils.encode_cell({r: row, c: col});
+						if (worksheet[address])
+							val = worksheet[address].v;
+						
+						data.data[headers[col]] = val;
+					}
 					
-					data.data[headers[col]] = val;
+					item_queue.push(data);
+
 				}
 				
-				item_queue.push(data);
-
+				if (row == 1)
+					item_queue.drain();
 			}
+			else if (file.type == 'text/csv') {
+				var rs = fs.createReadStream(file.path);
+				
+				var parser = csvparse({columns: true}, function(err, data) {
+					//TODO error check
+					for (var i = 0; i < data.length; i++)
+					{
+						var row = {data:{}}
+						row['data_import_id'] = data_import_id;
+						row.data = data[i];
+						
+						item_queue.push(row);
+					}
+				});
 
-			if (row == 1)
-				item_queue.drain();
+				rs.pipe(parser);
+			}
 		});
 	}
 }
