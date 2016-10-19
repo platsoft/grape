@@ -91,7 +91,8 @@ exports = module.exports = function(_app) {
 function api_data_import_test_table_select(req, res)
 {
 	var obj = {'data_import_id': req.params.data_import_id,
-				'options': req.body.options};
+				'limit': req.body.limit,
+				'offset': req.body.offset};
 	res.locals.db.json_call('grape.data_import_test_table_select', obj, null, {response: res});
 }
 
