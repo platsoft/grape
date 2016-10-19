@@ -115,6 +115,7 @@ DECLARE
 	_records JSON;
 	_limit TEXT;
 	_offset TEXT;
+	_total INTEGER;
 BEGIN
 	--TODO use test_table_id
 	_test_table_id = $1->>'test_table_id'::INTEGER;
@@ -124,8 +125,12 @@ BEGIN
 	FROM grape.test_table 
 	WHERE test_table_id = _test_table_id::INTEGER;
 
-	_limit := $1->'options'->>'limit';
-	_offset := $1->'options'->>'offset';
+	_limit := $1->>'limit';
+	_offset := $1->>'offset';
+
+	EXECUTE FORMAT('SELECT COUNT(1) FROM "%s"."%1$s"', 
+		_table_name, 
+		_schema_name) INTO _total;
 
 	EXECUTE FORMAT('SELECT json_agg(row_to_json("%s".*)) FROM "%s"."%1$s" OFFSET %s LIMIT %s', 
 		_table_name, 
@@ -134,5 +139,5 @@ BEGIN
 		_limit) INTO _records;
 
 
-	RETURN json_build_object('records', _records);
+	RETURN json_build_object('records', _records, 'total', _total);
 END; $$ LANGUAGE plpgsql;

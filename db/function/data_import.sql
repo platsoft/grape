@@ -229,19 +229,22 @@ DECLARE
 	_data_import_detail JSON;
 	_limit TEXT;
 	_offset TEXT;
+	_total INTEGER;
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 	_limit := $1->>'limit';
 	_offset := $1->>'offset';
 
-	SELECT result_table, result_schema INTO _tablename, _schema FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
+	SELECT result_table, result_schema, record_count INTO _tablename, _schema, _total FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
 
-	EXECUTE FORMAT ('SELECT to_json(b)
+	EXECUTE FORMAT ('SELECT to_jsonb(b)
 					FROM
 						(SELECT count(*) AS result_count,
 							array_agg(a) AS records
 							FROM
 						(SELECT * FROM "%s"."%s" offset %s limit %s) AS a) AS b', _schema, _tablename, _offset, _limit) INTO _data_import_detail;
+	
+	_data_import_detail := _data_import_detail::JSONB || jsonb_build_object('total', _total);
 
 	RETURN grape.api_success(_data_import_detail);
 END; $$ LANGUAGE plpgsql;
@@ -426,19 +429,21 @@ END; $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION grape.data_import_test_table_select(JSON) RETURNS JSON AS $$
 DECLARE
 	_data_import_id INTEGER;
-	_options JSON;
 	_test_table_id TEXT;
 	_result JSON;
+	_limit TEXT;
+	_offset TEXT;
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
-	_options := $1->'options';
+	_limit := $1->>'limit';
+	_offset := $1->>'offset';
 
 	SELECT test_table_id
 	INTO _test_table_id
 	FROM grape.data_import 
 	WHERE data_import_id = _data_import_id::INTEGER;
 
-	_result := grape.test_table_select(json_build_object('test_table_id', _test_table_id, 'options', _options));
+	_result := grape.test_table_select(json_build_object('test_table_id', _test_table_id, 'limit', _limit, 'offset', _offset));
 
 	RETURN grape.api_success(_result);
 END; $$ LANGUAGE plpgsql;
