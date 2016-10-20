@@ -10,141 +10,137 @@ exports = module.exports = function(_app) {
 /**
  * @desc Upload generic excel data to grape.data_import and rows to data.data_import_row
  * @method POST
- * @url /grape/data_import
- *
- * @return JSON object 
+ * @url /grape/data_import/upload
+ * @body JSON object containing fields:
+ * {
+ * 	file_data TEXT file data byte string
+ * 	name TEXT file name
+ * 	type TEXT file type
+ * 	processing_parameters JSON Array of objects with parameters
+ * 	processing_function TEXT Name of the processing function
+ * }
+ * @example {file_data:'...', name:'filename.csv', type:'text/csv', processing_parameters:[{x:''}], processing_function:'dimport_function_x'}
+ * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
-	app.post("/grape/data_import", api_data_import);
+	app.post("/grape/data_import/upload", api_data_import);
 
 /**
  * @desc delete given data_import_id entries if not processed
- * @method get
+ * @method POST
  * @url /grape/data_import/:data_import_id/delete
- *
- * @return JSON object 
+ * @body JSON object containing fields:
+ * {
+ * 	data_import_id INTEGER the id of the data import to delete
+ * }
+ * @example {}
+ * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
-	app.get("/grape/data_import/:data_import_id/delete", api_data_import_delete);
+	app.post("/grape/data_import/delete", api_data_import_delete);
 
 /**
  * @desc process given data_import_id data
- * @method get
+ * @method post
  * @url /grape/data_import/:data_import_id/process
- *
- * @return JSON object 
+ * @body JSON object containing fields:
+ * {
+ * 	data_import_id INTEGER the id of the data import to process 
+ * }
+ * @example {}
+ * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
-	app.get("/grape/data_import/:data_import_id/process", api_data_import_process);
+	app.post("/grape/data_import/process", api_data_import_process);
 
 /**
- * @desc return data for data_import_id
- * @method get
- * @url /grape/data_import/:data_import_id/detail
- *
- * @return JSON object 
- **/
-	app.post("/grape/data_import/:data_import_id/detail", api_data_import_detail);
-
-/**
- * @desc 
+ * @desc create a test table from data_import data
  * @method post
- * @url 
- *
- * @return JSON object 
+ * @url /grape/data_import/test_table/create 
+ * @body JSON object containing fields:
+ * {
+ * 	data_import_id INTEGER the id of the data import data to use for the test table
+ * 	table_name TEXT the table name to use for the new test table
+ * }
+ * @example {}
+ * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
-	app.post("/grape/data_import/:data_import_id/create_table", api_data_import_test_table_create);
+	app.post("/grape/data_import/test_table/create", api_data_import_test_table_create);
 
 /**
- * @desc 
+ * @desc append data from a data import to an existing compatable test_table
  * @method post
- * @url 
- *
- * @return JSON object 
+ * @url /grape/data_import/test_table/append 
+ * @body JSON object containing fields:
+ * {
+ * 	test_table_id INTEGER The id of the test table to append to
+ *	data_import_id INTEGER the id of the data import data to use for the test table
+ * }
+ * @example {}
+ * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
-	app.post("/grape/data_import/:data_import_id/append_table", api_data_import_test_table_append);
+	app.post("/grape/data_import/test_table/append", api_data_import_test_table_append);
 
 /**
- * @desc 
+ * @desc delete an existing test table 
  * @method post
- * @url 
- *
- * @return JSON object 
+ * @url /grape/data_import/test_table/delete
+ * @body JSON object containing fields:
+ * {
+ * 	test_table_id INTEGER The id of the test table to delete
+ * }
+ * @example {}
+ * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
-	app.post("/grape/data_import/:data_import_id/remove_table", api_data_import_test_table_drop);
+	app.post("/grape/data_import/test_table/delete", api_data_import_test_table_drop);
 
 /**
- * @desc 
+ * @desc alter an existing test table
  * @method post
- * @url 
- *
- * @return JSON object 
+ * @url /grape/data_import/test_table/alter 
+ * @body JSON object containing fields:
+ * {
+ * 	TODO
+ * }
+ * @example {}
+ * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
-	app.post("/grape/data_import/:data_import_id/view_table", api_data_import_test_table_select);
-
-/**
- * @desc 
- * @method post
- * @url 
- *
- * @return JSON object 
- **/
-	app.post("/grape/data_import/:data_import_id/alter_table", api_data_import_test_table_alter);
+	app.post("/grape/data_import/test_table/alter", api_data_import_test_table_alter);
 };
-
-function api_data_import_test_table_select(req, res)
-{
-	var obj = {'data_import_id': req.params.data_import_id,
-				'limit': req.body.limit,
-				'offset': req.body.offset};
-	res.locals.db.json_call('grape.data_import_test_table_select', obj, null, {response: res});
-}
 
 function api_data_import_test_table_alter(req, res)
 {
-	var obj = {'data_import_id': req.params.data_import_id};
-	res.locals.db.json_call('grape.data_import_test_table_alter', obj, null, {response: res});
+	res.locals.db.json_call('grape.data_import_test_table_alter', req.body, null, {response: res});
 }
 
 function api_data_import_test_table_drop(req, res)
 {
-	var obj = {'data_import_id': req.params.data_import_id};
-	res.locals.db.json_call('grape.data_import_test_table_drop', obj, null, {response: res});
+	res.locals.db.json_call('grape.data_import_test_table_drop', req.body, null, {response: res});
 }
 
 function api_data_import_test_table_append(req, res)
 {
-	console.log(JSON.stringify(req.body));
-	console.log(req.params.data_import_id);
-	var obj = {'data_import_id': req.params.data_import_id,
-				'test_table_name': req.body.tablename,
-				'append': true};
-	res.locals.db.json_call('grape.data_import_test_table_insert', obj, null, {response: res});
+	req.body.append = true;
+	res.locals.db.json_call('grape.data_import_test_table_insert', req.body, null, {response: res});
 }
 
 function api_data_import_test_table_create(req, res)
 {
-	var obj = {'data_import_id': req.params.data_import_id,
-				'test_table_name': req.body.tablename,
-				'description': req.body.description};
-	res.locals.db.json_call('grape.data_import_test_table_insert', obj, null, {response: res});
+	res.locals.db.json_call('grape.data_import_test_table_insert', req.body, null, {response: res});
 }
 
 function api_data_import_delete(req, res)
 {
-	var obj = {'data_import_id': req.params.data_import_id};
-	res.locals.db.json_call('grape.data_import_delete', obj, null, {response: res});
-}
-
-function api_data_import_detail(req, res)
-{
-	var obj = {'data_import_id': req.params.data_import_id, 'offset': req.body.offset, 'limit': req.body.limit};
-	res.locals.db.json_call('grape.data_import_detail', obj, null, {response: res});
+	res.locals.db.json_call('grape.data_import_delete', req.body, null, {response: res});
 }
 
 function api_data_import_process(req, res)
 {
-	var obj = {'data_import_id': req.params.data_import_id};
-	res.locals.db.json_call('grape.data_import_process', obj, null, {response: res});
+	res.locals.db.json_call('grape.data_import_process', req.body, null, {response: res});
+}
+function api_data_import(req, res)
+{
+
 }
 
+/*
 function api_data_import(req, res)
 {
 	var item_count = 0;
@@ -254,5 +250,5 @@ function api_data_import(req, res)
 		});
 	}
 }
-
+*/
 
