@@ -353,7 +353,7 @@ DECLARE
 BEGIN
 	--TODO make sure data import id exists
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
-	_test_table_name := $1->>'test_table_name';
+	_test_table_name := $1->>'table_name';
 	_description := $1->>'description';
 
 	SELECT result_table, result_schema
@@ -403,21 +403,20 @@ DECLARE
 	_test_table_id INTEGER;
 BEGIN
 	--TODO make sure data import id exists
-	_data_import_id := ($1->>'data_import_id')::INTEGER;
+	_test_table_id := ($1->>'test_table_id')::INTEGER;
 
-	SELECT test_table_name, test_table_schema
+	SELECT table_name, table_schema
 	INTO _test_table_name, _test_table_schema
-	FROM grape.data_import AS di
-	JOIN grape.test_table AS tt USING(test_table_id) 
-	WHERE data_import_id = _data_import_id::INTEGER;
+	FROM grape.test_table 
+	WHERE test_table_id = _test_table_id::INTEGER;
 
 	_result := grape.test_table_drop(json_build_object('test_table_schema', _test_table_schema, 
 		'test_table_name', _test_table_name));
 
 	IF _result = 1 THEN
 		UPDATE grape.data_import 
-		SET test_table_schema=NULL, test_table_name=NULL
-		WHERE data_import_id=_data_import_id;
+		SET test_table_id=NULL
+		WHERE test_table_id=_test_table_id;
 	END IF;
 	
 	RETURN grape.api_success('code', _result);
