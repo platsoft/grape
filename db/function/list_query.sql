@@ -94,7 +94,7 @@ BEGIN
 		_filters_join := 'AND';
 	END IF;
 
-	SELECT roles INTO _roles FROM grape.list_query_whitelist WHERE schema = _schema::TEXT AND tablename = _tablename::TEXT;
+	SELECT roles INTO _roles FROM grape.list_query_whitelist WHERE schema = _schema::TEXT AND _tablename::TEXT ~ tablename;
 	IF NOT FOUND THEN
 		RETURN grape.api_error('Table requested is not in whitelist', -2);
 	END IF;
