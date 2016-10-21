@@ -29,7 +29,7 @@ BEGIN
 		WHERE table_schema = _schema_name
 		AND table_name = _table_name) THEN
 		
-		SELECT string_agg(CONCAT('"',item, '" TEXT'), ', ')
+		SELECT string_agg(CONCAT('"',regexp_replace(LOWER(item), '\s', '_', 'g'), '" TEXT'), ', ')
 		INTO _columns
 		FROM (SELECT json_array_elements_text($1->'columns') AS item) as a;
 
@@ -44,7 +44,7 @@ BEGIN
 
 	--TODO check that columns of new data match that of table specified
 	IF _append THEN
-		SELECT string_agg(CONCAT('"',item,'"'), ', ')
+		SELECT string_agg(CONCAT('"',regexp_replace(LOWER(item), '\s', '_', 'g'),'"'), ', ')
 		INTO _columns
 		FROM (SELECT json_array_elements_text($1->'columns') AS item) as a;
 
