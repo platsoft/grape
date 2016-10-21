@@ -350,33 +350,48 @@ DECLARE
 	_values JSON;
 	_test_table_id INTEGER;
 	_description TEXT;
+	_row JSONB;
+	_rows JSONB;
+	_data JSONB;
+	_key TEXT;
+	_append TEXT;
 BEGIN
 	--TODO make sure data import id exists
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 	_test_table_name := $1->>'table_name';
 	_description := $1->>'description';
+	_append := $1->>'append';
 
-	SELECT result_table, result_schema
-	INTO _result_table, _result_schema
+	SELECT result_table, result_schema, test_table_id
+	INTO _result_table, _result_schema, _test_table_id
 	FROM grape.data_import 
 	WHERE data_import_id = _data_import_id::INTEGER;
+
+	IF _test_table_id IS NOT NULL AND _append IS NULL THEN
+		RETURN grape.api_error('Can not create Table as it already exists, maybe you meant to append to the table instead?', -1);
+	END IF;
 
 	EXECUTE FORMAT('SELECT json_agg(keys)
 		FROM (SELECT json_object_keys(a.data) AS keys 
 			FROM (SELECT data 
 				FROM "%s"."%s" LIMIT 1) AS a) AS b', _result_schema, _result_table) INTO _columns;
+	
+	_rows := '[]'::JSONB;
+	FOR _data IN EXECUTE FORMAT('SELECT data FROM "%s"."%s"', _result_schema, _result_table) LOOP
+		_row := '[]'::JSONB;
+		FOR _key IN SELECT value FROM json_array_elements_text(_columns) LOOP
+			_row := _row || (_data->_key)::JSONB;
+		END LOOP;
+		_rows := _rows || jsonb_build_array(_row);
+	END LOOP;
 
-	EXECUTE FORMAT('SELECT json_agg(vals) 
-		FROM (SELECT json_agg((pair).value) AS vals
-				FROM (SELECT data_import_row_id, json_each_text(a.data) as pair
-					FROM (SELECT data_import_row_id, data
-						FROM "%s"."%s") AS a) as b
-						GROUP BY data_import_row_id) as c', _result_schema, _result_table) INTO _values;
+	_values := _rows::JSON;
 
 	_test_table_spec := json_build_object('test_table_name', _test_table_name,
 		'columns', _columns,
 		'values', _values,
-		'description', _description);
+		'description', _description,
+		'append', _append);
 
 	_test_table_id := grape.test_table_insert(_test_table_spec);
 
@@ -384,8 +399,6 @@ BEGIN
 		UPDATE grape.data_import 
 		SET test_table_id=_test_table_id
 		WHERE data_import_id=_data_import_id::INTEGER;
-	ELSE
-		RETURN grape.api_error('Can not create Table as it already exists, maybe you meant to append to the table instead?', -1);
 	END IF;
 
 	RETURN grape.api_success();
@@ -410,14 +423,13 @@ BEGIN
 	FROM grape.test_table 
 	WHERE test_table_id = _test_table_id::INTEGER;
 
-	_result := grape.test_table_drop(json_build_object('test_table_schema', _test_table_schema, 
-		'test_table_name', _test_table_name));
+	UPDATE grape.data_import 
+	SET test_table_id=NULL
+	WHERE test_table_id=_test_table_id;
 
-	IF _result = 1 THEN
-		UPDATE grape.data_import 
-		SET test_table_id=NULL
-		WHERE test_table_id=_test_table_id;
-	END IF;
+	_result := grape.test_table_drop(json_build_object('test_table_schema', _test_table_schema, 
+		'test_table_name', _test_table_name,
+		'test_table_id', _test_table_id));
 	
 	RETURN grape.api_success('code', _result);
 END; $$ LANGUAGE plpgsql;

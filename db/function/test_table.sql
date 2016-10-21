@@ -15,6 +15,7 @@ DECLARE
 	_values TEXT := '';
 	_append BOOLEAN;
 BEGIN
+	raise notice 'json passed values: %s',$1->'values';
 	_schema_name := grape.setting('test_table_schema', 'tmp');
 	_table_name := $1->>'test_table_name';
 	_description := $1->>'description';
@@ -47,11 +48,13 @@ BEGIN
 		INTO _columns
 		FROM (SELECT json_array_elements_text($1->'columns') AS item) as a;
 
-		SELECT string_agg(_vals, ', ')
-		INTO _values 
-		FROM (SELECT CONCAT('(','''',array_to_string(value::TEXT[], ''', '''),'''', ')') AS _vals
-			FROM json_array_elements($1->'values')) AS a;
-
+		SELECT string_agg(format('(%s)', vals), ', ')
+		INTO _values
+		FROM (SELECT string_agg(quote_literal(txt), ', ') AS vals
+			FROM (SELECT rown, json_array_elements_text(value) as txt
+				FROM (SELECT row_number() over () AS rown, value
+					FROM json_array_elements($1->'values')) AS a) AS b GROUP BY rown) AS c;
+		
 		EXECUTE FORMAT('INSERT INTO "%s"."%s" (%s) VALUES %s', _schema_name, _table_name, _columns, _values);
 	END IF;
 
@@ -69,7 +72,7 @@ DECLARE
 	_table_name TEXT;
 BEGIN
 	--TODO make checks to be sure that this is a test table maybe check for col test_table_row_id?
-	_test_table_id = $1->>'test_table_id'::INTEGER;
+	_test_table_id = ($1->>'test_table_id')::INTEGER;
 
 	SELECT table_schema, table_name
 	INTO _schema_name, _table_name 
