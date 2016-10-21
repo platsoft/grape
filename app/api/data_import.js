@@ -135,14 +135,10 @@ function api_data_import_process(req, res)
 {
 	res.locals.db.json_call('grape.data_import_process', req.body, null, {response: res});
 }
+
 function api_data_import(req, res)
 {
-
-}
-
-/*
-function api_data_import(req, res)
-{
+	console.log(req);
 	var item_count = 0;
 	var errors = [];
 	var data_import_ids = [];
@@ -250,5 +246,4 @@ function api_data_import(req, res)
 		});
 	}
 }
-*/
 
