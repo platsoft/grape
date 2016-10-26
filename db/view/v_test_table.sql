@@ -7,5 +7,5 @@ CREATE OR REPLACE VIEW grape.v_test_table AS
 		date_created,
 		user_id,
 		date_updated,
-		username(user_id) AS username
+		grape.username(user_id) AS username
 	FROM grape.test_table;
