@@ -184,10 +184,10 @@ COMMENT ON COLUMN grape.schedule.time_started IS 'Actual start';
 CREATE TABLE grape.data_import(
 	data_import_id serial NOT NULL,
 	filename text,
-	date_inserted timestamp DEFAULT NOW(),
+	date_inserted timestamptz DEFAULT NOW(),
 	parameter json,
 	description text,
-	date_done timestamp,
+	date_done timestamptz,
 	record_count integer,
 	valid_record_count integer,
 	data_import_status smallint,
@@ -551,6 +551,9 @@ CREATE TABLE grape.test_table(
 	table_schema text NOT NULL,
 	table_name text NOT NULL,
 	description text,
+	date_created timestamptz,
+	user_id integer,
+	date_updated timestamptz,
 	CONSTRAINT test_table_id_pk PRIMARY KEY (test_table_id),
 	CONSTRAINT test_table_uq UNIQUE (table_schema,table_name)
 
@@ -572,6 +575,33 @@ CREATE INDEX test_table_idx ON grape.test_table
 	USING btree
 	(
 	  test_table_id
+	);
+-- ddl-end --
+
+-- object: test_table_user_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.test_table_user_idx CASCADE;
+CREATE INDEX test_table_user_idx ON grape.test_table
+	USING btree
+	(
+	  user_id
+	);
+-- ddl-end --
+
+-- object: test_table_created_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.test_table_created_idx CASCADE;
+CREATE INDEX test_table_created_idx ON grape.test_table
+	USING btree
+	(
+	  date_created
+	);
+-- ddl-end --
+
+-- object: test_table_updated | type: INDEX --
+-- DROP INDEX IF EXISTS grape.test_table_updated CASCADE;
+CREATE INDEX test_table_updated ON grape.test_table
+	USING btree
+	(
+	  date_updated
 	);
 -- ddl-end --
 

@@ -217,39 +217,6 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 /**
- * Api function to return json with all the data rows
- * Required field data_import_id must be in the JSON data
- * normally grape list would be used for this sort of thing but grape list does not work with dynamic table and schema names
- */
-CREATE OR REPLACE FUNCTION grape.data_import_detail(JSON) RETURNS JSON AS $$
-DECLARE
-	_data_import_id INTEGER;
-	_schema TEXT;
-	_tablename TEXT;
-	_data_import_detail JSON;
-	_limit TEXT;
-	_offset TEXT;
-	_total INTEGER;
-BEGIN
-	_data_import_id := ($1->>'data_import_id')::INTEGER;
-	_limit := $1->>'limit';
-	_offset := $1->>'offset';
-
-	SELECT result_table, result_schema, record_count INTO _tablename, _schema, _total FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
-
-	EXECUTE FORMAT ('SELECT to_jsonb(b)
-					FROM
-						(SELECT count(*) AS result_count,
-							array_agg(a) AS records
-							FROM
-						(SELECT * FROM "%s"."%s" offset %s limit %s) AS a) AS b', _schema, _tablename, _offset, _limit) INTO _data_import_detail;
-	
-	_data_import_detail := _data_import_detail::JSONB || jsonb_build_object('total', _total);
-
-	RETURN grape.api_success(_data_import_detail);
-END; $$ LANGUAGE plpgsql;
-
-/**
  * Internal function to Process data import data
  */
 CREATE OR REPLACE FUNCTION grape.data_import_process(_data_import_id INTEGER) RETURNS INTEGER AS $$
@@ -355,6 +322,7 @@ DECLARE
 	_data JSONB;
 	_key TEXT;
 	_append TEXT;
+	_result JSON;
 BEGIN
 	--TODO make sure data import id exists
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
@@ -393,7 +361,8 @@ BEGIN
 		'description', _description,
 		'append', _append);
 
-	_test_table_id := grape.test_table_insert(_test_table_spec);
+	_result := grape.test_table_insert(_test_table_spec);
+	_test_table_id := (_result->>'test_table_id')::INTEGER;
 
 	IF _test_table_id IS NOT NULL THEN
 		UPDATE grape.data_import 
@@ -401,7 +370,7 @@ BEGIN
 		WHERE data_import_id=_data_import_id::INTEGER;
 	END IF;
 
-	RETURN grape.api_success();
+	RETURN _result;
 END; $$ LANGUAGE plpgsql;
 
 /**
@@ -412,7 +381,7 @@ DECLARE
 	_data_import_id INTEGER;
 	_test_table_name TEXT;
 	_test_table_schema TEXT;
-	_result INTEGER;
+	_result JSON;
 	_test_table_id INTEGER;
 BEGIN
 	--TODO make sure data import id exists
@@ -431,32 +400,7 @@ BEGIN
 		'test_table_name', _test_table_name,
 		'test_table_id', _test_table_id));
 	
-	RETURN grape.api_success('code', _result);
-END; $$ LANGUAGE plpgsql;
-
-/**
- * Api function 
- */
-CREATE OR REPLACE FUNCTION grape.data_import_test_table_select(JSON) RETURNS JSON AS $$
-DECLARE
-	_data_import_id INTEGER;
-	_test_table_id TEXT;
-	_result JSON;
-	_limit TEXT;
-	_offset TEXT;
-BEGIN
-	_data_import_id := ($1->>'data_import_id')::INTEGER;
-	_limit := $1->>'limit';
-	_offset := $1->>'offset';
-
-	SELECT test_table_id
-	INTO _test_table_id
-	FROM grape.data_import 
-	WHERE data_import_id = _data_import_id::INTEGER;
-
-	_result := grape.test_table_select(json_build_object('test_table_id', _test_table_id, 'limit', _limit, 'offset', _offset));
-
-	RETURN grape.api_success(_result);
+	RETURN _result;
 END; $$ LANGUAGE plpgsql;
 
 /**
