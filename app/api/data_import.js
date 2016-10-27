@@ -51,6 +51,19 @@ exports = module.exports = function(_app) {
 	app.post("/grape/data_import/process", api_data_import_process);
 
 /**
+ * @desc process given data_import_id data
+ * @method post
+ * @url /grape/data_import/:data_import_id/process
+ * @body JSON object containing fields:
+ * {
+ * 	data_import_id INTEGER the id of the data import to process 
+ * }
+ * @example {}
+ * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
+ **/
+	app.get("/download/data_import/:data_import_id/:filename", api_data_import_download);
+
+/**
  * @desc create a test table from data_import data
  * @method post
  * @url /grape/data_import/test_table/create 
@@ -246,4 +259,13 @@ function api_data_import(req, res)
 		});
 	}
 }
-
+function api_data_import_download(req, res)
+{
+	var filename = req.params.filename;
+	var extension = filename.match(/\.[^\.]*$/)
+	var data_import_id = req.params.data_import_id;
+	var ds = app.get('document_store');
+	var location = ds.getDirectory('dimport');
+	location = [location, 'data_import_'+data_import_id+extension].join('/');
+	res.download(location, filename);
+}
