@@ -51,15 +51,12 @@ exports = module.exports = function(_app) {
 	app.post("/grape/data_import/process", api_data_import_process);
 
 /**
- * @desc process given data_import_id data
- * @method post
- * @url /grape/data_import/:data_import_id/process
- * @body JSON object containing fields:
- * {
- * 	data_import_id INTEGER the id of the data import to process 
- * }
+ * @desc download the data import file uploaded for specific data_import
+ * @method get
+ * @url /download/data_import/:data_import_id/:filename
+ * @body
  * @example {}
- * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
+ * @return file buffer
  **/
 	app.get("/download/data_import/:data_import_id/:filename", api_data_import_download);
 
