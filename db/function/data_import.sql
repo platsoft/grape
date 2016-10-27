@@ -339,6 +339,9 @@ BEGIN
 		RETURN grape.api_error('Can not create Table as it already exists, maybe you meant to append to the table instead?', -1);
 	ELSEIF _test_table_id IS NOT NULL AND _append IS NOT NULL THEN
 		RETURN grape.api_error('Can not append as this data_import has already been appended to a test table', -1); 
+	ELSEIF _test_table_id IS NULL AND _append IS NOT NULL THEN
+		_test_table_id := ($1->>'test_table_id')::INTEGER;
+		SELECT table_name INTO _test_table_name FROM grape.test_table WHERE test_table_id=_test_table_id::INTEGER;
 	END IF;
 
 	EXECUTE FORMAT('SELECT json_agg(keys)

@@ -81,14 +81,19 @@ DECLARE
 	_test_table_id TEXT;
 	_schema_name TEXT;
 	_table_name TEXT;
+	_user_id INTEGER;
 BEGIN
 	--TODO make checks to be sure that this is a test table maybe check for col test_table_row_id?
 	_test_table_id = ($1->>'test_table_id')::INTEGER;
 
-	SELECT table_schema, table_name
-	INTO _schema_name, _table_name 
+	SELECT table_schema, table_name, user_id
+	INTO _schema_name, _table_name, _user_id 
 	FROM grape.test_table 
 	WHERE test_table_id = _test_table_id::INTEGER;
+
+	IF current_user_id() != _user_id THEN
+		RETURN grape.api_error('Only the owner can delete this test table', -1);
+	END IF;
 
 	EXECUTE FORMAT('DROP TABLE "%s"."%s"', _schema_name, _table_name);
 
