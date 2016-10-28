@@ -44,14 +44,14 @@ BEGIN
 		_new := TRUE;
 
 	ELSIF _append IS NULL THEN
-		RETURN grape.api_error('table already exists and append not specified', -1);
+		RETURN grape.api_error('table already exists and append not specified', -2);
 	END IF;
 
 	--TODO check that columns of new data match that of table specified
 	IF _append OR _new THEN
 		--only allow user who created a test table to append to it.
 		IF _append AND _current_user_id!=_user_id AND _current_user_id IS NOT NULL THEN
-			return grape.api_error('Cannot append to this table as you are not the owner', -1);
+			return grape.api_error('Cannot append to this table as you are not the owner', -2);
 		END IF;
 		UPDATE grape.test_table SET date_updated = current_timestamp WHERE test_table_id=_test_table_id::INTEGER;
 
@@ -92,7 +92,7 @@ BEGIN
 	WHERE test_table_id = _test_table_id::INTEGER;
 
 	IF current_user_id() != _user_id THEN
-		RETURN grape.api_error('Only the owner can delete this test table', -1);
+		RETURN grape.api_error('Only the owner can delete this test table', -2);
 	END IF;
 
 	EXECUTE FORMAT('DROP TABLE "%s"."%s"', _schema_name, _table_name);
