@@ -111,7 +111,12 @@
 
 1.0.3:
 - log in using email instead of username
-
-
+- upload/import files to process data with data import functions
+- create test tables from data import data
+- append to existing test tables from data import data
+- download data import files
+- list query uses tablename as a regex pattern
+- function to check if a date is a weekend day
+- ability to parse csv files
 
 
