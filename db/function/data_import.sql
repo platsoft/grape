@@ -151,23 +151,26 @@ DECLARE
 	_schema TEXT;
 	_tablename TEXT;
 	_data_import_status INTEGER;
+	_test_table_id INTEGER;
 BEGIN
 	_data_import_id := $1->>'data_import_id';
 
 	IF _data_import_id IS NULL THEN
-		RETURN grape.api_error('data_import_id was not provided', -1);
+		RETURN grape.api_error('data_import_id was not provided', -3);
 	END IF;
 
-	SELECT result_schema, result_table, data_import_status  
-	INTO _schema, _tablename, _data_import_status 
+	SELECT result_schema, result_table, data_import_status, test_table_id  
+	INTO _schema, _tablename, _data_import_status, _test_table_id
 	FROM grape.data_import
 	WHERE data_import_id=_data_import_id::INTEGER ;
 
 	--delete only if table can be found and non of the rows for the data_import has been proccessed
 	IF _tablename IS NULL THEN
-		RETURN grape.api_error(FORMAT('Could not find data_import_id: %s', _data_import_id), -1);
+		RETURN grape.api_error(FORMAT('Could not find data_import_id: %s', _data_import_id), -5);
 	ELSIF _data_import_status > 1 THEN
-		RETURN grape.api_error('Cannot delete this as some or all of its data has been processed', -1);
+		RETURN grape.api_error('Cannot delete this as some or all of its data has been processed', -2);
+	ELSIF _test_table_id IS NOT NULL THEN
+		RETURN grape.api_error('Cannot delete this as its data is used in a test table',-2);
 	END IF;
 
 	EXECUTE FORMAT('DROP TABLE "%s"."%s"', _schema, _tablename);
@@ -281,7 +284,7 @@ BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 	
 	IF _data_import_id IS NULL THEN
-		RETURN grape.api_error('data_import_id not provided', -1);
+		RETURN grape.api_error('data_import_id not provided', -3);
 	END IF;
 
 	_return_code := grape.data_import_process(_data_import_id);
