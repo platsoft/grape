@@ -449,5 +449,5 @@ END; $$ LANGUAGE plpgsql;
 --upsert the generic processing_function type
 SELECT grape.upsert_data_import_type('dimport_generic', 
 	'Generic', 
-	'', 
+	'This function does not actually process the data in any way, but is a way to allow you to import data, with which you may create test tables.', 
 	'grape');
