@@ -1,6 +1,21 @@
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS grape.test_table(
+	test_table_id serial NOT NULL,
+	table_schema text NOT NULL,
+	table_name text NOT NULL,
+	description text,
+	date_created timestamptz,
+	user_id integer,
+	date_updated timestamptz,
+	CONSTRAINT test_table_id_pk PRIMARY KEY (test_table_id),
+	CONSTRAINT test_table_uq UNIQUE (table_schema,table_name)
+);
+
 ALTER TABLE grape.data_import
-	ALTER COLUMN date_inserted timestamptz DEFAULT NOW(),
-	ALTER COLUMN date_done timestamptz,
+	ALTER COLUMN date_inserted TYPE timestamptz,
+	ALTER COLUMN date_inserted SET DEFAULT NOW(),
+	ALTER COLUMN date_done TYPE timestamptz,
 	ADD COLUMN user_id integer,
 	ADD COLUMN data_processed tstzrange,
 	ADD COLUMN test_table_id integer;
@@ -63,18 +78,6 @@ CREATE INDEX data_import_id_row_idx ON grape.data_import_row
 	  data_import_id
 	);
 
-CREATE TABLE grape.test_table(
-	test_table_id serial NOT NULL,
-	table_schema text NOT NULL,
-	table_name text NOT NULL,
-	description text,
-	date_created timestamptz,
-	user_id integer,
-	date_updated timestamptz,
-	CONSTRAINT test_table_id_pk PRIMARY KEY (test_table_id),
-	CONSTRAINT test_table_uq UNIQUE (table_schema,table_name)
-);
-
 -- DROP INDEX IF EXISTS grape.test_table_id_idx CASCADE;
 CREATE INDEX test_table_id_idx ON grape.data_import
 	USING btree
@@ -109,3 +112,5 @@ CREATE INDEX test_table_updated ON grape.test_table
 	(
 	  date_updated
 	);
+
+COMMIT;
