@@ -148,7 +148,6 @@ function api_data_import_process(req, res)
 
 function api_data_import(req, res)
 {
-	console.log(req);
 	var item_count = 0;
 	var errors = [];
 	var data_import_ids = [];
