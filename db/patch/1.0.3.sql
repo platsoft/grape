@@ -117,6 +117,7 @@ CREATE INDEX test_table_updated ON grape.test_table
 /**
  * upsert data import types
  */
+DROP FUNCTION grape.upsert_data_import_type(text,text,text,text,json);
 CREATE OR REPLACE FUNCTION grape.upsert_data_import_type(
 	_processing_function TEXT, 
 	_short_description TEXT, 
