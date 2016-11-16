@@ -26,7 +26,7 @@ ALTER TABLE grape.data_import
 		ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE grape.data_import_type
-	DROP COLUMN full_description text,
+	DROP COLUMN full_description,
 	ADD COLUMN short_description text,
 	ADD COLUMN param_definition json;
 
