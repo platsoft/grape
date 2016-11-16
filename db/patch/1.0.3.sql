@@ -133,7 +133,6 @@ CREATE OR REPLACE VIEW grape.v_test_table AS
 /**
  * upsert data import types
  */
-DROP FUNCTION grape.upsert_data_import_type(text,text,text,text,json);
 CREATE OR REPLACE FUNCTION grape.upsert_data_import_type(
 	_processing_function TEXT, 
 	_short_description TEXT, 
