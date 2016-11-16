@@ -16,6 +16,7 @@ ALTER TABLE grape.data_import
 	ALTER COLUMN date_inserted TYPE timestamptz,
 	ALTER COLUMN date_inserted SET DEFAULT NOW(),
 	ALTER COLUMN date_done TYPE timestamptz,
+	ADD COLUMN processing_param json,
 	ADD COLUMN user_id integer,
 	ADD COLUMN data_processed tstzrange,
 	ADD COLUMN test_table_id integer;
