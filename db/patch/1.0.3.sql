@@ -26,8 +26,9 @@ ALTER TABLE grape.data_import
 		ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE grape.data_import_type
-	-- DROP COLUMN full_description text,
+	DROP COLUMN full_description text,
 	ADD COLUMN short_description text;
+	ADD COLUMN param_definition json;
 
 -- DROP INDEX IF EXISTS grape.data_import_idx CASCADE;
 CREATE INDEX data_import_idx ON grape.data_import
