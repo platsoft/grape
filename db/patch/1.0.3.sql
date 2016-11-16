@@ -27,7 +27,7 @@ ALTER TABLE grape.data_import
 
 ALTER TABLE grape.data_import_type
 	DROP COLUMN full_description text,
-	ADD COLUMN short_description text;
+	ADD COLUMN short_description text,
 	ADD COLUMN param_definition json;
 
 -- DROP INDEX IF EXISTS grape.data_import_idx CASCADE;
