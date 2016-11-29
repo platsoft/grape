@@ -1,6 +1,14 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Developer Manual" titlepage="no">
-<h1>Known Grape settings</h1>
+<h1>Grape settings</h1>
+Grape stores internal settings in the table <tname>grape.setting</tname>. The following functions can be used to read and manipulate these settings:
+<ol>
+	<li><i>grape.set_value (<b>name</b> TEXT, <b>value</b> TEXT)</i> - sets the value of setting <b>name</b> to <b>value</b></li>
+	<li><i>grape.get_value (<b>name</b> TEXT, <b>default_value</b> TEXT)</i> - returns the value of the setting <b>name</b>, or if it does not exist returns <b>default_value</b></li>
+	<li><i>grape.setting (<b>name</b> TEXT, <b>default_value</b> TEXT)</i> - alias for <i>grape.get_value (<b>name</b> TEXT, <b>default_value</b> TEXT)</i></li>
+</ol>
+
+<h2>Known Grape settings</h2>
 <table>
 	<thead>
 		<th width="25%">Name</th><th width="50%">Description</th><th width="25%">Default value</th>
