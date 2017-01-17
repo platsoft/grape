@@ -23,7 +23,7 @@ exports = module.exports = function(_o) {
 	if (_.isArray(_o.public_directory))
 	{
 		_o.public_directories = _o.public_directory;
-		_o.public_directory = _o.public_directories.splice(0, 1)[0];
+		_o.public_directory = _o.public_directories[0];
 	}
 
 	if (!_o.base_directory && _o.public_directory)
@@ -64,7 +64,9 @@ exports = module.exports = function(_o) {
 		}
 	}
 
-	if (options.public_directory && typeof options.public_directory == 'string')
+	if (options.public_directory 
+			&& typeof options.public_directory == 'string' 
+			&& options.public_directories.indexOf(options.public_directory) < 0)
 		options.public_directories.push(options.public_directory);
 
 	options.public_directories = _.uniq(options.public_directories, false);
