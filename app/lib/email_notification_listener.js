@@ -60,7 +60,7 @@ function EmailNotificationListener(_o)
 			{
 				if (err)
 				{
-					self.logger.error(err);
+					self.logger.error('Error sending email - ' + JSON.stringify(err)); 
 					return;
 				}
 				
