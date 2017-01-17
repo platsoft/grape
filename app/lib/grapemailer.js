@@ -82,11 +82,9 @@ function GrapeMailer(_o)
 					try {
 						var ret = tmpl(d);
 					} catch (e) { 
-						//console.log("Exception", e);  
 						self.error = 'Error when processing template file ' + template_file + ' (' + e + ')';
 						return -1;
 					}
-					//console.log("Returning ret");
 
 					return ret;
 				}
