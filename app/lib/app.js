@@ -190,7 +190,9 @@ exports = module.exports = function(_o) {
 			var public_directories = app.get('config').public_directories;
 			for (var i = 0; i < public_directories.length; i++)
 			{
-				jsdata.push(loadpublicjsfiles(public_directories[i] + '/pages', '/'));
+				app.get('config').compile_js_dirs.forEach(function(f) { 
+					jsdata.push(loadpublicjsfiles(public_directories[i] + '/' + f, '/'));
+				});
 			}
 
 			res.set('Content-Type', 'application/javascript');
@@ -255,6 +257,7 @@ exports = module.exports = function(_o) {
 
 			if (pathname.indexOf('.') >= 0)
 			{
+				// TODO serve 404 error file?
 				res.status(404).send('The path you requested (' + pathname + ') on a non-JSON accepting request could not be found');
 			}
 			else
