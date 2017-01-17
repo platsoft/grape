@@ -9,10 +9,10 @@ The following options are recognized in the config passed to Grape:
 	</thead>
 	<tr><td>dburi</td><td>DB connection settings</td><td></td></tr>
 	<tr><td>guest_dburi</td><td>DB connection settings for guest users</td><td></td></tr>
-	<tr><td>api_directory</td><td></td><td></td></tr>
+	<tr><td>api_directory</td><td>Directory (or array of directories) containing API files</td><td></td></tr>
 	<tr><td>db_definition</td><td>Array containing directories with DB definitions. Subdirectories schema, function, view and data will be traversed when recreating</td><td></td></tr>
 	<tr><td>sql_dirs</td><td>Array containing directories with DB definitions. All subdirectories will be recursively read</td><td></td></tr>
-	<tr><td>pg_temp_directory</td><td>Path to a directory to which PostgreSQL has write access</td><td></td></tr>
+	<tr><td>pg_temp_directory</td><td>Path to a directory to which both PostgreSQL and the running node process has write access</td><td></td></tr>
 	<tr><td>port</td><td>Port on which the UI will be available</td><td></td></tr>
 	<tr><td>http_port</td><td>If this is set, and HTTPS is enabled (use_https), then a normal HTTP server wil listen on this port</td><td></td></tr>
 	<tr><td>public_directory</td><td>Directory containing public files</td><td></td></tr>
@@ -30,5 +30,6 @@ The following options are recognized in the config passed to Grape:
 	<tr><td>sslcert</td><td>Path to private SSL public certificate</td><td>__dirname + '/cert/public_nopass.pem'</td></tr>
 	<tr><td>hr_system</td><td>URL to get access to the Bordeaux system running on Savanna HR system</td><td>https://192.168.50.86:3999/</td></tr>
 	<tr><td>email_template_directory</td><td>Path to email templates (See GrapeMailer for more information)</td><td>__dirname + '/email_templates'</td></tr>
+	<tr><td>compile_js_dirs</td><td>List of directory names that will be recursed when all JS is being compiled</td><td>['pages']</td></tr>
 </table>
 </ps_doc>

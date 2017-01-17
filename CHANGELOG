@@ -119,4 +119,5 @@
 - function to check if a date is a weekend day
 - ability to parse csv files
 
-
+1.0.4:
+- fix bug related to order of multiple public directories

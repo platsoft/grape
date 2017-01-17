@@ -16,6 +16,7 @@ exports = module.exports = function(_o) {
 		base_directory: false,
 		log_directory: false,
 		server_timeout: 50000,
+		compile_js_dirs: ['pages'],
 		public_directories: [],
 		api_directories: []
 	};
