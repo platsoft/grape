@@ -92,6 +92,7 @@ exports = module.exports = function(_o) {
 				channel.on('error', function(message) {
 					//TODO
 					console.log("Comms channel error", message);
+					process.exit(1);
 				});
 				channel.start();
 				next();
