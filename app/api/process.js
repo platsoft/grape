@@ -140,7 +140,7 @@ exports = module.exports = function(_app) {
 	app.get("/grape/process/autoscheduler/:autoscheduler_id", 
 			function (req, res)
 			{
-				res.locals.db.jsonb_call('grape.select_autoscheduler', {autoscheduler_id: req.params.autoscheduler_id}, null, {response: res});
+				res.locals.db.jsonb_call('grape.select_auto_scheduler', {autoscheduler_id: req.params.autoscheduler_id}, null, {response: res});
 			});
 
 };
