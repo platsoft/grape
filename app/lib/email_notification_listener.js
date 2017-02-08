@@ -44,14 +44,23 @@ function EmailNotificationListener(_o)
 
 		var config = self.options;
 
+		var headers = data.headers || {};
+
 		if (data.email && data.email_template && data.template_data)
 		{
+			headers.from = config.smtp.from;
+			if (headers['From'])
+			{
+				headers.from = headers['From'];
+			}
+
 			// Send email
 			var mail = {
-				from: config.smtp.from,
+				from: headers.from,
 				to: data.email,
 				template: data.email_template,
-				template_data: data.template_data
+				template_data: data.template_data,
+				headers: headers
 			};
 
 			self.logger.debug('Sending ' + data.email_template + ' email to ' + data.email + ' with template data ' + JSON.stringify(data.template_data));

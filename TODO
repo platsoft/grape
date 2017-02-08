@@ -1,3 +1,8 @@
+
 - email queuer
-- check permissions in javascript (sync from DB)
+- check permissions in javascript (keep a synced permissions list from DB to check against)
 - static data loader keeping cache of users and sessions
+
+- run a grape app without a database
+- javascript needs to be cached
+

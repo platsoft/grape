@@ -18,12 +18,21 @@ The following needs to be set up in order to send emails from within SQL functio
 	<li><i>email_template_directory</i> in config containing templates, typically <i>__dirname + '/email_templates'</i></li>
 </ol>
 <h2>Send an email</h2>
-Call <i>grape.send_email (to TEXT, template TEXT, data JSON) </i> to send an email. The values of the parameters should be as follows:
+Call <i>grape.send_email (to TEXT, template TEXT, data JSON, headers JSON) </i> to send an email. The values of the parameters should be as follows:
 <ul>
 	<li><i>to</i> Email address of receiver</li>
 	<li><i>template</i> Template name (see <b>Email templates</b> below)</li>
 	<li><i>data</i> Template data</li>
+	<li><i>headers</i> Optional - this is an array of additional headers to include in the email. For example: <icode>{'X-Key1': 'value', 'X-Key2': 'value'}</icode></li>
 </ul>
+
+<h2>Custom headers</h2>
+<p>
+Commonly used custom headers: <ul>
+	<li><b>From:</b> Change the From field</li>
+	<li><b>Reply-To:</b> Reply To field</li>
+</ul>
+</p>
 
 <h2>Email templates</h2>
 <p>

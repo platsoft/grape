@@ -696,7 +696,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="list_query_whitelist">
 	<schema name="grape"/>
-	<position x="879" y="947"/>
+	<position x="880" y="946"/>
 	<column name="schema" not-null="true">
 		<type name="text"/>
 	</column>
@@ -881,6 +881,93 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
+<table name="document_store" sql-disabled="true">
+	<schema name="grape"/>
+	<position x="44" y="1185"/>
+	<column name="document_store_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="description">
+		<type name="text"/>
+	</column>
+	<column name="location">
+		<type name="text"/>
+	</column>
+	<column name="is_local">
+		<type name="boolean"/>
+	</column>
+	<column name="lookup_seq" default-value="99">
+		<type name="smallint"/>
+	</column>
+	<column name="insert_seq" default-value="99">
+		<type name="smallint"/>
+	</column>
+	<constraint name="document_store_pk" type="pk-constr" table="grape.document_store">
+		<columns names="document_store_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="document" sql-disabled="true">
+	<schema name="grape"/>
+	<position x="628" y="1164"/>
+	<column name="document_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="filename">
+		<type name="text"/>
+	</column>
+	<column name="document_guid">
+		<type name="uuid"/>
+	</column>
+	<column name="hash">
+		<type name="text"/>
+	</column>
+	<column name="hash_algo">
+		<type name="text"/>
+	</column>
+	<column name="date_inserted" default-value="NOW()">
+		<type name="timestamptz"/>
+	</column>
+	<column name="location">
+		<type name="text"/>
+	</column>
+	<column name="user_id">
+		<type name="integer"/>
+	</column>
+	<column name="document_type">
+		<type name="text"/>
+	</column>
+	<column name="related_entity_id">
+		<type name="integer"/>
+	</column>
+	<column name="file_size">
+		<type name="integer"/>
+	</column>
+	<column name="mime_type">
+		<type name="text"/>
+	</column>
+	<constraint name="document_pk" type="pk-constr" table="grape.document">
+		<columns names="document_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="document_store_document" sql-disabled="true">
+	<schema name="grape"/>
+	<position x="212" y="1418"/>
+	<column name="document_id" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="document_store_id" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="last_seen">
+		<type name="timestamptz"/>
+	</column>
+	<constraint name="document_store_document_pk" type="pk-constr" table="grape.document_store_document">
+		<columns names="document_id,document_store_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_role">
 	<columns names="user_id" ref-type="src-columns"/>
@@ -959,6 +1046,18 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="name" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="document_store_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.document_store" sql-disabled="true" table="grape.document_store_document">
+	<columns names="document_store_id" ref-type="src-columns"/>
+	<columns names="document_store_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="document_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.document" sql-disabled="true" table="grape.document_store_document">
+	<columns names="document_id" ref-type="src-columns"/>
+	<columns names="document_id" ref-type="dst-columns"/>
+</constraint>
+
 <relationship name="rel_user_role_user" type="relfk"
 	 src-table="grape.user_role"
 	 dst-table="grape.&quot;user&quot;"
@@ -1023,5 +1122,19 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-table="grape.data_import"
 	 dst-table="grape.test_table"
 	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_document_store_document_document_store" type="relfk"
+	 src-table="grape.document_store_document"
+	 dst-table="grape.document_store"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_document_store_document_document" type="relfk"
+	 src-table="grape.document_store_document"
+	 dst-table="grape.document"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="0" y="0"/>
+	</label>
+</relationship>
 
 </dbmodel>

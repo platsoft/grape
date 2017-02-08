@@ -96,6 +96,7 @@ exports = module.exports = function(_o) {
 	 */
 	function loadapifiles(dirname, relativedirname)
 	{
+		//make sure last character is a /
 		if (relativedirname[relativedirname.length - 1] != '/') relativedirname += '/';
 
 		if (dirname[dirname.length - 1] != '/') dirname += '/';
@@ -156,6 +157,10 @@ exports = module.exports = function(_o) {
 				{
 					// loads the api module and execute the export function with the app param.
 					data += '// JAVASCRIPT FILE ' + dirname + file + "\n";
+					data += "var __FILENAME__ = '" + file + "';\n";
+					data += "var __DIRNAME__ = '" + relativedirname + "';\n";
+					data += "var __REALPATH__ = '" + dirname + "';\n";
+
 					var file_data = fs.readFileSync(dirname + file);
 
 					var check_error = syntax_check(file_data, dirname + file);
@@ -191,7 +196,7 @@ exports = module.exports = function(_o) {
 			for (var i = 0; i < public_directories.length; i++)
 			{
 				app.get('config').compile_js_dirs.forEach(function(f) { 
-					jsdata.push(loadpublicjsfiles(public_directories[i] + '/' + f, '/'));
+					jsdata.push(loadpublicjsfiles(public_directories[i] + '/' + f, '/' + f));
 				});
 			}
 
