@@ -169,20 +169,6 @@ Adds tables to the whitelist for use in grape list_query. Users must be in _role
 Removes a table from the whitelist.
 
 
-
-<h1>Process</h1>
-This functions deal with tables that are used by ps_bgworker. ps_bgworker provides a way for systems to run tasks and processes in the background and at specific times. This functions can be found in <fname>process.sql</fname>.<br /> 
-<h2>start_process (_process_id INTEGER, _param JSON)</h2>
-
-<h2>start_process (_process_name TEXT, _param JSON)</h2>
-Similar to <i>start_process (_process_id INTEGER, _param JSON)</i>, but taking a process name as first parameter.
-
-<h2>start_process (JSON)</h2>
-API access function to <i>start_process (_process_id INTEGER, _param JSON)</i>
-
-<h2>list_processes (JSON)</h2>
-<h2>schedule_info (JSON)</h2>
-
 <h1>Reports</h1>
 This functions can be found in <fname>reports.sql</fname>.
 
@@ -191,6 +177,7 @@ This functions can be found in <fname>reports.sql</fname>.
 <h2>save_report (JSON) </h2>
 <h2>execute_report (_report_id INTEGER, _parameters JSON) </h2>
 <h2>execute_report (JSON) </h2>
+
 
 
 <h1>User and session related functions</h1>
