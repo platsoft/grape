@@ -193,6 +193,7 @@ function api_get_schedule_logfile (req, res)
 		try {
 			var file_contents = fs.readFileSync(logfilename, {encoding: 'utf8'});
 			var lines = file_contents.split("\n");
+			schedule.total_rows = lines.length;
 			schedule.lines = lines.splice(offset, limit);
 
 			res.json(schedule);
