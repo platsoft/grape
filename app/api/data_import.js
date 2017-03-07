@@ -11,7 +11,7 @@ exports = module.exports = function(_app) {
  * @desc Upload generic excel data to grape.data_import and rows to data.data_import_row
  * @method POST
  * @url /grape/data_import/upload
- * @body JSON object containing fields:
+ * @body 
  * {
  * 	file_data TEXT file data byte string
  * 	name TEXT file name
@@ -28,7 +28,7 @@ exports = module.exports = function(_app) {
  * @desc delete given data_import_id entries if not processed
  * @method POST
  * @url /grape/data_import/:data_import_id/delete
- * @body JSON object containing fields:
+ * @body 
  * {
  * 	data_import_id INTEGER the id of the data import to delete
  * }
@@ -38,11 +38,10 @@ exports = module.exports = function(_app) {
 	app.post("/grape/data_import/delete", api_data_import_delete);
 
 /**
- * @desc process given data_import_id data
- * @method post
+ * @desc Process given data_import_id data
+ * @method POST
  * @url /grape/data_import/:data_import_id/process
- * @body JSON object containing fields:
- * {
+ * @body {
  * 	data_import_id INTEGER the id of the data import to process 
  * }
  * @example {}
@@ -52,9 +51,8 @@ exports = module.exports = function(_app) {
 
 /**
  * @desc download the data import file uploaded for specific data_import
- * @method get
+ * @method GET
  * @url /download/data_import/:data_import_id/:filename
- * @body
  * @example {}
  * @return file buffer
  **/
@@ -62,9 +60,9 @@ exports = module.exports = function(_app) {
 
 /**
  * @desc create a test table from data_import data
- * @method post
+ * @method POST
  * @url /grape/data_import/test_table/create 
- * @body JSON object containing fields:
+ * @body 
  * {
  * 	data_import_id INTEGER the id of the data import data to use for the test table
  * 	table_name TEXT the table name to use for the new test table
@@ -76,9 +74,9 @@ exports = module.exports = function(_app) {
 
 /**
  * @desc append data from a data import to an existing compatable test_table
- * @method post
+ * @method POST
  * @url /grape/data_import/test_table/append 
- * @body JSON object containing fields:
+ * @body 
  * {
  * 	test_table_id INTEGER The id of the test table to append to
  *	data_import_id INTEGER the id of the data import data to use for the test table
@@ -90,9 +88,9 @@ exports = module.exports = function(_app) {
 
 /**
  * @desc delete an existing test table 
- * @method post
+ * @method POST
  * @url /grape/data_import/test_table/delete
- * @body JSON object containing fields:
+ * @body 
  * {
  * 	test_table_id INTEGER The id of the test table to delete
  * }
@@ -102,13 +100,10 @@ exports = module.exports = function(_app) {
 	app.post("/grape/data_import/test_table/delete", api_data_import_test_table_drop);
 
 /**
- * @desc alter an existing test table
- * @method post
+ * @desc Alter an existing test table
+ * @method POST
  * @url /grape/data_import/test_table/alter 
- * @body JSON object containing fields:
- * {
- * 	TODO
- * }
+ * @sqlfunc grape.data_import_test_table_alter
  * @example {}
  * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
