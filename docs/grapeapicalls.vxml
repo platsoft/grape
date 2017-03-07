@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape API calls" titlepage="no">
+<h1>API Calls</h1>
+<h2>Anatomy of a Grape API call</h2>
+
+Grape may receive different type of API calls:
+<ol>
+	<li>Filesystem request: the browser requests a file from the filesystem (for example an HTML, CSS, JS or image file)</li>
+	<li>Database API request: the API call is implemented as a database function, accepting and returning a JSON object</li>
+	<li>File download request: API calls providing a different result than JSON (for example access-controlled files). This calls starts with '/download'</li>
+</ol>
+<h3>FS Request</h3>
+The first and most simple is a request for a file on the filesystem. A request that does not accept JSON, and does not start with <r>/download</r>, will fall under this category. This includes the initial call for <r>index.html</r>.
+
+<h4>download_public_js_files</h4>
+The <b>download_public_js_files</b> API call is a special API call that will traverse all subdirectories in the public directories (defined by <b><i>public_directories</i></b>), with the names defined by <b><i>compile_js_dirs</i></b>. The default values for <b><i>compile_js_dirs</i></b> is <b>pages</b>. This means all subdirectories named "pages" will be traversed for JS files, and served through this call.
+
+<h3>DB API requests</h3>
+Database API calls are the most commonly used API calls. The logic for the function is typically implemented as a function in PostgreSQL. The function being called in the database accepts a JSON parameter, and returns a JSON object with the result.
+<img src="db_api_call.png" title="Anatomy of a DB API" />
+
+In order to create a DB API call, two changes are needed:
+<ol>
+	<li>The API call needs to be registered in a JS file in one of the project's API directories (defined by the config option <b><i>api_directory</i></b>)
+<code lang="js">exports = module.exports = function(app) {
+	<blue>// register the route</blue>
+	app.get("/maths/sqrt/:value", api_maths_sqrt);
+}
+function api_maths_sqrt (req, res)
+{
+	<blue>// call the stored procedure for this API call</blue>
+	res.locals.db.json_call("maths_sqrt", <blue>// the name of the PL/pgSQL function</blue>
+		{value: req.params.value},    <blue>// Build the JSON object as input for this function</blue>
+		null,                         <blue>// Optional callback (not used here)</blue>
+		{response: res}               <blue>// Send the response to res</blue>
+	);
+}
+</code>
+
+	</li>
+	<li>A database function accepting a JSON input parameter and returning a JSON type must be defined in the database. Ideally, the API access function (accepting and returning a JSON) does not implement the business logic, but calls another SQL function to do this. 
+<code lang="sql">
+	CREATE OR REPLACE FUNCTION maths_sqrt (JSON) RETURNS JSON AS $$
+	DECLARE
+		_value NUMERIC;
+		_result NUMERIC;
+	BEGIN
+
+		_value := ($1->>'value')::NUMERIC; <r>-- Extract values from JSON</r>
+
+		_result := sqrt(_value);           <r>-- Calculation</r>
+
+		RETURN grape.api_success('result', _result); <r>-- Build and return JSON object</r>
+	END; $$ LANGUAGE plpgsql;
+</code>
+	</li>
+</ol>
+
+<note color="red">API calls should always be properly documented! See the section "Documenting code" for more information on this</note>
+
+<h3>Other API calls</h3>
+
+<h2>Access control</h2>
+Access control is applied to all API calls. Before the API call is executed, the session is validated. If it cannot be validated, the default role <b>guest</b> is used. 
+All users belongs to one or more roles, and always to the role named <b>all</b>. 
+API calls are registered in the database (table <tname>access_path</tname>) by <b>path</b>, <b>method</b> and the <b>role</b> allowed.  The <b>path</b> is a regular expression, matching the incoming URL of the request.
+<note color="green">The SQL function <icode>grape.add_access_path (_path TEXT, _roles TEXT[], _methods TEXT[])</icode> can be used to add a new access path.</note>
+
+
+<h2>Consuming an API call</h2>
+In order to use an API call, you will need to know the following:
+	<ol>
+		<li>The URL of the call. This will look like a typical path, for example "/login"</li>
+		<li>The call method. This will usually be <b>GET</b> or <b>POST</b></li>
+	</ol>
+
+</ps_doc>

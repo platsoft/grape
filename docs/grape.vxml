@@ -1,7 +1,12 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Grape Manual" titlepage="yes" tocpage="yes" description="Developer's guide to using the PlatSoft Grape Framework">
-<h1>Getting Started</h1>
-The tool <i>grape_init</i> is a script which makes it easy to start a new Grape application. It is available from the Grape Tools repo (<icode>npm install -g grape_tools</icode>). This script takes two parameters, the first a name for the project, and second an installation directory.
+<h1>Grape</h1>
+<note color="blue">This section deals mostly with the backend functionality of systems. For information on the user interface, see "Grape User Interface"</note>
+<h2>Architecture</h2>
+<img src="architecture.png" height="500" title="Grape Architecture" />
+
+<h2>Getting started</h2>
+The tool <i>grape_init</i> is a script which makes it easy to start a new Grape application. It is available from the Grape Tools repo (<icode>npm install -g grape_tools</icode>).
 
 <h2>Structure of a Grape Application</h2>
 <h3>Directory layout</h3>
@@ -79,61 +84,21 @@ The layout of a typical project is as follows:
 	</table>
 </p>
 
-<h2>API Calls</h2>
-<h3>Consuming an API call</h3>
-In order to use an API call, you will need to know the following:
-	<ol>
-		<li>The URL of the call. This will look like a typical path, for example "/login"</li>
-		<li>The call method. This will usually be <b>GET</b> or <b>POST</b></li>
-	</ol>
-
-<h3>Creating an API call</h3>
-<p>
-A typical Grape API call consists of:
-<ol>
-	<li>A call to register the route in the Node layer</li>
-	<li>A call to connect this route to a function in PostgreSQL</li>
-	<li>A PostgreSQL function, taking in one JSON value and returning a JSON object</li>
-	<li>A PostgreSQL function containing the business logic for the call</li>
-	<li>If applicable, this call should be added to Grape's list of allowed routes</li>
-</ol>
-</p>
-<p>
-	For example, let's create an API call to calculate the square root of a value in the database:
-	<ol>
-		<li>When Grape starts up, it reads a directory containing API files. This directory is controlled by setting the <i>api_directory</i> option.</li>
-		<li>In this directory, add a file to register this API call in.
-<code lang="js">exports = module.exports = function(app) {
-	<blue>// register the route</blue>
-	app.get("/maths/sqrt/:input", api_maths_sqrt);
-}
-function api_maths_sqrt (req, res)
-{
-	<blue>// call the stored procedure for this API call</blue>
-	res.locals.db.json_call("maths_sqrt", <blue>// the name of the PL/pgSQL function</blue>
-		{input: req.params.input}, <blue>// JSON object as input for this function</blue>
-		null, <blue>// Optional callback (not used here)</blue>
-		{response: res} <blue>// Send the response to res</blue>
-	);
-}
-</code>
-		</li>
-	</ol>
-</p>
+<!-- include grape api calls-->
+<include href="grapeapicalls.vxml" parse="vxml" level="1" /> 
 
 <!-- include grape mailer -->
-<include href="grapemailer.vxml" parse="vxml" level="0" /> 
+<include href="grapemailer.vxml" parse="vxml" level="1" /> 
 
 <!-- include grape settings-->
-<include href="grapesettings.vxml" parse="vxml" level="0" /> 
+<include href="grapesettings.vxml" parse="vxml" level="1" /> 
 
 <!-- include grape config -->
-<include href="grape_config.vxml" parse="vxml" level="0" /> 
+<include href="grape_config.vxml" parse="vxml" level="1" /> 
 
 <!-- include grape error codes -->
-<include href="grape_error_codes.vxml" parse="vxml" level="0" /> 
+<include href="grape_error_codes.vxml" parse="vxml" level="1" /> 
 
-<h1>Grape SQL Functions</h1>
 <!-- include grape sql functions -->
 <include href="grape_sql_functions.vxml" parse="vxml" level="1" /> 
 

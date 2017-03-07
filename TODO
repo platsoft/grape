@@ -6,3 +6,5 @@
 - run a grape app without a database
 - javascript needs to be cached
 
+- accept HTTP authentication instead of X-SessionID (look at Authorization header)
+
