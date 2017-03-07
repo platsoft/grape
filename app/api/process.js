@@ -11,12 +11,12 @@ exports = module.exports = function(_app) {
 /**
  * @desc Add a process to the background process queue
  * @method POST
- * @url
- * @body JSON object containing fields:
+ * @url /grape/process/start
+ * @body 
  * {
  * 	process_id INTEGER Process ID to start. Provide either this or a process name
  * 	process_name TEXT Process name to start. Provide either this or a process ID
- * 	param JSON Process spesicifc options
+ * 	param JSON Process specific options
  * }
  * @example {"process_name":"create_combined_tape","param":{"submission_date":"2014/05/01"}}
  * @return JSON object containing fields:
@@ -30,7 +30,7 @@ exports = module.exports = function(_app) {
  * @method POST
  * @sqlfunc grape.save_process_auto_scheduler
  * @url /grape/process/autoschedule
- * @body JSON object containing fields:
+ * @body 
  * {
  * 	process_id INTEGER Process ID to set autoscheduler for 
  * 	auto_scheduler_id INTEGER Optional, and if given this will update the existing auto_scheduler
@@ -62,7 +62,7 @@ exports = module.exports = function(_app) {
  * 	error INTEGER
  * 	running INTEGER
  * }
- * @example [{"process_id":1,"pg_function":"create_combined_tape","description":"Create combine tape","new":1,"completed":0,"error":0,"running":1},{"process_id":2,"pg_function":"apply_tapefile","description":"Apply debit orders","new":0,"completed":0,"error":0,"running":0}]
+ * @returnsample [{"process_id":1,"pg_function":"create_combined_tape","description":"Create combine tape","new":1,"completed":0,"error":0,"running":1},{"process_id":2,"pg_function":"apply_tapefile","description":"Apply debit orders","new":0,"completed":0,"error":0,"running":0}]
  **/
 	app.get("/grape/process/list", api_list_processes);
 

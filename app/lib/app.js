@@ -187,6 +187,7 @@ exports = module.exports = function(_o) {
 	function setup_public_directory(app)
 	{
 		// special API call will look in all public directories's subdir pages and download all .js files from there
+		// TODO this call can go into a separate file in the built-in API calls
 		app.get('/download_public_js_files', function(req, res) {
 			// TODO cache this
 
@@ -280,6 +281,11 @@ exports = module.exports = function(_o) {
 
 
 	// The first handler to be called on a new request
+	// This handler appends session information to the request for further processing
+	// It will add the following variables to req:
+	//	session_id
+	//	accepts_json (true or false)
+	//	db
 	app.use(function(req, res, next)
 	{
 		req.session_id = null;

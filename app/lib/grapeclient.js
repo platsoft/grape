@@ -20,6 +20,8 @@ var GrapeClient = function(_o) {
 	this.url = '';
 	this.hostname = 'localhost';
 	this.port = 3001;
+	this.username = null;
+	this.password = null;
 	var self = this;
 	this.self = self;
 
@@ -30,6 +32,11 @@ var GrapeClient = function(_o) {
 		this.hostname = urlObj.hostname;
 		this.port = urlObj.port;
 	}
+
+	if (_o.username)
+		this.username = _o.username;
+	if (_o.password)
+		this.password = _o.password;
 	
 	this.postJSON = function(path, obj, cb) {
 		var data = JSON.stringify(obj);
@@ -112,13 +119,22 @@ var GrapeClient = function(_o) {
 
 
 	this.login = function(username, password) {
-		this.postJSON('/grape/login', {'username': username, 'password': password}, function(data) {
+		if (username && !self.username)
+			self.username = username;
+		if (password && !self.password)
+			self.password = password;
+
+		this.postJSON('/grape/login', {'username': self.username, 'password': self.password}, function(data) {
 			if (data.status == 'OK')
 			{
 				self.session = {
 					session_id: data.session_id
 				};
 				self.emit('login', data);
+			}
+			else
+			{
+				self.emit('error', data);
 			}
 
 		}).on('error', function(err) {
