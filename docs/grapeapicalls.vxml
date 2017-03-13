@@ -56,15 +56,64 @@ function api_maths_sqrt (req, res)
 	</li>
 </ol>
 
-<note color="red">API calls should always be properly documented! See the section "Documenting code" for more information on this</note>
+<note color="red">API calls should always be properly documented! See the section <link id="documenting_code">Documenting code</link> for more information on this</note>
 
 <h3>Other API calls</h3>
+API calls can also be handled with a JavaScript function, and return other types of data (instead of JSON). These calls start with '/download'.
 
 <h2>Access control</h2>
+<p>
+	Grape manages authentication, sessions, users, passwords and provide access control. 
+	Sessions are tracked using a session ID. Session IDs are obtained by making a call to <i>POST /grape/login</i>, providing a valid username and password. On success, this call will return with the session ID, the user's ID, username, roles and employee GUID.
+	In subsequent calls, the session ID is sent to the server using a custom header <i>X-SessionID</i> in the HTTP requests. 
+</p>
+<p>
+	Users and user-related information is stored in <tname>grape.user</tname>. Users can belong to one or more access roles, stored in <tname>grape.access_path</tname>. The link-table for these are <tname>grape.user_role</tname>. 
+</p>
+<p>
+	Grape includes the following roles and access paths by default:
+	<table>
+		<thead>
+			<th width="20%">Role</th>
+			<th width="40%">Description</th>
+			<th width="40%">Paths allowed</th>
+		</thead>
+		<tr>
+			<td>guest</td>
+			<td>No or invalid login</td>
+			<td align="left"><ul>
+				<li>/grape/login</li>
+			</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>all</td>
+			<td>All logged in users</td>
+			<td align="left">
+				<ul>
+					<li>/lookup/*</li>
+					<li>/grape/list</li>
+					<li>/grape/api_list</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>admin</td>
+			<td>Administrator</td>
+			<td align="left">
+				<ul>
+					<li>* (all paths allowed)</li>
+				</ul>
+			</td>
+		</tr>
+
+	</table>
+</p>
+
 Access control is applied to all API calls. Before the API call is executed, the session is validated. If it cannot be validated, the default role <b>guest</b> is used. 
 All users belongs to one or more roles, and always to the role named <b>all</b>. 
 API calls are registered in the database (table <tname>access_path</tname>) by <b>path</b>, <b>method</b> and the <b>role</b> allowed.  The <b>path</b> is a regular expression, matching the incoming URL of the request.
-<note color="green">The SQL function <icode>grape.add_access_path (_path TEXT, _roles TEXT[], _methods TEXT[])</icode> can be used to add a new access path.</note>
+<note color="green">The SQL function <icode>grape.add_access_path (_path TEXT, _roles TEXT[], _methods TEXT[])</icode> can be used to add a new access path. For initial data, this is kept in <b>db/data/access_paths.sql</b></note>
 
 
 <h2>Consuming an API call</h2>
@@ -72,6 +121,8 @@ In order to use an API call, you will need to know the following:
 	<ol>
 		<li>The URL of the call. This will look like a typical path, for example "/login"</li>
 		<li>The call method. This will usually be <b>GET</b> or <b>POST</b></li>
+		<li>The input parameters. If the call's method is POST, this will be a JSON object containing fields. If it is GET, the input parameters are found in the URL</li>
 	</ol>
-
+	<h3>JavaScript</h3>
+	
 </ps_doc>

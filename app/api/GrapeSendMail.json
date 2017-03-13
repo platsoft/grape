@@ -1,0 +1,23 @@
+{
+	"id": "/grape/send_mail",
+	"description": "Sends an email",
+	"sqlfunc": "grape.send_email",
+	"name": "GrapeSendMail",
+	"roles": ["admin"],
+	"type": "object",
+	"properties": {
+		"to": {"type": "string", "description": "Email address of recipient"},
+		"template": {"type": "string", "description": "Template Name"},
+		"template_data": {"type": "object", "description": "Template Data"},
+		"headers": {"type": "object", "description": "Optional custom headers"}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"]},
+			"message": {"type": "string"},
+			"code": {"type": "number"},
+			"error": {"type": "object"}
+		}
+	}
+}

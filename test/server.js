@@ -10,8 +10,12 @@ var config = {
 	port: json_config.port,
 	debug: true,
 	public_directory: __dirname + '/public',
-	session_management: true
+	session_management: true,
+	email_template_directory: __dirname + '/email_templates'
 };
+
+if (json_config.smtp)
+	config.smtp = json_config.smtp;
 
 var app = new Grape.grape(config); 
 

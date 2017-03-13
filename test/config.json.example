@@ -1,0 +1,14 @@
+{
+	"dburi": "postgres://hans@localhost/grape_test",
+	"port": 33001,
+	"smtp": {
+		"host": "mail.platsoft.net",
+		"from": "",
+		"secureConnection": true,
+		"port": 465,
+		"auth": {
+			"user": "",
+			"pass": ""
+		}
+	}
+}

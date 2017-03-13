@@ -147,46 +147,115 @@ This functions deal with the creation of standardized API results (in JSON forma
 </table>
 
 <h2>JSON helpers</h2>
-<h3>json2xml(_data JSON, _root TEXT)</h3>
-<b>Filename: </b> json2xml.sql
 
-<h3>json_diff (_old JSONB, _new JSONB)</h3>
-<b>Filename: </b> json_diff.sql
+<table style="compact">
+	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
+	<tr>
+		<td>json2xml</td>
+		<td align="left">
+			<i>data</i> JSON<br />
+			<i>root</i> TEXT<br />
+		</td>
+		<td align="left">
+		</td>
+	</tr>
 
-<h3>json_diff (_old JSON, _new JSON)</h3>
-<b>Filename: </b> json_diff.sql
+	<tr>
+		<td>json_diff</td>
+		<td align="left">
+			<i>old</i> JSONB<br />
+			<i>new</i> JSONB<br />
+		</td>
+		<td align="left">
+		</td>
+	</tr>
 
-<h3>json_object_diff (_old JSONB, _new JSONB)</h3>
-<b>Filename: </b> json_diff.sql
+	<tr>
+		<td>json_diff </td>
+		<td align="left">
+			<i>old</i> JSON<br />
+			<i>new</i> JSON<br />
+		</td>
+		<td align="left">
+		</td>
+	</tr>
 
-<h3>json_array_diff (_old JSONB, _new JSONB)</h3>
-<b>Filename: </b> json_diff.sql
+	<tr>
+		<td>json_object_diff</td>
+		<td align="left">
+			<i>old</i> JSONB<br />
+			<i>new</i> JSONB<br />
+		</td>
+		<td align="left">
+		</td>
+	</tr>
 
+	<tr>
+		<td>json_array_diff</td>
+		<td align="left">
+			<i>old</i> JSONB<br />
+			<i>new</i> JSONB<br />
+		</td>
+		<td align="left">
+		</td>
+	</tr>
 
-<h3>json_to_composite_type_text(target_schema TEXT, target_type TEXT, data JSON)</h3>
-
-<h3>json_to_composite_type(target_schema TEXT, target_type TEXT, data JSON)</h3>
-This function will populate a custom type from a JSON object. What sets it apart from the functions available in PostgreSQL, is the fact that it supports complicated multi-level nested objects.
-<b>Filename: </b> json_to_composite_type_text.sql<br />
-
-<h3>cast_json_array_to_int_array (JSON)</h3>
-Provides an implicit cast from JSON to INT[] (<fname>cast_json_array_to_int_array.sql</fname>).
-<code lang="sql">
+	<tr>
+		<td>json_to_composite_type_text</td>
+		<td align="left">
+			<i>target_schema</i> TEXT<br />
+			<i>target_type</i> TEXT<br />
+			<i>data</i> JSON<br />
+		</td>
+		<td align="left">
+		</td>
+	</tr>
+	<tr>
+		<td>json_to_composite_type</td>
+		<td align="left">
+			<i>target_schema</i> TEXT<br />
+			<i>target_type</i> TEXT<br />
+			<i>data</i> JSON<br />
+		</td>
+		<td align="left">
+			This function will populate a custom type from a JSON object. Multi-level nested objects are supported.
+		</td>
+	</tr>
+	<tr>
+		<td>cast_json_array_to_int_array</td>
+		<td align="left">
+			<i>JSON</i> data<br />
+		</td>
+		<td align="left">
+			Provides an implicit cast from JSON to INT[] (<fname>cast_json_array_to_int_array.sql</fname>).
+			<code lang="sql">
 # select cast_json_array_to_int_array('[1,2,3]'::JSON);
- cast_json_array_to_int_array 
- ------------------------------
-  {1,2,3}
+cast_json_array_to_int_array 
+------------------------------
+{1,2,3}
 
 </code>
 
-<h3>cast_json_array_to_text_array (JSON)</h3>
-Provides an implicit cast from JSON to TEXT[] (<fname>cast_json_array_to_text_array.sql</fname>).
+		</td>
+	</tr>
+	<tr>
+		<td>cast_json_array_to_text_array</td>
+		<td align="left">
+			<i>JSON</i> data<br />
+		</td>
+		<td align="left">
+			Provides an implicit cast from JSON to TEXT[] (<fname>cast_json_array_to_text_array.sql</fname>).
+		</td>
+	</tr>
+
+</table>
 
 <h2>List query</h2>
-Grape's list_query call provides an easy way to retrieve rows from a table. Before the contents of a table can be retrieved this way it needs to be added to a whitelist. This functions can be found in <fname>list_query.sql</fname>
-
-<h3>list_query(JSON)</h3>
-This function returns row from a database table. The following input fields are recognized:
+<p>
+Grape's list_query call provides an easy way to retrieve rows from a table. Before the contents of a table can be retrieved this way it needs to be added to a whitelist. This functions can be found in <fname>list_query.sql</fname>. The built-in API call to access this function is <b>/grape/list</b>. Access control is enforced on tables retrieved.
+</p>
+<p>
+	The <b>grape.list_query</b> function returns rows from a database table. The following input fields are recognized:
 <ul>
 	<li>tablename</li>
 	<li>schema (optional) TEXT</li>
@@ -199,99 +268,282 @@ This function returns row from a database table. The following input fields are 
 	<li>operand TEXT of '=', '#x003E;', '#x003C;', '#x003E;=', '#x003C;=', 'LIKE', 'ILIKE', 'IS_NULL', 'IS_NOT_NULL', 'IN'</li>
 	<li>value text</li>
 </ul>
+</p>
 
-<h3>list_query_whitelist_add(_schema text, _tables TEXT[], _roles TEXT[])</h3>
-Adds tables to the whitelist for use in grape list_query. Users must be in _roles to be able to access the data in the table
+The following functions deals with the access control:
+<table style="compact">
+	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
+	<tr>
+		<td>grape.list_query_whitelist_add</td>
+		<td align="left">
+			<i>schema</i> TEXT<br />
+			<i>tables</i> TEXT[] - A list of table names to allow<br />
+			<i>roles</i> TEXT[] - A list of roles to allow<br />
+		</td>
+		<td align="left">
+			Adds tables to the whitelist for use in grape list_query. Users must be in _roles to be able to access the data in the table.
+		</td>
+	</tr>
+	<tr>
+		<td>grape.list_query_whitelist_delete</td>
+		<td align="left">
+			<i>schema</i> TEXT<br />
+			<i>tablename</i> TEXT - A table to remove from allow<br />
+		</td>
+		<td align="left">
+			Removes a table from the whitelist.
+		</td>
+	</tr>
 
-<h3>list_query_whitelist_delete(_schema TEXT, _tablename TEXT)</h3>
-Removes a table from the whitelist.
+</table>
+
 
 
 <h2>Reports</h2>
 This functions can be found in <fname>reports.sql</fname>.
 
-<h3>save_report ( ) </h3>
-<h3>save_report ( ) </h3>
-<h3>save_report (JSON) </h3>
-<h3>execute_report (_report_id INTEGER, _parameters JSON) </h3>
-<h3>execute_report (JSON) </h3>
+<table style="compact">
+	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
+	<tr>
+		<td>save_report</td>
+		<td align="left">
+			<i>settings</i> JSON<br />
+		</td>
+		<td align="left">
+		</td>
+	</tr>
+
+	<tr>
+		<td>execute_report</td>
+		<td align="left">
+			<i>report_id</i> INTEGER<br />
+			<i>parameters</i> JSON<br />
+		</td>
+		<td align="left">
+		</td>
+	</tr>
+
+	<tr>
+		<td>execute_report</td>
+		<td align="left">
+			<i>parameters</i> JSON<br />
+		</td>
+		<td align="left">
+		</td>
+	</tr>
+
+	
+</table>
 
 
 
-<h2>User and session related functions</h2>
-<h3>toggle_user (JSON)</h3>
-<b>Filename: </b> user.sql<br />
+<h2>User related functions</h2>
 
-<h3>user_save (JSON)</h3>
-Save user field. Also used to add a new user to the system.
-<b>API Call: </b> POST /grape/user/save<br />
-<b>Filename: </b> user.sql<br />
+<table style="compact">
+	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
+	<tr>
+		<td>grape.user_save</td>
+		<td align="left">
+			JSON containing: <br />
+			<i>user_id INTEGER</i> <br />
+			<i>username TEXT</i><br />
+			<i>password TEXT</i><br />
+			<i>email TEXT</i><br />
+			<i>fullnames TEXT</i><br />
+			<i>active BOOLEAN optional</i><br />
+			<i>role_names TEXT[]</i><br />
+			<i>employee_guid</i> GUID<br />
+		</td>
+		<td align="left">
+			Save a user field, or create a new user. <b>API call: <i>POST /grape/user/save</i></b>
+		</td>
+	</tr>
 
-<h3>user_save_password (JSON)</h3>
-<b>Filename: </b> user.sql<br />
+	<tr>
+		<td>grape.username</td>
+		<td align="left">
+			<i>user_id</i> INTEGER<br />
+		</td>
+		<td align="left">
+			Returns the username for a user ID, or NULL if it does not exist.
+		</td>
+	</tr>
 
-<h3>username (_user_id INTEGER)</h3>
-Returns a TEXT field containing the username matching the user ID provided<br />
-<b>Filename: </b> user.sql<br />
+	<tr>
+		<td>grape.user_id_from_name</td>
+		<td align="left">
+			<i>username</i> TEXT<br />
+		</td>
+		<td align="left">
+			Returns the user ID for a username, or NULL if it does not exist.
+		</td>
+	</tr>
 
-<h3>user_id_from_name (_username TEXT)</h3>
-Returns the user ID (or NULL if not found) for the user matching the username provided.<br />
-<b>Filename: </b> user.sql<br />
+	<tr>
+		<td>grape.user_id_from_fullnames</td>
+		<td align="left">
+			<i>fullnames</i> TEXT<br />
+		</td>
+		<td align="left">
+			Returns the user ID for a user found by fullnames, or NULL if it does not exist.
+		</td>
+	</tr>
 
-<h3>user_id_from_fullnames(_fullnames TEXT)</h3>
-Returns an integer containing the user ID matching the full names provided<br />
-<b>Filename: </b> user.sql<br />
+	<tr>
+		<td>grape.username_from_fullnames</td>
+		<td align="left">
+			<i>fullnames</i> TEXT<br />
+		</td>
+		<td align="left">
+			Returns the username for a user found by fullnames, or NULL if it does not exist.
+		</td>
+	</tr>
 
-<h3>username_from_fullnames(_fullnames TEXT)</h3>
-Returns the username for the user matching the fullnames provided <br />
-<b>Filename: </b> user.sql<br />
+	<tr>
+		<td>grape.hash_user_password</td>
+		<td align="left">
+			<i>user_id</i> INTEGER<br />
+		</td>
+		<td align="left">
+			Hashes a password for user and updates the user table afterwards.
+			<ul>
+				<li>If the hash length is the same as the password length and the password starts with a '$' sign, it is assumed that the password is already hashed and the update is ignored (return -1)</li>
+				<li>If grape.setting  passwords_hashed isn't true, nothing is done (return -2)</li>
+				<li>On success 0 is returned</li>
+			</ul>
+		</td>
+	</tr>
 
-<h3>hash_user_password (_user_id INTEGER)</h3>
-Hashes a password for user and updates the user table afterwards.
-<ul>
-	<li>If the hash length is the same as the password length and the password starts with a '$' sign, it is assumed that the password is already hashed and the update is ignored (-1 is returned)</li>
-	<li>If grape.setting  passwords_hashed isn't true, nothing is done (return -2)</li>
-	<li>On success 0 is returned</li>
-</ul>
+	<tr>
+		<td>grape.hash_user_password</td>
+		<td align="left">
+			<i>username</i> TEXT<br />
+		</td>
+		<td align="left">
+			Overload for <i>grape.hash_user_password (user_id INTEGER)</i>
+		</td>
+	</tr>
+</table>
 
-<h3>current_user_roles()</h3>
-Returns a list of all roles the current user belongs to
-<b>Filename: </b> user.sql<br />
+<h2>Session related functions</h2>
+
+<table style="compact">
+	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
+	<tr>
+		<td>grape.current_user_roles</td>
+		<td align="left">
+		</td>
+		<td align="left">
+			Returns a list of all roles the current user belongs to.
+		</td>
+	</tr>
+
+	<tr>
+		<td>grape.current_user_id</td>
+		<td align="left">
+		</td>
+		<td align="left">
+			Returns the integer value of the current session's "grape.user_id" setting. This is typically set with grape before any API call is called
+		</td>
+	</tr>
+
+	<tr>
+		<td>grape.check_session_access</td>
+		<td align="left">
+			<i>session_id</i> TEXT - Session ID to check for<br />
+			<i>check_path</i> TEXT - Access path to check<br />
+			<i>check_method</i> TEXT - HTTP method to check (GET/POST)<br />
+		</td>
+		<td align="left">
+			This function performs access control on an API call (based on the path and session ID). It is automatically called by the express
+			app before any API call is performed:
+			<ol>
+				<li>Check that the path has access control on it. If it cannot be found, the grape setting default_access_allowed is checked, and if
+					true, access will be granted. If not, it will be denied and code 9 will be returned</li>
+			<li>
+			If the path has a role 'guest' granted access to it, everyone will be allowed (even if the session is invalid)
+			</li>
+			<li>
+			If the session is invalid, access will be denied and code 1 returned
+			</li>
+			<li>
+			If the path has a role 'all', only, and all, valid sessions will be granted access
+			</li>
+			<li>
+			If the user has access granted to the access path's role, access is granted
+			</li>
+			<li>
+			If all the above fails, access is denied with code 2
+			</li>
+		</ol>
+		</td>
+	</tr>
+
+	<tr>
+		<td>grape.session_insert</td>
+		<td align="left">
+			<i></i> <br />
+		</td>
+		<td align="left">
+			
+		</td>
+	</tr>
+
+	<tr>
+		<td>grape.logout</td>
+		<td align="left">
+			<i>JSON</i> JSON containing session_id<br />
+		</td>
+		<td align="left">
+			
+			<b>API call <i>/grape/logout</i></b>
+		</td>
+	</tr>
+
+	<tr>
+		<td>grape.session_ping</td>
+		<td align="left">
+			<i>JSON</i> JSON containing session_id<br />
+		</td>
+		<td align="left">
+			Checks validity of a session and returns a JSON object containing the session's username, user_id, fullnames, email, GUID and user_roles. <b>API Call <i>/grape/session_ping</i></b>
+		</td>
+	</tr>
+	<tr>
+		<td>grape.session_insert</td>
+		<td align="left">
+			<i>username</i> TEXT<br />
+			<i>password</i> TEXT<br />
+		</td>
+		<td align="left">
+			This function inserts a new session for a valid username and password provided.
+			<b>API call <i>/grape/logout</i></b>
+		</td>
+	</tr>
+	<tr>
+		<td>grape.</td>
+		<td align="left">
+			<i></i> <br />
+		</td>
+		<td align="left">
+			
+		</td>
+	</tr>
+
+	<tr>
+		<td>grape.</td>
+		<td align="left">
+			<i></i> <br />
+		</td>
+		<td align="left">
+			
+		</td>
+	</tr>
 
 
-<b>Filename: </b> user.sql<br />
+</table>
 
-<h3>hash_user_password (_username TEXT)</h3>
-Overload function for <i>hash_user_password (_user_id INTEGER)</i>, taking a username instead of a user ID as input.<br />
-<b>Filename: </b> user.sql<br />
 
-<h3>current_user_id()</h3>
-Returns the integer value of the current session's "grape.user_id" setting. This is typically set with grape before any API call is called.<br />
-<b>Filename: </b> current_user_id.sql<br />
-
-<h3>check_session_access (_session_id TEXT, _check_path TEXT, _check_method TEXT)</h3>
-This function performs access control on an API call (based on the path and session ID). It is automatically called by the express app before any API call is performed:
-<ol>
-	<li>Check that the path has access control on it. If it cannot be found, the grape setting <i>default_access_allowed</i> is checked, and if true, access will be granted. If not, it will be denied and code 9 will be returned</li>
-	<li>If the path has a role 'guest' granted access to it, everyone will be allowed (even if the session is invalid)</li>
-	<li>If the session is invalid, access will be denied and code 1 returned</li>
-	<li>If the path has a role 'all', only, and all, valid sessions will be granted access</li>
-	<li>If the user has access granted to the access path's role, access is granted</li>
-	<li>If all the above fails, access is denied with code 2</li>
-</ol>
-<b>Filename: </b> session_access_path.sql<br />
-
-<h3>set_session_user_id (JSON)</h3>
-Sets the current database session's <i>grape.user_id</i> config variable for use in stored procedures to identify the current user.<br />
-<b>Filename: </b> session_access_path.sql<br />
-<b>Returns: </b> JSON
-
-<h3>session_insert (JSON)</h3>
-This function inserts a new session for a valid username and password provided. <br />
-<b>Filename: </b> session.sql<br />
-
-<h3>logout (JSON)</h3>
-<b>Filename: </b> session.sql<br />
 
 <h2>Other utility functions</h2>
 <table style="compact">

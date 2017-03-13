@@ -11,6 +11,7 @@ var fs = require('fs');
 var util = require('util');
 var path = require('path');
 var syntax_check = require('syntax-error');
+var schema_api_calls = require(__dirname + '/schema_api_calls.js');
 
 var DEFAULT_MAXSOCKETS = 500;
 
@@ -368,6 +369,17 @@ exports = module.exports = function(_o) {
 			loadapifiles(dir, '');
 		});
 	}
+	
+	// Load APIs from schemas
+	logger.info('api', "Loading built-in API schemas from " + builtin_api_dir);
+	schema_api_calls.load_schemas(app, builtin_api_dir, '');
+	if (options.api_directories)
+	{
+		options.api_directories.forEach(function(dir) {
+			schema_api_calls.load_schemas(app, dir, '');
+		});
+	}
+
 
 	function start()
 	{

@@ -2,11 +2,21 @@
 <ps_doc title="PlatSoft Grape Manual" titlepage="yes" tocpage="yes" description="Developer's guide to using the PlatSoft Grape Framework">
 <h1>Grape</h1>
 <note color="blue">This section deals mostly with the backend functionality of systems. For information on the user interface, see "Grape User Interface"</note>
+
+Grape is a framework and set of processes developed internally by Platinum Software to standardize and formalize our systems. It is implemented as an Express.js app. Most Grape applications will contain the following:
+<ol>
+	<li>A database definition/schema - <b>db/schema/</b></li>
+	<li>Initial data - <b>db/data/</b></li>
+	<li>Database functions - <b>db/functions/</b></li>
+	<li>API calls - <b>api/</b></li>
+	<li>A frontend - <b>public/</b></li>
+</ol>
+
 <h2>Architecture</h2>
 <img src="architecture.png" height="500" title="Grape Architecture" />
 
 <h2>Getting started</h2>
-The tool <i>grape_init</i> is a script which makes it easy to start a new Grape application. It is available from the Grape Tools repo (<icode>npm install -g grape_tools</icode>).
+The tool <i>grape_init</i> is a script which makes it easy to create a new empty Grape application. It is available from the Grape Tools repo (<icode>npm install -g grape_tools</icode>).
 
 <h2>Structure of a Grape Application</h2>
 <h3>Directory layout</h3>
@@ -34,55 +44,6 @@ The layout of a typical project is as follows:
 	<li><i>email_templates</i> - Email templates</li>
 </ul>
 
-
-<h2>Authentication and access control</h2>
-<p>
-	Grape manages authentication, sessions, users, passwords and provide access control. 
-	Sessions are tracked using a session ID. Session IDs can be obtained by making a call to <i>POST /grape/login</i>, providing a valid username and password. On success, this call will return with the session ID, the user's ID, username, roles and employee GUID.
-	In subsequent calls, the session ID is sent to the server using a custom header <i>X-SessionID</i> in the HTTP requests. Before an API call is executed, Grape will check the validity of the session ID, and do access control on the path against the user's roles. 
-</p>
-<p>
-	Users and user-related information is stored in <tname>grape.user</tname>. Users can belong to one or more access roles, stored in <tname>grape.access_path</tname>. The link-table for these are <tname>grape.user_role</tname>. 
-</p>
-<p>
-	Grape includes the following roles and access paths by default:
-	<table>
-		<thead>
-			<th width="20%">Role</th>
-			<th width="40%">Description</th>
-			<th width="40%">Paths allowed</th>
-		</thead>
-		<tr>
-			<td>guest</td>
-			<td>No or invalid login</td>
-			<td align="left"><ul>
-				<li>/grape/login</li>
-			</ul>
-			</td>
-		</tr>
-		<tr>
-			<td>all</td>
-			<td>All logged in users</td>
-			<td align="left">
-				<ul>
-					<li>/lookup/*</li>
-					<li>/grape/list</li>
-					<li>/grape/api_list</li>
-				</ul>
-			</td>
-		</tr>
-		<tr>
-			<td>admin</td>
-			<td>Administrator</td>
-			<td align="left">
-				<ul>
-					<li>* (all paths allowed)</li>
-				</ul>
-			</td>
-		</tr>
-
-	</table>
-</p>
 
 <!-- include grape api calls-->
 <include href="grapeapicalls.vxml" parse="vxml" level="1" /> 

@@ -120,10 +120,12 @@
 - ability to parse csv files
 
 1.0.4:
-- fix bug related to order of multiple public directories
-- make __FILENAME__, __DIRNAME__ and __REALPATH__ available in JavaScript
-- support custom headers in emails
-- new function grape.send_email (_to TEXT, _template TEXT, _template_data JSON, _headers JSON)
+- Initial support for JSON schema API calls
+- Fix bug related to order of multiple public directories
+- Make __FILENAME__, __DIRNAME__ and __REALPATH__ available in client-side JavaScript
+- Support custom headers in emails
+- New function grape.send_email (_to TEXT, _template TEXT, _template_data JSON, _headers JSON)
+- New API call  /grape/send_mail (send email via API call)
 
 
 
