@@ -20,6 +20,7 @@
 		"type": "object",
 		"properties": {
 			"status": {"enum": ["ERROR", "OK"]},
+			"user_id": {"type": "number", "description": "User ID of new user"},
 			"message": {"type": "string"},
 			"code": {"type": "number"},
 			"error": {"type": "object"}

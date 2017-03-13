@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+<ps_doc title="API Reference" titlepage="no" tocpage="no">
+<h2>GrapeListQuery</h2>
+<p>List records from a table or view</p>
+<b>URL: /grape/list</b><br />
+<b>SQL Function: <i><link id="sql-grape.list_query">grape.list_query</link></i></b><br />
+<b>Input: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>tablename</i>
+<green>STRING</green>
+Table or view name
+</li>
+<li><i>schema</i>
+<green>STRING</green>
+Schema name of table or view
+</li>
+<li><i>sortfield</i>
+<green>STRING</green>
+optional Field to order by
+</li>
+<li><i>limit</i>
+<green>NUMBER</green>
+optional Record limit default 50
+</li>
+<li><i>offset</i>
+<green>NUMBER</green>
+optional Record offset default 0
+</li>
+<li><i>filter</i>
+<green>ARRAY of objects:</green>
+<ul>
+<li><i>field</i>
+<green>STRING</green>
+Field to filter on
+</li>
+<li><i>operand</i>
+<green>STRING</green>
+One of '=', '&#x0026;#x003E;', '&#x0026;#x003C;', '&#x0026;#x003E;=', '&#x0026;#x003C;=', 'LIKE', 'ILIKE'
+</li>
+<li><i>value</i>
+<green>STRING</green>
+Filter value
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<b>Output: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>result_count</i>
+<green>NUMBER</green>
+Number of results returned
+</li>
+<li><i>offset</i>
+<green>NUMBER</green>
+Result offset
+</li>
+<li><i>limit</i>
+<green>NUMBER</green>
+Results limit
+</li>
+<li><i>records</i>
+Array of returned records
+<green>ARRAY of JSON objects</green>
+</li>
+<li><i>total</i>
+<green>NUMBER</green>
+Total number of records in the database (after filter has been applied)
+</li>
+</ul>
+</li>
+</ul>
+<h2>GrapeSendMail</h2>
+<p>Sends an email</p>
+<b>URL: /grape/send_mail</b><br />
+<b>SQL Function: <i><link id="sql-grape.send_email">grape.send_email</link></i></b><br />
+<b>Input: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>to</i>
+<green>STRING</green>
+Email address of recipient
+</li>
+<li><i>template</i>
+<green>STRING</green>
+Template Name
+</li>
+<li><i>template_data</i>
+<green>JSON</green>
+</li>
+<li><i>headers</i>
+<green>JSON</green>
+</li>
+</ul>
+</li>
+</ul>
+<b>Output: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>status</i>
+Status indicator
+Possible values: ERROR, OK
+</li>
+<li><i>message</i>
+<green>STRING</green>
+Error message
+</li>
+<li><i>code</i>
+<green>NUMBER</green>
+Error code
+</li>
+<li><i>error</i>
+<green>JSON</green>
+</li>
+</ul>
+</li>
+</ul>
+<h2>GrapeUserSave</h2>
+<p>Save a user, or create one if it does not currently exist</p>
+<b>URL: /grape/user/save</b><br />
+<b>SQL Function: <i><link id="sql-grape.user_save">grape.user_save</link></i></b><br />
+<b>Input: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>user_id</i>
+<green>NUMBER</green>
+User ID to update
+</li>
+<li><i>username</i>
+<green>STRING</green>
+Username
+</li>
+<li><i>fullnames</i>
+<green>STRING</green>
+Full names
+</li>
+<li><i>email</i>
+<green>STRING</green>
+Email address of user
+</li>
+<li><i>password</i>
+<green>STRING</green>
+Password
+</li>
+<li><i>active</i>
+<green>BOOLEAN</green>
+Indicate if user is active (can login)
+</li>
+<li><i>role_names</i>
+<green>ARRAY of STRING</green>
+</li>
+<li><i>employee_guid</i>
+<green>STRING</green>
+</li>
+<li><i>employee_info</i>
+<green>JSON</green>
+</li>
+</ul>
+</li>
+</ul>
+<b>Output: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>status</i>
+Possible values: ERROR, OK
+</li>
+<li><i>user_id</i>
+<green>NUMBER</green>
+User ID of new user
+</li>
+<li><i>message</i>
+<green>STRING</green>
+</li>
+<li><i>code</i>
+<green>NUMBER</green>
+</li>
+<li><i>error</i>
+<green>JSON</green>
+</li>
+</ul>
+</li>
+</ul>
+</ps_doc>

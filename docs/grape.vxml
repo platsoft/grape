@@ -60,6 +60,10 @@ The layout of a typical project is as follows:
 <!-- include grape error codes -->
 <include href="grape_error_codes.vxml" parse="vxml" level="1" /> 
 
+<!-- include grape api calls -->
+<h2>Built-in API calls</h2>
+<include href="builtin_api_calls.vxml" parse="vxml" level="1" /> 
+
 <!-- include grape sql functions -->
 <include href="grape_sql_functions.vxml" parse="vxml" level="1" /> 
 

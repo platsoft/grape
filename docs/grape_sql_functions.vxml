@@ -342,7 +342,7 @@ This functions can be found in <fname>reports.sql</fname>.
 <table style="compact">
 	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
 	<tr>
-		<td>grape.user_save</td>
+		<td id="sql-grape.user_save">grape.user_save</td>
 		<td align="left">
 			JSON containing: <br />
 			<i>user_id INTEGER</i> <br />
