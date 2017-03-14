@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ps_doc title="Grapemailer" titlepage="no">
-<h1>How to send emails from Grape</h1>
+<h1 id="grapemailer">Sending Emails</h1>
 <h2>Setup</h2>
 The following needs to be set up in order to send emails from within SQL functions:
 <ol>

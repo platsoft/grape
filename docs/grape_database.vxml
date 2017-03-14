@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape Database">
+<h1 id="grape_database">Database</h1>
+	<ul>
+		<li><i>schema/</i> - The database schema file - created in <link id="install-pgmodeler">pgModeler</link>, and exported DDL to SQL files</li>
+		<li><i>function/</i> - Directories and files containing database functions</li>
+		<li><i>process/</i> - Files containing database functions related to <link id="platsoft-background-worker">background processes</link></li>
+		<li><i>data/</i> - Files containing initial data for the system</li>
+		<li><i>deployments/</i> - Containing subdirectories for specific deployments. See the section Deployments for more information regarding this</li>
+	</ul>
+
+<h2>Designing the database</h2>
+<red>TODO</red>
+pgModeler; dbm files; schema
+
+<h2>Initial data</h2>
+<red>TODO</red>
+
+<h2>Creating the database</h2>
+<red>TODO</red>
+setup_database
+
+</ps_doc>

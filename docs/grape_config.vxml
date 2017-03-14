@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ps_doc title="Grape config file" titlepage="no">
-<h1>Grape config file</h1>
+<h1 id="grape_config_file">Grape config file</h1>
 The following options are recognized in the config passed to Grape:
 
 <table>
@@ -16,7 +16,7 @@ The following options are recognized in the config passed to Grape:
 	<tr><td>port</td><td>Port on which the UI will be available</td><td></td></tr>
 	<tr><td>http_port</td><td>If this is set, and HTTPS is enabled (use_https), then a normal HTTP server wil listen on this port</td><td></td></tr>
 	<tr><td>public_directory</td><td>Directory containing public files</td><td></td></tr>
-	<tr><td>public_directories</td><td>List of directories containing public files</td><td></td></tr>
+	<tr><td id="conf-public_directories">public_directories</td><td>List of directories containing public files</td><td></td></tr>
 	<tr><td>debug</td><td></td><td>true</td></tr>
 	<tr><td>maxsockets</td><td>Controls the maximum number of sockets supported</td><td>500</td></tr>
 	<tr><td>bordeaux_config_file</td><td>Path to Bordeaux config file</td><td>__dirname + '/bordeaux_config.json'</td></tr>
