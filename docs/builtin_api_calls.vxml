@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ps_doc title="API Reference" titlepage="no" tocpage="no">
-<h2>GrapeListQuery</h2>
+<h2 id="api-GrapeListQuery">GrapeListQuery</h2>
 <p>List records from a table or view</p>
 <b>URL: /grape/list</b><br />
 <b>SQL Function: <i><link id="sql-grape.list_query">grape.list_query</link></i></b><br />
@@ -75,7 +75,7 @@ Total number of records in the database (after filter has been applied)
 </ul>
 </li>
 </ul>
-<h2>GrapeSendMail</h2>
+<h2 id="api-GrapeSendMail">GrapeSendMail</h2>
 <p>Sends an email</p>
 <b>URL: /grape/send_mail</b><br />
 <b>SQL Function: <i><link id="sql-grape.send_email">grape.send_email</link></i></b><br />
@@ -122,7 +122,7 @@ Error code
 </ul>
 </li>
 </ul>
-<h2>GrapeUserSave</h2>
+<h2 id="api-GrapeUserSave">GrapeUserSave</h2>
 <p>Save a user, or create one if it does not currently exist</p>
 <b>URL: /grape/user/save</b><br />
 <b>SQL Function: <i><link id="sql-grape.user_save">grape.user_save</link></i></b><br />
