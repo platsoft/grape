@@ -1,0 +1,13 @@
+{
+	"description": "Simple POST API Call",
+	"id": "/simple_post_call",
+	"name": "SimplePostCall",
+	"sqlfunc": "sql_function",
+	"type": "object",
+	"properties": { },
+	"return": {
+		"type": "object",
+		"properties": {  },
+		"example": {  }
+	}
+}
