@@ -9,7 +9,7 @@ The following options are recognized in the config passed to Grape:
 	</thead>
 	<tr><td>dburi</td><td>DB connection settings</td><td></td></tr>
 	<tr><td>guest_dburi</td><td>DB connection settings for guest users</td><td></td></tr>
-	<tr><td>api_directory</td><td>Directory (or array of directories) containing API files</td><td></td></tr>
+	<tr><td id="conf-api_directory">api_directory</td><td>Directory (or array of directories) containing API files</td><td></td></tr>
 	<tr><td>db_definition</td><td>Array containing directories with DB definitions. Subdirectories schema, function, view and data will be traversed when recreating</td><td></td></tr>
 	<tr><td>sql_dirs</td><td>Array containing directories with DB definitions. All subdirectories will be recursively read</td><td></td></tr>
 	<tr><td>pg_temp_directory</td><td>Path to a directory to which both PostgreSQL and the running node process has write access</td><td></td></tr>

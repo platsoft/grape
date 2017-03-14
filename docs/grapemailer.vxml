@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ps_doc title="Grapemailer" titlepage="no">
-<h1>How to send emails from Grape in PostgreSQL</h1>
+<h1>How to send emails from Grape</h1>
 <h2>Setup</h2>
 The following needs to be set up in order to send emails from within SQL functions:
 <ol>
@@ -17,7 +17,7 @@ The following needs to be set up in order to send emails from within SQL functio
 }]]></code></li>
 	<li><i>email_template_directory</i> in config containing templates, typically <i>__dirname + '/email_templates'</i></li>
 </ol>
-<h2>Send an email</h2>
+<h2>Send an email from PostgreSQL</h2>
 Call <i>grape.send_email (to TEXT, template TEXT, data JSON, headers JSON) </i> to send an email. The values of the parameters should be as follows:
 <ul>
 	<li><i>to</i> Email address of receiver</li>
@@ -25,6 +25,9 @@ Call <i>grape.send_email (to TEXT, template TEXT, data JSON, headers JSON) </i> 
 	<li><i>data</i> Template data</li>
 	<li><i>headers</i> Optional - this is an array of additional headers to include in the email. For example: <icode>{'X-Key1': 'value', 'X-Key2': 'value'}</icode></li>
 </ul>
+
+<h2>Send an email through an API call</h2>
+The API call <link id="api-GrapeSendMail">GrapeSendMail</link> can be used to access this functionality via the API.
 
 <h2>Custom headers</h2>
 <p>

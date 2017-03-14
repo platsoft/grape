@@ -40,7 +40,7 @@ The database function needs to be registered against an Express route in GrapeAp
 <note color="green">This method of creating DB API calls was introduced in Grape 1.0.4</note>
 <p>
 APIs can be defined using a format based on the JSON Schema standard (<a href="http://json-schema.org">http://json-schema.org</a>), with added fields.
-On start-up, all the directories in the project's <i>api_directory</i> config setting is traversed for JSON files. JSON files are then parsed, and must contain a single object, or an array of objects describing the API calls. 
+On start-up, all the directories in the project's <i><link id="conf-api_directory">api_directory</link></i> config setting is traversed for JSON files. JSON files are then parsed, and must contain a single object, or an array of objects describing the API calls. 
 </p>
 
 <p>
@@ -92,14 +92,22 @@ The <blue>properties</blue> field, which is used with the "object" type, is an a
 		}
 	}
 }</code>
+
+<note color="green">More examples are available in the grape repository, in the <b>examples/</b> subdirectory </note>
+
 </p>
 
-<h4>Registering the API call manually</h4>
-<note color="orange">This method of registering DB API calls is deprecated!</note>
+<h4>JavaScript API handlers</h4>
+<p>
+	API calls that are handled by JavaScript functions, can be found in the project's <i><link id="conf-api_directory">api_directory</link></i> (set in the config, usually <i>api/</i>). On startup, these directories are traversed for <i>*.js</i> files and included in the application. API calls are registered using <i>app.get</i> and <i>app.post</i>. <br />
+	For example, the contents of a JS file in the <i>api/</i> directory:
+	<code lang="js">exports = module.exports = function(app) {
+		app.get("/maths/sqrt/:value", function (req, res) { <blue>/* Logic here */</blue> });
+}</code>
+</p>
+<p>
+	Example of an API call, calling a database function:
 
-In order to create a DB API call, two changes are needed:
-<ol>
-	<li>The API call needs to be registered in a JS file in one of the project's API directories (defined by the config option <b><i>api_directory</i></b>)
 <code lang="js">exports = module.exports = function(app) {
 	<blue>// register the route</blue>
 	app.get("/maths/sqrt/:value", api_maths_sqrt);
@@ -115,12 +123,6 @@ function api_maths_sqrt (req, res)
 }
 </code>
 
-	</li>
-	<li>A database function accepting a JSON input parameter and returning a JSON type must be defined in the database. Ideally, the API access function (accepting and returning a JSON) does not implement the business logic, but calls another SQL function to do this. 
-	</li>
-</ol>
-
-<p>
 API calls should be documented using a standard based on the doxygen style. These comments can be extracted from the code using the <i>autogen_api_documentation.sh</i> script in grape-tools to create human-readable documentation. This is especially important for front-end developers, who can then use this documentation to interact with the API calls. All projects should have API documentation ready for clients to use.
 </p>
 <p>
@@ -146,11 +148,8 @@ $ autogen_api_documentation.sh <r>API_DIRECTORY</r> <r>OUTPUT_FILE.vxml</r></cod
 
 </p>
 
-<h3>Other API calls</h3>
-API calls can also be handled with a JavaScript function, and return other types of data (instead of JSON). These calls start with '/download'.
-
-<h4>download_public_js_files</h4>
-The <b>download_public_js_files</b> API call is a special API call that will traverse all subdirectories in the public directories (defined by <b><i>public_directories</i></b>), with the names defined by <b><i>compile_js_dirs</i></b>. The default values for <b><i>compile_js_dirs</i></b> is <b>pages</b>. This means all subdirectories named "pages" will be traversed for JS files, and served through this call.
+<h3>Non-JSON returning API calls</h3>
+An API call that is handled by a JavaScript call and needs to return something other than a JSON object, starts with <i>/download</i>.
 
 
 
