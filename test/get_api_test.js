@@ -9,7 +9,7 @@ var gc = new GrapeClient({url: 'http://localhost:' + config.port + '/', username
 gc.on('login', function() {
 	console.log("Logged in");
 
-	gc.postJSON('/simple_get_call/10', {}, function(d) {
+	gc.getJSON('/simple_get_call/10', {}, function(d) {
 		console.log(d);
 		gc.logout();
 	});

@@ -250,7 +250,7 @@ cast_json_array_to_int_array
 
 </table>
 
-<h2>List query</h2>
+<h2 id="sql-grape.list_query">List query</h2>
 <p>
 Grape's list_query call provides an easy way to retrieve rows from a table. Before the contents of a table can be retrieved this way it needs to be added to a whitelist. This functions can be found in <fname>list_query.sql</fname>. The built-in API call to access this function is <b>/grape/list</b>. Access control is enforced on tables retrieved.
 </p>

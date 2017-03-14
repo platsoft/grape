@@ -153,7 +153,7 @@ An API call that is handled by a JavaScript call and needs to return something o
 
 
 
-<h2>Access control</h2>
+<h2 id="grape-access-control">Access control</h2>
 <p>
 	Grape manages authentication, sessions, users, passwords and provide access control. 
 	Sessions are tracked using a session ID. Session IDs are obtained by making a call to <i>POST /grape/login</i>, providing a valid username and password. On success, this call will return with the session ID, the user's ID, username, roles and employee GUID.

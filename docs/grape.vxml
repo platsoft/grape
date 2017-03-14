@@ -1,16 +1,26 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Grape Manual" titlepage="yes" tocpage="yes" description="Developer's guide to using the PlatSoft Grape Framework">
-<h1>Grape</h1>
+<h1 id="sec-grape">Grape</h1>
 <note color="blue">This section deals mostly with the backend functionality of systems. For information on the user interface, see "Grape User Interface"</note>
 
-Grape is a framework and set of processes developed internally by Platinum Software to standardize and formalize our systems. It is implemented as an Express.js app. Most Grape applications will contain the following:
-<ol>
-	<li>A database definition/schema - <b>db/schema/</b></li>
-	<li>Initial data - <b>db/data/</b></li>
-	<li>Database functions - <b>db/functions/</b></li>
-	<li>API calls - <b>api/</b></li>
-	<li>A frontend - <b>public/</b></li>
-</ol>
+<p>
+	Grape is a framework and set of processes developed internally by Platinum Software. It is implemented as an Express.js app. A Grape application provides an HTTP/S interface for web clients to connect to.
+</p>
+<p>
+	Grape deals with the following in an application:
+<ul>
+	<li><link id="grape-access-control">Access control</link></li>
+	<li>Session management</li>
+	<li>Database connections</li>
+	<li>Relaying <link id="grape_api_calls">API calls</link> to handlers (DB functions or Javascript)</li>
+	<li>Serving static files</li>
+</ul>
+Other functionality provided for developers, are:
+<ul>
+	<li><link id="grapemailer">Sending emails</link> (generated with templates)</li>
+</ul>
+</p>
+
 
 <h2>Architecture</h2>
 <img src="architecture.png" height="500" title="Grape Architecture" />
