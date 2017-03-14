@@ -11,10 +11,22 @@ function create_schema_api_call(app, obj)
 	var param = {
 		roles: [],
 		type: 'object',
-		method: 'POST',
+		method: null,
 		sqlfunc: null
 	};
 	_.extend(param, obj);
+
+	if (!param.method)
+	{
+		if (param.type == 'object')
+		{
+			param.method = 'POST';
+		}
+		else if (param.type.toUpperCase() == 'query')
+		{
+			param.method = 'GET';
+		}
+	}
 
 	if (!param.id && param.url)
 		param.id = param.url;
@@ -31,45 +43,66 @@ function create_schema_api_call(app, obj)
 	};
 	*/
 
-	var func_db_call = function(req, res) {
-		try
-		{
-			var obj = req.body;
-			var validate_result = Validator(obj, param);
-
-			if (validate_result.errors.length > 0)
-			{
-				app.get('logger').error('api', 'Validation failed for input ' + util.inspect(obj));
-				res.send({
-					status: 'ERROR',
-					message: 'Validation failed',
-					code: -3,
-					error: validate_result.errors
-				});
-				return;
-			}
-
-			res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
-		}
-		catch (e)
-		{
-			app.get('logger').error(e.stack);
-			res.send({
-				status: 'ERROR',
-				message: e.message,
-				code: -99,
-				error: e
-			});
-		}
-	};
 
 	if (param.method == 'POST')
 	{
+		var func_db_call = function(req, res) {
+			try
+			{
+				var obj = req.body;
+				var validate_result = Validator(obj, param);
+
+				if (validate_result.errors.length > 0)
+				{
+					app.get('logger').error('api', 'Validation failed for input ' + util.inspect(obj));
+					res.send({
+						status: 'ERROR',
+						message: 'Validation failed',
+						code: -3,
+						error: validate_result.errors
+					});
+					return;
+				}
+
+				res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
+			}
+			catch (e)
+			{
+				app.get('logger').error(e.stack);
+				res.send({
+					status: 'ERROR',
+					message: e.message,
+					code: -99,
+					error: e
+				});
+			}
+		};
+		
 		app.post(param.id, [func_db_call]);
+
 	}
 	else
 	{
-		//app.get();
+		var func_db_call = function(req, res) {
+			try
+			{
+				var obj = req.params;
+
+				res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
+			}
+			catch (e)
+			{
+				app.get('logger').error(e.stack);
+				res.send({
+					status: 'ERROR',
+					message: e.message,
+					code: -99,
+					error: e
+				});
+			}
+		};
+
+		app.get(param.id, [func_db_call]);
 	}
 }
 
