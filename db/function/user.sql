@@ -129,9 +129,9 @@ DECLARE
 	_role_name TEXT;
 BEGIN
 
-	SELECT * INTO rec FROM grape."user" WHERE username = _username::TEXT;
+	SELECT * INTO _rec FROM grape."user" WHERE username = _username::TEXT;
 	IF NOT FOUND THEN
-		INSERT INTO grape."user" (username, password, active, is_local)
+		INSERT INTO grape."user" (username, password, active, local_only)
 			VALUES (_username, _password, true, true)
 			RETURNING user_id INTO _user_id;
 
