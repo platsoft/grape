@@ -94,6 +94,33 @@ The <blue>properties</blue> field, which is used with the "object" type, is an a
 	}
 }</code>
 
+<h4>Validation</h4>
+If the API call's method is POST, the received body will be validated against the JSON schema (the fields in the <i>properties</i>). When the properties field cannot be used (for example in GET calls), an <i>validate</i> field can be specified. This field contains a string, in the following format:
+<code>
+Validate string syntax:
+      begin_expr ::= "(" <![CDATA[<begin_expr>]]> "," <![CDATA[<param-def>]]> ")"
+      param-def ::= <![CDATA[<param-name>]]> ":" <![CDATA[<data-type>]]> <![CDATA[<modifier-list>]]>
+      modifier-list ::= <![CDATA[<opt-modifier>]]> <![CDATA[<modifier-list>]]>
+      opt-modifier ::= "*" | "E" | "0" | ""
+      data-type ::= "s" | "i" | "f" | "b" | "d" | "t" | "a"
+
+Data types:
+      s text
+      i integer
+      f float
+      b boolean
+      d date
+      t date
+
+Modifiers:
+      * optional is true (default = false)
+      E Empty becomes null
+      0 Nullable
+
+Examples:
+      (batch_labreport_id: i, product_id: i, labreport)
+</code>
+
 <note color="green">More examples are available in the grape repository, in the <b>examples/</b> subdirectory </note>
 
 </p>

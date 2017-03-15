@@ -5,6 +5,7 @@
 	"sqlfunc": "simple_api_handler",
 	"type": "query",
 	"method": "GET",
+	"validate": "(value:i)",
 	"return": {
 		"type": "object",
 		"properties": {  },

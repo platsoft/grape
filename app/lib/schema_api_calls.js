@@ -2,6 +2,7 @@ var fs = require('fs');
 var util = require('util');
 var _ = require('underscore');
 var Validator = require('jsonschema').validate;
+var GrapeAutoValidator = require(__dirname + '/auto_validate.js').validate;
 
 
 function create_schema_api_call(app, obj)
@@ -19,13 +20,9 @@ function create_schema_api_call(app, obj)
 	if (!param.method)
 	{
 		if (param.type == 'object')
-		{
 			param.method = 'POST';
-		}
 		else if (param.type.toUpperCase() == 'query')
-		{
 			param.method = 'GET';
-		}
 	}
 
 	if (!param.id && param.url)
@@ -87,6 +84,25 @@ function create_schema_api_call(app, obj)
 			try
 			{
 				var obj = req.params;
+
+				if (!param.validate && param.validation_string)
+					param.validate = param.validation_string;
+
+				if (param.validate)
+				{
+					var validate_result = GrapeAutoValidator(obj, param.validate);
+					if (validate_result.errors.length > 0)
+					{
+						app.get('logger').error('api', 'Validation failed for input ' + util.inspect(obj));
+						res.send({
+							status: 'ERROR',
+							message: 'Validation failed',
+							code: -3,
+							error: validate_result.errors
+						});
+						return;
+					}
+				}
 
 				res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
 			}
@@ -163,6 +179,5 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 
 
 }
-
 
 module.exports.read_schema_file = read_schema_file;
