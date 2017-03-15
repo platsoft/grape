@@ -59,6 +59,9 @@ Most Grape applications will have the following directories/files:
 <!-- include grape mailer -->
 <include href="grapemailer.vxml" parse="vxml" level="1" /> 
 
+<!-- include grape pdf -->
+<include href="grapepdf.vxml" parse="vxml" level="1" /> 
+
 <!-- include grape settings-->
 <include href="grapesettings.vxml" parse="vxml" level="1" /> 
 

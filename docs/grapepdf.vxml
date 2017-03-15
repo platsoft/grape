@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ps_doc title="Generating PDF files" titlepage="no">
+<h1 id="grape_pdf">Generating PDF Files</h1>
+To generate a PDF document in a Grape application, we use <link id="ext-apache_fop">Apache FOP</link>. The generation process works as follows:
+<ol>
+	<li>A database function returning an XML document is defined</li>
+	<li>An XSL file is created (in <i>app.config.xsl_directory</i>) that transforms the output XML of the database function into XSL-FO</li>
+	<li>An API handler for the specific document type is defined, for example <i>/download/policy_document/:policy_id</i></li>
+	<li>The API handler calls <icode>app.get('PDFGenerator').generate_and_stream_xml</icode> to generate and stream the PDF</li>
+</ol>
+
+<img src="pdf_generation.png" height="75mm" title="PDF Generation Process" />
+
+</ps_doc>
