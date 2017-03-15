@@ -11,7 +11,10 @@ var config = {
 	debug: true,
 	public_directory: __dirname + '/public',
 	session_management: true,
-	email_template_directory: __dirname + '/email_templates'
+	email_template_directory: __dirname + '/email_templates',
+	api_directory: __dirname + '/api',
+	xsl_directory: __dirname + '/xsl',
+	fop: '/opt/fop-2.1/fop'
 };
 
 if (json_config.smtp)

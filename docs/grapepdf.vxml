@@ -3,12 +3,35 @@
 <h1 id="grape_pdf">Generating PDF Files</h1>
 To generate a PDF document in a Grape application, we use <link id="ext-apache_fop">Apache FOP</link>. The generation process works as follows:
 <ol>
-	<li>A database function returning an XML document is defined</li>
+	<li>A database function returning XML text is defined</li>
 	<li>An XSL file is created (in <i>app.config.xsl_directory</i>) that transforms the output XML of the database function into XSL-FO</li>
 	<li>An API handler for the specific document type is defined, for example <i>/download/policy_document/:policy_id</i></li>
-	<li>The API handler calls <icode>app.get('PDFGenerator').generate_and_stream_xml</icode> to generate and stream the PDF</li>
+	<li>The API handler calls <icode>app.get('pdfgenerator').generate_and_stream_xml</icode> to generate and stream the PDF</li>
 </ol>
 
 <img src="pdf_generation.png" height="75mm" title="PDF Generation Process" />
+
+<h2>XML-producing SQL function</h2>
+A function returning TEXT containing XML.
+
+<h2>XSL file</h2>
+<h2>API handler</h2>
+The API handler will usually make a call to <i>app.get('pdfgenerator').generate_and_stream_xml(options);</i>. The options are:
+<code>{
+	<b>res</b>: res, <blue>// The HTTP response object</blue>
+	<b>funcName</b>: <red>'sql_function'</red>, <blue>// The SQL function name</blue>
+	<b>funcParams</b>: [params], <blue>// Array of parameters passed to the function</blue>
+	<b>documentType</b>: <red>'document_type'</red>, <blue>// An identifier for this document type. Files will be 
+								//created in subdirectories with this name</blue>
+	<b>baseFileName</b>: <red>'filename'</red>, <blue>// A filename without any extension, describing this 
+								//document being created</blue>
+	<b>xslName</b>: <red>'xsl_filename'</red>, <blue>// The XSL file to use for transformation</blue>
+}</code>
+
+<b>Notes:</b>
+<ul>
+	<li>The XSL file must be located in the application's <i><link id="conf-xsl_directory">xsl_directory</link></i>. If a <i><link id="conf-site_name">site_name</link></i> is configured, an overriding file can be stored in a subdirectory with the same name (as the sitename)</li>
+	<li>The function <i>funcName</i> must return an XML document</li>
+</ul>
 
 </ps_doc>

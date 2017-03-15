@@ -321,11 +321,12 @@ exports = module.exports = function(_o) {
 		next();
 	});
 
-
+	// Logger setup
 	var logger = new grapelib.logger(options);
 	app.set('logger', logger);
 	app.set('log', logger);
 
+	// Express settings
 	app.use(bodyParser.json());
 	app.use(cookieParser());
 	app.use(multipartParser());
@@ -333,15 +334,22 @@ exports = module.exports = function(_o) {
 	app.set("jsonp callback", true);
 	app.enable("trust proxy");
 
+	// Grape Utils
 	app.set('gutil', grapelib.utils);
 
+	// Database setup
 	setup_database(app);
 
+	// Document Store setup
 	var document_store = new grapelib.document_store(options);
 	app.set('document_store', document_store);
 	app.set('ds', document_store);
 
+	// PDF Generator setup
+	var pdfgenerator = new grapelib.pdfgenerator(app);
+	app.set('pdfgenerator', pdfgenerator);
 
+	// Public directories
 	if (options.public_directory)
 		app.set('publicPath', options.public_directory);
 
@@ -351,6 +359,7 @@ exports = module.exports = function(_o) {
 		setup_public_directory(app);
 	}
 
+	// Session Management
 	if (options.session_management)
 	{
 		var session_management = require(__dirname + '/session.js');
