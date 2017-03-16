@@ -12,8 +12,8 @@
 		"email": {"type": "string", "description": "Email address of user"},
 		"password": {"type": "string", "description": "Password"},
 		"active": {"type": "boolean", "description": "Indicate if user is active (can login)"},
-		"role_names": {"type": "array", "items": { "type": "string" } },
-		"employee_guid": {"type": "string"},
+		"role_names": {"type": ["array", "string"], "items": { "type": "string" }, "description": "A list of role_names for this user" },
+		"employee_guid": {"type": ["string", "null"], "description": "Employee GUID"},
 		"employee_info": {"type": "object"}
 	},
 	"return": {
