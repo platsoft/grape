@@ -165,7 +165,7 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 			{
 				// loads the api module and execute the export function with the app param.
 				try {
-					read_schema_file(app, [dirname, file].join('/'), relativedirname + file);
+					module.exports.read_schema_file(app, [dirname, file].join('/'), relativedirname + file);
 				} catch (e) {
 					app.get('logger').error('api', "Failed to load API file " + relativedirname + file + ' [' + util.inspect(e) + ']');
 				}
@@ -173,7 +173,7 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 		}
 		else if (fstat.isDirectory())
 		{
-			load_schemas(app, dirname + '/' + file, relativedirname + file);
+			module.exports.load_schemas(app, dirname + '/' + file, relativedirname + file);
 		}
 	}
 

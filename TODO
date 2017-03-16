@@ -8,7 +8,7 @@
 
 - accept HTTP authentication instead of X-SessionID (look at Authorization header)
 
+
+Done:
 - create API calls from JSON schema
-
 - send email via API call
-
