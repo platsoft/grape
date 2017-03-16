@@ -17,7 +17,7 @@
 				"properties": {
 					"field": {"type": "string", "description": "Field to filter on"},
 					"operand": {"type": "string", "description": "One of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE'"},
-					"value": {"type": "string", "description": "Filter value"}
+					"value": {"type": ["string", "number"], "description": "Filter value"}
 				}
 			}
 		}
