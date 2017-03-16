@@ -1,0 +1,25 @@
+{
+	"description": "Updates a record in a table (the table needs to be whitelisted)",
+	"id": "/grape/update_record",
+	"name": "GrapeUpdateRecord",
+	"sqlfunc": "grape.update_record",
+	"type": "object",
+ 	"properties": {
+		"tablename": {"type": "string", "description": "Name of the table to update"},
+		"schema": {"type": "string", "description": "Schema name of table"},
+		"filter": {"type": "json", "description": "Key-value pair of lookup values (the WHERE clause)"},
+		"values": {"type": "json", "description": "Key-value pair of values for the new data"},
+		"returning": {"type": "string", "description": "Column value of new record to return (or * for all)"}
+	},
+	"example": {"schema": "public", "tablename":"product","filter": {"description": "Refining Mist (200ml)"}, "values":{"description":"Refining Mist (250ml)"},"returning":"*"},
+	"return": {
+		"type": "object",
+		"properties": {
+			"return": {"type": "json", "description": "On success, the returning values (as specified by the input field returning)"},
+			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
+			"message": {"type": "string", "description": "Error message"},
+			"code": {"type": "number", "description": "Error code"},
+			"error": {"type": "json", "description": "Error details"}
+		}
+	}
+}

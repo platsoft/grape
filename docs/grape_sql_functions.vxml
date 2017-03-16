@@ -297,7 +297,27 @@ The following functions deals with the access control:
 
 </table>
 
-
+<h2 id="grape_table_operations">Table Operations</h2>
+<p>
+Grape provides 3 API calls to perform generic DML (INSERT, UPDATE and DELETE) on whitelisted tables.
+</p>
+<p>
+The API calls are:
+<ul>
+	<li><link id="api-GrapeInsertRecord">GrapeInsertRecord</link></li>
+	<li><link id="api-GrapeUpdateRecord">GrapeUpdateRecord</link></li>
+	<li><link id="api-GrapeDeleteRecord">GrapeDeleteRecord</link></li>
+</ul>
+</p>
+<p>
+	The SQL function used to whitelist tables, are <i>grape.table_operation_whitelist_add(schema TEXT, tables TEXT[], roles TEXT[], allowed_operation TEXT)</i>.
+	<ul>
+		<li><i>schema</i> - The schema of the table</li>
+		<li><i>tables</i> - An array of table names to add</li>
+		<li><i>roles</i> - An array of role names to allow</li>
+		<li><i>allowed_operation</i> - The operation to allow (INSERT, UPDATE or DELETE)</li>
+	</ul>
+</p>
 
 <h2>Reports</h2>
 This functions can be found in <fname>reports.sql</fname>.
