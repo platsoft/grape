@@ -13,7 +13,8 @@ function create_schema_api_call(app, obj)
 		roles: [],
 		type: 'object',
 		method: null,
-		sqlfunc: null
+		sqlfunc: null,
+		sqlfunctype: 'json'
 	};
 	_.extend(param, obj);
 
@@ -61,7 +62,10 @@ function create_schema_api_call(app, obj)
 					return;
 				}
 
-				res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
+				if (param.sqlfunctype == 'jsonb')
+					res.locals.db.jsonb_call(param.sqlfunc, obj, null, {response: res});
+				else
+					res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
 			}
 			catch (e)
 			{
@@ -104,7 +108,10 @@ function create_schema_api_call(app, obj)
 					}
 				}
 
-				res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
+				if (param.sqlfunctype == 'jsonb')
+					res.locals.db.jsonb_call(param.sqlfunc, obj, null, {response: res});
+				else
+					res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
 			}
 			catch (e)
 			{
