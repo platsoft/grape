@@ -1,0 +1,397 @@
+<?xml version="1.0"?>
+<ps_doc title="API Reference" titlepage="no" tocpage="no">
+<h2 id="api-GrapeDeleteRecord">GrapeDeleteRecord</h2>
+<p>Delete a record from a table (the table needs to be whitelisted)</p>
+<b>URL: /grape/delete_record</b><br />
+<b>Method: POST</b><br />
+<b>SQL Function: <i><link id="sql-grape.delete_record">grape.delete_record</link></i></b><br />
+<b>Input: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>tablename</i>
+<green>STRING</green>
+Table name to delete the record from
+</li>
+<li><i>schema</i>
+<green>STRING</green>
+Schema name of table
+</li>
+<li><i>filter</i>
+<green>JSON</green>
+Key-value pair of lookup values (the WHERE clause)
+</li>
+</ul>
+</li>
+</ul>
+<b>Example input: </b>
+<code>{
+  "schema": "public",
+  "tablename": "product",
+  "filter": {
+    "description": "Refining Mist (200ml)"
+  }
+}</code>
+<b>Output: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>return</i>
+<green>JSON</green>
+On success, the returning values (as specified by the input field returning)
+</li>
+<li><i>status</i>
+<green>ENUM</green>
+Status indicator
+ Possible values: <b>ERROR, OK</b>
+</li>
+<li><i>message</i>
+<green>STRING</green>
+Error message
+</li>
+<li><i>code</i>
+<green>NUMBER</green>
+Error code
+</li>
+<li><i>error</i>
+<green>JSON</green>
+Error details
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="api-GrapeInsertRecord">GrapeInsertRecord</h2>
+<p>Inserts a new record into a whitelisted table</p>
+<b>URL: /grape/insert_record</b><br />
+<b>Method: POST</b><br />
+<b>SQL Function: <i><link id="sql-grape.insert_record">grape.insert_record</link></i></b><br />
+<b>Input: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>tablename</i>
+<green>STRING</green>
+Table name to insert record into
+</li>
+<li><i>schema</i>
+<green>STRING</green>
+Schema name of table
+</li>
+<li><i>values</i>
+<green>JSON</green>
+Key-value pair of values for the new record
+</li>
+<li><i>returning</i>
+<green>STRING</green>
+Column value of new record to return (or * for all)
+</li>
+</ul>
+</li>
+</ul>
+<b>Example input: </b>
+<code>{
+  "schema": "public",
+  "tablename": "product",
+  "values": {
+    "description": "Refining Mist (200ml)"
+  },
+  "returning": "*"
+}</code>
+<b>Output: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>return</i>
+<green>JSON</green>
+On success, the returning values (as specified by the input field returning)
+</li>
+<li><i>status</i>
+<green>ENUM</green>
+Status indicator
+ Possible values: <b>ERROR, OK</b>
+</li>
+<li><i>message</i>
+<green>STRING</green>
+Error message
+</li>
+<li><i>code</i>
+<green>NUMBER</green>
+Error code
+</li>
+<li><i>error</i>
+<green>JSON</green>
+Error details
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="api-GrapeListQuery">GrapeListQuery</h2>
+<p>List records from a table or view</p>
+<b>URL: /grape/list</b><br />
+<b>Method: POST</b><br />
+<b>SQL Function: <i><link id="sql-grape.list_query">grape.list_query</link></i></b><br />
+<b>Input: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>tablename</i>
+<green>STRING</green>
+Table or view name
+</li>
+<li><i>schema</i>
+<green>STRING</green>
+Schema name of table or view
+</li>
+<li><i>sortfield</i>
+<green>STRING</green>
+optional Field to order by
+</li>
+<li><i>limit</i>
+<green>NUMBER</green>
+optional Record limit default 50
+</li>
+<li><i>offset</i>
+<green>NUMBER</green>
+optional Record offset default 0
+</li>
+<li><i>filter</i>
+<green>ARRAY of objects:</green>
+<ul>
+<li><i>field</i>
+<green>STRING</green>
+Field to filter on
+</li>
+<li><i>operand</i>
+<green>STRING</green>
+One of '=', '&#x0026;#x003E;', '&#x0026;#x003C;', '&#x0026;#x003E;=', '&#x0026;#x003C;=', 'LIKE', 'ILIKE'
+</li>
+<li><i>value</i>
+<green>STRING</green>
+Filter value
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<b>Example input: </b>
+<b>Output: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>result_count</i>
+<green>NUMBER</green>
+Number of results returned
+</li>
+<li><i>offset</i>
+<green>NUMBER</green>
+Result offset
+</li>
+<li><i>limit</i>
+<green>NUMBER</green>
+Results limit
+</li>
+<li><i>records</i>
+Array of returned records
+<green>ARRAY of JSON objects</green>
+</li>
+<li><i>total</i>
+<green>NUMBER</green>
+Total number of records in the database (after filter has been applied)
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="api-GrapeSendMail">GrapeSendMail</h2>
+<p>Sends an email</p>
+<b>URL: /grape/send_mail</b><br />
+<b>Method: POST</b><br />
+<b>SQL Function: <i><link id="sql-grape.send_email">grape.send_email</link></i></b><br />
+<b>Input: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>to</i>
+<green>STRING</green>
+Email address of recipient
+</li>
+<li><i>template</i>
+<green>STRING</green>
+Template Name
+</li>
+<li><i>template_data</i>
+<green>JSON</green>
+</li>
+<li><i>headers</i>
+<green>JSON</green>
+</li>
+</ul>
+</li>
+</ul>
+<b>Example input: </b>
+<b>Output: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>status</i>
+<green>ENUM</green>
+Status indicator
+ Possible values: <b>ERROR, OK</b>
+</li>
+<li><i>message</i>
+<green>STRING</green>
+Error message
+</li>
+<li><i>code</i>
+<green>NUMBER</green>
+Error code
+</li>
+<li><i>error</i>
+<green>JSON</green>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="api-GrapeUpdateRecord">GrapeUpdateRecord</h2>
+<p>Updates a record in a table (the table needs to be whitelisted)</p>
+<b>URL: /grape/update_record</b><br />
+<b>Method: POST</b><br />
+<b>SQL Function: <i><link id="sql-grape.update_record">grape.update_record</link></i></b><br />
+<b>Input: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>tablename</i>
+<green>STRING</green>
+Name of the table to update
+</li>
+<li><i>schema</i>
+<green>STRING</green>
+Schema name of table
+</li>
+<li><i>filter</i>
+<green>JSON</green>
+Key-value pair of lookup values (the WHERE clause)
+</li>
+<li><i>values</i>
+<green>JSON</green>
+Key-value pair of values for the new data
+</li>
+<li><i>returning</i>
+<green>STRING</green>
+Column value of new record to return (or * for all)
+</li>
+</ul>
+</li>
+</ul>
+<b>Example input: </b>
+<code>{
+  "schema": "public",
+  "tablename": "product",
+  "filter": {
+    "description": "Refining Mist (200ml)"
+  },
+  "values": {
+    "description": "Refining Mist (250ml)"
+  },
+  "returning": "*"
+}</code>
+<b>Output: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>return</i>
+<green>JSON</green>
+On success, the returning values (as specified by the input field returning)
+</li>
+<li><i>status</i>
+<green>ENUM</green>
+Status indicator
+ Possible values: <b>ERROR, OK</b>
+</li>
+<li><i>message</i>
+<green>STRING</green>
+Error message
+</li>
+<li><i>code</i>
+<green>NUMBER</green>
+Error code
+</li>
+<li><i>error</i>
+<green>JSON</green>
+Error details
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="api-GrapeUserSave">GrapeUserSave</h2>
+<p>Save a user, or create one if it does not currently exist</p>
+<b>URL: /grape/user/save</b><br />
+<b>Method: POST</b><br />
+<b>SQL Function: <i><link id="sql-grape.user_save">grape.user_save</link></i></b><br />
+<b>Input: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>user_id</i>
+<green>NUMBER</green>
+User ID to update
+</li>
+<li><i>username</i>
+<green>STRING</green>
+Username
+</li>
+<li><i>fullnames</i>
+<green>STRING</green>
+Full names
+</li>
+<li><i>email</i>
+<green>STRING</green>
+Email address of user
+</li>
+<li><i>password</i>
+<green>STRING</green>
+Password
+</li>
+<li><i>active</i>
+<green>BOOLEAN</green>
+Indicate if user is active (can login)
+</li>
+<li><i>role_names</i>
+<green>ARRAY of STRING</green>
+</li>
+<li><i>employee_guid</i>
+<green>STRING</green>
+</li>
+<li><i>employee_info</i>
+<green>JSON</green>
+</li>
+</ul>
+</li>
+</ul>
+<b>Example input: </b>
+<b>Output: </b>
+<ul>
+<li><i>JSON object containing the following fields: </i>
+<ul>
+<li><i>status</i>
+<green>ENUM</green>
+ Possible values: <b>ERROR, OK</b>
+</li>
+<li><i>user_id</i>
+<green>NUMBER</green>
+User ID of new user
+</li>
+<li><i>message</i>
+<green>STRING</green>
+</li>
+<li><i>code</i>
+<green>NUMBER</green>
+</li>
+<li><i>error</i>
+<green>JSON</green>
+</li>
+</ul>
+</li>
+</ul>
+</ps_doc>

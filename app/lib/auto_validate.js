@@ -209,7 +209,7 @@ function auto_validate(obj, validate_string)
 				}
 				else if (p.data_type == 'i')
 				{
-					if (str_value.match (/[0-9]*/) == null)
+					if (str_value.match (/^[0-9]+$/) == null)
 					{
 						p.valid = false;
 						p['error'] = p.name + ' must be a valid integer';
@@ -244,7 +244,7 @@ function auto_validate(obj, validate_string)
 				}
 				else if (p.data_type == 'f')
 				{
-					if (str_value.match (/[0-9]*(\.[0-9]*)?/) == null)
+					if (str_value.match (/^[0-9]*(\.[0-9]*)?$/) == null)
 					{
 						p.valid = false;
 						p['error'] = p.name + ' must be a valid numeric value';
@@ -257,12 +257,12 @@ function auto_validate(obj, validate_string)
 				}
 				else if (p.data_type == 'd' || p.data_type == 't')
 				{
-					if (str_value.match (/[0-9]{1,2}(\/|-)[0-9]{1,2}(\/|-)[0-9]{4}/) != null)
+					if (str_value.match (/^[0-9]{1,2}(\/|-)[0-9]{1,2}(\/|-)[0-9]{4}$/) != null)
 					{
 						p.valid = true;
 						p.value = new Date(str_value);
 					}
-					else if (str_value.match (/[0-9]{4}(\/|-)[0-9]{1,2}(\/|-)[0-9]{1,2}/) != null)
+					else if (str_value.match (/^[0-9]{4}(\/|-)[0-9]{1,2}(\/|-)[0-9]{1,2}$/) != null)
 					{
 						p.valid = true;
 						p.value = new Date(str_value);

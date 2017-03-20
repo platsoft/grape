@@ -7,10 +7,9 @@ exports = module.exports = function(_app) {
 	db = app.get('db');
 
 /**
- * @desc
- * @method 
+ * @desc Return a list of all API calls on this instance
+ * @method GET
  * @url /grape/api_list
- *
  * @return JSON object 
  **/
 	app.get("/grape/api_list", api_grapeapi_list);

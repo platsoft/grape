@@ -385,20 +385,20 @@ CREATE TABLE grape.session_history(
 );
 -- ddl-end --
 
--- object: grape.table_view | type: TABLE --
--- DROP TABLE IF EXISTS grape.table_view CASCADE;
-CREATE TABLE grape.table_view(
-	table_view_id serial NOT NULL,
-	table_name text,
-	table_schema text,
-	columns jsonb,
-	settings jsonb,
-	primary_key_column text,
-	CONSTRAINT table_view_pk PRIMARY KEY (table_view_id)
-
-);
--- ddl-end --
-
+-- -- object: grape.table_view | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.table_view CASCADE;
+-- CREATE TABLE grape.table_view(
+-- 	table_view_id serial NOT NULL,
+-- 	table_name text,
+-- 	table_schema text,
+-- 	columns jsonb,
+-- 	settings jsonb,
+-- 	primary_key_column text,
+-- 	CONSTRAINT table_view_pk PRIMARY KEY (table_view_id)
+-- 
+-- );
+-- -- ddl-end --
+-- 
 -- object: grape.auto_scheduler | type: TABLE --
 -- DROP TABLE IF EXISTS grape.auto_scheduler CASCADE;
 CREATE TABLE grape.auto_scheduler(
@@ -605,6 +605,65 @@ CREATE INDEX test_table_updated ON grape.test_table
 	);
 -- ddl-end --
 
+-- -- object: grape.document_store | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.document_store CASCADE;
+-- CREATE TABLE grape.document_store(
+-- 	document_store_id serial NOT NULL,
+-- 	description text,
+-- 	location text,
+-- 	is_local boolean,
+-- 	lookup_seq smallint DEFAULT 99,
+-- 	insert_seq smallint DEFAULT 99,
+-- 	CONSTRAINT document_store_pk PRIMARY KEY (document_store_id)
+-- 
+-- );
+-- -- ddl-end --
+-- 
+-- -- object: grape.document | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.document CASCADE;
+-- CREATE TABLE grape.document(
+-- 	document_id serial NOT NULL,
+-- 	filename text,
+-- 	location text,
+-- 	document_guid uuid,
+-- 	hash text,
+-- 	hash_algo text,
+-- 	date_inserted timestamptz DEFAULT NOW(),
+-- 	user_id integer,
+-- 	document_type text,
+-- 	related_entity_id integer,
+-- 	file_size integer,
+-- 	mime_type text,
+-- 	CONSTRAINT document_pk PRIMARY KEY (document_id)
+-- 
+-- );
+-- -- ddl-end --
+-- COMMENT ON COLUMN grape.document.location IS 'Location within a document store (relative to the document store path)';
+-- -- ddl-end --
+-- 
+-- -- object: grape.document_store_document | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.document_store_document CASCADE;
+-- CREATE TABLE grape.document_store_document(
+-- 	document_id integer NOT NULL,
+-- 	document_store_id integer NOT NULL,
+-- 	last_seen timestamptz,
+-- 	CONSTRAINT document_store_document_pk PRIMARY KEY (document_id,document_store_id)
+-- 
+-- );
+-- -- ddl-end --
+-- 
+-- object: grape.table_operation_whitelist | type: TABLE --
+-- DROP TABLE IF EXISTS grape.table_operation_whitelist CASCADE;
+CREATE TABLE grape.table_operation_whitelist(
+	schema text NOT NULL,
+	tablename text NOT NULL,
+	allowed_operation text NOT NULL,
+	roles text[],
+	CONSTRAINT insert_query_pk PRIMARY KEY (schema,tablename,allowed_operation)
+
+);
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
@@ -696,4 +755,18 @@ REFERENCES grape.setting (name) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
+-- -- object: document_store_fk | type: CONSTRAINT --
+-- -- ALTER TABLE grape.document_store_document DROP CONSTRAINT IF EXISTS document_store_fk CASCADE;
+-- ALTER TABLE grape.document_store_document ADD CONSTRAINT document_store_fk FOREIGN KEY (document_store_id)
+-- REFERENCES grape.document_store (document_store_id) MATCH FULL
+-- ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- -- ddl-end --
+-- 
+-- -- object: document_fk | type: CONSTRAINT --
+-- -- ALTER TABLE grape.document_store_document DROP CONSTRAINT IF EXISTS document_fk CASCADE;
+-- ALTER TABLE grape.document_store_document ADD CONSTRAINT document_fk FOREIGN KEY (document_id)
+-- REFERENCES grape.document (document_id) MATCH FULL
+-- ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- -- ddl-end --
+-- 
 

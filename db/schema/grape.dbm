@@ -85,7 +85,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user_history">
 	<schema name="grape"/>
-	<position x="440" y="300"/>
+	<position x="458" y="294"/>
 	<column name="user_history_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -537,7 +537,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="reports_executed">
 	<schema name="grape"/>
-	<position x="500" y="780"/>
+	<position x="494" y="774"/>
 	<column name="reports_executed_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -615,9 +615,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="table_view">
+<table name="table_view" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="1235" y="1003"/>
+	<position x="724" y="1458"/>
 	<column name="table_view_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -696,7 +696,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="list_query_whitelist">
 	<schema name="grape"/>
-	<position x="880" y="946"/>
+	<position x="1002" y="1177"/>
 	<column name="schema" not-null="true">
 		<type name="text"/>
 	</column>
@@ -909,12 +909,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="628" y="1164"/>
+	<position x="686" y="1176"/>
 	<column name="document_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="filename">
 		<type name="text"/>
+	</column>
+	<column name="location">
+		<type name="text"/>
+		<comment><![CDATA[Location within a document store (relative to the document store path)]]></comment>
 	</column>
 	<column name="document_guid">
 		<type name="uuid"/>
@@ -927,9 +931,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="date_inserted" default-value="NOW()">
 		<type name="timestamptz"/>
-	</column>
-	<column name="location">
-		<type name="text"/>
 	</column>
 	<column name="user_id">
 		<type name="integer"/>
@@ -953,7 +954,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document_store_document" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="212" y="1418"/>
+	<position x="243" y="1420"/>
 	<column name="document_id" not-null="true">
 		<type name="integer"/>
 	</column>
@@ -965,6 +966,26 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<constraint name="document_store_document_pk" type="pk-constr" table="grape.document_store_document">
 		<columns names="document_id,document_store_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="table_operation_whitelist">
+	<schema name="grape"/>
+	<position x="1279" y="1180"/>
+	<column name="schema" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="tablename" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="allowed_operation" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="roles">
+		<type name="text" dimension="1"/>
+	</column>
+	<constraint name="insert_query_pk" type="pk-constr" table="grape.table_operation_whitelist">
+		<columns names="schema,tablename,allowed_operation" ref-type="src-columns"/>
 	</constraint>
 </table>
 

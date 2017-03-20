@@ -1,0 +1,29 @@
+{
+	"id": "/grape/user/save",
+	"description": "Save a user, or create one if it does not currently exist",
+	"sqlfunc": "grape.user_save",
+	"name": "GrapeUserSave",
+	"roles": ["admin"],
+	"type": "object",
+	"properties": {
+		"user_id": {"type": "number", "description": "User ID to update"},
+		"username": {"type": "string", "description": "Username"},
+		"fullnames": {"type": "string", "description": "Full names"},
+		"email": {"type": "string", "description": "Email address of user"},
+		"password": {"type": "string", "description": "Password"},
+		"active": {"type": "boolean", "description": "Indicate if user is active (can login)"},
+		"role_names": {"type": ["array", "string"], "items": { "type": "string" }, "description": "A list of role_names for this user" },
+		"employee_guid": {"type": ["string", "null"], "description": "Employee GUID"},
+		"employee_info": {"type": "object"}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"]},
+			"user_id": {"type": "number", "description": "User ID of new user"},
+			"message": {"type": "string"},
+			"code": {"type": "number"},
+			"error": {"type": "object"}
+		}
+	}
+}

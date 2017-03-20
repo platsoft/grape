@@ -1,0 +1,14 @@
+{
+	"description": "Simple GET API Call",
+	"id": "/simple_get_call/:value",
+	"name": "SimpleGetCall",
+	"sqlfunc": "simple_api_handler",
+	"type": "query",
+	"method": "GET",
+	"validate": "(value:i)",
+	"return": {
+		"type": "object",
+		"properties": {  },
+		"example": {  }
+	}
+}

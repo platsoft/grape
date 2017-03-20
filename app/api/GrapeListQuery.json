@@ -1,0 +1,36 @@
+{
+	"description": "List records from a table or view",
+	"id": "/grape/list",
+	"name": "GrapeListQuery",
+	"sqlfunc": "grape.list_query",
+	"type": "object",
+ 	"properties": {
+		"tablename": {"type": "string", "description": "Table or view name"},
+		"schema": {"type": "string", "description": "Schema name of table or view"},
+		"sortfield": {"type": "string", "description": "optional Field to order by"},
+		"limit": {"type": "number", "description": "optional Record limit default 50"},
+		"offset": {"type": "number", "description": "optional Record offset default 0"},
+		"filter": {
+			"type": "array", 
+			"items": {
+				"type": "object", 
+				"properties": {
+					"field": {"type": "string", "description": "Field to filter on"},
+					"operand": {"type": "string", "description": "One of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE'"},
+					"value": {"type": ["string", "number"], "description": "Filter value"}
+				}
+			}
+		}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"result_count": {"type": "number", "description": "Number of results returned"},
+			"offset": {"type": "number", "description": "Result offset"},
+			"limit": {"type": "number", "description": "Results limit"},
+			"records": {"type": "array", "items": {"type":"object"}, "description": "Array of returned records"},
+			"total": {"type": "number", "description": "Total number of records in the database (after filter has been applied)"}
+		},
+		"example": {"result_count":1,"offset":0,"limit":5,"records":[{"stock_item_id":4,"description":"Refining Mist (200ml)"}],"total":1} 
+	}
+}

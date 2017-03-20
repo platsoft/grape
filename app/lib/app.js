@@ -11,6 +11,7 @@ var fs = require('fs');
 var util = require('util');
 var path = require('path');
 var syntax_check = require('syntax-error');
+var schema_api_calls = require(__dirname + '/schema_api_calls.js');
 
 var DEFAULT_MAXSOCKETS = 500;
 
@@ -187,7 +188,7 @@ exports = module.exports = function(_o) {
 	function setup_public_directory(app)
 	{
 		// special API call will look in all public directories's subdir pages and download all .js files from there
-		// TODO this has to be an API call in api/
+		// TODO this call can go into a separate file in the built-in API calls in api/
 		app.get('/download_public_js_files', function(req, res) {
 			// TODO cache this
 
@@ -289,6 +290,11 @@ exports = module.exports = function(_o) {
 
 
 	// The first handler to be called on a new request
+	// This handler appends session information to the request for further processing
+	// It will add the following variables to req:
+	//	session_id
+	//	accepts_json (true or false)
+	//	db
 	app.use(function(req, res, next)
 	{
 		req.session_id = null;
@@ -343,11 +349,12 @@ exports = module.exports = function(_o) {
 		next();
 	});
 
-
+	// Logger setup
 	var logger = new grapelib.logger(options);
 	app.set('logger', logger);
 	app.set('log', logger);
 
+	// Express settings
 	app.use(bodyParser.json());
 	app.use(cookieParser());
 	app.use(multipartParser());
@@ -355,15 +362,22 @@ exports = module.exports = function(_o) {
 	app.set("jsonp callback", true);
 	app.enable("trust proxy");
 
+	// Grape Utils
 	app.set('gutil', grapelib.utils);
 
+	// Database setup
 	setup_database(app);
 
+	// Document Store setup
 	var document_store = new grapelib.document_store(options);
 	app.set('document_store', document_store);
 	app.set('ds', document_store);
 
+	// PDF Generator setup
+	var pdfgenerator = new grapelib.pdfgenerator(app);
+	app.set('pdfgenerator', pdfgenerator);
 
+	// Public directories
 	if (options.public_directory)
 		app.set('publicPath', options.public_directory);
 
@@ -373,6 +387,7 @@ exports = module.exports = function(_o) {
 		setup_public_directory(app);
 	}
 
+	// Session Management
 	if (options.session_management)
 	{
 		var session_management = require(__dirname + '/session.js');
@@ -391,6 +406,17 @@ exports = module.exports = function(_o) {
 			loadapifiles(dir, '');
 		});
 	}
+	
+	// Load APIs from schemas
+	logger.info('api', "Loading built-in API schemas from " + builtin_api_dir);
+	schema_api_calls.load_schemas(app, builtin_api_dir, '');
+	if (options.api_directories)
+	{
+		options.api_directories.forEach(function(dir) {
+			schema_api_calls.load_schemas(app, dir, '');
+		});
+	}
+
 
 	function start()
 	{

@@ -1,0 +1,23 @@
+{
+	"description": "Delete a record from a table (the table needs to be whitelisted)",
+	"id": "/grape/delete_record",
+	"name": "GrapeDeleteRecord",
+	"sqlfunc": "grape.delete_record",
+	"type": "object",
+ 	"properties": {
+		"tablename": {"type": "string", "description": "Table name to delete the record from"},
+		"schema": {"type": "string", "description": "Schema name of table"},
+		"filter": {"type": "json", "description": "Key-value pair of lookup values (the WHERE clause)"}
+	},
+	"example": {"schema": "public", "tablename":"product","filter":{"description":"Refining Mist (200ml)"}},
+	"return": {
+		"type": "object",
+		"properties": {
+			"return": {"type": "json", "description": "On success, the returning values (as specified by the input field returning)"},
+			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
+			"message": {"type": "string", "description": "Error message"},
+			"code": {"type": "number", "description": "Error code"},
+			"error": {"type": "json", "description": "Error details"}
+		}
+	}
+}

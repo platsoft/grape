@@ -14,7 +14,7 @@
 	"dependencies": {
 		"pg": "6.1.0",
 		"underscore": "1.8.3",
-		"express": "4.14.0",
+		"express": "4.15.2",
 		"body-parser": "1.15.2",
 		"cookie-parser": "1.4.1",
 		"connect-multiparty": "2.0.0",
@@ -25,7 +25,8 @@
 		"async": "2.0.1",
 		"xlsx": "0.8.0",
 		"nodemailer": "2.5.0",
-		"syntax-error": "1.1.6"
+		"syntax-error": "1.1.6",
+		"jsonschema": "1.1.1"
 	},
 	"devDependencies": {}
 }

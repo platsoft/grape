@@ -1,5 +1,14 @@
 
-
+/**
+ * @input user_id INTEGER
+ * @input username TEXT
+ * @input password TEXT
+ * @input email TEXT
+ * @input fullnames TEXT
+ * @input active BOOLEAN optional
+ * @input role_names TEXT[]
+ * @input employee_guid GUID
+ */
 CREATE OR REPLACE FUNCTION grape.user_save (JSON) RETURNS JSON AS $$
 DECLARE
 	_user_id INTEGER;
@@ -107,6 +116,36 @@ BEGIN
 
 			RETURN grape.api_success(json_build_object('new', 'false', 'user_id', _user_id));
 		END IF;
+	END IF;
+END; $$ LANGUAGE plpgsql;
+
+/**
+ * Create new user 
+ */
+CREATE OR REPLACE FUNCTION grape.new_user (_username TEXT, _role_names TEXT[], _password TEXT) RETURNS INTEGER AS $$
+DECLARE
+	_user_id INTEGER;
+	_rec RECORD;
+	_role_name TEXT;
+BEGIN
+
+	SELECT * INTO _rec FROM grape."user" WHERE username = _username::TEXT;
+	IF NOT FOUND THEN
+		INSERT INTO grape."user" (username, password, active, local_only)
+			VALUES (_username, _password, true, true)
+			RETURNING user_id INTO _user_id;
+
+		IF _role_names IS NOT NULL THEN
+			FOREACH _role_name IN ARRAY _role_names LOOP
+				INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
+			END LOOP;
+		END IF;
+
+		PERFORM grape.hash_user_password(_user_id);
+
+		RETURN _user_id;
+	ELSE
+		RETURN -1;
 	END IF;
 END; $$ LANGUAGE plpgsql;
 
