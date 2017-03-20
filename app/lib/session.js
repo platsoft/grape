@@ -6,27 +6,6 @@ module.exports = function (app)
 	var dbs = [];
 	app.set('dbs', dbs);
 
-	//figure out what route was matched and assign it to req.matched_path
-	app.use(function(req, res, next) {
-		var path = req.url;
-
-		req.matched_path = '';
-
-		for (var i = 0; i < app._router.stack.length; i++)
-		{
-			if (!app._router.stack[i].route) 
-				continue;
-
-			var stack = app._router.stack[i];
-			var route = stack.route;
-			if (stack.match(req.path))
-			{
-				req.matched_path = route.path;
-				break;
-			}
-		}
-		next();
-	});
 
 	// Session management
 	app.use(function(req, res, next) {

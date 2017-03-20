@@ -187,6 +187,7 @@ exports = module.exports = function(_o) {
 	function setup_public_directory(app)
 	{
 		// special API call will look in all public directories's subdir pages and download all .js files from there
+		// TODO this has to be an API call in api/
 		app.get('/download_public_js_files', function(req, res) {
 			// TODO cache this
 
@@ -205,8 +206,17 @@ exports = module.exports = function(_o) {
 			return;
 		});
 
+		// Tries to serve a file in one of the app's public directories
 		app.use(function(req, res, next)
 		{
+			// Matched an API call
+			if (req.matched_path && req.matched_path != '')
+			{
+				app.get('logger').debug('api', 'Matched API call ' + req.matched_path);
+				next();
+				return;
+			}
+
 			var pathname = decodeURI(req.path);
 			var lookup_result = null;
 
@@ -227,7 +237,6 @@ exports = module.exports = function(_o) {
 					// TODO cache this
 					try {
 						var fullpath = path.normalize([public_directories[i], '/', pathname].join(''));
-						console.log("Trying " + fullpath);
 						var stat = fs.statSync(fullpath);
 						if (stat.isFile())
 						{
@@ -254,11 +263,11 @@ exports = module.exports = function(_o) {
 
 			// if the path begins with /download, we just allow it to go into the API calls
 			// TODO make this configurable. the API calls should specifically add themselves to a special list if they produce something other than JSON
-			if (pathname.slice(0, 9) == '/download')
-			{
-				next();
-				return;
-			}
+			//if (pathname.slice(0, 9) == '/download')
+			//{
+			//	next();
+			//	return;
+			//}
 
 			if (pathname.indexOf('.') >= 0)
 			{
@@ -311,6 +320,26 @@ exports = module.exports = function(_o) {
 
 		res.locals.db = app.get('db');
 		req.db = app.get('db');
+
+		// Assign the API call URL to req.matched_path  (if it can be matched)
+		var path = req.url;
+
+		req.matched_path = null;
+
+		for (var i = 0; i < app._router.stack.length; i++)
+		{
+			if (!app._router.stack[i].route) 
+				continue;
+
+			var stack = app._router.stack[i];
+			var route = stack.route;
+			if (stack.match(req.path))
+			{
+				req.matched_path = route.path;
+				break;
+			}
+		}
+
 		next();
 	});
 
