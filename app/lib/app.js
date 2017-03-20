@@ -362,6 +362,8 @@ exports = module.exports = function(_o) {
 	app.set("jsonp callback", true);
 	app.enable("trust proxy");
 
+	app.disable("x-powered-by");
+
 	// Grape Utils
 	app.set('gutil', grapelib.utils);
 
