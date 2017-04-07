@@ -11,13 +11,13 @@
 		"limit": {"type": "number", "description": "optional Record limit default 50"},
 		"offset": {"type": "number", "description": "optional Record offset default 0"},
 		"filter": {
-			"type": "array", 
+			"type": "array",
 			"items": {
-				"type": "object", 
+				"type": "object",
 				"properties": {
 					"field": {"type": "string", "description": "Field to filter on"},
-					"operand": {"type": "string", "description": "One of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE'"},
-					"value": {"type": ["string", "number"], "description": "Filter value"}
+					"operand": {"type": "string", "description": "One of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE', 'NULL', 'IS NULL'"},
+					"value": {"type": ["string", "number", "boolean"], "description": "Filter value"}
 				}
 			}
 		}
@@ -31,6 +31,6 @@
 			"records": {"type": "array", "items": {"type":"object"}, "description": "Array of returned records"},
 			"total": {"type": "number", "description": "Total number of records in the database (after filter has been applied)"}
 		},
-		"example": {"result_count":1,"offset":0,"limit":5,"records":[{"stock_item_id":4,"description":"Refining Mist (200ml)"}],"total":1} 
+		"example": {"result_count":1,"offset":0,"limit":5,"records":[{"stock_item_id":4,"description":"Refining Mist (200ml)"}],"total":1}
 	}
 }
