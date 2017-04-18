@@ -27,7 +27,7 @@ Call <i>grape.send_email (to TEXT, template TEXT, data JSON, headers JSON) </i> 
 </ul>
 
 <h2>Send an email through an API call</h2>
-The API call <link id="api-GrapeSendMail">GrapeSendMail</link> can be used to access this functionality via the API.
+The API call <link id="api-GrapeSendMail">GrapeSendMail (/grape/send_mail)</link> can be called from a client application to send an email. See <link id="api-GrapeSendMail">GrapeSendMail</link> for more information.
 
 <h2>Custom headers</h2>
 <p>
