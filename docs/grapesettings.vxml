@@ -22,5 +22,6 @@ Grape stores internal settings in the table <tname>grape.setting</tname>. The fo
 	<tr><td>data_upload_schema</td><td>Default schema for data import tables</td><td>grape</td></tr>
 	<tr><td>disable_passwords</td><td>If true, authentication will not check whether the password is correct</td><td>false</td></tr>
 	<tr><td>system_url</td><td>URL to access system's frontend</td><td></td></tr>
+	<tr><td>dataimport_in_background</td><td>Run data import processing functions in the background</td><td>false</td></tr>
 </table>
 </ps_doc>
