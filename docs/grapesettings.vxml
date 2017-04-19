@@ -23,6 +23,6 @@ Grape stores internal settings in the table <tname>grape.setting</tname>. The fo
 	<tr><td>disable_passwords</td><td>If true, authentication will not check whether the password is correct</td><td>false</td></tr>
 	<tr><td>system_url</td><td>URL to access system's frontend</td><td></td></tr>
 	<tr><td>dataimport_in_background</td><td>Run data import processing functions in the background</td><td>false</td></tr>
-	<tr><td>filter_processes</td><td>Apply role based filtering on processes</td><td>false</td></tr>
+	<tr><td id="setting-filter_processes">filter_processes</td><td>Apply role based filtering on processes</td><td>false</td></tr>
 </table>
 </ps_doc>
