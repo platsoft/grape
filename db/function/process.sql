@@ -7,7 +7,14 @@
 CREATE OR REPLACE FUNCTION grape.start_process (_process_id INTEGER, _param JSON) RETURNS INTEGER AS $$
 DECLARE
 	_schedule_id INTEGER;
+	_filter_processes BOOLEAN;
 BEGIN
+	_filter_processes := (grape.get_value('filter_processes', 'false'))::BOOLEAN;
+
+	IF _filter_processes = TRUE AND grape.check_process_execute_permission(_process_id) = FALSE THEN
+		RETURN -2;
+	END IF;
+
 	INSERT INTO grape.schedule (process_id, time_sched, param, user_id) 
 		VALUES (_process_id, CURRENT_TIMESTAMP, _param, current_user_id()) 
 		RETURNING schedule_id INTO _schedule_id;
@@ -60,7 +67,13 @@ BEGIN
 		RETURN grape.api_error_invalid_input();
 	END IF;
 
-	RETURN grape.api_success('schedule_id', _schedule_id);
+	IF _schedule_id = -2 THEN
+		RETURN grape.api_error('You have insufficient permissions to start this process', -2);
+	ELSIF _schedule_id < 0 THEN
+		RETURN grape.api_error('An unknown error occured', _schedule_id);
+	ELSE
+		RETURN grape.api_success('schedule_id', _schedule_id);
+	END IF;
 END; $$ LANGUAGE plpgsql;
 
 /**

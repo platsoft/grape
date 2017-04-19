@@ -40,3 +40,44 @@ BEGIN
 	RETURN FALSE;
 END; $$ LANGUAGE plpgsql;
 
+/** 
+ * Checks if the current user has access to exete a process
+ */
+CREATE OR REPLACE FUNCTION grape.check_process_execute_permission(_process_id INTEGER) RETURNS BOOLEAN AS $$
+DECLARE
+	_process_role_id INTEGER;
+BEGIN
+	SELECT process_role_id INTO _process_role_id 
+		FROM grape.process_role 
+		WHERE 
+			role_name IN (SELECT * FROM grape.current_user_roles()) 
+			AND process_id=_process_id::INTEGER 
+			AND can_execute=TRUE;
+	IF FOUND THEN
+		RETURN TRUE;
+	END IF;
+	
+	RETURN FALSE;
+END; $$ LANGUAGE plpgsql;
+
+/** 
+ * Checks if the current user has access to edit a process
+ */
+CREATE OR REPLACE FUNCTION grape.check_process_edit_permission(_process_id INTEGER) RETURNS BOOLEAN AS $$
+DECLARE
+	_process_role_id INTEGER;
+BEGIN
+	SELECT process_role_id INTO _process_role_id 
+		FROM grape.process_role 
+		WHERE 
+			role_name IN (SELECT * FROM grape.current_user_roles()) 
+			AND process_id=_process_id::INTEGER 
+			AND can_edit=TRUE;
+	IF FOUND THEN
+		RETURN TRUE;
+	END IF;
+	
+	RETURN FALSE;
+END; $$ LANGUAGE plpgsql;
+
+
