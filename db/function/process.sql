@@ -64,20 +64,34 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 /**
+ * Returns process id of name
+ */
+CREATE OR REPLACE FUNCTION grape.process_id_by_name(_process_name TEXT) RETURNS INTEGER AS $$
+	SELECT process_id FROM grape.process WHERE pg_function=_process_name::TEXT;
+$$ LANGUAGE sql;
+
+/**
  * Returns list of processes and totals
+ * If the grape setting filter_processes is true
  */
 CREATE OR REPLACE FUNCTION grape.list_processes (JSON) RETURNS JSON AS $$
 DECLARE
-	_ret JSON;
+	_ret JSONB;
+	_filter_processes BOOLEAN;
+	_rec RECORD;
 BEGIN
-	SELECT json_agg(r) INTO _ret FROM (
-		SELECT 
+	_filter_processes := (grape.get_value('filter_processes', 'false'))::BOOLEAN;
+
+	_ret := '[]'::JSONB;
+
+	FOR _rec IN SELECT 
 			ap.process_id, 
 			pg_function, 
 			description, 
 			process_category,
 			param,
 			(SELECT json_agg(auto_scheduler) FROM grape.auto_scheduler WHERE process_id=ap.process_id) AS auto_scheduler,
+			(SELECT json_agg(process_role) FROM grape.process_role WHERE process_id=ap.process_id) AS process_role,
 			count_new.count AS "new", 
 			count_completed.count AS "completed", 
 			count_error.count AS "error", 
@@ -87,9 +101,14 @@ BEGIN
 			LATERAL (SELECT COUNT(*) FROM grape.schedule WHERE process_id=ap.process_id AND status='Completed') AS count_completed,
 			LATERAL (SELECT COUNT(*) FROM grape.schedule WHERE process_id=ap.process_id AND status='Error') AS count_error,
 			LATERAL (SELECT COUNT(*) FROM grape.schedule WHERE process_id=ap.process_id AND status='Running') AS count_running
-		) r;
+	LOOP
+		IF _filter_processes = FALSE 
+			OR (_filter_processes = TRUE AND grape.check_process_view_permission(_rec.process_id) = TRUE) THEN
+				_ret := _ret || to_jsonb(_rec);
+		END IF;
+	END LOOP;
 
-	RETURN _ret;
+	RETURN _ret::JSON;
 END; $$ LANGUAGE plpgsql;
 
 

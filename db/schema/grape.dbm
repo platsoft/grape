@@ -159,7 +159,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="process" oids="true">
 	<schema name="grape"/>
-	<position x="900" y="60"/>
+	<position x="957" y="147"/>
 	<column name="process_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -209,7 +209,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule_log" oids="true">
 	<schema name="grape"/>
-	<position x="1360" y="360"/>
+	<position x="1426" y="516"/>
 	<column name="schedule_log_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -229,7 +229,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule" oids="true">
 	<schema name="grape"/>
-	<position x="1300" y="40"/>
+	<position x="1373" y="127"/>
 	<column name="schedule_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -278,7 +278,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import">
 	<schema name="grape"/>
-	<position x="813" y="524"/>
+	<position x="852" y="708"/>
 	<column name="data_import_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -334,7 +334,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_row">
 	<schema name="grape"/>
-	<position x="1249" y="510"/>
+	<position x="1324" y="678"/>
 	<column name="data_import_row_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -410,7 +410,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_routing">
 	<schema name="grape"/>
-	<position x="867" y="1046"/>
+	<position x="243" y="1539"/>
 	<column name="system_routing_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -455,7 +455,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_type">
 	<schema name="grape"/>
-	<position x="1238" y="653"/>
+	<position x="1328" y="845"/>
 	<column name="processing_function" not-null="true">
 		<type name="text"/>
 	</column>
@@ -643,7 +643,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="auto_scheduler">
 	<schema name="grape"/>
-	<position x="900" y="320"/>
+	<position x="1091" y="440"/>
 	<column name="auto_scheduler_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -811,7 +811,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="test_table">
 	<schema name="grape"/>
-	<position x="1253" y="761"/>
+	<position x="1310" y="967"/>
 	<column name="test_table_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -892,6 +892,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="location">
 		<type name="text"/>
+		<comment><![CDATA[Location within a document store (relative to the document store path)]]></comment>
 	</column>
 	<column name="is_local">
 		<type name="boolean"/>
@@ -971,7 +972,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="table_operation_whitelist">
 	<schema name="grape"/>
-	<position x="1279" y="1180"/>
+	<position x="1337" y="1277"/>
 	<column name="schema" not-null="true">
 		<type name="text"/>
 	</column>
@@ -988,6 +989,48 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<columns names="schema,tablename,allowed_operation" ref-type="src-columns"/>
 	</constraint>
 </table>
+
+<table name="process_role">
+	<schema name="grape"/>
+	<position x="795" y="429"/>
+	<column name="process_role_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="process_id">
+		<type name="integer"/>
+	</column>
+	<column name="role_name">
+		<type name="text"/>
+	</column>
+	<column name="can_view" default-value="TRUE">
+		<type name="boolean"/>
+	</column>
+	<column name="can_execute" default-value="FALSE">
+		<type name="boolean"/>
+	</column>
+	<column name="can_edit" default-value="FALSE">
+		<type name="boolean"/>
+	</column>
+	<constraint name="process_role_pk" type="pk-constr" table="grape.process_role">
+		<columns names="process_role_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="pr_process_idx" table="grape.process_role"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="process_id"/>
+		</idxelement>
+</index>
+
+<index name="pr_role_idx" table="grape.process_role"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="role_name"/>
+		</idxelement>
+</index>
 
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_role">
@@ -1079,6 +1122,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="document_id" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="process_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.process" table="grape.process_role">
+	<columns names="process_id" ref-type="src-columns"/>
+	<columns names="process_id" ref-type="dst-columns"/>
+</constraint>
+
 <relationship name="rel_user_role_user" type="relfk"
 	 src-table="grape.user_role"
 	 dst-table="grape.&quot;user&quot;"
@@ -1157,5 +1206,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<position x="0" y="0"/>
 	</label>
 </relationship>
+
+<relationship name="rel_process_role_process" type="relfk"
+	 src-table="grape.process_role"
+	 dst-table="grape.process"
+	 src-required="false" dst-required="false"/>
 
 </dbmodel>

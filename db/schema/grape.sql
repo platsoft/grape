@@ -618,6 +618,8 @@ CREATE INDEX test_table_updated ON grape.test_table
 -- 
 -- );
 -- -- ddl-end --
+-- COMMENT ON COLUMN grape.document_store.location IS 'Location within a document store (relative to the document store path)';
+-- -- ddl-end --
 -- 
 -- -- object: grape.document | type: TABLE --
 -- -- DROP TABLE IF EXISTS grape.document CASCADE;
@@ -662,6 +664,38 @@ CREATE TABLE grape.table_operation_whitelist(
 	CONSTRAINT insert_query_pk PRIMARY KEY (schema,tablename,allowed_operation)
 
 );
+-- ddl-end --
+
+-- object: grape.process_role | type: TABLE --
+-- DROP TABLE IF EXISTS grape.process_role CASCADE;
+CREATE TABLE grape.process_role(
+	process_role_id serial NOT NULL,
+	process_id integer,
+	role_name text,
+	can_view boolean DEFAULT TRUE,
+	can_execute boolean DEFAULT FALSE,
+	can_edit boolean DEFAULT FALSE,
+	CONSTRAINT process_role_pk PRIMARY KEY (process_role_id)
+
+);
+-- ddl-end --
+
+-- object: pr_process_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.pr_process_idx CASCADE;
+CREATE INDEX pr_process_idx ON grape.process_role
+	USING btree
+	(
+	  process_id
+	);
+-- ddl-end --
+
+-- object: pr_role_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.pr_role_idx CASCADE;
+CREATE INDEX pr_role_idx ON grape.process_role
+	USING btree
+	(
+	  role_name
+	);
 -- ddl-end --
 
 -- object: user_id_rel | type: CONSTRAINT --
@@ -769,4 +803,11 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- -- ddl-end --
 -- 
+-- object: process_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.process_role DROP CONSTRAINT IF EXISTS process_fk CASCADE;
+ALTER TABLE grape.process_role ADD CONSTRAINT process_fk FOREIGN KEY (process_id)
+REFERENCES grape.process (process_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
 
