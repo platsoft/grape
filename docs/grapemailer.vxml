@@ -31,9 +31,9 @@ The API call <link id="api-GrapeSendMail">GrapeSendMail (/grape/send_mail)</link
 
 <h2>Custom headers</h2>
 <p>
-Commonly used custom headers: <ul>
+Headers defined in the "headers" input will be used to set SMTP headers. Commonly used custom headers: <ul>
 	<li><b>From:</b> Change the From field</li>
-	<li><b>Reply-To:</b> Reply To field</li>
+	<li><b>Reply-To:</b> Set the Reply-To field</li>
 </ul>
 </p>
 

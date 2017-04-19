@@ -129,7 +129,12 @@ Major changes:
 - New API call  /grape/send_mail (send email via API call)
 - New API calls GrapeInsertRecord, GrapeUpdateRecord and GrapeDeleteRecord
 - SQL functions to manipulate access_path
-- Examples added in examples/ directory
+- Examples of API calls added in examples/ directory
+- New configuration option compile_js_dirs
+
+1.0.5:
+- New grape setting "dataimport_in_background" (boolean) will start a background process for the data import process function
+
 
 
 

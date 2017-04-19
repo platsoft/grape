@@ -33,5 +33,6 @@ The following options are recognized in the config passed to Grape:
 	<tr><td id="conf-site_name">site_name</td><td>If multiple sites are used (for example different XSL files for documents), specify the site</td><td></td></tr>
 	<tr><td id="conf-xsl_directory">xsl_directory</td><td>Directory containing XSL files for PDF generation</td><td></td></tr>
 	<tr><td id="conf-fop">fop</td><td>Path to the Apache FOP binary (for generation of PDF files)</td><td></td></tr>
+	<tr><td id="conf-ps_bgworker">ps_bgworker</td><td>Path to ps_bgworker binary</td><td></td></tr>
 </table>
 </ps_doc>

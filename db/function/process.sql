@@ -429,5 +429,39 @@ CREATE OR REPLACE FUNCTION grape.select_auto_scheduler(JSONB) RETURNS JSON AS $$
 	);
 $$ LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION grape.upsert_process(
+	_pg_function TEXT,
+	_description TEXT,
+	_param JSON,
+	_process_type TEXT,
+	_function_schema TEXT,
+	_process_category TEXT) RETURNS VOID AS $$
+
+	INSERT INTO grape.process (
+		pg_function,
+		description,
+		param,
+		process_type,
+		function_schema,
+		process_category
+	)
+	VALUES (
+		_pg_function,
+		_description,
+		_param,
+		_process_type,
+		_function_schema,
+		_process_category
+	)
+	ON CONFLICT (pg_function) --if processing_function name is the same updatre all the other values 
+	DO UPDATE SET 
+		pg_function=EXCLUDED.pg_function,
+		description=EXCLUDED.description,
+		param=EXCLUDED.param,
+		process_type=EXCLUDED.process_type,
+		function_schema=EXCLUDED.function_schema,
+		process_category=EXCLUDED.process_category;
+
+$$ LANGUAGE sql;
 
 

@@ -160,9 +160,9 @@ BEGIN
 	END IF;
 
 	SELECT result_schema, result_table, data_import_status, test_table_id  
-	INTO _schema, _tablename, _data_import_status, _test_table_id
-	FROM grape.data_import
-	WHERE data_import_id=_data_import_id::INTEGER ;
+		INTO _schema, _tablename, _data_import_status, _test_table_id
+		FROM grape.data_import
+		WHERE data_import_id=_data_import_id::INTEGER ;
 
 	--delete only if table can be found and non of the rows for the data_import has been proccessed
 	IF _tablename IS NULL THEN
@@ -221,6 +221,11 @@ END; $$ LANGUAGE plpgsql;
 
 /**
  * Internal function to Process data import data
+ * 0 - Empty
+ * 1 - Populated
+ * 2 - Process started
+ * 3 - Some not processed
+ * 4 - Processed
  */
 CREATE OR REPLACE FUNCTION grape.data_import_process(_data_import_id INTEGER) RETURNS INTEGER AS $$
 DECLARE
@@ -238,8 +243,8 @@ DECLARE
 	_index INTEGER := 0;
 BEGIN
 	SELECT data_import.* 
-	INTO _data_import
-	FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
+		INTO _data_import
+		FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
 	
 	SELECT function_schema INTO _function_schema FROM grape.data_import_type WHERE processing_function=_data_import.processing_function::TEXT;
 
@@ -252,9 +257,15 @@ BEGIN
 		--add some additional data that is passed to the process function to make it more aware of it position and allow for the option
 		--to share data between different sequential processes
 		_index := _index + 1;
-		_args := _args || jsonb_build_object('index', _index, 'data_import_row_id', _data_import_row_id,'data', _data, 'shared_data',_shared_data);
+		_args := _args || jsonb_build_object(
+			'index', _index, 
+			'data_import_row_id', _data_import_row_id, 
+			'data', _data, 
+			'shared_data', _shared_data);
+
 		EXECUTE FORMAT ('SELECT "%s"."%s" ($1, $2)', _function_schema, _data_import.processing_function) USING _data_import, _args INTO _result;
 		EXECUTE FORMAT ('UPDATE "%s"."%s" SET processed=TRUE, result=$1 WHERE data_import_row_id=$2', _data_import.result_schema, _data_import.result_table) USING _result->'result', _data_import_row_id;
+
 		_shared_data := _result->'shared_data'; 
 		IF _result->'result'->>'status'='OK' THEN
 			UPDATE grape.data_import SET valid_record_count=valid_record_count+1 WHERE data_import_id=_data_import_id::INTEGER;
@@ -264,12 +275,11 @@ BEGIN
 	END LOOP;
 
 	UPDATE grape.data_import 
-	SET data_processed=tstzrange(_start_timestamp, CURRENT_TIMESTAMP), 
-		data_import_status=_data_import_status 
-	WHERE data_import_id=_data_import_id::INTEGER;
+		SET data_processed=tstzrange(_start_timestamp, CURRENT_TIMESTAMP), 
+			data_import_status=_data_import_status 
+		WHERE data_import_id=_data_import_id::INTEGER;
 
-	--TODO return more useful data
-	RETURN 1;
+	RETURN _data_import_status;
 END; $$ LANGUAGE plpgsql;
 
 /**
@@ -280,6 +290,7 @@ DECLARE
 	_return_code INTEGER;
 	_data_import_id INTEGER;
 	_info JSON;
+	_dataimport_in_background BOOLEAN;
 BEGIN
 	_data_import_id := ($1->>'data_import_id')::INTEGER;
 	
@@ -287,17 +298,28 @@ BEGIN
 		RETURN grape.api_error('data_import_id not provided', -3);
 	END IF;
 
-	_return_code := grape.data_import_process(_data_import_id);
+	UPDATE grape.data_import 
+		SET data_import_status=2 -- Process started
+		WHERE data_import_id=_data_import_id::INTEGER;
+
+	_dataimport_in_background := (grape.get_value('dataimport_in_background', 'false'))::BOOLEAN;
+
+	IF _dataimport_in_background = TRUE THEN
+		PERFORM grape.start_process('proc_process_data_import', json_build_object('data_import_id', _data_import_id));
+		_return_code := 2;
+	ELSE
+		_return_code := grape.data_import_process(_data_import_id);
+	END IF;
 
 	--TODO look at improving return data structures
 	--coalate some useful information to return to api call
-	IF _return_code = 1 THEN
+	IF _return_code = 1 OR _return_code = 2 THEN
 		SELECT json_build_object('data_import_status', data_import_status,
-								'record_count', record_count,
-								'valid_record_count', valid_record_count)
-		INTO _info
-		FROM grape.data_import
-		WHERE data_import_id = _data_import_id::INTEGER;
+					'record_count', record_count,
+					'valid_record_count', valid_record_count)
+			INTO _info
+			FROM grape.data_import
+			WHERE data_import_id = _data_import_id::INTEGER;
 		
 		RETURN grape.api_success(_info);
 	ELSE
@@ -438,7 +460,7 @@ BEGIN
 	--	data: the data to be processed
 	--	shared_data: data accessable to all proccesses in their respective sequence
 
-	--the return data should be in the folling format {"result":{"status":"OK"}}
+	--the return data should be in the following format {"result":{"status":"OK"}}
 	--the result object is what will be stored as the result for processed row
 	--you can include shared_data if there is data you want to pass on to 
 	--proceeding processes {"result":{"status":"OK"}, "shared_data":{}}
@@ -451,3 +473,26 @@ SELECT grape.upsert_data_import_type('dimport_generic',
 	'Generic', 
 	'This function does not actually process the data in any way, but is a way to allow you to import data, with which you may create test tables.', 
 	'grape');
+
+/** 
+ * Process to process data import files in the background (via ps_bgworker)
+ */
+CREATE OR REPLACE FUNCTION proc.proc_process_data_import (JSON) RETURNS JSON AS $$
+DECLARE
+	_data_import_id INTEGER;
+	_data_import_status INTEGER; 
+BEGIN
+	IF json_extract_path($1, 'data_import_id') IS NULL THEN
+		RETURN grape.api_error_invalid_input();
+	END IF;
+
+	_data_import_id := ($1->>'data_import_id')::INTEGER;
+
+	_data_import_status := grape.data_import_process(_data_import_id);
+	
+	RETURN grape.api_success('data_import_status', _data_import_status);
+END; $$ LANGUAGE plpgsql;
+
+SELECT grape.upsert_process('proc_process_data_import', 'Process Data Import', '{}'::JSON, 'DB', 'proc', 'Internal');
+
+
