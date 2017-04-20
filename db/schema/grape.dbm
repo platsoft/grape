@@ -643,7 +643,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="auto_scheduler">
 	<schema name="grape"/>
-	<position x="1091" y="440"/>
+	<position x="1139" y="455"/>
 	<column name="auto_scheduler_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -992,7 +992,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="process_role">
 	<schema name="grape"/>
-	<position x="795" y="429"/>
+	<position x="827" y="426"/>
 	<column name="process_role_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -1181,7 +1181,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <relationship name="rel_auto_scheduler_process" type="relfk"
 	 src-table="grape.auto_scheduler"
 	 dst-table="grape.process"
-	 src-required="false" dst-required="false"/>
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="79.2257" y="2.55147"/>
+	</label>
+</relationship>
 
 <relationship name="rel_setting_history_setting" type="relfk"
 	 src-table="grape.setting_history"
