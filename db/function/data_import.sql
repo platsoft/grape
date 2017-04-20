@@ -297,6 +297,15 @@ BEGIN
 	IF _data_import_id IS NULL THEN
 		RETURN grape.api_error('data_import_id not provided', -3);
 	END IF;
+	
+	IF EXISTS 
+		(SELECT 1 
+		FROM grape.data_import 
+		WHERE data_import_id = _data_import_id
+			AND data_import_status != 1)
+	THEN 
+		RETURN grape.api_error('Data import is not in correct status to be procesed', -2);
+	END IF;
 
 	UPDATE grape.data_import 
 		SET data_import_status=2 -- Process started
