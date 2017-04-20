@@ -1,0 +1,18 @@
+{
+	"description": "Lists all process categories found in grape.process",
+	"id": "/grape/list_process_categories",
+	"name": "GrapeListProcessCategories",
+	"sqlfunc": "grape.list_process_categories",
+	"type": "query",
+	"method": "GET",
+	"return": {
+		"type": "object",
+		"properties": {
+			"categories": {"type": "json", "description": "Array of strings containing the categories"},
+			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
+			"message": {"type": "string", "description": "Error message"},
+			"code": {"type": "number", "description": "Error code"},
+			"error": {"type": "json", "description": "Error details"}
+		}
+	}
+}
