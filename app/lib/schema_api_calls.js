@@ -14,7 +14,8 @@ function create_schema_api_call(app, obj)
 		type: 'object',
 		method: null,
 		sqlfunc: null,
-		sqlfunctype: 'json'
+		sqlfunctype: 'json',
+		no_validation: false
 	};
 	_.extend(param, obj);
 
@@ -48,18 +49,22 @@ function create_schema_api_call(app, obj)
 			try
 			{
 				var obj = req.body;
-				var validate_result = Validator(obj, param);
 
-				if (validate_result.errors.length > 0)
+				if (param.no_validation === false)
 				{
-					app.get('logger').error('api', 'Validation failed for input ' + util.inspect(obj));
-					res.send({
-						status: 'ERROR',
-						message: 'Validation failed',
-						code: -3,
-						error: validate_result.errors
-					});
-					return;
+					var validate_result = Validator(obj, param);
+
+					if (validate_result.errors.length > 0)
+					{
+						app.get('logger').error('api', 'Validation failed for input ' + util.inspect(obj));
+						res.send({
+							status: 'ERROR',
+							message: 'Validation failed',
+							code: -3,
+							error: validate_result.errors
+						});
+						return;
+					}
 				}
 
 				if (param.sqlfunctype == 'jsonb')
@@ -92,7 +97,7 @@ function create_schema_api_call(app, obj)
 				if (!param.validate && param.validation_string)
 					param.validate = param.validation_string;
 
-				if (param.validate)
+				if (param.validate && param.no_validation === false)
 				{
 					var validate_result = GrapeAutoValidator(obj, param.validate);
 					if (validate_result.errors.length > 0)

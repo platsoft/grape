@@ -461,6 +461,19 @@ CREATE OR REPLACE FUNCTION grape.select_auto_scheduler(JSONB) RETURNS JSON AS $$
 	);
 $$ LANGUAGE sql;
 
+/**
+ * Returns a list of process categories
+ * {"status":"OK","categories":[null, "Internal"]}
+ */
+CREATE OR REPLACE FUNCTION grape.list_process_categories(JSON) RETURNS JSON AS $$
+DECLARE
+	_ret JSON;
+BEGIN
+	SELECT JSON_AGG(DISTINCT process_category) INTO _ret FROM grape.process;
+	
+	RETURN grape.api_success('categories', _ret);
+END; $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION grape.upsert_process(
 	_pg_function TEXT,
 	_description TEXT,

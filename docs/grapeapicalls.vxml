@@ -52,8 +52,12 @@ The fields in a schema object:
 	<blue>"id"</blue>: <r>"URL of the call"</r>,
 	<blue>"name"</blue>: <r>"CamelCase name for this call"</r>,
 	<blue>"sqlfunc"</blue>: <r>"SQL function"</r>,
-	<blue>"type"</blue>: <r>"Body type (default to object)"</r>,
-	<blue>"properties"</blue>: <r>{ Set of properties in this body }</r>,
+	<blue>"sqlfunctype"</blue>: <r>"Specify jsonb here for JSONB functions. Defaults to JSON"</r>,
+	<blue>"type"</blue>: <r>"Body type - use 'object' for POST methods and 'query' for GET"</r>,
+	<blue>"method"</blue>: <r>"GET or POST - defaults to POST"</r>,
+	<blue>"properties"</blue>: <r>{ Set of properties in this body. Used for POST requests }</r>,
+	<blue>"validation_string"</blue>: <r>"Validation string. Use this to validate GET input"</r>,
+	<blue>"no_validation"</blue>: <r>true or false. If this is true, validation will be disabled for this call (default to false)</r>,
 	<blue>"return"</blue>: <r>{ 
 			<blue>"type"</blue>: <r>"Return type (default to object)"</r>
 			<blue>"properties"</blue>: <r>{ Set of properties in this body }</r>
