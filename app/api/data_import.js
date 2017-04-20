@@ -11,7 +11,7 @@ exports = module.exports = function(_app) {
  * @desc Upload generic excel data to grape.data_import and rows to data.data_import_row
  * @method POST
  * @url /grape/data_import/upload
- * @body 
+ * @body JSON object containing fields:
  * {
  * 	file_data TEXT file data byte string
  * 	name TEXT file name
@@ -28,7 +28,7 @@ exports = module.exports = function(_app) {
  * @desc delete given data_import_id entries if not processed
  * @method POST
  * @url /grape/data_import/:data_import_id/delete
- * @body 
+ * @body JSON object containing fields:
  * {
  * 	data_import_id INTEGER the id of the data import to delete
  * }
@@ -38,10 +38,11 @@ exports = module.exports = function(_app) {
 	app.post("/grape/data_import/delete", api_data_import_delete);
 
 /**
- * @desc Process given data_import_id data
- * @method POST
+ * @desc process given data_import_id data
+ * @method post
  * @url /grape/data_import/:data_import_id/process
- * @body {
+ * @body JSON object containing fields:
+ * {
  * 	data_import_id INTEGER the id of the data import to process 
  * }
  * @example {}
@@ -51,8 +52,9 @@ exports = module.exports = function(_app) {
 
 /**
  * @desc download the data import file uploaded for specific data_import
- * @method GET
+ * @method get
  * @url /download/data_import/:data_import_id/:filename
+ * @body
  * @example {}
  * @return file buffer
  **/
@@ -60,9 +62,9 @@ exports = module.exports = function(_app) {
 
 /**
  * @desc create a test table from data_import data
- * @method POST
+ * @method post
  * @url /grape/data_import/test_table/create 
- * @body 
+ * @body JSON object containing fields:
  * {
  * 	data_import_id INTEGER the id of the data import data to use for the test table
  * 	table_name TEXT the table name to use for the new test table
@@ -74,9 +76,9 @@ exports = module.exports = function(_app) {
 
 /**
  * @desc append data from a data import to an existing compatable test_table
- * @method POST
+ * @method post
  * @url /grape/data_import/test_table/append 
- * @body 
+ * @body JSON object containing fields:
  * {
  * 	test_table_id INTEGER The id of the test table to append to
  *	data_import_id INTEGER the id of the data import data to use for the test table
@@ -88,9 +90,9 @@ exports = module.exports = function(_app) {
 
 /**
  * @desc delete an existing test table 
- * @method POST
+ * @method post
  * @url /grape/data_import/test_table/delete
- * @body 
+ * @body JSON object containing fields:
  * {
  * 	test_table_id INTEGER The id of the test table to delete
  * }
@@ -100,10 +102,13 @@ exports = module.exports = function(_app) {
 	app.post("/grape/data_import/test_table/delete", api_data_import_test_table_drop);
 
 /**
- * @desc Alter an existing test table
- * @method POST
+ * @desc alter an existing test table
+ * @method post
  * @url /grape/data_import/test_table/alter 
- * @sqlfunc grape.data_import_test_table_alter
+ * @body JSON object containing fields:
+ * {
+ * 	TODO
+ * }
  * @example {}
  * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
@@ -189,7 +194,7 @@ function api_data_import(req, res)
 			var filename = originalname.replace(/.*(\.[^.]*$)/, 'data_import_'+data_import_id+'$1')
 			ds.saveFile('dimport', file.path, filename, false);
 			data_import_ids.push(data_import_id);
-			if (file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || file.type == 'application/vnd.ms-excel') {
+			if (originalname.search('.xls') != -1 || originalname.search('.xlsx') != -1 ) {
 				var workbook = XLSX.readFile(file.path);
 				var first_sheet_name = workbook.SheetNames[0];
 				var worksheet = workbook.Sheets[first_sheet_name];
@@ -230,7 +235,7 @@ function api_data_import(req, res)
 				if (row == 1)
 					item_queue.drain();
 			}
-			else if (file.type == 'text/csv') {
+			else if (originalname.search('.csv') != -1 ) {
 				var rs = fs.createReadStream(file.path);
 				
 				var parser = csvparse({columns: true}, function(err, data) {
