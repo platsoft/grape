@@ -18,6 +18,9 @@
 					<icode>nvm use <r>v6.10.2</r></icode>
 				</li>
 				<li>
+					<icode>nvm alias default <r>v6.10.2</r></icode> ( will keep the node version persistent across terminal sessions )
+				</li>
+				<li>
 					<icode>npm install -g grape-ui</icode>
 				</li>
 				<li>
