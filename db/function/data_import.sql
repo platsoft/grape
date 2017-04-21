@@ -443,6 +443,18 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 /**
+ * Builds a object in the form of {"result":{"status":"OK"}, "shared_data":{}} for returning from data import functions
+ */
+CREATE OR REPLACE FUNCTION grape.data_import_build_result (_status TEXT DEFAULT 'OK', _shared_data JSON DEFAULT '{}') RETURNS JSON AS $$
+	SELECT json_build_object('result', json_build_object('status', _status), 'shared_data', _shared_data);
+$$ LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION grape.data_import_build_result (_status TEXT DEFAULT 'OK', _shared_data JSONB DEFAULT '{}') RETURNS JSONB AS $$
+	SELECT jsonb_build_object('result', jsonb_build_object('status', _status), 'shared_data', _shared_data);
+$$ LANGUAGE sql;
+
+
+/**
  * Api function
  */
 CREATE OR REPLACE FUNCTION grape.data_import_test_table_alter(JSON) RETURNS JSON AS $$
@@ -460,7 +472,6 @@ END; $$ LANGUAGE plpgsql;
  **/
 CREATE OR REPLACE FUNCTION grape.dimport_generic (_data_import grape.data_import, _args JSONB) RETURNS JSON AS $$
 DECLARE
-	_ret JSON;
 BEGIN
 	--_data_import is a data_import record for the data_import_id that relates to this process, processing_param can be got from this
 	--_args contains the following: 
@@ -473,9 +484,9 @@ BEGIN
 	--the result object is what will be stored as the result for processed row
 	--you can include shared_data if there is data you want to pass on to 
 	--proceeding processes {"result":{"status":"OK"}, "shared_data":{}}
-	_ret := '{"result": {"status":"OK"}}'::JSON;
-	RETURN _ret;
+	RETURN grape.data_import_build_result('OK');
 END; $$ LANGUAGE plpgsql;
+
 
 --upsert the generic processing_function type
 SELECT grape.upsert_data_import_type('dimport_generic', 
