@@ -3,15 +3,11 @@
 	<h1>Creating a new Grape project</h1>
 	<note color="blue">This feature is only available in grape 1.0.4 and above</note>
 
-<ol>
-	<li>
 		<!-- ================ -->
-		Prerequisites
 		<p>
-			<ul>
-				<li>
-					Install NodeJS [refer to section <link id="nodejs">4.1.1</link> ]. Use <i>LTS: Latest Boron</i> indicator for which node version to get
-				</li>
+			<p><h3>Prerequisites</h3></p>
+			<p>Install NodeJS [refer to section <link id="nodejs">4.1.1</link> ]. Use <i>LTS: Latest Boron</i> indicator for which node version to get.</p>
+			<ol>
 				<li>
 					<icode>nvm ls-remote</icode> ( will display latest boron version )
 				</li>
@@ -27,40 +23,32 @@
 				<li>
 					<icode>npm install -g grape-tools</icode>
 				</li>
-			</ul>
+			</ol>
 		</p>		
-	</li>
-	<li>
+		
 		<!-- ================ -->
 		<p>
-			Create a Grape Project
-			<ul>
-				<li>
-					Run this command in a terminal and complete on-screen questions for configuring project:
-				</li>
+			<p><h3>Create a Grape Project</h3></p>
+			<p>Run the following command in a terminal and the complete on-screen questions for configuring project:</p>
+			<ol>
 				<li>
 					<icode> grape_init</icode>
 				</li>
-			</ul>
+			</ol>
 		</p>
-	</li>
-	<li>
+		
 		<!-- ================ -->
 		<p>
-			Install Grape-UI components
-			<ul>
-				<li>
-					Run the following commands in a terminal from within the project you have just created to have a reference to the grape-ui folder:
-				</li>
+			<p><h3>Install Grape-UI components</h3></p>
+			<p>Run the following commands in a terminal from within the project you have just created to have a reference to the grape-ui folder:</p>
+			<ol>
 				<li>
 					<icode>grape-ui -l (list components)</icode>
 				</li>
 				<li>
 					<icode>grape-ui -i [component name] e.g. grape-ui -i user_management</icode>
 				</li>
-			</ul>	
+			</ol>	
 		</p>
-	</li>
-</ol>
 
 </ps_doc>
