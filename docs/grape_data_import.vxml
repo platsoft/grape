@@ -1,18 +1,62 @@
 <?xml version="1.0"?>
 <ps_doc title="Grape Reports">
 <h1>Grape Data Import</h1>
-<i>Introduced in Grape 0.0.9</i>
+<note>This feature was introduced in Grape 0.0.9</note>
 Grape provides a set of API calls to upload data files for further processing. The files are usually Microsoft Excel (XLSX and XLS are supported).
 
 <h2>Processing functions</h2>
 Uploaded files can be registered against a pre-defined processing function. These functions must:
 <ol>
-	<li>Return a JSON object</li>
+	<li>Return a JSON object, containing <icode>{"result":{"status":"OK"}, "shared_data":{}}</icode></li>
 	<li>Accept one parameter, a JSON object. The following fields will always be available: data_import_id and data_import_row_id</li>
+	<li>Be registered in <tname>grape.data_import</tname> using grape.upsert_data_import_type</li>
 </ol>
+<code lang="sql">
+CREATE OR REPLACE FUNCTION proc.dimport_generic (_data_import grape.data_import, _args JSONB) 
+	RETURNS JSON AS $$
+DECLARE
+BEGIN
+	-- _data_import is a data_import record for the data_import_id that relates to this process, 
+	-- processing_param can be retrieved from this
+        --_args contains the following: 
+        --      index: the index position of this process
+        --      data_import_row_id: the data_import_row_id for this process
+        --      data: the data to be processed
+        --      shared_data: data accessable to all proccesses in their respective sequence
+
+        -- The return data should be in the following format {"result":{"status":"OK"}}
+        -- The result object is what will be stored as the result for processed row
+        -- You can include shared_data if there is data you want to pass on to 
+        -- Proceeding processes {"result":{"status":"OK"}, "shared_data":{}}
+        RETURN grape.data_import_build_result('OK');
+END; $$ LANGUAGE plpgsql;
+
+--upsert the generic processing_function type
+SELECT grape.upsert_data_import_type('dimport_generic',
+        'Generic',
+        'This function does not actually process the data',
+        'proc');
+
+</code>
 
 API calls:
-POST /grape/data_import
+<ul>
+	<li>POST /grape/data_import</li>
+	<li>POST /grape/data_import/upload</li>
+	<li>POST /grape/data_import/delete</li>
+	<li>POST /grape/data_import/process</li>
+	<li>GET /download/data_import/:data_import_id/:filename</li>
+	<li>POST /grape/data_import/test_table/append</li>
+	<li>POST /grape/data_import/test_table/delete</li>
+	<li>POST /grape/data_import/test_table/alter</li>
+</ul>
 
+SQL functions:
+
+Grape settings:
+<ul>
+	<li><link id="setting-data_upload_schema">data_upload_schema</link></li>
+	<li><link id="setting-dataimport_in_background">dataimport_in_background</link></li>
+</ul>
 
 </ps_doc>
