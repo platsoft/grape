@@ -27,6 +27,9 @@
 					<icode>npm install -g grape-tools</icode>
 				</li>
 			</ol>
+			<note color="red">
+				If an error occurs when running <icode>node index.js</icode> regarding <r>mismatch version 48 to 46</r>. Use <icode>npm rebuild</icode> to <i>"level"</i> any changes when switching between node versions. 	
+			</note>
 		</p>		
 		
 		<!-- ================ -->
