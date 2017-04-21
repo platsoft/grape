@@ -18,6 +18,9 @@
 Other functionality provided for developers, are:
 <ul>
 	<li><link id="grapemailer">Sending emails</link> (generated with templates)</li>
+	<li><link id="grape_data_import">Data import (XLS/CSV) and processing</link></li>
+	<li><link id="platsoft-background-worker">PlatSoft Background Worker</link></li>
+	<li><link id="grape_pdf">Generating PDF files from XML (using XSL stylesheets and Apache FOP)</link></li>
 </ul>
 </p>
 

@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
 <ps_doc title="grape_init" titlepage="yes" tocpage="yes">
 	<h1>Creating a new Grape project</h1>
-	<note color="blue">This feature is only available in grape 1.0.4 and above</note>
+	<note color="blue">This feature is only available in Grape 1.0.4 and above</note>
 
 		<!-- ================ -->
 		<p>
 			<p><h3>Prerequisites</h3></p>
-			<p>Install NodeJS [refer to section <link id="nodejs">4.1.1</link> ]. Use <i>LTS: Latest Boron</i> indicator for which node version to get.</p>
+			Install NodeJS [refer to section <link id="external-software-nodejs">NodeJS</link> ]. Use <i>LTS: Latest Boron</i> indicator for which node version to get
 			<ol>
 				<li>
 					<icode>nvm ls-remote</icode> ( will display latest boron version )
 				</li>
 				<li>
-					<icode>nvm install v6.10.2</icode>
+					<icode>nvm install <r>v6.10.2</r></icode>
 				</li>
 				<li>
-					<icode>nvm use v6.10.2</icode>
+					<icode>nvm use <r>v6.10.2</r></icode>
 				</li>
 				<li>
 					<icode>npm install -g grape-ui</icode>
