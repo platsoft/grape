@@ -1,8 +1,17 @@
 <?xml version="1.0"?>
 <ps_doc title="Grape Reports">
-<h1>Grape Data Import</h1>
+<h1 id="grape_data_import">Grape Data Import</h1>
 <note>This feature was introduced in Grape 0.0.9</note>
-Grape provides a set of API calls to upload data files for further processing. The files are usually Microsoft Excel (XLSX and XLS are supported).
+The data import feature in Grape allows systems to import data from XLS or CSV format into the database. A pre-defined processing function can then be ran on all rows in the dataset, or the data can be "materialized" into a SQL table (test tables). 
+
+<img src="data_import_tables.png" height="5.5cm" title="Data Import Tables" />
+
+<p>
+	The upload function will create separate tables for each file that is uploaded. The tables inherits from <tname>grape.data_import_row</tname>. It will be located in the schema set by <link id="setting-data_import_schema">data_import_schema</link>, and the name stored in the column <tname>data_import.result_table</tname>. The rows, as it is imported in JSON format, will be stored as it is received.
+</p>
+<p>
+	Processing the file (running the pre-defined processing function) on the rows are done as a separate process. A call to <i>POST /grape/data_import/process</i> initiates this process. If <link id="setting-dataimport_in_background">dataimport_in_background</link> is <i>true</i>, the processing will happen in the background, through an internal <link id="platsoft-background-worker">background worker</link> process (the name of this process is <i>proc_process_data_import</i>).
+</p>
 
 <h2>Processing functions</h2>
 Uploaded files can be registered against a pre-defined processing function. These functions must:
@@ -30,16 +39,19 @@ BEGIN
         -- Proceeding processes {"result":{"status":"OK"}, "shared_data":{}}
         RETURN grape.data_import_build_result('OK');
 END; $$ LANGUAGE plpgsql;
-
---upsert the generic processing_function type
-SELECT grape.upsert_data_import_type('dimport_generic',
-        'Generic',
-        'This function does not actually process the data',
-        'proc');
-
+</code>
+The function needs to be registered:
+<code>
+SELECT grape.upsert_data_import_type(
+'dimport_generic', /* <red>Function name</red> */
+	'Generic', /* <red>Description</red> */
+	'This function does not actually process the data', /* <red>File format information</red> */
+	'proc'); /* <red>Function schema</red> */
 </code>
 
-API calls:
+<h2>Test Tables</h2>
+
+<h2>API calls</h2>
 <ul>
 	<li>POST /grape/data_import</li>
 	<li>POST /grape/data_import/upload</li>
@@ -51,12 +63,16 @@ API calls:
 	<li>POST /grape/data_import/test_table/alter</li>
 </ul>
 
-SQL functions:
+<h2>SQL functions</h2>
+<p>
+</p>
 
-Grape settings:
+<h2>Grape settings:</h2>
+<p>
 <ul>
 	<li><link id="setting-data_upload_schema">data_upload_schema</link></li>
 	<li><link id="setting-dataimport_in_background">dataimport_in_background</link></li>
 </ul>
+</p>
 
 </ps_doc>

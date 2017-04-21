@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ps_doc title="grape_init" titlepage="yes" tocpage="yes">
 	<h1>Creating a new Grape project</h1>
-	<note color="blue">This feature is only available in grape 1.0.4 and above</note>
+	<note color="blue">This feature is only available in Grape 1.0.4 and above</note>
 
 		<!-- ================ -->
 		<p>
@@ -12,10 +12,10 @@
 					<icode>nvm ls-remote</icode> ( will display latest boron version )
 				</li>
 				<li>
-					<icode>nvm install v6.10.2</icode>
+					<icode>nvm install <r>v6.10.2</r></icode>
 				</li>
 				<li>
-					<icode>nvm use v6.10.2</icode>
+					<icode>nvm use <r>v6.10.2</r></icode>
 				</li>
 				<li>
 					<icode>npm install -g grape-ui</icode>
