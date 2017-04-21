@@ -10,7 +10,10 @@
 		<p>
 			<ul>
 				<li>
-					Install NodeJS [refer to section <link id="nodejs">4.1.1</link> ]. Use <i>LTS: Latest Boron</i> indicator for which node version to get. 
+					Install NodeJS [refer to section <link id="nodejs">4.1.1</link> ]. Use <i>LTS: Latest Boron</i> indicator fo which node version to get. 
+				</li>
+				<li>
+					<icode>nvm ls-remote</icode> ( will display latest boron version )
 				</li>
 				<li>
 					<icode>nvm install v6.10.2</icode>
@@ -41,7 +44,10 @@
 			Create a Grape Project
 			<ul>
 				<li>
-					<icode> grape_init ( complete on-screen questions for configuring project ) </icode>
+					Run this command in a terminal and complete on-screen questions for configuring project
+				</li>
+				<li>
+					<icode> grape_init</icode>
 				</li>
 			</ul>
 		</p>
@@ -51,6 +57,9 @@
 		<p>
 			Install Grape-UI components
 			<ul>
+				<li>
+					Run the following commands in a terminal from within the project you have just created to have a reference to the grape-ui folder 
+				</li>
 				<li>
 					<icode>grape-ui -l (list components)</icode>
 				</li>
