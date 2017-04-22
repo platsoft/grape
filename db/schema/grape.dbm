@@ -384,7 +384,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_registry">
 	<schema name="grape"/>
-	<position x="580" y="1000"/>
+	<position x="578" y="998"/>
 	<column name="system_registry_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -455,7 +455,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_type">
 	<schema name="grape"/>
-	<position x="1328" y="845"/>
+	<position x="1357" y="841"/>
 	<column name="processing_function" not-null="true">
 		<type name="text"/>
 	</column>
