@@ -129,6 +129,16 @@ Examples:
 
 </p>
 
+<h4>Generating documentation</h4>
+In the Viticulture repository, a script called <i>scripts/build_schema_api_docs.js</i> can be used to generate VXML documentation for schema-based API calls.
+<code>  Usage: build_schema_api_docs [options] directory|file [directory|file directory|file ...]
+
+  Options:
+
+    -h, --help                  output usage information
+    -o, --output [output_file]  Output file
+</code>
+
 <h3>JavaScript API handlers</h3>
 <p>
 	API calls that are handled by JavaScript functions, can be found in the project's <i><link id="conf-api_directory">api_directory</link></i> (set in the config, usually <i>api/</i>). On startup, these directories are traversed for <i>*.js</i> files and included in the application. API calls are registered using <i>app.get</i> and <i>app.post</i>. <br />
@@ -155,7 +165,7 @@ function api_maths_sqrt (req, res)
 }
 </code>
 
-API calls should be documented using a standard based on the doxygen style. These comments can be extracted from the code using the <i>autogen_api_documentation.sh</i> script in grape-tools to create human-readable documentation. This is especially important for front-end developers, who can then use this documentation to interact with the API calls. All projects should have API documentation ready for clients to use.
+API calls should be documented using a standard based on the doxygen style. These comments can be extracted from the code using the <i>build_jsapi_documentation.js</i> script in Viticulture to create human-readable documentation. This is especially important for front-end developers, who can then use this documentation to interact with the API calls. All projects should have API documentation ready for clients to use.
 </p>
 <p>
 A comment block containing documentation for an API call:
@@ -173,11 +183,17 @@ A comment block containing documentation for an API call:
  */
 </code>
 </p>
-<p>
-The <i>autogen_api_documentation.sh</i> script from grape-tools (<b>grape_tools/generate_docs/autogen_api_documentation.sh</b>) can be used to create API documentation from proplerly documented API calls. 
-<code>$ autogen_api_documentation.sh <r>API_DIRECTORY</r> <r>OUTPUT_FILE.vxml</r></code>
 
-</p>
+<h4>Generating documentation</h4>
+In the Viticulture repository, a script called <i>scripts/build_jsapi_documentation.js</i> can be used to generate VXML documentation for JavaScript API calls.
+<code>  Usage: build_jsapi_documentation [options] directory [directory directory ...]
+
+  Options:
+
+    -h, --help                  output usage information
+    -o, --output [output_file]  Output file
+</code>
+
 
 <h3>Non-JSON returning API calls</h3>
 An API call that is handled by a JavaScript call and needs to return something other than a JSON object, starts with <i>/download</i>.
