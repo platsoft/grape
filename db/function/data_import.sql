@@ -322,7 +322,7 @@ BEGIN
 
 	--TODO look at improving return data structures
 	--coalate some useful information to return to api call
-	IF _return_code = 1 OR _return_code = 2 THEN
+	IF _return_code >= 0 THEN
 		SELECT json_build_object('data_import_status', data_import_status,
 					'record_count', record_count,
 					'valid_record_count', valid_record_count)
@@ -332,7 +332,7 @@ BEGIN
 		
 		RETURN grape.api_success(_info);
 	ELSE
-		RETURN grape.api_error('data_import_process failed', -1);
+		RETURN grape.api_error('data_import_process failed', _return_code);
 	END IF;
 END; $$ LANGUAGE plpgsql;
 
@@ -365,9 +365,9 @@ BEGIN
 	_append := $1->>'append';
 
 	SELECT result_table, result_schema, test_table_id
-	INTO _result_table, _result_schema, _test_table_id
-	FROM grape.data_import 
-	WHERE data_import_id = _data_import_id::INTEGER;
+		INTO _result_table, _result_schema, _test_table_id
+		FROM grape.data_import 
+		WHERE data_import_id = _data_import_id::INTEGER;
 
 	IF _test_table_id IS NOT NULL AND _append IS NULL THEN
 		RETURN grape.api_error('Can not create Table as it already exists, maybe you meant to append to the table instead?', -1);
@@ -445,14 +445,35 @@ END; $$ LANGUAGE plpgsql;
 /**
  * Builds a object in the form of {"result":{"status":"OK"}, "shared_data":{}} for returning from data import functions
  */
-CREATE OR REPLACE FUNCTION grape.data_import_build_result (_status TEXT DEFAULT 'OK', _shared_data JSON DEFAULT '{}') RETURNS JSON AS $$
+CREATE OR REPLACE FUNCTION grape.data_import_build_result (_status TEXT DEFAULT 'OK') RETURNS JSON AS $$
+	SELECT json_build_object('result', json_build_object('status', _status));
+$$ LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION grape.data_import_build_result (_status TEXT, _shared_data JSON) RETURNS JSON AS $$
 	SELECT json_build_object('result', json_build_object('status', _status), 'shared_data', _shared_data);
 $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION grape.data_import_build_result (_status TEXT DEFAULT 'OK', _shared_data JSONB DEFAULT '{}') RETURNS JSONB AS $$
+CREATE OR REPLACE FUNCTION grape.data_import_build_result (_status TEXT, _shared_data JSONB) RETURNS JSONB AS $$
 	SELECT jsonb_build_object('result', jsonb_build_object('status', _status), 'shared_data', _shared_data);
 $$ LANGUAGE sql;
 
+/**
+ * Resets a data_import_ids data import status to 1 (Populated)
+ */
+CREATE OR REPLACE FUNCTION grape.data_import_reset(_data_import_id INTEGER) RETURNS VOID AS $$
+DECLARE
+	_data_import grape.data_import;
+BEGIN
+	SELECT data_import.* 
+		INTO _data_import
+		FROM grape.data_import WHERE data_import_id=_data_import_id::INTEGER;
+	
+	UPDATE grape.data_import SET data_import_status=1 WHERE data_import_id=_data_import_id::INTEGER;
+		
+	EXECUTE FORMAT ('UPDATE "%s"."%s" SET processed=FALSE, result=NULL', _data_import.result_schema, _data_import.result_table);
+
+	RETURN;
+END; $$ LANGUAGE plpgsql;
 
 /**
  * Api function
@@ -467,23 +488,15 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 /**
- *Example dimport function that does not process the data in any way and allows for a way to create a
- *test table with data that does not need to be processed.
+ * Example dimport function that does not process the data in any way and allows for a way to create a
+ * test table with data that does not need to be processed.
  **/
 CREATE OR REPLACE FUNCTION grape.dimport_generic (_data_import grape.data_import, _args JSONB) RETURNS JSON AS $$
 DECLARE
+	-- _row JSONB;
 BEGIN
-	--_data_import is a data_import record for the data_import_id that relates to this process, processing_param can be got from this
-	--_args contains the following: 
-	--	index: the index position of this process
-	--	data_import_row_id: the data_import_row_id for this process
-	--	data: the data to be processed
-	--	shared_data: data accessable to all proccesses in their respective sequence
+	-- _row := _args->'data';
 
-	--the return data should be in the following format {"result":{"status":"OK"}}
-	--the result object is what will be stored as the result for processed row
-	--you can include shared_data if there is data you want to pass on to 
-	--proceeding processes {"result":{"status":"OK"}, "shared_data":{}}
 	RETURN grape.data_import_build_result('OK');
 END; $$ LANGUAGE plpgsql;
 
@@ -513,6 +526,7 @@ BEGIN
 	RETURN grape.api_success('data_import_status', _data_import_status);
 END; $$ LANGUAGE plpgsql;
 
-SELECT grape.upsert_process('proc_process_data_import', 'Process Data Import', '{}'::JSON, 'DB', 'proc', 'Internal');
+-- grape.upsert_process does not exist yet. This statement will run in ../data/grape_process.sql
+-- SELECT grape.upsert_process('proc_process_data_import', 'Process Data Import', '{}'::JSON, 'DB', 'proc', 'Internal');
 
 
