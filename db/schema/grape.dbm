@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.2" last-position="0,0" last-zoom="1">
+<dbmodel pgmodeler-ver="0.8.2" last-position="0,0" last-zoom="0.7">
 <database name="grape">
 </database>
 
@@ -19,7 +19,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="access_role">
 	<schema name="grape"/>
-	<position x="100" y="460"/>
+	<position x="60" y="720"/>
 	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
@@ -30,7 +30,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user_role">
 	<schema name="grape"/>
-	<position x="80" y="320"/>
+	<position x="40" y="600"/>
 	<column name="user_id" not-null="true">
 		<type name="integer"/>
 	</column>
@@ -44,7 +44,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="session">
 	<schema name="grape"/>
-	<position x="520" y="20"/>
+	<position x="480" y="40"/>
 	<column name="session_id" not-null="true">
 		<type name="text"/>
 	</column>
@@ -67,7 +67,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="access_path">
 	<schema name="grape"/>
-	<position x="500" y="440"/>
+	<position x="420" y="700"/>
 	<column name="role_name" not-null="true">
 		<type name="text"/>
 	</column>
@@ -85,7 +85,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user_history">
 	<schema name="grape"/>
-	<position x="458" y="294"/>
+	<position x="520" y="300"/>
 	<column name="user_history_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -108,7 +108,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user">
 	<schema name="grape"/>
-	<position x="80" y="40"/>
+	<position x="40" y="180"/>
 	<column name="user_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -159,7 +159,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="process" oids="true">
 	<schema name="grape"/>
-	<position x="957" y="147"/>
+	<position x="1120" y="120"/>
 	<column name="process_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -209,7 +209,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule_log" oids="true">
 	<schema name="grape"/>
-	<position x="1426" y="516"/>
+	<position x="1640" y="520"/>
 	<column name="schedule_log_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -229,7 +229,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule" oids="true">
 	<schema name="grape"/>
-	<position x="1373" y="127"/>
+	<position x="1580" y="100"/>
 	<column name="schedule_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -278,7 +278,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import">
 	<schema name="grape"/>
-	<position x="852" y="708"/>
+	<position x="860" y="700"/>
 	<column name="data_import_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -334,7 +334,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_row">
 	<schema name="grape"/>
-	<position x="1324" y="678"/>
+	<position x="1320" y="680"/>
 	<column name="data_import_row_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -358,7 +358,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="setting">
 	<schema name="grape"/>
 	<comment><![CDATA[System-wide settings]]></comment>
-	<position x="60" y="580"/>
+	<position x="60" y="820"/>
 	<column name="name" not-null="true">
 		<type name="text"/>
 	</column>
@@ -384,7 +384,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_registry">
 	<schema name="grape"/>
-	<position x="578" y="998"/>
+	<position x="620" y="1200"/>
 	<column name="system_registry_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -410,7 +410,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_routing">
 	<schema name="grape"/>
-	<position x="243" y="1539"/>
+	<position x="260" y="1700"/>
 	<column name="system_routing_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -427,7 +427,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_public_key">
 	<schema name="grape"/>
-	<position x="300" y="1000"/>
+	<position x="300" y="1240"/>
 	<column name="system_registry_id" not-null="true">
 		<type name="integer"/>
 	</column>
@@ -441,7 +441,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_private">
 	<schema name="grape"/>
-	<position x="40" y="1000"/>
+	<position x="20" y="1240"/>
 	<column name="system_private_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -455,7 +455,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_type">
 	<schema name="grape"/>
-	<position x="1357" y="841"/>
+	<position x="1360" y="840"/>
 	<column name="processing_function" not-null="true">
 		<type name="text"/>
 	</column>
@@ -501,7 +501,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report">
 	<schema name="grape"/>
-	<position x="40" y="780"/>
+	<position x="40" y="960"/>
 	<column name="report_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -537,7 +537,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="reports_executed">
 	<schema name="grape"/>
-	<position x="494" y="774"/>
+	<position x="500" y="960"/>
 	<column name="reports_executed_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -591,7 +591,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="session_history">
 	<schema name="grape"/>
-	<position x="520" y="140"/>
+	<position x="520" y="160"/>
 	<column name="session_id" not-null="true">
 		<type name="text"/>
 	</column>
@@ -617,7 +617,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="table_view" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="724" y="1458"/>
+	<position x="740" y="1620"/>
 	<column name="table_view_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -643,7 +643,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="auto_scheduler">
 	<schema name="grape"/>
-	<position x="1139" y="455"/>
+	<position x="1300" y="400"/>
 	<column name="auto_scheduler_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -696,7 +696,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="list_query_whitelist">
 	<schema name="grape"/>
-	<position x="1002" y="1177"/>
+	<position x="1000" y="1180"/>
 	<column name="schema" not-null="true">
 		<type name="text"/>
 	</column>
@@ -721,7 +721,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="setting_history">
 	<schema name="grape"/>
-	<position x="420" y="580"/>
+	<position x="420" y="820"/>
 	<column name="setting_history_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -811,7 +811,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="test_table">
 	<schema name="grape"/>
-	<position x="1310" y="967"/>
+	<position x="1320" y="960"/>
 	<column name="test_table_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -883,7 +883,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document_store" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="44" y="1185"/>
+	<position x="60" y="1340"/>
 	<column name="document_store_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -910,7 +910,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="686" y="1176"/>
+	<position x="700" y="1340"/>
 	<column name="document_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -955,7 +955,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document_store_document" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="243" y="1420"/>
+	<position x="260" y="1580"/>
 	<column name="document_id" not-null="true">
 		<type name="integer"/>
 	</column>
@@ -972,7 +972,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="table_operation_whitelist">
 	<schema name="grape"/>
-	<position x="1337" y="1277"/>
+	<position x="1340" y="1280"/>
 	<column name="schema" not-null="true">
 		<type name="text"/>
 	</column>
@@ -992,7 +992,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="process_role">
 	<schema name="grape"/>
-	<position x="827" y="426"/>
+	<position x="940" y="400"/>
 	<column name="process_role_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -1029,6 +1029,56 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 index-type="btree" factor="0">
 		<idxelement use-sorting="false">
 			<column name="role_name"/>
+		</idxelement>
+</index>
+
+<table name="user_network" sql-disabled="true">
+	<schema name="grape"/>
+	<position x="320" y="480"/>
+	<column name="user_network_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="user_id">
+		<type name="integer"/>
+	</column>
+	<column name="network_id">
+		<type name="integer"/>
+	</column>
+	<constraint name="whitelist_user_ip_pk" type="pk-constr" table="grape.user_network">
+		<columns names="user_network_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="uiw_user_id_idx" table="grape.user_network"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0" sql-disabled="true">
+		<idxelement use-sorting="false">
+			<column name="user_id"/>
+		</idxelement>
+</index>
+
+<table name="network" sql-disabled="true">
+	<schema name="grape"/>
+	<position x="660" y="500"/>
+	<column name="network_id" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="description">
+		<type name="text"/>
+	</column>
+	<column name="address">
+		<type name="inet"/>
+	</column>
+	<constraint name="network_pk" type="pk-constr" table="grape.network">
+		<columns names="network_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="un_network_idx" table="grape.user_network"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0" sql-disabled="true">
+		<idxelement use-sorting="false">
+			<column name="network_id"/>
 		</idxelement>
 </index>
 
@@ -1128,6 +1178,18 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="process_id" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="user_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" sql-disabled="true" table="grape.user_network">
+	<columns names="user_id" ref-type="src-columns"/>
+	<columns names="user_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="network_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.network" sql-disabled="true" table="grape.user_network">
+	<columns names="network_id" ref-type="src-columns"/>
+	<columns names="network_id" ref-type="dst-columns"/>
+</constraint>
+
 <relationship name="rel_user_role_user" type="relfk"
 	 src-table="grape.user_role"
 	 dst-table="grape.&quot;user&quot;"
@@ -1214,6 +1276,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <relationship name="rel_process_role_process" type="relfk"
 	 src-table="grape.process_role"
 	 dst-table="grape.process"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_user_ip_whitelist_user" type="relfk"
+	 src-table="grape.user_network"
+	 dst-table="grape.&quot;user&quot;"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_user_network_network" type="relfk"
+	 src-table="grape.user_network"
+	 dst-table="grape.network"
 	 src-required="false" dst-required="false"/>
 
 </dbmodel>

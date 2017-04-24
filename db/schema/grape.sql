@@ -698,6 +698,46 @@ CREATE INDEX pr_role_idx ON grape.process_role
 	);
 -- ddl-end --
 
+-- -- object: grape.user_network | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.user_network CASCADE;
+-- CREATE TABLE grape.user_network(
+-- 	user_network_id serial NOT NULL,
+-- 	user_id integer,
+-- 	network_id integer,
+-- 	CONSTRAINT whitelist_user_ip_pk PRIMARY KEY (user_network_id)
+-- 
+-- );
+-- -- ddl-end --
+-- 
+-- -- object: uiw_user_id_idx | type: INDEX --
+-- -- DROP INDEX IF EXISTS grape.uiw_user_id_idx CASCADE;
+-- CREATE INDEX uiw_user_id_idx ON grape.user_network
+-- 	USING btree
+-- 	(
+-- 	  user_id
+-- 	);
+-- -- ddl-end --
+-- 
+-- -- object: grape.network | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.network CASCADE;
+-- CREATE TABLE grape.network(
+-- 	network_id integer NOT NULL,
+-- 	description text,
+-- 	address inet,
+-- 	CONSTRAINT network_pk PRIMARY KEY (network_id)
+-- 
+-- );
+-- -- ddl-end --
+-- 
+-- -- object: un_network_idx | type: INDEX --
+-- -- DROP INDEX IF EXISTS grape.un_network_idx CASCADE;
+-- CREATE INDEX un_network_idx ON grape.user_network
+-- 	USING btree
+-- 	(
+-- 	  network_id
+-- 	);
+-- -- ddl-end --
+-- 
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
@@ -810,4 +850,18 @@ REFERENCES grape.process (process_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
+-- -- object: user_fk | type: CONSTRAINT --
+-- -- ALTER TABLE grape.user_network DROP CONSTRAINT IF EXISTS user_fk CASCADE;
+-- ALTER TABLE grape.user_network ADD CONSTRAINT user_fk FOREIGN KEY (user_id)
+-- REFERENCES grape."user" (user_id) MATCH FULL
+-- ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- -- ddl-end --
+-- 
+-- -- object: network_fk | type: CONSTRAINT --
+-- -- ALTER TABLE grape.user_network DROP CONSTRAINT IF EXISTS network_fk CASCADE;
+-- ALTER TABLE grape.user_network ADD CONSTRAINT network_fk FOREIGN KEY (network_id)
+-- REFERENCES grape.network (network_id) MATCH FULL
+-- ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- -- ddl-end --
+-- 
 
