@@ -41,7 +41,7 @@ BEGIN
 		_employee_guid := ($1->>'employee_guid')::UUID;
 	END IF;
 
-	IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
+	IF grape.get_value('hash_passwords', 'false') = 'true' THEN
 		_hashed_password := crypt(_password, gen_salt('bf'));
 	ELSE
 		_hashed_password := _password;
@@ -182,7 +182,7 @@ $$ LANGUAGE sql;
  * Hashes a password for user and updates the user table afterwards
  *
  * If the hash length is the same as the password length and the password starts with a '$' sign, it is assumed that the password is already hashed and the update is ignored (return -1)
- * If grape.setting  passwords_hashed isn't true, nothing is done (return -2)
+ * If grape.setting  hash_passwords isn't true, nothing is done (return -2)
  * On success 0 is returned
  */
 CREATE OR REPLACE FUNCTION grape.hash_user_password (_user_id INTEGER) RETURNS INTEGER AS $$
@@ -191,8 +191,8 @@ DECLARE
 	_hashed_password TEXT;
 BEGIN
 
-	IF grape.get_value('passwords_hashed', 'false') != 'true' THEN
-		RAISE DEBUG 'passwords_hashed in settings is not true';
+	IF grape.get_value('hash_passwords', 'false') != 'true' THEN
+		RAISE DEBUG 'hash_passwords in settings is not true';
 		RETURN -2;
 	END IF;
 
@@ -237,7 +237,7 @@ DECLARE
 	_password_to_save TEXT;
 BEGIN
 	-- do we hash local passwords?
-	_hashed_locally := grape.get_value('passwords_hashed', 'false')::BOOLEAN;
+	_hashed_locally := grape.get_value('hash_passwords', 'false')::BOOLEAN;
 
 	IF _hashed_locally = _is_hashed THEN
 		_password_to_save := _password;
@@ -294,56 +294,6 @@ BEGIN
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;
 
-
-CREATE OR REPLACE FUNCTION grape.resend_user_password(JSONB) RETURNS JSON AS $$
-DECLARE
-	_user_id INTEGER;
-	_user RECORD;
-	_sysname TEXT;
-	_additional_data JSONB;
-	_firstname TEXT;
-BEGIN
-
-	IF $1 ? 'user_id' THEN
-		_user_id := ($1->>'user_id')::INTEGER;
-	END IF;
-
-	IF _user_id IS NULL THEN
-		RETURN grape.api_error_invalid_input();
-	END IF;
-
-	IF $1 ? 'additional_data' THEN
-		_additional_data := $1->'additional_data';
-	ELSE
-		_additional_data := '{}';
-	END IF;
-
-
-	_sysname := grape.get_value('product_name', '');
-
-	SELECT u.*, 
-		_sysname AS product_name, 
-		grape.get_value('system_url', '') AS url,
-		u.employee_info->>'firstname' AS firstname
-		
-	INTO _user 
-	FROM grape."user" u 
-	WHERE user_id=_user_id::INTEGER;
-
-	IF _user.firstname IS NULL OR _user.firstname = '' THEN
-		_user.firstname := _user.fullnames;
-	END IF;
-
-	IF _user.email IS NULL OR _user.email = '' THEN
-		RETURN grape.api_error('No email address are saved for this user', -10);
-	END IF;	
-	
-	_additional_data := _additional_data || to_jsonb(_user);
-
-	PERFORM grape.send_email(_user.email::TEXT, 'login_details', _additional_data::JSON);
-
-	RETURN grape.api_success();
-END; $$ LANGUAGE plpgsql;
 
 /**
  * IN: 

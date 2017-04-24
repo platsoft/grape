@@ -9,7 +9,7 @@
  * On success: status = OK
  * and following fields: session_id, user_id, username and user_roles
  *
- * Setting passwords_hashed is used to decide if passwords are hashed or not
+ * Setting hash_passwords is used to decide if passwords are hashed or not
  */
 CREATE OR REPLACE FUNCTION grape.session_insert (JSON) RETURNS JSON AS $$
 DECLARE
@@ -54,7 +54,7 @@ BEGIN
 
 	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
 
-		IF grape.get_value('passwords_hashed', 'false') = 'true' THEN
+		IF grape.get_value('hash_passwords', 'false') = 'true' THEN
 			_password := crypt(_password, rec.password);
 			_check_password := rec.password;
 		ELSE
