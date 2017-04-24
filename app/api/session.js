@@ -12,6 +12,7 @@ exports = module.exports = function(app_) {
  * @url /grape/login
  * @method POST
  * @desc Create a new session for the user if the username and password provided matches a valid active user in the system
+ * @sqlfunc grape.session_insert
  * @body
  * { 
  * 	username TEXT Username
@@ -25,6 +26,7 @@ exports = module.exports = function(app_) {
  * @url /grape/logout
  * @method POST
  * @desc Logout
+ * @sqlfunc grape.logout
  * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
  */
 	app.post('/grape/logout', logout);
@@ -38,7 +40,9 @@ exports = module.exports = function(app_) {
 
 /**
  * @url /grape/session_ping
+ * @method GET
  * @param session_id Session ID to check
+ * @sqlfunc grape.session_ping
  * @desc Retrieve current server and session information
  */
 	app.get('/grape/session_ping', session_ping);
