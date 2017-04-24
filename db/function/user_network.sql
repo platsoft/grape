@@ -1,5 +1,9 @@
 /*
 -- Work in progress 
+-- ::/0 'IPv4 all'
+-- 0.0.0.0/0  'IPv6 all'
+-- 127.0.0.1 'IPv4 localhost'
+-- ::1 'IPv6 localhost'
 
 CREATE OR REPLACE FUNCTION grape.user_ip_whitelist_insert (_user_id INTEGER, _address INET) RETURNS INTEGER AS $$
 DECLARE
