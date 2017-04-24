@@ -75,7 +75,7 @@ Most Grape applications will have the following directories/files:
 <include href="grape_error_codes.vxml" parse="vxml" level="1" /> 
 
 <!-- include grape api calls -->
-<h2>Built-in API calls</h2>
+<h2 id="grape-builtin-api-calls">Built-in API calls</h2>
 <include href="builtin_api_calls.vxml" parse="vxml" level="1" /> 
 <h3>download_public_js_files</h3>
 The <b>download_public_js_files</b> API call is a special API call that will traverse all subdirectories in the public directories (defined by <b><i>public_directories</i></b>), with the names defined by <b><i>compile_js_dirs</i></b>. The default values for <b><i>compile_js_dirs</i></b> is <b>pages</b>. This means all subdirectories named "pages" will be traversed for JS files, and served through this call.

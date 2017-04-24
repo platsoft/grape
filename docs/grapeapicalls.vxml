@@ -204,7 +204,7 @@ An API call that is handled by a JavaScript call and needs to return something o
 <p>
 	Grape manages authentication, sessions, users, passwords and provide access control. 
 	Sessions are tracked using a session ID. Session IDs are obtained by making a call to <i>POST /grape/login</i>, providing a valid username and password. On success, this call will return with the session ID, the user's ID, username, roles and employee GUID.
-	In subsequent calls, the session ID is sent to the server using a custom header <i>X-SessionID</i> in the HTTP requests. 
+	In subsequent calls, the session ID should be sent to the server using a custom header <i>X-SessionID</i> in the HTTP requests. 
 </p>
 <p>
 	Users and user-related information is stored in <tname>grape.user</tname>. Users can belong to one or more access roles, stored in <tname>grape.access_path</tname>. The link-table for these are <tname>grape.user_role</tname>. 
@@ -257,12 +257,16 @@ API calls are registered in the database (table <tname>access_path</tname>) by <
 
 <h2>Consuming an API call</h2>
 <p>
+	The API (<link id="grape-builtin-api-calls">built-in API calls</link> and the application's API calls) is available over HTTP/HTTPS on the same port as the frontend. Client-side software can connect to this URL, and can be written in any technology/environment. See <link id="grape-access-control">access control</link> for details regarding the HTTP header <i>X-SessionID</i>.
+</p>
+<p>
 In order to use an API call, you will need to know the following:
 	<ol>
 		<li>The URL of the call. This will look like a typical path, for example "/login"</li>
 		<li>The call method. This will usually be <b>GET</b> or <b>POST</b></li>
 		<li>The input parameters. If the call's method is POST, this will be a JSON object containing fields. If it is GET, the input parameters are found in the URL</li>
 	</ol>
-	The API is consumed by making a HTTP request to the URL with the appropriate input parameters or body. Usually, session information will be sent in the HTTP headers.
-</p>	
+	The API is consumed by making a HTTP request to the API's URL with the appropriate input parameters or body. Usually, session information will be sent in the HTTP headers.
+</p>
 </ps_doc>
+

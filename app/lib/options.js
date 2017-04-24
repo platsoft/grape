@@ -1,6 +1,7 @@
 
 var _ = require('underscore');
 var fs = require('fs');
+var path = require('path');
 
 exports = module.exports = function(_o) {
 	var options = {
@@ -21,17 +22,13 @@ exports = module.exports = function(_o) {
 		api_directories: []
 	};
 
-	if (_.isArray(_o.public_directory))
-	{
-		_o.public_directories = _o.public_directory;
-		_o.public_directory = _o.public_directories[0];
-	}
 
 	if (!_o.base_directory && _o.public_directory)
 	{
 		_o.base_directory = fs.realpathSync(_o.public_directory + '/../');
 	}
 
+	// TODO use path.isAbsolute on directory options, if it is not absolute add base directory to them
 
 	if (_o.base_directory)
 	{
@@ -47,6 +44,13 @@ exports = module.exports = function(_o) {
 	}
 	
 	_.extend(options, _o);
+
+	if (_.isArray(options.public_directory) && options.public_directories.length == 0)
+	{
+		options.public_directories = options.public_directory;
+		options.public_directory = options.public_directories[0];
+	}
+
 
 	if (options.log_directory == false && options.base_directory != false)
 	{

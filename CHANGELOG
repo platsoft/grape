@@ -137,4 +137,6 @@ Major changes:
 - Role-based access control for processes (with utility functions and new table)
 - New SQL functions: grape.set_session_username, grape.set_session_user_id, grape.upsert_process
 - New API call GrapeListProcessCategories
+- Removed DB function grape.resend_user_password
+- GrapeForgotPassword will now reset the password if passwords in the system are hashed
 
