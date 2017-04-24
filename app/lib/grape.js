@@ -17,6 +17,14 @@ exports = module.exports = function(_o) {
 	this.options = require(__dirname + '/options.js')(_o);
 
 	this.start = function() {
+
+		// Check options
+		if (!this.options.base_directory)
+		{
+			console.log("Error: I could not find a base directory. Specify it with the 'base_directory' option in config.js");
+			process.exit(1);
+		}
+
 		if (cluster.isMaster)
 		{
 			var pidfile = this.options.log_directory + '/grape.pid';
