@@ -95,7 +95,14 @@ BEGIN
 	END IF;
 
 	SELECT array_agg(roles) INTO _roles 
-	FROM (SELECT DISTINCT(unnest(roles)) AS roles FROM grape.list_query_whitelist WHERE schema = _schema::TEXT AND _tablename::TEXT ~ tablename) a;
+		FROM (SELECT 
+			DISTINCT(unnest(roles)) AS roles 
+			FROM grape.list_query_whitelist 
+			WHERE 
+				schema = _schema::TEXT 
+				AND _tablename::TEXT ~ tablename
+			) a;
+
 	IF NOT FOUND THEN
 		RETURN grape.api_error('Table requested is not in whitelist', -2);
 	END IF;
