@@ -28,8 +28,7 @@ Other functionality provided for developers, are:
 <h2>Architecture</h2>
 <img src="architecture.png" height="500" title="Grape Architecture" />
 
-<h2>Getting started</h2>
-The tool <i>grape_init</i> is a script which makes it easy to create a new empty Grape application. It is available from the Grape Tools repo (<icode>npm install -g grape_tools</icode>).
+<include href="grape_init.vxml" parse="vxml" level="1" /> 
 
 <h2>Directory layout</h2>
 
@@ -59,6 +58,9 @@ Most Grape applications will have the following directories/files:
 <!-- include grape database -->
 <include href="grape_database.vxml" parse="vxml" level="1" /> 
 
+<!-- include grape logging -->
+<include href="logging.vxml" parse="vxml" level="1" /> 
+
 <!-- include grape mailer -->
 <include href="grapemailer.vxml" parse="vxml" level="1" /> 
 
@@ -85,6 +87,5 @@ The <b>download_public_js_files</b> API call is a special API call that will tra
 <!-- include grape sql functions -->
 <include href="grape_sql_functions.vxml" parse="vxml" level="1" /> 
 
-<include href="grape_init.vxml" parse="vxml" level="1" /> 
 
 </ps_doc>

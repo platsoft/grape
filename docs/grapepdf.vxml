@@ -4,7 +4,7 @@
 To generate a PDF document in a Grape application, we use <link id="ext-apache_fop">Apache FOP</link>. The generation process works as follows:
 <ol>
 	<li>A database function returning XML text is defined</li>
-	<li>An XSL file is created (in <i>app.config.xsl_directory</i>) that transforms the output XML of the database function into XSL-FO</li>
+	<li>An XSL file is created (in <link id="setting-xsl_directory"><i>app.config.xsl_directory</i></link>) that transforms the output XML of the database function into XSL-FO</li>
 	<li>An API handler for the specific document type is defined, for example <i>/download/policy_document/:policy_id</i></li>
 	<li>The API handler calls <icode>app.get('pdfgenerator').generate_and_stream_xml</icode> to generate and stream the PDF</li>
 </ol>
@@ -32,6 +32,10 @@ The API handler will usually make a call to <i>app.get('pdfgenerator').generate_
 <ul>
 	<li>The XSL file must be located in the application's <i><link id="conf-xsl_directory">xsl_directory</link></i>. If a <i><link id="conf-site_name">site_name</link></i> is configured, an overriding file can be stored in a subdirectory with the same name (as the sitename)</li>
 	<li>The function <i>funcName</i> must return an XML document</li>
+	<li>An XSL parameter <i>xsldirname</i> will be defined and have the value of the directory name that the XSL file is located in. This can be used when images needs to be referenced. For example: 
+		<code><![CDATA[<fo:external-graphic  content-width="200mm" scaling="uniform">
+	<xsl:attribute name="src"><xsl:value-of select="$xsldirname" />/image.png</xsl:attribute>
+</fo:external-graphic>]]></code></li>
 </ul>
 
 </ps_doc>

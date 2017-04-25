@@ -1,28 +1,20 @@
 <?xml version="1.0"?>
 <ps_doc title="grape_init" titlepage="yes" tocpage="yes">
 	
-	<h1>Creating a new Grape project</h1>
+	<h1>Getting started using grape_init</h1>
 
 	<!-- ================ -->
 	<note color="blue">This feature is only available in Grape 1.0.4 and above</note>
+	<i>grape_init</i> is a script that can be used to bootstrap a new application. After installing, simply run <icode>grape_init</icode> in a terminal and follow the instructions on screen. 
 
 	<!-- ================ -->
-	<h2>Installing prerequisites</h2>
+	<h2>Installing packages</h2>
 	<ol>
 		<li>
-			Install <link id="external-software-nvm">Node Version Manager</link> first
+			If NVM is not installed, install <link id="external-software-nvm">Node Version Manager</link>
 		</li>
 		<li>
-			<icode>nvm ls-remote</icode> ( will display latest boron version )
-		</li>
-		<li>
-			<icode>nvm install <r>v6.10.2</r></icode>
-		</li>
-		<li>
-			<icode>nvm use <r>v6.10.2</r></icode>
-		</li>
-		<li>
-			<icode>nvm alias default <r>v6.10.2</r></icode> ( will keep the node version persistent across terminal sessions )
+			If NodeJS is not install, install the latest <link id="external-software-nodejs">NodeJS</link> LTS version
 		</li>
 		<li>
 			<icode>npm install -g grape-ui</icode>
@@ -32,19 +24,7 @@
 		</li>
 	</ol>
 
-	<note color="red">
-		If an error occurs when running <icode>node index.js</icode> regarding <r>mismatch version 48 to 46</r>. Use <icode>npm rebuild</icode> to <i>"level"</i> any changes when switching between node versions. 	
-	</note>
 	
-	<!-- ================ -->
-	<h3>Create a Grape Project</h3>
-	<p>Run the following command in a terminal and the complete on-screen questions for configuring project:</p>
-	<ol>
-		<li>
-			<icode> grape_init</icode>
-		</li>
-	</ol>
-
 	<!-- ================ -->
 	<h3>Install Grape-UI components</h3>
 	<p>Run the following commands in a terminal from within the project you have just created to have a reference to the grape-ui folder:</p>

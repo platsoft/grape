@@ -3,6 +3,7 @@ var gutil;
 var fs = require('fs');
 var util = require('util');
 var exec = require('child_process').exec;
+var path = require('path');
 
 function PDFGenerator(app)
 {
@@ -47,12 +48,18 @@ function PDFGenerator(app)
 	this.create_pdf_from_xml = function(_o) {
 		var o = _o;
 
+		var dirname = path.dirname(o.xslFile);
+
 		var fopPath = o.app.get('config').fop;
 
 		if (!fopPath)
 			fopPath = '/opt/fop-1.1/fop';
 
-		var cmd = ['xsltproc', '-o', '"' + o.fopFile + '"',  '"' + o.xslFile + '"', '"' + o.xmlFile + '"'].join(' ');
+		var cmd = ['xsltproc', 
+			'--stringparam', 'xsldirname', '"' + dirname + '"',
+			'-o', '"' + o.fopFile + '"',  
+			'"' + o.xslFile + '"', 
+			'"' + o.xmlFile + '"'].join(' ');
 
 		exec(cmd, function(error, stdout, stderr) {
 			
@@ -112,7 +119,7 @@ function PDFGenerator(app)
 			if (!fs.existsSync(xsl_path))
 			{
 				app.get('logger').error('app', 'XSL file could not be found (' + o.xslName + ')');
-				res.send('XSL file could not be found').end();
+				res.send('Error: XSL file (' + o.xslName + ') could not be found').end();
 				return false;
 			}
 		}

@@ -1,11 +1,10 @@
 "use strict";
-var logger,
-	app;
+var logger;
+var app;
 
-exports = module.exports = function(app_) {
-	app = app_;
+exports = module.exports = function(_app) {
+	app = _app;
 	logger = app.get('logger');
-
 
 
 /**
@@ -69,6 +68,7 @@ function login (req, res)
 {
 	if ((typeof req.body.username == "undefined" && typeof req.body.email == "undefined") || typeof req.body.password == "undefined")
 	{
+		app.get('logger').session('info', 'Invalid parameters sent to /grape/login', req.body);
 		res.json({'status': "ERROR", code: -1, "message": "Invalid parameters"});
 		return;
 	}
@@ -83,15 +83,13 @@ function login (req, res)
 	if (req.body.email)
 	{
 		obj.email = req.body.email;
-		app.get('logger').session('Login attempt from [', obj.email, ']@', ip_address);
+		app.get('logger').session('info', 'Login attempt from [', obj.email, ']@', ip_address);
 	}
 	else
 	{
 		obj.username = req.body.username;
-		app.get('logger').session('Login attempt from ', obj.username, '@', ip_address);
+		app.get('logger').session('info', 'Login attempt from ', obj.username, '@', ip_address);
 	}
-
-	
 
 	res.locals.db.json_call('grape.session_insert', obj, null, {response: res});
 }
