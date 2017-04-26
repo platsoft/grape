@@ -1,13 +1,15 @@
 
 - email queuer
-- check permissions in javascript (keep a synced permissions list from DB to check against)
+- check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
 - static data loader keeping cache of users and sessions
 
 - run a grape app without a database
+- create an authentication provider
 - compiled javascript needs to be cached
 
 - accept HTTP authentication instead of X-SessionID (look at Authorization header)
 
+- pdf generator: pass xsl parameters to the pdfgenerator
 
 Done:
 - create API calls from JSON schema

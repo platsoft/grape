@@ -168,6 +168,39 @@ var GrapeClient = function(_o) {
 		
 		var total_size = 0;
 
+
+		//Files
+		function add_file (file)
+		{
+			var contenttype = file.contenttype || 'application/octet-stream';
+			var fieldname = file.fieldname || 'file';
+			var filename = _path.basename(file.file);
+
+			var f = {
+				path: file.file,
+				filename: filename,
+				fieldname: fieldname,
+				header: [boundary, "\r\n",
+					'Content-Disposition: form-data; name="', fieldname, '"; filename="', filename, '"', "\r\n\r\n"
+					].join('')
+			};
+
+			var stat = fs.statSync(f.path);
+			f.size = stat.size;
+
+			total_size += f.header.length + f.size;
+
+			_files.push(f);
+		}
+
+		if (util.isArray(files))
+			files.forEach(function(v) {
+				add_file(v);
+			});
+		else
+			add_file(files);
+
+
 		//Fields
 		function add_field (field)
 		{
@@ -210,37 +243,6 @@ var GrapeClient = function(_o) {
 		}
 
 
-		//Files
-		function add_file (file)
-		{
-			var contenttype = file.contenttype || 'application/octet-stream';
-			var fieldname = file.fieldname || 'file';
-			var filename = _path.basename(file.file);
-
-			var f = {
-				path: file.file,
-				filename: filename,
-				fieldname: fieldname,
-				header: [boundary, "\r\n",
-					'Content-Disposition: form-data; name="', fieldname, '"; filename="', filename, '"', "\r\n\r\n"
-					].join('')
-			};
-
-			var stat = fs.statSync(f.path);
-			f.size = stat.size;
-
-			total_size += f.header.length + f.size;
-
-			_files.push(f);
-		}
-
-		if (util.isArray(files))
-			files.forEach(function(v) {
-				add_file(v);
-			});
-		else
-			add_file(files);
-
 
 		//Set Session
 		if (this.session)
@@ -279,9 +281,6 @@ var GrapeClient = function(_o) {
 
 		var req = http.request(options, callback);
 
-		_fields.forEach(function(field) {
-			req.write(field);
-		});
 
 		
 		var pipe_count = 0;
@@ -298,6 +297,10 @@ var GrapeClient = function(_o) {
 				pipe_count--;
 				if (pipe_count <= 0)
 				{
+
+					_fields.forEach(function(field) {
+						req.write(field);
+					});
 					req.write("\r\n" + boundary + "--\r\n");
 					req.end();
 				}

@@ -139,4 +139,6 @@ Major changes:
 - New API call GrapeListProcessCategories
 - Removed DB function grape.resend_user_password
 - GrapeForgotPassword will now reset the password if passwords in the system are hashed
+- Fixed bug GR29 in list query (Ettienne)
+
 

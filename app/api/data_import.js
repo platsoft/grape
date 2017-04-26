@@ -185,7 +185,13 @@ function api_data_import(req, res)
 		var ds = app.get('document_store');
 		var description = req.body.description;
 		var processing_function = req.body.processing_function;
-		var processing_param = JSON.parse(req.body.processing_param);
+		var processing_param = {};
+		console.log(req.body);
+
+		try {
+			processing_param = JSON.parse(req.body.processing_param);
+		} catch (e) { processing_param = {}; }
+
 
 		res.locals.db.json_call('grape.data_import_insert', {processing_function: processing_function, filename: file.originalFilename, description: description, processing_param: processing_param}, function(err, result) { 
 			
