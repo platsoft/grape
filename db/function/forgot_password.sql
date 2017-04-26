@@ -64,6 +64,10 @@ BEGIN
 		_user.firstname := _user.fullnames;
 	END IF;
 
+	IF _new_password IS NOT NULL THEN
+		_user.password := _new_password;
+	END IF;
+
 	_additional_data := _additional_data || to_jsonb(_user);
 
 	PERFORM grape.send_email(_user.email::TEXT, 'login_details', _additional_data::JSON);
