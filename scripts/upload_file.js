@@ -1,46 +1,57 @@
 
-var httppost = require('./http-post');
-var util = require('util');
-var url = require('url');
+var GrapeClient = require(__dirname + '/../app/lib/grapeclient.js');
+var program = require('commander');
 
-if (process.argv.length < 4)
+program
+	.version('0.0.1')
+	.usage('-u username -p password -s server -f file -t filetype')
+	.option('-u, --username [username]', 'Username')
+	.option('-p, --password [password]', 'Password')
+	.option('-s, --server [server]', 'Server (for example http://localhost:3000/)')
+	.option('-f, --file [file]', 'File to upload')
+	.option('-t, --file_type [file_type]', 'File type (The grape processing function name)')
+	.option('-P, --process', 'Process the file after upload')
+	.parse(process.argv);
+
+if (!program.username || !program.password || !program.server || !program.file || !program.file_type)
 {
-	console.log(util.format("Usage: URL File [Body]"));
+	console.log("You need to specify a username, password, server, file and file type");
+	program.help();
 	process.exit(1);
-	return;
 }
 
-var options = url.parse(process.argv[2]);
-var filename = process.argv[3];
-var body = {};
-if (process.argv[4])
-	body = JSON.parse(process.argv[4]);
+var gc = new GrapeClient({url: program.server});
 
-options.headers = {'Accept': 'application/json; charset=utf-8'};
+gc.on('login', function() {
+        console.log("Logged in");
 
-var req = httppost(options, body,
-	[{param: 'batch_file', path: filename}], 
+	gc.uploadFile('/grape/data_import/upload', {processing_function: program.file_type}, [{'file': program.file, 'fieldname': 'file_name'}], function(d) {
+		console.log(d);
+		if (d.status == 'OK')
+		{
+			console.log("Upload successful");
+			
+			if (program.process)
+			{
+				console.log("Processing " + d.data_import_id[0]);
+				gc.postJSON('/grape/data_import/process', {data_import_id: d.data_import_id[0]}, function(d) {
+					console.log(d);
+					gc.logout();
+				});
+			}
+			else
+			{
+				gc.logout();
+			}
+		}
+		else
+		{
+			gc.logout();
+		}
+	});
 
-	function(responce) {
+});
 
-		//console.log(responce);
-		var req = responce;
-		req.on('end', function() {
-			console.log("END");
-		});
-
-		req.on('data', function(data) {
-			console.log("DATAAAA");
-			//console.log(data);
-		});
-
-
-		req.on('error', function(err) {
-			console.log("EROR GAAAR");
-			console.log(err);
-		});
-
-	}
-);
+gc.login(program.username, program.password);
 
 

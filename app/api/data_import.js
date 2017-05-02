@@ -38,8 +38,8 @@ exports = module.exports = function(_app) {
 	app.post("/grape/data_import/delete", api_data_import_delete);
 
 /**
- * @desc process given data_import_id data
- * @method post
+ * @desc Apply the process function on the given data_import_id 
+ * @method POST
  * @url /grape/data_import/:data_import_id/process
  * @body JSON object containing fields:
  * {
