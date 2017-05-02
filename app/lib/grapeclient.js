@@ -173,7 +173,7 @@ var GrapeClient = function(_o) {
 		function add_file (file)
 		{
 			var contenttype = file.contenttype || 'application/octet-stream';
-			var fieldname = file.fieldname || 'file';
+			var fieldname = file.fieldname || 'file_name';
 			var filename = _path.basename(file.file);
 
 			var f = {
@@ -230,7 +230,7 @@ var GrapeClient = function(_o) {
 
 		if (util.isArray(fields))
 		{
-			files.forEach(function(v) {
+			fields.forEach(function(v) {
 				add_field(v);
 			});
 		}
@@ -294,6 +294,7 @@ var GrapeClient = function(_o) {
 			pipe_count++;
 
 			readstream.on('end', function() { 
+				req.write("\r\n");
 				pipe_count--;
 				if (pipe_count <= 0)
 				{
