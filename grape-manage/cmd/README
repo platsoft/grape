@@ -1,0 +1,11 @@
+
+A module should have:
+	- "info" object with the following fields:
+		* description text
+		* db boolean
+	- "run" function, accepting 2 parameters, options and a callback. the callback should always be called after the command is done or on error. Provide one error object for the callback if an error occured. The options arguments will contain the following fields:
+		* db - database object (if info.db is true)
+		* argv - the arguments that can be passed into commander
+		* funcs - an object containing utility functions
+	
+

@@ -29,5 +29,8 @@
 		"jsonschema": "1.1.1",
 		"pg-connection-string": "0.1.3"
 	},
-	"devDependencies": {}
+	"devDependencies": {},
+	"bin": {
+		"grape-manage": "./grape-manage/grape-manage.js"
+	}
 }

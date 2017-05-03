@@ -262,6 +262,7 @@ exports = module.exports = function(_o) {
 
 		req.matched_path = null;
 
+
 		for (var i = 0; i < app._router.stack.length; i++)
 		{
 			if (!app._router.stack[i].route) 

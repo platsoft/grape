@@ -141,4 +141,13 @@ Major changes:
 - GrapeForgotPassword will now reset the password if passwords in the system are hashed
 - Fixed bug GR29 in list query (Ettienne)
 
+1.0.6:
+Bug fixes:
+- Fix password sent in password forgot email
+- Fixed GrapeClient issues with uploading files
+
+New features:
+- Script to upload files to /grape/data_import/upload and optionally process it
+- Modular grape-manage script that will replace manage.sh
+
 
