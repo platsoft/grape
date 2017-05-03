@@ -314,7 +314,7 @@ BEGIN
 		IF _return_code = -2 THEN
 			RETURN grape.api_error('You do not have permission to process data_imports.', -2);
 		ELSIF _return_code = -1 THEN
-			RETURN grape.api_error('The proc_process_data_import process is missing. Please contact Merlot developers.', -1);
+			RETURN grape.api_error('The proc_process_data_import process is missing. Please contact your system administrator.', -1);
         ELSE
             UPDATE grape.data_import 
                 SET data_import_status=2 -- Process started
