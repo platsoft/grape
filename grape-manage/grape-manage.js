@@ -9,20 +9,49 @@ var grape_options = require(__dirname + '/../app/lib/options.js');
 var pg = require('pg');
 var funcs = require('./funcs');
 
+var base_directory = process.cwd();
+var modules = [];
+var running_module = null;
+var dbconn = null;
+var builtin_commands = {};
+
+
+// Extract possible --project-dir=DIRNAME. I guess we should use commander here
+if (process.argv[2].substring(0, 13) == '--project-dir')
+{
+	var c = null;
+	if (process.argv[2][13] == '=')
+	{
+		c = '=';
+		var ar = process.argv[2].split(c);
+		base_directory = path.resolve(ar[1]);
+		process.argv.splice(2, 1);
+	}
+	else if (process.argv[2].length == 13)
+	{
+		base_directory = path.resolve(process.argv[3]);
+		process.argv.splice(2, 2);
+	}
+	else
+	{
+		print_help();
+		process.exit(1);
+	}
+
+}
+
+
+
+
 try {
-	var config = require(process.cwd() + '/config.js');
+	var config = require(base_directory + '/config.js');
 } catch (e) {
-	console.log("No config.js file found! Make sure that you are in a project directory and $PWD/config.js exists before continuing");
+	console.log("No config.js file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
 	process.exit(1);
 }
 
 var options = grape_options(config);
 
-var modules = [];
-var running_module = null;
-var dbconn = null;
-var builtin_commands = {};
-var base_directory = process.cwd();
 
 function debug(msg)
 {
@@ -108,6 +137,7 @@ function done(err)
 
 function run()
 {
+
 	if (process.argv.length <= 2)
 	{
 		print_help();
