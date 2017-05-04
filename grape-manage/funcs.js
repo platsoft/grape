@@ -11,6 +11,11 @@ module.exports.print_error = function(str) {
 	console.log(colors.red(str));
 };
 
+module.exports.print_warn = function(str) {
+	console.log(colors.yellow(str));
+};
+
+
 // align left
 module.exports.align = function(str, length) {
 	if (!str)

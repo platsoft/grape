@@ -22,6 +22,7 @@ var modules = [];
 var running_module = null;
 var dbconn = null;
 var builtin_commands = {};
+var base_directory = process.cwd();
 
 function debug(msg)
 {
@@ -145,7 +146,8 @@ function run()
 							db: dbconn, 
 							argv: argv, 
 							options: options,
-							funcs: funcs
+							funcs: funcs,
+							base_directory: base_directory
 						}, done);
 					});
 				}
@@ -156,7 +158,8 @@ function run()
 						db: null,
 						argv: argv,
 						options: options,
-						funcs: funcs
+						funcs: funcs,
+						base_directory: base_directory
 					}, done);
 				}
 
