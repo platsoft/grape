@@ -11,4 +11,15 @@ module.exports.print_error = function(str) {
 	console.log(colors.red(str));
 };
 
+// align left
+module.exports.align = function(str, length) {
+	if (!str)
+		var ret = '';
+	else
+		var ret = str.toString();
+	for (var i = ret.length; i < length; i++)
+		ret = ret + ' ';
+	return ret;
+};
+
 

@@ -3,6 +3,7 @@
 // Reads __dirname + cmd/ for commands
 
 var fs = require('fs');
+var util = require('util');
 var path = require('path');
 var grape_options = require(__dirname + '/../app/lib/options.js');
 var pg = require('pg');
@@ -67,7 +68,7 @@ function process_directory(dirname, cb)
 					}
 				} catch (e) {
 					console.log("Error while loading " + jsfile_path);
-					console.log(e);
+					console.log(e.stack);
 				}
 			}
 		});
@@ -101,6 +102,7 @@ function done(err)
 	{
 		dbconn.end();
 	}
+	process.exit(1);
 }
 
 function run()
