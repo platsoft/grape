@@ -43,7 +43,7 @@ The data/ directory.
 
 
 <h2>Creating the database</h2>
-grape_tools contains a script called <i>setup_database</i> to create a database from a typical setup described above. 
+grape-tools contains a script called <i>setup_database</i> to create a database from a typical setup described above. If grape-tools is installed using <icode>npm -g grape-tools</icode>, setup_database will be available in the environment.
 <code>
   Usage: setup_database [options] [config_file] | [directory directory directory ...]
 
@@ -66,5 +66,8 @@ If a config.js file is provided to setup_database, SQL files will be loaded in t
 If the <i>-r, --recreate</i> option is specified, a "CREATE DATABASE" statement will be executed in a seperate connection before the other files are loaded.
 </p>
 
+<h3>File order</h3>
+setup_database loads SQL files alphabetically. Sometimes it might be necessary to explicitely change this load order. This can be done by adding a <i>-- Require: </i> pre-processing instruction in the SQL file. The file that is Require'd, will be loaded before the file containing the instruction. For example, having the following in an SQL file called file.sql, will force the loading of other_file.sql before file.sql:
+<code>-- Require: other_file.sql</code>
 
 </ps_doc>
