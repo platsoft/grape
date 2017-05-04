@@ -74,7 +74,7 @@ GrapeCmd.run = function(opts, cb) {
 			username: ar[0],
 			email: ar[1],
 			password: ar[2],
-			roles: ar[3],
+			role_names: ar[3],
 			guid: ar[4],
 			fullnames: ar[5]
 		};
