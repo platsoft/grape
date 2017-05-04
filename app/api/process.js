@@ -2,6 +2,8 @@
 var fs = require('fs');
 var path = require('path');
 var child_process = require('child_process');
+var process = require('process');
+var bgworker_lib = require(path.resolve(__dirname + '/../lib/ps_bgworker'));
 
 var app;
 
@@ -241,61 +243,12 @@ function api_download_schedule_logfile (req, res)
 }
 
 
-function get_bgworker_status(cb)
+function api_bgworker_status(req, res)
 {
 	var config = app.get('config');
 	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
 
-	child_process.exec([ps_bgworker_path, '--status'].join(' '),
-		{
-			timeout: 2000,
-			encoding: 'utf8'
-		},
-		function(err, stdout, stderr) {
-			if (err && !stdout)
-			{
-				cb(err, {stdout: stdout, stderr: stderr});
-				return;
-			}
-
-			var obj = {pid: 0, cmdline: ''};
-
-			var lines = stdout.split("\n");
-			if (lines[0] == "Not running")
-			{
-				cb(null, obj);
-			}
-			else
-			{
-				lines.forEach(function(line) {
-					if (line.trim() != '')
-					{
-						var ar = line.split(':');
-						if (ar.length == 2)
-						{
-							var k = ar[0];
-							if (k == 'PID')
-							{
-								obj.pid = parseInt(ar[1]);
-							}
-							else if (k == 'CMDLINE')
-							{
-								obj.cmdline = ar[1];
-							}
-						}
-					}
-				});
-
-				cb(null, obj);
-			}
-		}
-	);
-
-}
-
-function api_bgworker_status(req, res)
-{
-	get_bgworker_status(function(err, obj) {
+	bgworker_lib.get_bgworker_status(ps_bgworker_path, function(err, obj) {
 		if (err)
 		{
 			res.status(500).json({'status': 'ERROR', 'error': err}).end();
@@ -334,13 +287,17 @@ function api_bgworker_start(req, res)
 
 function api_bgworker_stop (req, res)
 {
-	get_bgworker_status(function(err, obj) {
+
+	var config = app.get('config');
+	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
+
+	bgworker_lib.get_bgworker_status(ps_bgworker_path, function(err, obj) {
 		if (err)
 		{
 			res.status(500).json({'status': 'ERROR', 'error': err}).end();
 			return;
 		}
-		child_process.execSync('kill ' + obj.pid);
+		process.kill(obj.pid);
 		res.status(200).json({'status': 'OK', 'pid': obj.pid}).end();
 	});
 }
