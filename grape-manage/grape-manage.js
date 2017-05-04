@@ -17,7 +17,7 @@ var builtin_commands = {};
 
 
 // Extract possible --project-dir=DIRNAME. I guess we should use commander here
-if (process.argv[2].substring(0, 13) == '--project-dir')
+if (process.argv[2] && process.argv[2].substring(0, 13) == '--project-dir')
 {
 	var c = null;
 	if (process.argv[2][13] == '=')
