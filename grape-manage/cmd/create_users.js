@@ -12,7 +12,7 @@ GrapeCmd.info = {
 // opts will contain: db, argv
 GrapeCmd.run = function(opts, cb) {
 	commander
-		.option('-f, --file [file]', 'CSV file containing list of users (columns <username>;<email>;<password>;<roles>;<guid>) ')
+		.option('-f, --file [file]', 'CSV file containing list of users (columns <username>;<email>;<password>;<roles>;<guid>;<fullnames>) ')
 		.parse(opts.argv);
 
 	if (!commander.file)
@@ -61,19 +61,22 @@ GrapeCmd.run = function(opts, cb) {
 			var ar = line.split(',');
 			if (ar.length < 4)
 			{
-				cb("Invalid file format. File should contain <username>;<email>;<password>;<roles>;<guid>");
+				cb("Invalid file format. File should contain <username>;<email>;<password>;<roles>;<guid>;<fullnames>");
 			}
 		}
 
 		if (!ar[4])
 			ar[4] = null;
+		if (!ar[5])
+			ar[5] = ar[0];
 
 		var obj = {
 			username: ar[0],
 			email: ar[1],
 			password: ar[2],
 			roles: ar[3],
-			guid: ar[4]
+			guid: ar[4],
+			fullnames: ar[5]
 		};
 
 		counter++;

@@ -86,7 +86,7 @@ function print_help()
 	console.log("\tCommands:");
 	console.log();
 		
-	console.log("\t\t", "help", "\t\t", "Prints information for a command");
+	//console.log("\t\t", "help", "\t\t", "Prints information for a command");
 	console.log("\t\t", "list", "\t\t", "Lists all available commands");
 
 	modules.forEach(function(module) {
@@ -175,8 +175,10 @@ function run()
 
 
 process_directory(__dirname + '/cmd', function(err, modules) {
-	process_directory(process.cwd() + '/cmd', function(err, modules) {
-		run();
+	process_directory(base_directory + '/cmd', function(err, modules) {
+		process_directory(base_directory + '/scripts/cmd', function(err, modules) {
+			run();
+		});
 	});
 });
 
