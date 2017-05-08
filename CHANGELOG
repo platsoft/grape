@@ -145,6 +145,8 @@ Major changes:
 Bug fixes:
 - Fix password sent in password forgot email
 - Fixed GrapeClient issues with uploading files
+- Fixed data import upload if spreadsheet has missing header (this caused the server to restart)
+- Fixed serious race condition bug - queries are allowed through, even though grape.user_id is not set in the SQL
 
 New features:
 - Script to upload files to /grape/data_import/upload and optionally process it

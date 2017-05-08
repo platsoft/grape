@@ -217,7 +217,8 @@ function api_data_import(req, res)
 				for (var col = 0; col <= max_col; col++)
 				{
 					var address = XLSX.utils.encode_cell({r: 0, c: col});
-					headers.push(worksheet[address].v);
+					if (worksheet[address])
+						headers.push(worksheet[address].v);
 				}
 
 				for (var row = 1; row <= max_row; row++)

@@ -103,7 +103,7 @@ function db (_o) {
 			if (self.options.debug)
 			{
 				self.emit('debug', "Database error [" + self.options.session_id + "]:" + util.inspect(msg));
-				self.emit('debug', "Query counter [" + self.options.session_id + "]: " + self.query_counter);
+				self.emit('debug', "Query counter DBERR [" + self.options.session_id + "]: " + self.query_counter);
 			}
 
 
@@ -187,7 +187,7 @@ function db (_o) {
 
 		self.query_counter++;
 		if (self.options.debug)
-			self.emit('debug', "Query counter [" + self.options.session_id + "]: " + self.query_counter);
+			self.emit('debug', "Query counter QS [" + self.options.session_id + "]: " + self.query_counter);
 
 		self.last_query_time = new Date();
 
@@ -203,7 +203,7 @@ function db (_o) {
 				self.emit('error', err);
 				self.query_counter--;
 				if (self.options.debug)
-					self.emit('debug', "Query counter [" + self.options.session_id + "]: " + self.query_counter);
+					self.emit('debug', "Query counter QERR [" + self.options.session_id + "]: " + self.query_counter);
 
 				callback(err, null);
 			});
@@ -211,7 +211,7 @@ function db (_o) {
 			qry.on('end', function(result) {
 				self.query_counter--;
 				if (self.options.debug)
-					self.emit('debug', "Query counter [" + self.options.session_id + "]: " + self.query_counter);
+					self.emit('debug', "Query counter QEND [" + self.options.session_id + "]: " + self.query_counter);
 				
 				callback(null, result);
 			});

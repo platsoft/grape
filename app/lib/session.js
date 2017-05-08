@@ -97,7 +97,16 @@ module.exports = function (app)
 			{
 				req.db = dbs[session_id];
 				res.locals.db = dbs[session_id];
-				next();
+				if (dbs[session_id].state == 'connecting')
+				{
+					dbs[session_id].on('connected', function() {
+						next();
+					});
+				}
+				else
+				{
+					next();
+				}
 			}
 			else
 			{

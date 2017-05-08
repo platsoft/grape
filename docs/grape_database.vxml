@@ -41,6 +41,13 @@ The data/ directory.
 	<li>Avoid too many indexes on a table</li>
 </ul>
 
+<h2>Schemas</h2>
+By default, grape applications will use the following schemas:
+<ul>
+	<li>public</li>
+	<li>grape</li>
+	<li>proc</li>
+</ul>
 
 <h2>Creating the database</h2>
 grape-tools contains a script called <i>setup_database</i> to create a database from a typical setup described above. If grape-tools is installed using <icode>npm -g grape-tools</icode>, setup_database will be available in the environment.
