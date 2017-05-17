@@ -184,7 +184,7 @@ BEGIN
 	IF json_extract_path($1, 'auto_scheduler_id') IS NOT NULL THEN
 		_auto_scheduler_id := ($1->>'auto_scheduler_id')::INTEGER;
 
-		SELECT process_id, scheduled_interval, dow, days_of_month, day_time, params, user_id, active
+		SELECT process_id, scheduled_interval, dow, days_of_month, day_time, run_with_params, run_as_user_id, active
 		INTO _process_id, _scheduled_interval, _dow, _dom, _time, _run_with_params, _run_as_user_id, _active
 			FROM grape.auto_scheduler
 			WHERE auto_scheduler_id=_auto_scheduler_id::INTEGER;
