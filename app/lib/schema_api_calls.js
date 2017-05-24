@@ -38,7 +38,7 @@ function create_schema_api_call(app, obj)
 
 	/* TODO
 	var func_check_roles = function(req, res) {
-		
+
 	};
 	*/
 
@@ -49,6 +49,10 @@ function create_schema_api_call(app, obj)
 			try
 			{
 				var obj = req.body;
+				if (obj !== null && obj !== undefined)
+				{
+					Object.assign(obj, req.params);
+				}
 
 				if (param.no_validation === false)
 				{
@@ -83,7 +87,7 @@ function create_schema_api_call(app, obj)
 				});
 			}
 		};
-		
+
 		app.post(param.id, [func_db_call]);
 
 	}
