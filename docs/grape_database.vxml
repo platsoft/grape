@@ -26,6 +26,17 @@ Database functions (like API call handlers or business logic) usually resides in
 <red>TODO</red>
 The data/ directory.
 
+<h3>Indexes</h3>
+<p>
+Always make indexes on the following columns:
+<ul>
+	<li>Any column that is referenced by a foreign key</li>
+	<li>Any column that references a foreign key</li>
+	<li>Any column that is used (in the WHERE clause of queries) often</li>
+</ul>
+Remember that primary key columns automatically have indexes assigned to them. 
+</p>
+
 <h3>Naming conventions</h3>
 <ul>
 	<li>Keep table names lowercase, with words separated by underscore</li>
