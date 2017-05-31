@@ -307,16 +307,23 @@ BEGIN
 		RETURN grape.api_error('Data import is not in correct status to be procesed', -2);
 	END IF;
 
-	UPDATE grape.data_import 
-		SET data_import_status=2 -- Process started
-		WHERE data_import_id=_data_import_id::INTEGER;
-
 	_dataimport_in_background := (grape.get_value('dataimport_in_background', 'false'))::BOOLEAN;
 
 	IF _dataimport_in_background = TRUE THEN
-		PERFORM grape.start_process('proc_process_data_import', json_build_object('data_import_id', _data_import_id));
-		_return_code := 2;
+		SELECT grape.start_process('proc_process_data_import', json_build_object('data_import_id', _data_import_id)) INTO _return_code;
+		IF _return_code = -2 THEN
+			RETURN grape.api_error('You do not have permission to process data_imports.', -2);
+		ELSIF _return_code = -1 THEN
+			RETURN grape.api_error('The proc_process_data_import process is missing. Please contact your system administrator.', -1);
+        ELSE
+            UPDATE grape.data_import 
+                SET data_import_status=2 -- Process started
+                WHERE data_import_id=_data_import_id::INTEGER;
+		END IF;
 	ELSE
+        UPDATE grape.data_import 
+            SET data_import_status=2 -- Process started
+            WHERE data_import_id=_data_import_id::INTEGER;
 		_return_code := grape.data_import_process(_data_import_id);
 	END IF;
 
