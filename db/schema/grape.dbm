@@ -278,7 +278,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import">
 	<schema name="grape"/>
-	<position x="860" y="700"/>
+	<position x="1252" y="729"/>
 	<column name="data_import_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -334,7 +334,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_row">
 	<schema name="grape"/>
-	<position x="1320" y="680"/>
+	<position x="1667" y="730"/>
 	<column name="data_import_row_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -384,7 +384,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_registry">
 	<schema name="grape"/>
-	<position x="620" y="1200"/>
+	<position x="771" y="1877"/>
 	<column name="system_registry_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -410,7 +410,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_routing">
 	<schema name="grape"/>
-	<position x="260" y="1700"/>
+	<position x="398" y="2202"/>
 	<column name="system_routing_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -427,7 +427,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_public_key">
 	<schema name="grape"/>
-	<position x="300" y="1240"/>
+	<position x="450" y="1881"/>
 	<column name="system_registry_id" not-null="true">
 		<type name="integer"/>
 	</column>
@@ -441,7 +441,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_private">
 	<schema name="grape"/>
-	<position x="20" y="1240"/>
+	<position x="157" y="1879"/>
 	<column name="system_private_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -455,7 +455,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_type">
 	<schema name="grape"/>
-	<position x="1360" y="840"/>
+	<position x="1707" y="890"/>
 	<column name="processing_function" not-null="true">
 		<type name="text"/>
 	</column>
@@ -501,14 +501,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report">
 	<schema name="grape"/>
-	<position x="40" y="960"/>
+	<position x="58" y="1346"/>
 	<column name="report_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="name">
-		<type name="text"/>
-	</column>
-	<column name="description">
 		<type name="text"/>
 	</column>
 	<column name="function_name">
@@ -517,18 +514,23 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="function_schema">
 		<type name="text"/>
 	</column>
-	<column name="input_fields" default-value="'{}'::JSON">
+	<column name="ui_params" default-value="'{}'::JSON">
 		<type name="json"/>
 		<comment><![CDATA[JSON array with fields, Ex. [{name: date_begin, type: date}, {name: date_end, type: date}]]]></comment>
 	</column>
-	<column name="report_type">
+	<column name="output_format">
 		<type name="text"/>
+		<comment><![CDATA[Structure of the output data - TEXT or ROW or TABLE]]></comment>
 	</column>
 	<column name="active" default-value="TRUE">
 		<type name="boolean"/>
 	</column>
 	<column name="cache_time">
 		<type name="interval"/>
+		<comment><![CDATA[How long a result is valid for]]></comment>
+	</column>
+	<column name="report_category_id">
+		<type name="serial"/>
 	</column>
 	<constraint name="report_pk" type="pk-constr" table="grape.report">
 		<columns names="report_id" ref-type="src-columns"/>
@@ -537,7 +539,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="reports_executed">
 	<schema name="grape"/>
-	<position x="500" y="960"/>
+	<position x="487" y="1088"/>
 	<column name="reports_executed_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -550,23 +552,17 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="date_inserted" default-value="NOW()">
 		<type name="timestamptz"/>
 	</column>
-	<column name="result_table_schema">
-		<type name="text"/>
-	</column>
-	<column name="result_table_name">
-		<type name="text"/>
-	</column>
-	<column name="result_filename">
-		<type name="text"/>
-	</column>
 	<column name="is_deleted" default-value="TRUE">
 		<type name="boolean"/>
 	</column>
 	<column name="report_seq">
 		<type name="integer"/>
 	</column>
-	<column name="input_fields">
+	<column name="params">
 		<type name="json"/>
+	</column>
+	<column name="report_template_id">
+		<type name="integer"/>
 	</column>
 	<constraint name="reports_executed_pk" type="pk-constr" table="grape.reports_executed">
 		<columns names="reports_executed_id" ref-type="src-columns"/>
@@ -617,7 +613,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="table_view" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="740" y="1620"/>
+	<position x="819" y="2229"/>
 	<column name="table_view_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -696,7 +692,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="list_query_whitelist">
 	<schema name="grape"/>
-	<position x="1000" y="1180"/>
+	<position x="1507" y="1411"/>
 	<column name="schema" not-null="true">
 		<type name="text"/>
 	</column>
@@ -811,7 +807,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="test_table">
 	<schema name="grape"/>
-	<position x="1320" y="960"/>
+	<position x="1667" y="1010"/>
 	<column name="test_table_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -883,7 +879,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document_store" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="60" y="1340"/>
+	<position x="105" y="1977"/>
 	<column name="document_store_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -910,7 +906,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="700" y="1340"/>
+	<position x="1057" y="1944"/>
 	<column name="document_id" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -955,7 +951,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document_store_document" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="260" y="1580"/>
+	<position x="501" y="2088"/>
 	<column name="document_id" not-null="true">
 		<type name="integer"/>
 	</column>
@@ -972,7 +968,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="table_operation_whitelist">
 	<schema name="grape"/>
-	<position x="1340" y="1280"/>
+	<position x="1507" y="1495"/>
 	<column name="schema" not-null="true">
 		<type name="text"/>
 	</column>
@@ -1082,6 +1078,182 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
+<table name="report_template">
+	<schema name="grape"/>
+	<position x="504" y="1370"/>
+	<column name="report_template_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="report_id">
+		<type name="integer"/>
+	</column>
+	<column name="description">
+		<type name="text"/>
+	</column>
+	<column name="params">
+		<type name="json"/>
+	</column>
+	<constraint name="report_template_pk" type="pk-constr" table="grape.report_template">
+		<columns names="report_template_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="rt_report_idx" table="grape.report_template"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="report_id"/>
+		</idxelement>
+</index>
+
+<table name="report_output">
+	<schema name="grape"/>
+	<comment><![CDATA[Parameters passed on to the output function]]></comment>
+	<position x="1087" y="1446"/>
+	<column name="report_output_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="report_output_type_id">
+		<type name="integer"/>
+	</column>
+	<column name="description">
+		<type name="text"/>
+	</column>
+	<column name="params">
+		<type name="json"/>
+		<comment><![CDATA[with]]></comment>
+	</column>
+	<constraint name="report_output_pk" type="pk-constr" table="grape.report_output">
+		<columns names="report_output_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="report_output_type">
+	<schema name="grape"/>
+	<position x="1090" y="1683"/>
+	<column name="report_output_type_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="description">
+		<type name="text"/>
+	</column>
+	<column name="ui_params">
+		<type name="json"/>
+		<comment><![CDATA[Params to build the GUI ]]></comment>
+	</column>
+	<column name="function_name">
+		<type name="text"/>
+	</column>
+	<column name="function_schema">
+		<type name="text"/>
+	</column>
+	<constraint name="report_output_type_pk" type="pk-constr" table="grape.report_output_type">
+		<columns names="report_output_type_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="report_result">
+	<schema name="grape"/>
+	<position x="1003" y="1109"/>
+	<column name="report_result_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="reports_executed_id">
+		<type name="integer"/>
+	</column>
+	<column name="text_result">
+		<type name="text"/>
+		<comment><![CDATA[Used when the report's output_type is TEXT]]></comment>
+	</column>
+	<column name="row_result">
+		<type name="jsonb"/>
+		<comment><![CDATA[Used when the report's output_type is ROW]]></comment>
+	</column>
+	<column name="result_table_name">
+		<type name="text"/>
+	</column>
+	<column name="result_table_schema">
+		<type name="text"/>
+	</column>
+	<constraint name="reports_executed_result_pk" type="pk-constr" table="grape.report_result">
+		<columns names="report_result_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="report_result_output">
+	<schema name="grape"/>
+	<position x="1080" y="1299"/>
+	<column name="report_result_output_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="report_result_id">
+		<type name="integer"/>
+	</column>
+	<column name="report_output_id">
+		<type name="integer"/>
+	</column>
+	<constraint name="report_result_output_pk" type="pk-constr" table="grape.report_result_output">
+		<columns names="report_result_output_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="report_template_output">
+	<schema name="grape"/>
+	<position x="715" y="1573"/>
+	<column name="report_template_output_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="report_template_id">
+		<type name="integer"/>
+	</column>
+	<column name="report_output_id">
+		<type name="integer"/>
+	</column>
+	<constraint name="report_template_output_pk" type="pk-constr" table="grape.report_template_output">
+		<columns names="report_template_output_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="report_role">
+	<schema name="grape"/>
+	<position x="309" y="1584"/>
+	<column name="report_role_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="report_id">
+		<type name="integer"/>
+	</column>
+	<column name="role_name">
+		<type name="text"/>
+	</column>
+	<column name="can_view" default-value="FALSE">
+		<type name="boolean"/>
+	</column>
+	<column name="can_edit" default-value="FALSE">
+		<type name="boolean"/>
+	</column>
+	<column name="can_execute">
+		<type name="boolean"/>
+	</column>
+	<constraint name="report_role_pk" type="pk-constr" table="grape.report_role">
+		<columns names="report_role_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="report_category">
+	<schema name="grape"/>
+	<position x="61" y="1221"/>
+	<column name="report_category_id" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="report_category">
+		<type name="text"/>
+	</column>
+	<constraint name="report_category_pk" type="pk-constr" table="grape.report_category">
+		<columns names="report_category_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_role">
 	<columns names="user_id" ref-type="src-columns"/>
@@ -1136,10 +1308,22 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="data_import_id" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="r_report_category_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report_category" table="grape.report">
+	<columns names="report_category_id" ref-type="src-columns"/>
+	<columns names="report_category_id" ref-type="dst-columns"/>
+</constraint>
+
 <constraint name="re_reports_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report" table="grape.reports_executed">
 	<columns names="report_id" ref-type="src-columns"/>
 	<columns names="report_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="re_report_template_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report_template" table="grape.reports_executed">
+	<columns names="report_template_id" ref-type="src-columns"/>
+	<columns names="report_template_id" ref-type="dst-columns"/>
 </constraint>
 
 <constraint name="session_user_fk" type="fk-constr" comparison-type="MATCH FULL"
@@ -1188,6 +1372,54 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.network" sql-disabled="true" table="grape.user_network">
 	<columns names="network_id" ref-type="src-columns"/>
 	<columns names="network_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="report_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report" table="grape.report_template">
+	<columns names="report_id" ref-type="src-columns"/>
+	<columns names="report_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="ro_report_output_type_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report_output_type" table="grape.report_output">
+	<columns names="report_output_type_id" ref-type="src-columns"/>
+	<columns names="report_output_type_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="reports_executed_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.reports_executed" table="grape.report_result">
+	<columns names="reports_executed_id" ref-type="src-columns"/>
+	<columns names="reports_executed_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="report_result_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report_result" table="grape.report_result_output">
+	<columns names="report_result_id" ref-type="src-columns"/>
+	<columns names="report_result_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="reo_report_output_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report_output" table="grape.report_result_output">
+	<columns names="report_output_id" ref-type="src-columns"/>
+	<columns names="report_output_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="report_template_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report_template" table="grape.report_template_output">
+	<columns names="report_template_id" ref-type="src-columns"/>
+	<columns names="report_template_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="rto_report_output_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report_output" table="grape.report_template_output">
+	<columns names="report_output_id" ref-type="src-columns"/>
+	<columns names="report_output_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="rr_report_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report" table="grape.report_role">
+	<columns names="report_id" ref-type="src-columns"/>
+	<columns names="report_id" ref-type="dst-columns"/>
 </constraint>
 
 <relationship name="rel_user_role_user" type="relfk"
@@ -1286,6 +1518,64 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <relationship name="rel_user_network_network" type="relfk"
 	 src-table="grape.user_network"
 	 dst-table="grape.network"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_report_template_report" type="relfk"
+	 src-table="grape.report_template"
+	 dst-table="grape.report"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="0" y="0"/>
+	</label>
+</relationship>
+
+<relationship name="rel_report_output_report_output_type" type="relfk"
+	 src-table="grape.report_output"
+	 dst-table="grape.report_output_type"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="0" y="0"/>
+	</label>
+</relationship>
+
+<relationship name="rel_reports_executed_result_reports_executed" type="relfk"
+	 src-table="grape.report_result"
+	 dst-table="grape.reports_executed"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_report_result_output_report_result" type="relfk"
+	 src-table="grape.report_result_output"
+	 dst-table="grape.report_result"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_report_result_output_report_output" type="relfk"
+	 src-table="grape.report_result_output"
+	 dst-table="grape.report_output"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_report_template_output_report_template" type="relfk"
+	 src-table="grape.report_template_output"
+	 dst-table="grape.report_template"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_report_template_output_report_output" type="relfk"
+	 src-table="grape.report_template_output"
+	 dst-table="grape.report_output"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_reports_executed_report_template" type="relfk"
+	 src-table="grape.reports_executed"
+	 dst-table="grape.report_template"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_report_role_report" type="relfk"
+	 src-table="grape.report_role"
+	 dst-table="grape.report"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_report_report_category" type="relfk"
+	 src-table="grape.report"
+	 dst-table="grape.report_category"
 	 src-required="false" dst-required="false"/>
 
 </dbmodel>
