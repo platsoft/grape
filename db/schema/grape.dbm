@@ -1096,6 +1096,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<constraint name="report_template_pk" type="pk-constr" table="grape.report_template">
 		<columns names="report_template_id" ref-type="src-columns"/>
 	</constraint>
+	<constraint name="report_template_uq" type="uq-constr" table="grape.report_template">
+		<columns names="report_template_id,report_id" ref-type="src-columns"/>
+	</constraint>
 </table>
 
 <index name="rt_report_idx" table="grape.report_template"
@@ -1178,6 +1181,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<constraint name="reports_executed_result_pk" type="pk-constr" table="grape.report_result">
 		<columns names="report_result_id" ref-type="src-columns"/>
 	</constraint>
+	<constraint name="report_result_uq" type="uq-constr" table="grape.report_result">
+		<columns names="report_result_id,reports_executed_id" ref-type="src-columns"/>
+	</constraint>
 </table>
 
 <table name="report_result_output">
@@ -1190,6 +1196,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="integer"/>
 	</column>
 	<column name="report_output_id">
+		<type name="integer"/>
+	</column>
+	<column name="reports_executed_id">
 		<type name="integer"/>
 	</column>
 	<constraint name="report_result_output_pk" type="pk-constr" table="grape.report_result_output">
@@ -1322,8 +1331,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <constraint name="re_report_template_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report_template" table="grape.reports_executed">
-	<columns names="report_template_id" ref-type="src-columns"/>
-	<columns names="report_template_id" ref-type="dst-columns"/>
+	<columns names="report_template_id,report_id" ref-type="src-columns"/>
+	<columns names="report_template_id,report_id" ref-type="dst-columns"/>
 </constraint>
 
 <constraint name="session_user_fk" type="fk-constr" comparison-type="MATCH FULL"
@@ -1394,8 +1403,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <constraint name="report_result_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.report_result" table="grape.report_result_output">
-	<columns names="report_result_id" ref-type="src-columns"/>
-	<columns names="report_result_id" ref-type="dst-columns"/>
+	<columns names="report_result_id,reports_executed_id" ref-type="src-columns"/>
+	<columns names="report_result_id,reports_executed_id" ref-type="dst-columns"/>
 </constraint>
 
 <constraint name="reo_report_output_fk" type="fk-constr" comparison-type="MATCH FULL"
