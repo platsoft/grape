@@ -155,3 +155,27 @@ BEGIN
 
 	RETURN grape.api_success(to_json(_rec));
 END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.set_session_user_id(_user_id INTEGER) RETURNS TEXT AS $$
+	SELECT set_config('grape.user_id'::TEXT, _user_id::TEXT, false);
+$$ LANGUAGE sql;
+
+-- Set current session to username
+CREATE OR REPLACE FUNCTION grape.set_session_username(_username TEXT) RETURNS TEXT AS $$
+	SELECT grape.set_session_user_id(grape.user_id_from_name(_username));
+$$ LANGUAGE sql;
+
+
+
+CREATE OR REPLACE FUNCTION grape.set_session_user_id(JSON) RETURNS JSON AS $$
+DECLARE
+	_user_id INTEGER;
+BEGIN
+	_user_id := ($1->>'user_id')::INTEGER;
+	PERFORM set_config('grape.user_id'::TEXT, _user_id::TEXT, false);
+	RETURN '{}'::JSON;
+END; $$ LANGUAGE plpgsql;
+
+
+
+

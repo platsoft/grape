@@ -153,8 +153,8 @@ function api_data_import(req, res)
 	var data_import_ids = [];
 	var item_queue =  async.queue(function(task, callback) {
 		res.locals.db.json_call('grape.data_import_row_insert', task, function(err, result) { 
-			callback();
 			item_count++;
+			callback();
 		}, {});
 	}, 10);
 	

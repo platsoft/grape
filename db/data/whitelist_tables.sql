@@ -9,6 +9,19 @@ SELECT grape.list_query_whitelist_add('grape',
 	'"process", '
 	'"schedule", '
 	'"setting", '
+	'"v_table_permissions", '
 	'"data_import", '
 	'"data_import_type"}', '{admin}'::TEXT[]);
+
+SELECT grape.table_operation_whitelist_add('grape',
+	'{"access_role"}',
+	'{"admin"}',
+	'INSERT'
+);
+
+SELECT grape.table_operation_whitelist_add('grape',
+	'{"access_role"}',
+	'{"admin"}',
+	'DELETE'
+);
 

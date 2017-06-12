@@ -11,6 +11,9 @@
 
 - pdf generator: pass xsl parameters to the pdfgenerator
 
+- API call to get table information (part of table_operations.sql)
+
 Done:
 - create API calls from JSON schema
 - send email via API call
+

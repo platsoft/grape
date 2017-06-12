@@ -1,7 +1,4 @@
 /**
- * THE FUNCTIONS IN THIS FILE IS STILL A WORK IN PROGRESS
- */
-/**
  * Input schema Schema name
  * Input tables Array of table names
  * Input roles Array of role names
