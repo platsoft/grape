@@ -153,4 +153,8 @@ New features:
 - Script to upload files to /grape/data_import/upload and optionally process it
 - Modular grape-manage script that will replace manage.sh
 
+1.0.7:
+- New API call PGTableInformation
+- Removed deprecated functionality that will send index.html if an API file could not be matched
+
 

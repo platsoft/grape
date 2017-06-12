@@ -184,32 +184,17 @@ exports = module.exports = function(_o) {
 				res.sendFile(lookup_result);
 				return;
 			}
+		
+			logger.log('app', 'error', 'Path not found: ' + pathname);
 
-			// we didn't serve any files from the public directory - if this request accepts json it is most probably an API call
 			if (req.accepts_json)
 			{
-				next();
-				return;
-			}
-
-			// if the path begins with /download, we just allow it to go into the API calls
-			// TODO make this configurable. the API calls should specifically add themselves to a special list if they produce something other than JSON
-			//if (pathname.slice(0, 9) == '/download')
-			//{
-			//	next();
-			//	return;
-			//}
-
-			if (pathname.indexOf('.') >= 0)
-			{
-				// TODO serve 404 error file?
-				res.status(404).send('The path you requested (' + pathname + ') on a non-JSON accepting request could not be found');
+				res.status(404).send({status: 'ERROR', code: -2, message: 'The path you requested (' + pathname + ') could not be found'});
 			}
 			else
 			{
-				console.log("Deprecated use of Grape auto send index.html feature!");
-				app.get('log').trace("Deprecated use of Grape auto send index.html feature!");
-				res.sendfile(public_directories[0] + '/index.html');
+				// TODO serve 404 error file?
+				res.status(404).send('The path you requested (' + pathname + ') could not be found');
 			}
 		});
 	}

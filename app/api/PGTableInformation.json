@@ -1,0 +1,19 @@
+{
+	"description": "Get column information for a table for which the current user has permission to",
+	"id": "/grape/pg/table_info",
+	"name": "PGTableInformation",
+	"sqlfunc": "grape.pg_table_information",
+	"type": "object",
+ 	"properties": {
+		"tablename": {"type": "string", "description": "Table or view name"},
+		"schema": {"type": "string", "description": "Schema name of table or view"}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"columns": {"type": "json", "description": "An array of columns found in the table"},
+			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
+			"message": {"type": "string", "description": "Error message"}
+		}
+	}
+}
