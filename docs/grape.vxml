@@ -30,7 +30,7 @@ Other functionality provided for developers, are:
 
 <include href="grape_init.vxml" parse="vxml" level="1" /> 
 
-<h2>Directory layout</h2>
+<h2 id="sec-grape-dirlayout">Directory layout</h2>
 
 Most Grape applications will have the following directories/files:
 <ul>
