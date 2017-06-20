@@ -1,5 +1,83 @@
 
--- This functions manages grape.list_query_whitelist and grape.table_operation_whitelist
+
+
+CREATE OR REPLACE FUNCTION grape.table_permissions_add(_schema TEXT, _tables TEXT[], _roles TEXT[], _operations TEXT[]) RETURNS INTEGER AS $$
+DECLARE
+	_table TEXT;
+	_role TEXT;
+	_op TEXT;
+BEGIN
+	FOREACH _table IN ARRAY _tables LOOP
+		FOREACH _role IN ARRAY _roles LOOP
+			FOREACH _op IN ARRAY _operations LOOP
+				PERFORM grape.table_permissions_add(_schema::TEXT, _table::TEXT, _role::TEXT, _op::TEXT);
+			END LOOP;
+		END LOOP;
+	END LOOP;
+	RETURN 0;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.table_permissions_add(_schema TEXT, _tables TEXT[], _roles TEXT[], _op TEXT) RETURNS INTEGER AS $$
+DECLARE
+	_table TEXT;
+	_role TEXT;
+BEGIN
+	FOREACH _table IN ARRAY _tables LOOP
+		FOREACH _role IN ARRAY _roles LOOP
+			PERFORM grape.table_permissions_add(_schema::TEXT, _table::TEXT, _role::TEXT, _op::TEXT);
+		END LOOP;
+	END LOOP;
+	RETURN 0;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.table_permissions_add(_schema TEXT, _table TEXT, _role TEXT, _operations TEXT[]) RETURNS INTEGER AS $$
+DECLARE
+	_op TEXT;
+BEGIN
+	FOREACH _op IN ARRAY _operations LOOP
+		PERFORM grape.table_permissions_add(_schema::TEXT, _table::TEXT, _role::TEXT, _op::TEXT);
+	END LOOP;
+	RETURN 0;
+END; $$ LANGUAGE plpgsql;
+
+
+
+
+CREATE OR REPLACE FUNCTION grape.table_permissions_add(_schema TEXT, _tablename TEXT, _rolename TEXT, _operation TEXT) RETURNS BOOLEAN AS $$
+DECLARE
+	_roles TEXT[];
+BEGIN
+	IF _operation = 'SELECT' THEN
+		SELECT roles INTO _roles FROM grape.list_query_whitelist WHERE schema=_schema::TEXT AND tablename=_tablename::TEXT;
+		IF NOT FOUND THEN
+			INSERT INTO grape.list_query_whitelist (schema, tablename, roles)
+				VALUES (_schema, _tablename, ARRAY[_rolename]::TEXT[]);
+		ELSE
+			IF array_position(_roles, _rolename) IS NULL THEN
+				UPDATE grape.list_query_whitelist SET roles=roles || _rolename::TEXT 
+					WHERE schema=_schema::TEXT AND tablename=_tablename::TEXT;
+			END IF;
+		END IF;
+	ELSE
+		SELECT roles INTO _roles FROM grape.table_operation_whitelist WHERE 
+			schema=_schema::TEXT 
+			AND tablename=_tablename::TEXT 
+			AND allowed_operation=_operation::TEXT;
+
+		IF NOT FOUND THEN
+			INSERT INTO grape.table_operation_whitelist (schema, tablename, roles, allowed_operation)
+				VALUES (_schema, _tablename, ARRAY[_rolename]::TEXT[], _operation::TEXT);
+		ELSE
+			IF array_position(_roles, _rolename) IS NULL THEN
+				UPDATE grape.table_operation_whitelist SET roles=roles || _rolename::TEXT 
+					WHERE schema=_schema::TEXT AND tablename=_tablename::TEXT AND allowed_operation=_operation::TEXT;
+			END IF;
+		END IF;
+	END IF;
+	RETURN TRUE;
+END; $$ LANGUAGE plpgsql;
+
+
 
 /**
  * Returns all permissions for the current user
@@ -99,6 +177,9 @@ BEGIN
 		RETURN FALSE;
 	END IF;
 END; $$ LANGUAGE plpgsql;
+
+
+
 
 /**
  * Input schema Schema name
