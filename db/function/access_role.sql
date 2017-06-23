@@ -17,5 +17,6 @@ BEGIN
 	IF NOT EXISTS (SELECT 1 FROM grape.access_role WHERE role_name=_role_name::TEXT) THEN
 		INSERT INTO grape.access_role(role_name) VALUES (_role_name);
 	END IF;
+	RETURN _role_name;
 END; $$ LANGUAGE plpgsql;
 
