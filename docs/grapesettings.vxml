@@ -24,5 +24,6 @@ Grape stores internal settings in the table <tname>grape.setting</tname>. The fo
 	<tr><td>system_url</td><td>URL to access system's frontend</td><td></td></tr>
 	<tr><td id="setting-dataimport_in_background">dataimport_in_background</td><td>Run data import processing functions in the background</td><td>false</td></tr>
 	<tr><td id="setting-filter_processes">filter_processes</td><td>Apply role based filtering on processes</td><td>false</td></tr>
+	<tr><td id="setting-user_ip_filter">user_ip_filter</td><td>Enable user IP filters</td><td>false</td></tr>
 </table>
 </ps_doc>

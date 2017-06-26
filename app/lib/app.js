@@ -27,7 +27,7 @@ exports = module.exports = function(_o) {
 	/**
 	 * Sets up database
 	 */
-	function setup_database(app)
+	function init_database(app)
 	{
 		var options = app.get('config');
 		if (options.dburi)
@@ -51,8 +51,6 @@ exports = module.exports = function(_o) {
 				app.get('logger').log('db', 'info', 'Database disconnected. Restarting');
 				db.connect();
 			});
-
-
 			
 			app.set('db', db);
 
@@ -134,137 +132,6 @@ exports = module.exports = function(_o) {
 	}
 
 
-	function setup_public_directory(app)
-	{
-
-		// Tries to serve a file in one of the app's public directories
-		app.use(function(req, res, next)
-		{
-			// Matched an API call
-			if (req.matched_path && req.matched_path != '')
-			{
-				app.get('logger').debug('api', 'Matched API call ' + req.matched_path);
-				next();
-				return;
-			}
-
-			var pathname = decodeURI(req.path);
-			var lookup_result = null;
-
-			// special GET request / will change the request to /index.html
-			if (pathname == '/')
-			{
-				pathname = '/index.html';
-			}
-
-			// check if the path exists in one of our public directories
-			// only do this check if the request is a GET
-			// if it accepts JSON, and the path ends with .json, also look for the file
-			if (req.method == 'GET' && (!req.accepts_json || path.extname(pathname) == 'json'))
-			{
-				var public_directories = app.get('config').public_directories;
-				for (var i = 0; i < public_directories.length; i++)
-				{
-					// TODO cache this
-					try {
-						var fullpath = path.normalize([public_directories[i], '/', pathname].join(''));
-						var stat = fs.statSync(fullpath);
-						if (stat.isFile())
-						{
-							lookup_result = path.normalize(fullpath);
-							break;
-						}
-					} catch (e) {
-					}
-				}
-			}
-
-			if (lookup_result != null)
-			{
-				res.sendFile(lookup_result);
-				return;
-			}
-		
-			logger.log('app', 'error', 'Path not found: ' + pathname);
-
-			if (req.accepts_json)
-			{
-				res.status(404).send({status: 'ERROR', code: -2, message: 'The path you requested (' + pathname + ') could not be found'});
-			}
-			else
-			{
-				// TODO serve 404 error file?
-				res.status(404).send('The path you requested (' + pathname + ') could not be found');
-			}
-		});
-	}
-
-	//Setup functions for auto create of API calls
-	var create_api_calls = require(__dirname + '/create_api_calls.js');
-	create_api_calls(app);
-
-
-	// The first handler to be called on a new request
-	// This handler appends session information to the request for further processing
-	// It will add the following variables to req:
-	//	session_id
-	//	accepts_json (true or false)
-	//	db
-	app.use(function(req, res, next)
-	{
-		req.session_id = null;
-
-		if (req.header('X-SessionID'))
-			req.session_id = req.header('X-SessionID');
-
-		if (req.headers.accept)
-			var accept = req.headers.accept.substring(0, req.headers.accept.indexOf(';'));
-		else
-			accept = null;
-
-		logger.log('app', 'trace', [req.ip, req.method, req.url, req.session_id, req.header('Content-Length'), accept].join(' '));
-
-		// if first character of path is a . return error
-		if (req.path[0] == '.')
-		{
-			res.status(403);
-			res.set('X-Permission-Error', 'Permission denied');
-			if (req.headers.accept.indexOf('application/json') != -1)
-				res.json({status: 'ERROR', message: 'Permission denied', code: -1});
-			else
-				res.send('Permission denied');
-			return;
-		}
-
-		// true if this request accepts json as return
-		req.accepts_json = (req.headers.accept && req.headers.accept.indexOf('application/json') != -1);
-
-		res.locals.db = app.get('db');
-		req.db = app.get('db');
-
-		// Assign the API call URL to req.matched_path  (if it can be matched)
-		var path = req.url;
-
-		req.matched_path = null;
-
-
-		for (var i = 0; i < app._router.stack.length; i++)
-		{
-			if (!app._router.stack[i].route) 
-				continue;
-
-			var stack = app._router.stack[i];
-			var route = stack.route;
-			if (stack.match(req.path))
-			{
-				req.matched_path = route.path;
-				break;
-			}
-		}
-
-		next();
-	});
-
 	// Logger setup
 	var logger = new grapelib.logger(options);
 	app.set('logger', logger);
@@ -283,8 +150,82 @@ exports = module.exports = function(_o) {
 	// Grape Utils
 	app.set('gutil', grapelib.utils);
 
-	// Database setup
-	setup_database(app);
+	// Database init
+	init_database(app);
+
+
+	//Setup functions for auto create of API calls
+	var create_api_calls = require(__dirname + '/create_api_calls.js');
+	create_api_calls(app);
+
+	// Assign the session ID
+	app.use(function(req, res, next) {
+		req.session_id = null;
+
+		if (req.header('X-SessionID'))
+		{
+			req.session_id = req.header('X-SessionID');
+			next();
+		}
+		else if (req.header('X-Username') && req.header('X-Password'))
+		{
+			req.session_id = req.header('X-SessionID');
+		}
+	});
+
+	// The first handler to be called on a new request
+	// This handler appends session information to the request for further processing
+	// It will add the following variables to req:
+	//	session_id
+	//	accepts_json (true or false)
+	//	db
+	app.use(function(req, res, next)
+	{
+		req.accepts_json = null;
+		if (req.headers.accept)
+		{
+			// true if this request accepts json as return
+			req.accepts_json = (req.headers.accept && req.headers.accept.indexOf('application/json') != -1);
+		}
+
+		logger.log('app', 'trace', [req.ip, req.method, req.url, req.session_id, req.header('Content-Length'), req.headers.accept].join(' '));
+
+		// if first character of path is a . return error
+		if (req.path[0] == '.')
+		{
+			res.status(403);
+			res.set('X-Permission-Error', 'Permission denied');
+			if (req.accepts_json)
+				res.json({status: 'ERROR', message: 'Permission denied', code: -1});
+			else
+				res.send('Permission denied');
+			return;
+		}
+
+
+		res.locals.db = app.get('guest_db');
+		req.db = app.get('guest_db');
+
+		// Assign the API call URL to req.matched_path  (if it can be matched)
+
+		req.matched_path = null;
+		for (var i = 0; i < app._router.stack.length; i++)
+		{
+			var stack = app._router.stack[i];
+			if (!stack.route) 
+				continue;
+
+			if (stack.match(req.path))
+			{
+				req.matched_path = stack.route.path;
+				break;
+			}
+		}
+
+		next();
+	});
+
+
 
 	// Document Store setup
 	var document_store = new grapelib.document_store(options);
@@ -302,15 +243,21 @@ exports = module.exports = function(_o) {
 	if (options.public_directories)
 	{
 		app.set('public_directories', options.public_directories);
-		setup_public_directory(app);
+		var pd = require(__dirname + '/public_directories.js')();
+		app.use(pd);
 	}
 
 	// Session Management
 	if (options.session_management)
 	{
-		var session_management = require(__dirname + '/session.js');
-		session_management(app);
+		var session_check_route = require(__dirname + '/session_check_route.js');
+		app.use(session_check_route);
 	}
+
+	// Assign a database connection for the request
+	var assign_db = require(__dirname + '/assign_database.js');
+	app.use(assign_db);
+
 
 
 	// Load built-in API calls

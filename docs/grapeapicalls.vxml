@@ -266,7 +266,11 @@ In order to use an API call, you will need to know the following:
 		<li>The call method. This will usually be <b>GET</b> or <b>POST</b></li>
 		<li>The input parameters. If the call's method is POST, this will be a JSON object containing fields. If it is GET, the input parameters are found in the URL</li>
 	</ol>
-	The API is consumed by making a HTTP request to the API's URL with the appropriate input parameters or body. Usually, session information will be sent in the HTTP headers.
+	The API is consumed by making a HTTP request to the API's URL with the appropriate input parameters or body. Usually, session information will be sent in the HTTP headers in the <i>X-SessionID</i> header. The following two headers also need to be set on all API calls:
+	<ol>
+		<li>Content-type: application/json</li>
+		<li>Accept: application/json</li>
+	</ol>
 </p>
 </ps_doc>
 

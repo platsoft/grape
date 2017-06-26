@@ -321,18 +321,22 @@ CREATE INDEX gu_username_idx ON grape."user"
 CREATE TABLE grape.report(
 	report_id serial NOT NULL,
 	name text,
-	description text,
 	function_name text,
 	function_schema text,
-	input_fields json DEFAULT '{}'::JSON,
-	report_type text,
+	ui_params json DEFAULT '{}'::JSON,
+	output_format text,
 	active boolean DEFAULT TRUE,
 	cache_time interval,
+	report_category_id integer,
 	CONSTRAINT report_pk PRIMARY KEY (report_id)
 
 );
 -- ddl-end --
-COMMENT ON COLUMN grape.report.input_fields IS 'JSON array with fields, Ex. [{name: date_begin, type: date}, {name: date_end, type: date}]';
+COMMENT ON COLUMN grape.report.ui_params IS 'JSON array with fields, Ex. [{name: date_begin, type: date}, {name: date_end, type: date}]';
+-- ddl-end --
+COMMENT ON COLUMN grape.report.output_format IS 'Structure of the output data - TEXT or ROW or TABLE';
+-- ddl-end --
+COMMENT ON COLUMN grape.report.cache_time IS 'How long a result is valid for';
 -- ddl-end --
 
 -- object: grape.reports_executed | type: TABLE --
@@ -342,12 +346,10 @@ CREATE TABLE grape.reports_executed(
 	report_id integer,
 	user_id integer,
 	date_inserted timestamptz DEFAULT NOW(),
-	result_table_schema text,
-	result_table_name text,
-	result_filename text,
 	is_deleted boolean DEFAULT TRUE,
 	report_seq integer,
-	input_fields json,
+	params json,
+	report_template_id integer,
 	CONSTRAINT reports_executed_pk PRIMARY KEY (reports_executed_id)
 
 );
@@ -698,46 +700,183 @@ CREATE INDEX pr_role_idx ON grape.process_role
 	);
 -- ddl-end --
 
--- -- object: grape.user_network | type: TABLE --
--- -- DROP TABLE IF EXISTS grape.user_network CASCADE;
--- CREATE TABLE grape.user_network(
--- 	user_network_id serial NOT NULL,
--- 	user_id integer,
--- 	network_id integer,
--- 	CONSTRAINT whitelist_user_ip_pk PRIMARY KEY (user_network_id)
--- 
+-- object: grape.user_network | type: TABLE --
+-- DROP TABLE IF EXISTS grape.user_network CASCADE;
+CREATE TABLE grape.user_network(
+	user_network_id serial NOT NULL,
+	user_id integer,
+	network_id integer,
+	CONSTRAINT whitelist_user_ip_pk PRIMARY KEY (user_network_id)
+
+);
+-- ddl-end --
+
+-- object: un_user_id_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.un_user_id_idx CASCADE;
+CREATE INDEX un_user_id_idx ON grape.user_network
+	USING btree
+	(
+	  user_id
+	);
+-- ddl-end --
+
+-- object: grape.network | type: TABLE --
+-- DROP TABLE IF EXISTS grape.network CASCADE;
+CREATE TABLE grape.network(
+	network_id serial NOT NULL,
+	description text,
+	address inet,
+	CONSTRAINT network_pk PRIMARY KEY (network_id)
+
+);
+-- ddl-end --
+
+-- object: un_network_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.un_network_idx CASCADE;
+CREATE INDEX un_network_idx ON grape.user_network
+	USING btree
+	(
+	  network_id
+	);
+-- ddl-end --
+
+-- object: grape.report_template | type: TABLE --
+-- DROP TABLE IF EXISTS grape.report_template CASCADE;
+CREATE TABLE grape.report_template(
+	report_template_id serial NOT NULL,
+	report_id integer,
+	description text,
+	params json,
+	CONSTRAINT report_template_pk PRIMARY KEY (report_template_id),
+	CONSTRAINT report_template_uq UNIQUE (report_template_id,report_id)
+
+);
+-- ddl-end --
+
+-- object: rt_report_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.rt_report_idx CASCADE;
+CREATE INDEX rt_report_idx ON grape.report_template
+	USING btree
+	(
+	  report_id
+	);
+-- ddl-end --
+
+-- object: grape.report_output | type: TABLE --
+-- DROP TABLE IF EXISTS grape.report_output CASCADE;
+CREATE TABLE grape.report_output(
+	report_output_id serial NOT NULL,
+	report_output_type_id integer,
+	description text,
+	params json,
+	CONSTRAINT report_output_pk PRIMARY KEY (report_output_id)
+
+);
+-- ddl-end --
+COMMENT ON TABLE grape.report_output IS 'Parameters passed on to the output function';
+-- ddl-end --
+COMMENT ON COLUMN grape.report_output.params IS 'with';
+-- ddl-end --
+
+-- object: grape.report_output_type | type: TABLE --
+-- DROP TABLE IF EXISTS grape.report_output_type CASCADE;
+CREATE TABLE grape.report_output_type(
+	report_output_type_id serial NOT NULL,
+	description text,
+	ui_params json,
+	function_name text,
+	function_schema text,
+	CONSTRAINT report_output_type_pk PRIMARY KEY (report_output_type_id)
+
+);
+-- ddl-end --
+COMMENT ON COLUMN grape.report_output_type.ui_params IS 'Params to build the GUI ';
+-- ddl-end --
+
+-- object: grape.report_result | type: TABLE --
+-- DROP TABLE IF EXISTS grape.report_result CASCADE;
+CREATE TABLE grape.report_result(
+	report_result_id serial NOT NULL,
+	reports_executed_id integer,
+	text_result text,
+	row_result jsonb,
+	result_table_name text,
+	result_table_schema text,
+	CONSTRAINT reports_executed_result_pk PRIMARY KEY (report_result_id),
+	CONSTRAINT report_result_uq UNIQUE (report_result_id,reports_executed_id)
+
+);
+-- ddl-end --
+COMMENT ON COLUMN grape.report_result.text_result IS 'Used when the report''s output_type is TEXT';
+-- ddl-end --
+COMMENT ON COLUMN grape.report_result.row_result IS 'Used when the report''s output_type is ROW';
+-- ddl-end --
+
+-- object: grape.report_result_output | type: TABLE --
+-- DROP TABLE IF EXISTS grape.report_result_output CASCADE;
+CREATE TABLE grape.report_result_output(
+	report_result_output_id serial NOT NULL,
+	report_result_id integer,
+	report_output_id integer,
+	reports_executed_id integer,
+	CONSTRAINT report_result_output_pk PRIMARY KEY (report_result_output_id)
+
+);
+-- ddl-end --
+
+-- object: grape.report_template_output | type: TABLE --
+-- DROP TABLE IF EXISTS grape.report_template_output CASCADE;
+CREATE TABLE grape.report_template_output(
+	report_template_output_id serial NOT NULL,
+	report_template_id integer,
+	report_output_id integer,
+	CONSTRAINT report_template_output_pk PRIMARY KEY (report_template_output_id)
+
+);
+-- ddl-end --
+
+-- object: grape.report_role | type: TABLE --
+-- DROP TABLE IF EXISTS grape.report_role CASCADE;
+CREATE TABLE grape.report_role(
+	report_role_id serial NOT NULL,
+	report_id integer,
+	role_name text,
+	can_view boolean DEFAULT FALSE,
+	can_edit boolean DEFAULT FALSE,
+	can_execute boolean,
+	CONSTRAINT report_role_pk PRIMARY KEY (report_role_id)
+
+);
+-- ddl-end --
+
+-- object: grape.report_category | type: TABLE --
+-- DROP TABLE IF EXISTS grape.report_category CASCADE;
+CREATE TABLE grape.report_category(
+	report_category_id serial NOT NULL,
+	report_category text,
+	CONSTRAINT report_category_pk PRIMARY KEY (report_category_id)
+
+);
+-- ddl-end --
+
+-- -- object: grape.deployment | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.deployment CASCADE;
+-- CREATE TABLE grape.deployment(
+-- 	deployment_id serial,
+-- 	name text,
+-- 	date_inserted timestamptz
 -- );
 -- -- ddl-end --
 -- 
--- -- object: uiw_user_id_idx | type: INDEX --
--- -- DROP INDEX IF EXISTS grape.uiw_user_id_idx CASCADE;
--- CREATE INDEX uiw_user_id_idx ON grape.user_network
--- 	USING btree
--- 	(
--- 	  user_id
--- 	);
--- -- ddl-end --
--- 
--- -- object: grape.network | type: TABLE --
--- -- DROP TABLE IF EXISTS grape.network CASCADE;
--- CREATE TABLE grape.network(
--- 	network_id integer NOT NULL,
--- 	description text,
--- 	address inet,
--- 	CONSTRAINT network_pk PRIMARY KEY (network_id)
--- 
--- );
--- -- ddl-end --
--- 
--- -- object: un_network_idx | type: INDEX --
--- -- DROP INDEX IF EXISTS grape.un_network_idx CASCADE;
--- CREATE INDEX un_network_idx ON grape.user_network
--- 	USING btree
--- 	(
--- 	  network_id
--- 	);
--- -- ddl-end --
--- 
+-- object: n_address_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.n_address_idx CASCADE;
+CREATE INDEX n_address_idx ON grape.network
+	USING btree
+	(
+	  address
+	);
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
@@ -801,10 +940,24 @@ REFERENCES grape.data_import (data_import_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
+-- object: r_report_category_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.report DROP CONSTRAINT IF EXISTS r_report_category_fk CASCADE;
+ALTER TABLE grape.report ADD CONSTRAINT r_report_category_fk FOREIGN KEY (report_category_id)
+REFERENCES grape.report_category (report_category_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
 -- object: re_reports_fk | type: CONSTRAINT --
 -- ALTER TABLE grape.reports_executed DROP CONSTRAINT IF EXISTS re_reports_fk CASCADE;
 ALTER TABLE grape.reports_executed ADD CONSTRAINT re_reports_fk FOREIGN KEY (report_id)
 REFERENCES grape.report (report_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: re_report_template_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.reports_executed DROP CONSTRAINT IF EXISTS re_report_template_fk CASCADE;
+ALTER TABLE grape.reports_executed ADD CONSTRAINT re_report_template_fk FOREIGN KEY (report_template_id,report_id)
+REFERENCES grape.report_template (report_template_id,report_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
@@ -850,18 +1003,74 @@ REFERENCES grape.process (process_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
--- -- object: user_fk | type: CONSTRAINT --
--- -- ALTER TABLE grape.user_network DROP CONSTRAINT IF EXISTS user_fk CASCADE;
--- ALTER TABLE grape.user_network ADD CONSTRAINT user_fk FOREIGN KEY (user_id)
--- REFERENCES grape."user" (user_id) MATCH FULL
--- ON DELETE NO ACTION ON UPDATE NO ACTION;
--- -- ddl-end --
--- 
--- -- object: network_fk | type: CONSTRAINT --
--- -- ALTER TABLE grape.user_network DROP CONSTRAINT IF EXISTS network_fk CASCADE;
--- ALTER TABLE grape.user_network ADD CONSTRAINT network_fk FOREIGN KEY (network_id)
--- REFERENCES grape.network (network_id) MATCH FULL
--- ON DELETE NO ACTION ON UPDATE NO ACTION;
--- -- ddl-end --
--- 
+-- object: user_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.user_network DROP CONSTRAINT IF EXISTS user_fk CASCADE;
+ALTER TABLE grape.user_network ADD CONSTRAINT user_fk FOREIGN KEY (user_id)
+REFERENCES grape."user" (user_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: network_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.user_network DROP CONSTRAINT IF EXISTS network_fk CASCADE;
+ALTER TABLE grape.user_network ADD CONSTRAINT network_fk FOREIGN KEY (network_id)
+REFERENCES grape.network (network_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: report_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.report_template DROP CONSTRAINT IF EXISTS report_fk CASCADE;
+ALTER TABLE grape.report_template ADD CONSTRAINT report_fk FOREIGN KEY (report_id)
+REFERENCES grape.report (report_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: ro_report_output_type_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.report_output DROP CONSTRAINT IF EXISTS ro_report_output_type_fk CASCADE;
+ALTER TABLE grape.report_output ADD CONSTRAINT ro_report_output_type_fk FOREIGN KEY (report_output_type_id)
+REFERENCES grape.report_output_type (report_output_type_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: reports_executed_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.report_result DROP CONSTRAINT IF EXISTS reports_executed_fk CASCADE;
+ALTER TABLE grape.report_result ADD CONSTRAINT reports_executed_fk FOREIGN KEY (reports_executed_id)
+REFERENCES grape.reports_executed (reports_executed_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: report_result_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.report_result_output DROP CONSTRAINT IF EXISTS report_result_fk CASCADE;
+ALTER TABLE grape.report_result_output ADD CONSTRAINT report_result_fk FOREIGN KEY (report_result_id,reports_executed_id)
+REFERENCES grape.report_result (report_result_id,reports_executed_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: reo_report_output_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.report_result_output DROP CONSTRAINT IF EXISTS reo_report_output_fk CASCADE;
+ALTER TABLE grape.report_result_output ADD CONSTRAINT reo_report_output_fk FOREIGN KEY (report_output_id)
+REFERENCES grape.report_output (report_output_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: report_template_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.report_template_output DROP CONSTRAINT IF EXISTS report_template_fk CASCADE;
+ALTER TABLE grape.report_template_output ADD CONSTRAINT report_template_fk FOREIGN KEY (report_template_id)
+REFERENCES grape.report_template (report_template_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: rto_report_output_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.report_template_output DROP CONSTRAINT IF EXISTS rto_report_output_fk CASCADE;
+ALTER TABLE grape.report_template_output ADD CONSTRAINT rto_report_output_fk FOREIGN KEY (report_output_id)
+REFERENCES grape.report_output (report_output_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: rr_report_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.report_role DROP CONSTRAINT IF EXISTS rr_report_fk CASCADE;
+ALTER TABLE grape.report_role ADD CONSTRAINT rr_report_fk FOREIGN KEY (report_id)
+REFERENCES grape.report (report_id) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
 

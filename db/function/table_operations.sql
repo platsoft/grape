@@ -311,7 +311,7 @@ BEGIN
 	IF json_extract_path_text($1, 'returning') IS NOT NULL THEN
 		_returning_column := $1->>'returning';
 		IF _returning_column = '*' THEN
-			_returning_sql := 'RETURNING ' || ($1->>'returning');
+			_returning_sql := 'RETURNING *';
 		ELSE
 			_returning_sql := 'RETURNING ' || quote_ident($1->>'returning');
 		END IF;

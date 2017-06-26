@@ -1,10 +1,15 @@
 /**
- * Given username, password and ip_address
+ * Input:
+ * 	username or email
+ * 	password
+ *	ip_address
+ *	persistant true/false optional Persistant sessions
  *
  * status = ERROR
  * code 1 = No such user
  * code 2 = Wrong password
  * code 3 = User is inactive
+ * code 4 = IP not allowed
  *
  * On success: status = OK
  * and following fields: session_id, user_id, username and user_roles
@@ -22,6 +27,8 @@ DECLARE
 
 	_session_id TEXT;
 	_found BOOLEAN;
+	
+	_persistant BOOLEAN;
 
 	_user_roles TEXT[];
 
@@ -52,6 +59,20 @@ BEGIN
 	_password := $1->>'password';
 	_ip_address := $1->>'ip_address';
 
+	_persistant := FALSE;
+
+	IF json_extract_path($1, 'persistant') IS NOT NULL THEN
+		_persistant := ($1->>'persistant')::BOOLEAN;
+	END IF;
+
+
+	IF grape.get_value('user_ip_filter', 'false') = 'true' THEN
+		IF grape.check_user_ip (rec.user_id::INTEGER, _ip_address::INET) = 2 THEN
+			RAISE NOTICE 'IP filter check failed for user % (IP %)', _user, _ip_address;
+			RETURN grape.api_result_error('IP not allowed', 4);
+		END IF;
+	END IF;
+
 	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
 
 		IF grape.get_value('hash_passwords', 'false') = 'true' THEN
@@ -72,10 +93,18 @@ BEGIN
 		RETURN grape.api_result_error('User not active', 3);
 	END IF;
 
-	-- generate unique session id
 	_found = TRUE;
+
+	IF _persistant = TRUE THEN
+		SELECT session_id INTO _session_id FROM grape."session" WHERE user_id=rec.user_id::INTEGER;
+		IF FOUND THEN
+			_found := FALSE; -- prevent new session from being generated
+		END IF;
+	END IF;
+
+	-- generate unique session id
 	WHILE _found = TRUE LOOP
-		_session_id := grape.random_string(15);
+		_session_id := CONCAT(rec.user_id, '-', grape.random_string(15));
 		IF
 			EXISTS (SELECT session_id FROM grape."session" WHERE session_id=_session_id::TEXT)
 			OR EXISTS (SELECT session_id FROM grape."session_history" WHERE session_id=_session_id::TEXT)
@@ -88,10 +117,10 @@ BEGIN
 
 	RAISE DEBUG 'User % logged in successfuly from %. Session ID is now %', _user, _ip_address, _session_id;
 
-	SELECT array_agg(role_name) INTO _user_roles FROM grape."user_role" WHERE user_id=rec.user_id::INTEGER;
-
 	INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity)
 		VALUES (_session_id, _ip_address, rec.user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+	SELECT array_agg(role_name) INTO _user_roles FROM grape."user_role" WHERE user_id=rec.user_id::INTEGER;
 
 	SELECT to_json(a) INTO _ret FROM (
 		SELECT 'true' AS "success",
