@@ -8,4 +8,5 @@ SELECT grape.add_setting ('disable_passwords', 'false', 'If true, authentication
 SELECT grape.add_setting ('system_url', 'http://', 'URL to access system''s frontend', 'text', false);
 SELECT grape.add_setting ('dataimport_in_background', 'false', 'Run data import processing functions in the background', 'bool', false); 
 SELECT grape.add_setting ('filter_processes', 'false', 'Apply role based filtering on processes', 'bool', false); 
+SELECT grape.add_setting ('user_ip_filter', 'false', 'Enable IP filtering on users', 'bool', false); 
 

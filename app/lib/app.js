@@ -173,6 +173,10 @@ exports = module.exports = function(_o) {
 		{
 			http_auth(req, res, next);
 		}
+		else
+		{
+			next();
+		}
 	});
 
 	// This handler appends session information to the request for further processing

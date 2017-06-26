@@ -24,7 +24,7 @@ BEGIN
 			WHERE un.user_id=_user_id::INTEGER
 	LOOP
 		_network_count := _network_count + 1;
-		IF _network >> _ip_address THEN
+		IF _network >>= _ip_address THEN
 			RETURN 1;
 		END IF;
 	END LOOP;
@@ -49,12 +49,28 @@ BEGIN
 		_network_id := grape.network_insert (_address::TEXT, _address::INET);
 	END IF;
 
-	INSERT INTO grape.user_network (user_id, _network_id)
-		VALUES (_user_id, _network_id)
-		RETURNING user_network_id INTO _user_network_id;
+	RETURN grape.user_ip_whitelist_insert (_user_id, _network_id);
+END; $$ LANGUAGE plpgsql;
+
+/**
+ * Add new whitelist entry for user and network_id
+ */
+CREATE OR REPLACE FUNCTION grape.user_ip_whitelist_insert (_user_id INTEGER, _network_id INTEGER) RETURNS INTEGER AS $$
+DECLARE
+	_user_network_id INTEGER;
+BEGIN
+
+	_user_network_id := (SELECT user_network_id FROM grape.user_network WHERE user_id=_user::INTEGER AND network_id=_network_id::INTEGER);
 	
+	IF _user_network_id IS NULL THEN
+		INSERT INTO grape.user_network (user_id, network_id)
+			VALUES (_user_id, _network_id)
+			RETURNING user_network_id INTO _user_network_id;
+	END IF;
+		
 	RETURN _user_network_id;
 END; $$ LANGUAGE plpgsql;
+
 
 /**
  * Insert new network
@@ -82,5 +98,19 @@ $$ LANGUAGE sql;
 CREATE OR REPLACE FUNCTION grape.find_network_id(_address INET) RETURNS INTEGER AS $$
 	SELECT network_id FROM grape.network WHERE address=_address::INET;
 $$ LANGUAGE sql;
+
+
+/** API calls */
+
+CREATE OR REPLACE FUNCTION grape.user_ip_whitelist_insert (JSON) RETURNS JSON AS $$
+DECLARE
+	_user_id INTEGER;
+	_network_id INTEGER;
+BEGIN
+	_user_id := ($1->>'user_id')::INTEGER;
+	_network_id := ($1->>'network_id')::INTEGER;
+
+	RETURN grape.api_success('user_network_id', grape.user_ip_whitelist_insert(_user_id, _network_id));
+END; $$ LANGUAGE plpgsql;
 
 

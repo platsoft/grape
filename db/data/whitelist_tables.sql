@@ -1,5 +1,5 @@
 
-SELECT grape.list_query_whitelist_add('grape', 
+SELECT grape.table_operation_whitelist_add('grape', 
 	'{"user", '
 	'"user_role", '
 	'"user_access_role", '
@@ -11,7 +11,11 @@ SELECT grape.list_query_whitelist_add('grape',
 	'"setting", '
 	'"v_table_permissions", '
 	'"data_import", '
-	'"data_import_type"}', '{admin}'::TEXT[]);
+	'"data_import_type"}', 
+
+	'{admin}',
+	'SELECT'
+);
 
 SELECT grape.table_operation_whitelist_add('grape',
 	'{"access_role"}',
