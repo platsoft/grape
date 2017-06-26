@@ -155,7 +155,12 @@ New features:
 
 1.0.7:
 - New API call PGTableInformation
-- Removed deprecated functionality that will send index.html if an API file could not be matched
 - New view grape.v_table_permissions
-
+- New function grape.year_diff
+- New function grape.table_permissions_add with overloads
+- Bug: Tables with 'all' SELECT permission did not pick up as allowed
+- Support for IP filters on users
+- New setting: user_ip_filter
+- Removed the support for reading session ID from cookies
+- Removed deprecated functionality that will send index.html if an API file could not be matched
 

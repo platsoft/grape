@@ -5,7 +5,7 @@ var util = require('util');
 
 module.exports = function (req, res, next) {
 	var app = req.app;
-
+	
 	var db = app.get('db');
 	if (!db)
 	{
@@ -80,7 +80,7 @@ module.exports = function (req, res, next) {
 		}
 
 		res.locals.session = ret;
-
+		next();
 	}
 
 

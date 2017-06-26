@@ -158,6 +158,8 @@ exports = module.exports = function(_o) {
 	var create_api_calls = require(__dirname + '/create_api_calls.js');
 	create_api_calls(app);
 
+	var http_auth = require(__dirname + '/http_auth.js');
+
 	// Assign the session ID
 	app.use(function(req, res, next) {
 		req.session_id = null;
@@ -167,16 +169,14 @@ exports = module.exports = function(_o) {
 			req.session_id = req.header('X-SessionID');
 			next();
 		}
-		else if (req.header('X-Username') && req.header('X-Password'))
+		else if (req.header('Authorization'))
 		{
-			req.session_id = req.header('X-SessionID');
+			http_auth(req, res, next);
 		}
 	});
 
-	// The first handler to be called on a new request
 	// This handler appends session information to the request for further processing
 	// It will add the following variables to req:
-	//	session_id
 	//	accepts_json (true or false)
 	//	db
 	app.use(function(req, res, next)
