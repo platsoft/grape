@@ -72,18 +72,27 @@ function loadpublicjsfiles(dirname, relativedirname)
 function api_download_public_js_files(req, res)
 {
 	// special API call will look in all public directories's subdir pages and download all .js files from there
-	// TODO cache this
-	var jsdata = [];
-
-	var public_directories = app.get('config').public_directories;
-	for (var i = 0; i < public_directories.length; i++)
+	if (app.get('jsdata'))
 	{
-		app.get('config').compile_js_dirs.forEach(function(f) { 
-			jsdata.push(loadpublicjsfiles(public_directories[i] + '/' + f, '/' + f));
-		});
+		var jsdata = app.get('jsdata');
+	}
+	else
+	{
+		var jsdata = [];
+		var public_directories = app.get('config').public_directories;
+		for (var i = 0; i < public_directories.length; i++)
+		{
+			app.get('config').compile_js_dirs.forEach(function(f) { 
+				jsdata.push(loadpublicjsfiles(public_directories[i] + '/' + f, '/' + f));
+			});
+		}
+
+		if (app.get('config').cache_public_js_dirs)
+			app.set('jsdata', jsdata);
 	}
 
 	res.set('Content-Type', 'application/javascript');
 	res.send(jsdata.join(''));
 }
+
 
