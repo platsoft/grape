@@ -60,7 +60,7 @@ DECLARE
 	_user_network_id INTEGER;
 BEGIN
 
-	_user_network_id := (SELECT user_network_id FROM grape.user_network WHERE user_id=_user::INTEGER AND network_id=_network_id::INTEGER);
+	_user_network_id := (SELECT user_network_id FROM grape.user_network WHERE user_id=_user_id::INTEGER AND network_id=_network_id::INTEGER);
 	
 	IF _user_network_id IS NULL THEN
 		INSERT INTO grape.user_network (user_id, network_id)
@@ -106,9 +106,26 @@ CREATE OR REPLACE FUNCTION grape.user_ip_whitelist_insert (JSON) RETURNS JSON AS
 DECLARE
 	_user_id INTEGER;
 	_network_id INTEGER;
+
+	_input JSONB;
 BEGIN
-	_user_id := ($1->>'user_id')::INTEGER;
-	_network_id := ($1->>'network_id')::INTEGER;
+	_input := $1::JSONB;
+
+	IF _input ? 'user_id' THEN
+		_user_id := (_input->>'user_id')::INTEGER;
+	ELSE
+		RETURN grape.api_error_invalid_field('user_id');
+	END IF;
+
+	IF _input ? 'network_id' THEN
+		_network_id := (_input->>'network_id')::INTEGER;
+	ELSIF _input ? 'network_description' THEN
+		_network_id := grape.find_network_id((_input->>'network_description')::TEXT);
+	ELSIF _input ? 'network_address' THEN
+		_network_id := grape.find_network_id((_input->>'network_address')::INET);
+	ELSE
+		RETURN grape.api_error_invalid_field('network_id');
+	END IF;
 
 	RETURN grape.api_success('user_network_id', grape.user_ip_whitelist_insert(_user_id, _network_id));
 END; $$ LANGUAGE plpgsql;

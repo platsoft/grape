@@ -42,6 +42,13 @@ BEGIN
 	RETURN grape.api_result_error('Invalid input', -3, _info);
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.api_error_invalid_field(_name TEXT) RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN grape.api_result_error('Missing or invalid field: ' || _name, -3, '{}'::JSON);
+END; $$ LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION grape.api_error_permission_denied(_info JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
 DECLARE
 BEGIN

@@ -1,16 +1,19 @@
 {
-	"description": "Add user to network for IP filtering",
+	"description": "Whitelist user to network for IP filtering",
 	"id": "/grape/add_user_network",
 	"name": "GrapeAddUserNetwork",
 	"sqlfunc": "grape.user_ip_whitelist_insert",
 	"type": "object",
  	"properties": {
 		"user_id": {"type": "number", "description": "User ID"},
-		"network_id": {"type": "number", "description": "Network ID"}
+		"network_id": {"type": "number", "description": "Network ID"},
+		"network_description": {"type": "string", "description": "Can be provided instead of Network ID"},
+		"network_address": {"type": "string", "description": "Can be provided instead of Network ID"}
 	},
 	"return": {
 		"type": "object",
 		"properties": {
+			"user_network_id": {"type": "number", "description": "Newly inserted user_network_id"},
 			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
 			"message": {"type": "string", "description": "Error message"},
 			"code": {"type": "number", "description": "Error code"},

@@ -272,5 +272,7 @@ In order to use an API call, you will need to know the following:
 		<li>Accept: application/json</li>
 	</ol>
 </p>
+<h3>Using HTTP Authorization</h3>
+By default, grape applications support HTTP Authentication (Basic). When using this authentication method, it is not necessary to make a separate call to <i>/grape/login</i>. The username and password can be included in the HTTP headers. This should only be used over TLS, as the credentials can be reverse-encoded. The "Basic" HTTP authentication scheme is defined in <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>, which transmits credentials as user ID/password pairs, encoded using base64.
 </ps_doc>
 

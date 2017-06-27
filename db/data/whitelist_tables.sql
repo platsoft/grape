@@ -10,6 +10,7 @@ SELECT grape.table_operation_whitelist_add('grape',
 	'"schedule", '
 	'"setting", '
 	'"v_table_permissions", '
+	'"network", '
 	'"data_import", '
 	'"data_import_type"}', 
 

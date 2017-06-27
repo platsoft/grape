@@ -28,7 +28,11 @@ module.exports = function(req, res, next) {
 			var obj = result.rows[0]['grapesession_insert'];
 			if (obj.status == 'ERROR')
 			{
-				res.json(obj);
+				if (req.accepts_json)
+					res.status(403).json(obj);
+				else
+					res.status(403).send(obj);
+				
 			}
 			else
 			{
