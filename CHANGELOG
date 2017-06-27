@@ -164,4 +164,5 @@ New features:
 - Removed the support for reading session ID from cookies
 - Removed deprecated functionality that will send index.html if an API file could not be matched
 - Caching of public JS files (and new config option cache_public_js_dirs to enable it)
+- New view grape.v_active_users
 
