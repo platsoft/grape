@@ -1,5 +1,5 @@
 
-SELECT grape.table_operation_whitelist_add('grape', 
+SELECT grape.table_permissions_add('grape', 
 	'{"user", '
 	'"user_role", '
 	'"user_access_role", '
@@ -12,21 +12,19 @@ SELECT grape.table_operation_whitelist_add('grape',
 	'"v_table_permissions", '
 	'"network", '
 	'"data_import", '
-	'"data_import_type"}', 
+	'"data_import_type"}'::TEXT[], 
 
-	'{admin}',
+	'admin',
 	'SELECT'
 );
 
-SELECT grape.table_operation_whitelist_add('grape',
-	'{"access_role"}',
-	'{"admin"}',
-	'INSERT'
+SELECT grape.table_permissions_add('grape',
+	'{'
+		'access_role,'
+		'network'
+	'}'::TEXT[],
+	'{admin}'::TEXT[],
+	'{INSERT,DELETE,UPDATE}'::TEXT[]
 );
 
-SELECT grape.table_operation_whitelist_add('grape',
-	'{"access_role"}',
-	'{"admin"}',
-	'DELETE'
-);
 

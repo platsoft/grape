@@ -40,6 +40,17 @@ BEGIN
 	RETURN 0;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.table_permissions_add(_schema TEXT, _tables TEXT[], _role TEXT, _op TEXT) RETURNS INTEGER AS $$
+DECLARE
+	_table TEXT;
+BEGIN
+	FOREACH _table IN ARRAY _tables LOOP
+		PERFORM grape.table_permissions_add(_schema::TEXT, _table::TEXT, _role::TEXT, _op::TEXT);
+	END LOOP;
+	RETURN 0;
+END; $$ LANGUAGE plpgsql;
+
+
 
 
 
