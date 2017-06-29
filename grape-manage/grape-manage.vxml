@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape-Manage" titlepage="no">
+<h1>grape-manage</h1>
+<i>grape-manage</i> is a tool used to provide a common interface for custom scripts and commands that operates in a project's directory. It can be installed using <icode>npm install -g ps-grape</icode>. Commands can be added per-project, and the command should be executed from within the project directory. <i>grape-manage</i> will scan <icode>$CWD/cmd</icode> and <icode>$CMD/scripts/cmd/</icode> for commands. The program comes with the following built-in commands:
+<ul>
+	<li><i>list</i> - Lists all available commands</li>
+	<li><i>start</i> - Starts the Node server</li>
+	<li><i>stop</i> - Stops the Node server</li>
+	<li><i>status</i> - Prints status information regarding the Node server</li>
+	<li><i>create_user</i> - Create a new user on the system. Run <icode>grape-manage create_user --help</icode> for parameters</li>
+	<li><i>create_users</i> - Create new users on the system from a CSV file. Run <icode>grape-manage create_users -f [FILENAME]</icode></li>
+	<li><i>list_users</i> - Lists users on the system</li>
+	<li><i>print_db_settings</i> - Prints DB connection settings for usage in scripts</li>
+	<li><i>bgworker</i> - Provides various functions for interacting with <link id="platsoft-background-worker">ps_bgworker</link></li>
+</ul>
+<h2>Adding new commands</h2>
+<i>grape-manage</i> will scan <icode>$CWD/cmd</icode> and <icode>$CMD/scripts/cmd/</icode> for commands. Commands are JavaScript files that are require'd, and should export at least an <i>info</i> object and a <i>run</i> function. The <i>info</i> object must contain two parameters: a <i>description</i> text field, and a boolean <i>db</i> - which will, if true, provide the <i>run</i> function with a database connection. The <i>run</i> function is called with 2 parameters: <i>options</i> and a <i>callback</i>. <i>options</i> will contain: 
+<ul>
+	<li><i>db</i> - Database connection (null if db option passed is false)</li>
+	<li><i>argv</i> - Arguments provided to run this script (minus the grape-manage part)</li>
+	<li><i>options</i> - The project's config options (read from config.js)</li>
+	<li><i>funcs</i> - Some handy utility functions: print_ok, print_error, print_warn and align</li>
+	<li><i>base_directory</i> - Project's base directory</li>
+</ul>
+The name of the file will be used as the name of the command. Upon completion, the callback should be called (the command can optionally provide error information).
+The basic scaffolding for a command is:
+<code>var GrapeCmd = {};
+GrapeCmd.info = {
+	description: '<red>Command description</red>',
+	db: true
+};
+
+GrapeCmd.run = function(opts, cb) {
+	<blue>// LOGIC GOES HERE</blue>
+	<blue>// WE HAVE ACCESS TO: opts.db, opts.argv, opts.options, opts.funcs and opts.base_directory</blue>
+	cb(null);
+};
+
+module.exports = GrapeCmd;
+</code>
+
+</ps_doc>

@@ -76,6 +76,9 @@ Most Grape applications will have the following directories/files:
 <!-- include grape error codes -->
 <include href="grape_error_codes.vxml" parse="vxml" level="1" /> 
 
+<!-- include grape manage -->
+<include href="../grape-manage/grape-manage.vxml" parse="vxml" level="1" /> 
+
 <!-- include grape api calls -->
 <h2 id="grape-builtin-api-calls">Built-in API calls</h2>
 <include href="builtin_api_calls.vxml" parse="vxml" level="1" /> 
