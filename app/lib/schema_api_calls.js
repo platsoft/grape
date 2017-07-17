@@ -23,7 +23,7 @@ function create_schema_api_call(app, obj)
 	{
 		if (param.type == 'object')
 			param.method = 'POST';
-		else if (param.type.toUpperCase() == 'query')
+		else if (param.type.toLowerCase() == 'query')
 			param.method = 'GET';
 	}
 
@@ -51,7 +51,10 @@ function create_schema_api_call(app, obj)
 				var obj = req.body;
 				if (obj !== null && obj !== undefined)
 				{
-					Object.assign(obj, req.params);
+					var keys = Object.keys(req.params);
+					for (var i = 0; i < keys.length; i++)
+						if (!obj.hasOwnProperty(keys[i]))
+							obj[keys[i]] = req.params[keys[i]];
 				}
 
 				if (param.no_validation === false)

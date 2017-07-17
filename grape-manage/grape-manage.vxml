@@ -39,4 +39,7 @@ GrapeCmd.run = function(opts, cb) {
 module.exports = GrapeCmd;
 </code>
 
+<h2>Bash auto completion</h2>
+Basic auto completion for grape-manage in bash can be achieved by installing the file <fname>grape-manage-bash-completion.sh</fname> into <fname>/etc/bash_completion.d/</fname>.
+
 </ps_doc>

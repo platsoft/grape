@@ -37,8 +37,13 @@ exports = module.exports = function(_o) {
 			var stat = fs.statSync(_o.base_directory + '/default_config.js');
 			if (stat.isFile())
 			{
-				var defaults = require(_o.base_directory + '/default_config.js'); 
-				_.extend(options, defaults);
+				try {
+					var defaults = require(_o.base_directory + '/default_config.js'); 
+					_.extend(options, defaults);
+				} catch (e) {
+					console.log("Error while reading " + _o.base_directory + '/default_config.js');
+					console.log(e);
+				}
 			}
 		} catch (e) { 
 		}
