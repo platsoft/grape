@@ -191,7 +191,7 @@ function db (_o) {
 
 		self.last_query_time = new Date();
 
-		var qry = self.client.query(_qry_config, values);
+		var qry = self.client.query(new pg.Query(_qry_config, values));
 
 		if (callback)
 		{
