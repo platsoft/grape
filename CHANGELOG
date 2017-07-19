@@ -179,4 +179,6 @@ Removed features:
 
 Other:
 - Change data type of grape.user_history.data to JSONB - thereby removing the need for the HSTORE extension
+- Bumped package versions
+
 
