@@ -1,6 +1,6 @@
 
-DROP TABLE IF EXISTS grape.user_network ;
-DROP TABLE IF EXISTS grape.network ;
+DROP TABLE IF EXISTS grape.user_network CASCADE;
+DROP TABLE IF EXISTS grape.network CASCADE;
 
 CREATE TABLE grape.user_network(
 	user_network_id serial NOT NULL,
