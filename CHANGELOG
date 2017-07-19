@@ -154,19 +154,29 @@ New features:
 - Modular grape-manage script that will replace manage.sh
 
 1.0.7:
+Bug fixes:
+- Tables with 'all' SELECT permission did not pick up as allowed
+- When a user's password is NULL, any password would work
+- Fix the storage of user save data in grape.user_history
+
+New features:
+- HTTP Authentication is now supported
+- Support for IP filters on users
+- Caching of compiled public JS files (and new config option cache_public_js_dirs to enable it)
+
 - New API call PGTableInformation
 - New view grape.v_table_permissions
+- New view grape.v_active_users
 - New function grape.year_diff
 - New function grape.table_permissions_add with overloads
-- Bug: Tables with 'all' SELECT permission did not pick up as allowed
-- Security: When a user's password is NULL, any password would work
-- Support for IP filters on users
 - New setting: user_ip_filter
+
+Removed features:
 - Removed the support for reading session ID from cookies
 - Removed deprecated functionality that will send index.html if an API file could not be matched
-- Caching of public JS files (and new config option cache_public_js_dirs to enable it)
-- New view grape.v_active_users
-- Change data type of grape.user_history.data to JSONB - thereby removing the need for the HSTORE extension
-- Fix the storage of user save data in grape.user_history
 - Removed HSTORE extension from schema
+- Removed System user
+
+Other:
+- Change data type of grape.user_history.data to JSONB - thereby removing the need for the HSTORE extension
 

@@ -67,6 +67,9 @@ Most Grape applications will have the following directories/files:
 <!-- include grape pdf -->
 <include href="grapepdf.vxml" parse="vxml" level="1" /> 
 
+<!-- include grape user network -->
+<include href="user_ip_filter.vxml" parse="vxml" level="1" /> 
+
 <!-- include grape settings-->
 <include href="grapesettings.vxml" parse="vxml" level="1" /> 
 
