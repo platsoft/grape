@@ -73,6 +73,10 @@ BEGIN
 		END IF;
 	END IF;
 
+	IF rec.password IS NULL THEN
+		RETURN grape.api_result_error('Your account does not have a valid password', 3);
+	END IF;
+
 	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
 
 		IF grape.get_value('hash_passwords', 'false') = 'true' THEN

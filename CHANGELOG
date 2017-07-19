@@ -159,6 +159,7 @@ New features:
 - New function grape.year_diff
 - New function grape.table_permissions_add with overloads
 - Bug: Tables with 'all' SELECT permission did not pick up as allowed
+- Security: When a user's password is NULL, any password would work
 - Support for IP filters on users
 - New setting: user_ip_filter
 - Removed the support for reading session ID from cookies
