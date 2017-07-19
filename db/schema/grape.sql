@@ -27,12 +27,6 @@ CREATE SCHEMA proc;
 SET search_path TO pg_catalog,public,grape,proc;
 -- ddl-end --
 
--- object: hstore | type: EXTENSION --
--- DROP EXTENSION IF EXISTS hstore CASCADE;
-CREATE EXTENSION hstore
-      WITH SCHEMA public;
--- ddl-end --
-
 -- object: grape.access_role | type: TABLE --
 -- DROP TABLE IF EXISTS grape.access_role CASCADE;
 CREATE TABLE grape.access_role(
@@ -83,8 +77,8 @@ COMMENT ON COLUMN grape.access_path.method IS 'HTTP methods accepted by this pat
 CREATE TABLE grape.user_history(
 	user_history_id serial NOT NULL,
 	user_id integer,
-	date_inserted timestamp DEFAULT CURRENT_TIMESTAMP,
-	data public.hstore,
+	date_inserted timestamptz DEFAULT CURRENT_TIMESTAMP,
+	data jsonb,
 	blame_id integer,
 	CONSTRAINT user_history_id_pk PRIMARY KEY (user_history_id)
 
@@ -874,6 +868,44 @@ CREATE INDEX n_address_idx ON grape.network
 	USING btree
 	(
 	  address
+	);
+-- ddl-end --
+
+-- -- object: grape.system_status_function | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.system_status_function CASCADE;
+-- CREATE TABLE grape.system_status_function(
+-- 	system_status_function serial,
+-- 	request_string text,
+-- 	function_name text,
+-- 	function_schema text,
+-- 	active boolean
+-- );
+-- -- ddl-end --
+-- 
+-- object: uh_user_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.uh_user_idx CASCADE;
+CREATE INDEX uh_user_idx ON grape.user_history
+	USING btree
+	(
+	  user_id
+	);
+-- ddl-end --
+
+-- object: sh_user_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.sh_user_idx CASCADE;
+CREATE INDEX sh_user_idx ON grape.session_history
+	USING btree
+	(
+	  user_id
+	);
+-- ddl-end --
+
+-- object: s_user_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.s_user_idx CASCADE;
+CREATE INDEX s_user_idx ON grape.session
+	USING btree
+	(
+	  user_id
 	);
 -- ddl-end --
 

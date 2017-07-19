@@ -72,6 +72,9 @@ BEGIN
 					INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
 				END LOOP;
 			END IF;
+	
+			INSERT INTO grape.user_history (user_id, data, blame_id)
+				VALUES (_user_id, $1::JSONB, current_user_id());
 
 			RETURN grape.api_success(json_build_object('new', 'true', 'user_id', _user_id));
 
@@ -82,7 +85,7 @@ BEGIN
 		END IF;
 	ELSE
 		-- UPDATE Existing User
-		SELECT * INTO rec FROM grape."user" WHERE user_id = _user_id;
+		SELECT * INTO rec FROM grape."user" WHERE user_id = _user_id::INTEGER;
 		IF NOT FOUND THEN
 			-- UPDATE : Invalid user_id
 			RETURN grape.api_error('Unable to update user. The specified user_id does not exist', 3);
@@ -105,7 +108,7 @@ BEGIN
 					active = _active,
 					employee_guid=COALESCE(_employee_guid, employee_guid)
 				WHERE
-					user_id = _user_id;
+					user_id = _user_id::INTEGER;
 
 			IF _role_names IS NOT NULL THEN
 				DELETE FROM grape.user_role WHERE user_id = _user_id::INTEGER;
@@ -113,6 +116,9 @@ BEGIN
 					INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
 				END LOOP;
 			END IF;
+			
+			INSERT INTO grape.user_history (user_id, data, blame_id)
+				VALUES (_user_id, $1::JSONB, current_user_id());
 
 			RETURN grape.api_success(json_build_object('new', 'false', 'user_id', _user_id));
 		END IF;

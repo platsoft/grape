@@ -13,10 +13,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="grape" fill-color="#e1e1e1">
 </schema>
 
-<extension name="hstore" handles-type="true">
-	<schema name="public"/>
-</extension>
-
 <table name="access_role">
 	<schema name="grape"/>
 	<position x="144" y="822"/>
@@ -44,7 +40,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="session">
 	<schema name="grape"/>
-	<position x="531" y="86"/>
+	<position x="561" y="69"/>
 	<column name="session_id" not-null="true">
 		<type name="text"/>
 	</column>
@@ -93,10 +89,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="integer"/>
 	</column>
 	<column name="date_inserted" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamp"/>
+		<type name="timestamptz"/>
 	</column>
 	<column name="data">
-		<type name="public.hstore"/>
+		<type name="jsonb"/>
 	</column>
 	<column name="blame_id">
 		<type name="integer"/>
@@ -1282,6 +1278,50 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 index-type="btree" factor="0">
 		<idxelement use-sorting="false">
 			<column name="address"/>
+		</idxelement>
+</index>
+
+<table name="system_status_function" sql-disabled="true">
+	<schema name="grape"/>
+	<position x="1230" y="49"/>
+	<column name="system_status_function">
+		<type name="serial"/>
+	</column>
+	<column name="request_string">
+		<type name="text"/>
+	</column>
+	<column name="function_name">
+		<type name="text"/>
+	</column>
+	<column name="function_schema">
+		<type name="text"/>
+	</column>
+	<column name="active">
+		<type name="boolean"/>
+	</column>
+</table>
+
+<index name="uh_user_idx" table="grape.user_history"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="user_id"/>
+		</idxelement>
+</index>
+
+<index name="sh_user_idx" table="grape.session_history"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="user_id"/>
+		</idxelement>
+</index>
+
+<index name="s_user_idx" table="grape.session"
+	 concurrent="false" unique="false" fast-update="false" buffering="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="user_id"/>
 		</idxelement>
 </index>
 
