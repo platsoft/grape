@@ -15,6 +15,10 @@ module.exports.print_warn = function(str) {
 	console.log(colors.yellow(str));
 };
 
+module.exports.print_info = function(str) {
+	console.log(colors.blue(str));
+};
+
 
 // align left
 module.exports.align = function(str, length) {
