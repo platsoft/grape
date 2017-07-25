@@ -22,6 +22,8 @@ var GrapeClient = function(_o) {
 	this.port = 3001;
 	this.username = null;
 	this.password = null;
+	this.auth = null;
+	this.default_path = null;
 	var self = this;
 	this.self = self;
 
@@ -31,6 +33,10 @@ var GrapeClient = function(_o) {
 		var urlObj = url.parse(this.url);
 		this.hostname = urlObj.hostname;
 		this.port = urlObj.port;
+		if (urlObj.auth)
+			this.auth = urlObj.auth;
+		if (urlObj.path)
+			this.default_path = urlObj.path;
 	}
 
 	if (_o.username)
@@ -39,6 +45,9 @@ var GrapeClient = function(_o) {
 		this.password = _o.password;
 	
 	this.postJSON = function(path, obj, cb) {
+		if (path == null)
+			var path = this.default_path;
+
 		var data = JSON.stringify(obj);
 
 		if (this.session)
@@ -54,10 +63,18 @@ var GrapeClient = function(_o) {
 			headers: {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json',
-				'Content-Length': Buffer.byteLength(data),
-				'X-SessionID': session_id
+				'Content-Length': Buffer.byteLength(data)
 			}
 		};
+
+		if (this.auth)
+		{
+			options.headers['Authorization'] = 'Basic ' + (new Buffer(this.auth).toString('base64'));
+		}
+		else
+		{
+			options.headers['X-SessionID'] = session_id;
+		}
 
 		var callback = function(res) {
 			res.setEncoding('utf8');
@@ -80,6 +97,8 @@ var GrapeClient = function(_o) {
 	};
 
 	this.getJSON = function(path, obj, cb) {
+		if (path == null)
+			var path = this.default_path;
 		var data = querystring.stringify(obj);
 
 		if (this.session)
@@ -93,10 +112,15 @@ var GrapeClient = function(_o) {
 			method: 'GET',
 			path: path + '?' + data,
 			headers: {
-				'Accept': 'application/json',
-				'X-SessionID': session_id
+				'Accept': 'application/json'
 			}
 		};
+
+		if (this.auth)
+			options.headers['Authorization'] = 'Basic ' + (new Buffer(this.auth).toString('base64'));
+		else
+			options.headers['X-SessionID'] = session_id;
+
 
 		var callback = function(res) {
 			res.setEncoding('utf8');

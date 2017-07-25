@@ -37,6 +37,12 @@ This functions deal with the creation of standardized API results (in JSON forma
 		<td align="left"></td>
 		<td align="left">Similar to calling <icode>api_result_error("Invalid input", -2)</icode></td>
 	</tr>
+	<tr>
+		<td>api_error_data_not_found</td>
+		<td align="left"></td>
+		<td align="left">Similar to calling <icode>api_result_error("Data not found", -5)</icode></td>
+	</tr>
+
 
 	<tr>
 		<td>api_success</td>
