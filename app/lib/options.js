@@ -20,7 +20,8 @@ exports = module.exports = function(_o) {
 		compile_js_dirs: ['pages'],
 		public_directories: [],
 		api_directories: [],
-		cache_public_js_dirs: false
+		cache_public_js_dirs: false,
+		process_name: false
 	};
 
 

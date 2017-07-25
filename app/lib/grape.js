@@ -29,6 +29,9 @@ exports = module.exports = function(_o) {
 		{
 			var pidfile = this.options.log_directory + '/grape.pid';
 
+			if (this.options.process_name)
+				process.title = this.options.process_name;
+
 			// check if pidfile exists, if it does kill the process and delte the file
 			var start_pidfile = function(next) {
 				console.log("Setting up PID file " + pidfile + " ...");
@@ -113,6 +116,8 @@ exports = module.exports = function(_o) {
 		{
 			if (process.env.state && process.env.state == 'api_listener_worker')
 			{
+				if (this.options.process_name)
+					process.title = [this.options.process_name, 'apiserver'].join('-');
 				// We are a worker/child process
 				var app = g_app(_o);
 				var cache = new comms.worker(_o);
@@ -121,8 +126,13 @@ exports = module.exports = function(_o) {
 			}
 			else if (process.env.state && process.env.state == 'db_notification_listener')
 			{
+				if (this.options.process_name)
+					process.title = [this.options.process_name, 'dbnotify'].join('-');
+
 				var e_notify = new email_notification_listener(_o);
 				e_notify.start();
+
+				// Other db notification functions can go here
 			}
 			else
 			{

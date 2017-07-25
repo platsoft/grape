@@ -1,5 +1,6 @@
 /**
  * Worker apps. Starts listening on port, loads API files, public files
+ * This module is started as a worker app by grape.js
  *
  */
 var express = require('express');
@@ -262,7 +263,8 @@ exports = module.exports = function(_o) {
 	var assign_db = require(__dirname + '/assign_database.js');
 	app.use(assign_db);
 
-
+	
+	// TODO This is where the api logger handler and the notification handler should be included
 
 	// Load built-in API calls
 	var builtin_api_dir = __dirname + '/../api/';

@@ -280,7 +280,7 @@ function db (_o) {
 	};
 	
 	this.jsonb_call =  function(name, input, _callback, qry_options) {
-		return self.json_call(name, input, _callback, _.extend(qry_options, {jsonb: true}));
+		return self.json_call(name, input, _callback, _.extend(qry_options || {}, {jsonb: true}));
 	};
 
 	this.setup_notification_listener = function() {

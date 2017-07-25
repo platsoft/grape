@@ -181,4 +181,6 @@ Other:
 - Change data type of grape.user_history.data to JSONB - thereby removing the need for the HSTORE extension
 - Bumped package versions
 
+1.0.8
+- New config setting process_name sets the visible process(es) name(s)
 

@@ -74,7 +74,7 @@ BEGIN
 			) a;
 
 	IF NOT FOUND THEN
-		RETURN grape.api_error('Table requested is not in whitelist', -2);
+		RETURN grape.api_error(CONCAT('Table requested (', _schema::TEXT, '.', _tablename::TEXT, ' is not in whitelist', -2));
 	END IF;
 
 	IF NOT _roles @> '{all}' AND grape.current_user_in_role(_roles) = FALSE THEN

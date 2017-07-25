@@ -9,9 +9,16 @@
 
 - Send system notifications through HTTP headers
 
+- Make settings available in node
+
 - API call to get table information (part of table_operations.sql)
 
 - System/Frontend integrator - HTTP server that relays api calls to connected systems. HTTP requests (API calls and HTML downloads etc) can be rewritten on the fly. /cabsav/...
+
+- Send SMSes
+
+- API logger (partitioned tables monthly?)
+	- settings: 
 
 Done:
 - create API calls from JSON schema
