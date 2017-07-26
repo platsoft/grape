@@ -2,7 +2,11 @@
 
 var method = process.argv[2];
 var url = process.argv[3];
-var data = JSON.parse(process.argv[4]) || {};
+
+if (process.argv[4])
+	var data = JSON.parse(process.argv[4]) || {};
+else
+	var data = {};
 
 function usage()
 {
