@@ -101,19 +101,29 @@ BEGIN
 			ap.process_id, 
 			pg_function, 
 			description, 
-			process_category,
-			param,
-			(SELECT json_agg(auto_scheduler) FROM grape.auto_scheduler WHERE process_id=ap.process_id) AS auto_scheduler,
+			ap.process_category,
+			ap.param,
+			(SELECT json_agg(a.s) FROM 
+				(SELECT (to_jsonb(b) || jsonb_build_object('run_as_user', grape.username(run_as_user_id))) s FROM 
+					grape.auto_scheduler b 
+					WHERE process_id=ap.process_id) a) AS auto_scheduler,
+
 			(SELECT json_agg(process_role) FROM grape.process_role WHERE process_id=ap.process_id) AS process_role,
-			count_new.count AS "new", 
-			count_completed.count AS "completed", 
-			count_error.count AS "error", 
-			count_running.count AS "running"
-		FROM grape.process AS ap, 
-			LATERAL (SELECT COUNT(*) FROM grape.schedule WHERE process_id=ap.process_id AND status='NewTask') AS count_new,
-			LATERAL (SELECT COUNT(*) FROM grape.schedule WHERE process_id=ap.process_id AND status='Completed') AS count_completed,
-			LATERAL (SELECT COUNT(*) FROM grape.schedule WHERE process_id=ap.process_id AND status='Error') AS count_error,
-			LATERAL (SELECT COUNT(*) FROM grape.schedule WHERE process_id=ap.process_id AND status='Running') AS count_running
+			sched.schedule_id,
+			sched.time_sched,
+			sched.time_started,
+			sched.time_ended,
+			sched.pid,
+			sched.param AS sched_param,
+			grape.username(sched.user_id) AS sched_username,
+			sched.logfile,
+			sched.status,
+			sched.progress_completed,
+			sched.progress_total,
+			sched.auto_scheduler_id
+
+		FROM grape.process AS ap
+			LEFT JOIN LATERAL (SELECT * FROM grape.schedule WHERE process_id=ap.process_id ORDER BY time_sched DESC LIMIT 1) AS sched USING (process_id)
 	LOOP
 		IF _filter_processes = FALSE 
 			OR (_filter_processes = TRUE AND grape.check_process_view_permission(_rec.process_id) = TRUE) THEN
