@@ -20,6 +20,12 @@
 - API logger (partitioned tables monthly?)
 	- settings: 
 
+- Loading roles from schema
+
+- Defining API calls in the SQL files directly:
+	1. /** @api_usage @api_url etc
+	2. load roles on startup as well (no need to put it separately in data files)
+
 Done:
 - create API calls from JSON schema
 - send email via API call

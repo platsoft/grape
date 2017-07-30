@@ -19,6 +19,10 @@ Database API calls are the most commonly used API calls. The logic for the funct
 
 The logic of the function needs to be implemented in PostgreSQL. For example, a function calculating the square root of a number:
 <code lang="sql">
+	/**
+	 * @api_usage MathsSqrt
+	 * @api_url POST /maths/sqrt
+	 */
 	CREATE OR REPLACE FUNCTION maths_sqrt (JSON) RETURNS JSON AS $$
 	DECLARE
 		_value NUMERIC;
