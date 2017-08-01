@@ -27,14 +27,16 @@ var GC = new grapeclient({url: url});
 
 if (method == 'GET')
 {
-	GC.getJSON(null, data, function(ret) {
-	       console.log(ret);	
+	var req = GC.getJSON(null, data, function(ret) {
+		console.log(ret);
+
+		//console.log(req.res.headers);
 	});
 }
 else if (method == 'POST')
 {
 	GC.postJSON(null, data, function(ret) {
-	       console.log(ret);	
+	       console.log(ret);
 	});
 
 }

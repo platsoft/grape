@@ -21,7 +21,8 @@ exports = module.exports = function(_o) {
 		public_directories: [],
 		api_directories: [],
 		cache_public_js_dirs: false,
-		process_name: false
+		process_name: false,
+		enable_notifications: false
 	};
 
 

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape Notifications">
+<h1 id="grape_notifications">Grape Notifications</h1>
+<note>This feature was introduced in Grape 1.0.8</note>
+
+Config setting: enable_notifications must be true
+
+Header: X-Notifications
+
+Functions are stored in grape.notification_function
+Functions must return a JSONB or NULL - if not null it will be appended to an array which will be base64'ed and sent back in X-Notifications
+
+</ps_doc>

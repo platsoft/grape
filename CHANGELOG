@@ -183,4 +183,6 @@ Other:
 
 1.0.8
 - New config setting process_name sets the visible process(es) name(s)
+- Removed "publicPath" from app settings (in favour of "public_directories")
+- Notification subsystem
 

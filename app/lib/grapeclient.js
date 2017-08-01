@@ -24,6 +24,7 @@ var GrapeClient = function(_o) {
 	this.password = null;
 	this.auth = null;
 	this.default_path = null;
+	this.get_notifications = false;
 	var self = this;
 	this.self = self;
 
@@ -120,7 +121,8 @@ var GrapeClient = function(_o) {
 			options.headers['Authorization'] = 'Basic ' + (new Buffer(this.auth).toString('base64'));
 		else
 			options.headers['X-SessionID'] = session_id;
-
+			
+		options.headers['X-Notifications'] = 1;
 
 		var callback = function(res) {
 			res.setEncoding('utf8');

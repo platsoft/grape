@@ -154,6 +154,15 @@ exports = module.exports = function(_o) {
 	// Database init
 	init_database(app);
 
+	// Document Store setup
+	var document_store = new grapelib.document_store(options);
+	app.set('document_store', document_store);
+	app.set('ds', document_store);
+
+	// PDF Generator setup
+	var pdfgenerator = new grapelib.pdfgenerator(app);
+	app.set('pdfgenerator', pdfgenerator);
+
 
 	//Setup functions for auto create of API calls
 	var create_api_calls = require(__dirname + '/create_api_calls.js');
@@ -231,20 +240,7 @@ exports = module.exports = function(_o) {
 	});
 
 
-
-	// Document Store setup
-	var document_store = new grapelib.document_store(options);
-	app.set('document_store', document_store);
-	app.set('ds', document_store);
-
-	// PDF Generator setup
-	var pdfgenerator = new grapelib.pdfgenerator(app);
-	app.set('pdfgenerator', pdfgenerator);
-
 	// Public directories
-	if (options.public_directory)
-		app.set('publicPath', options.public_directory);
-
 	if (options.public_directories)
 	{
 		app.set('public_directories', options.public_directories);
@@ -263,6 +259,11 @@ exports = module.exports = function(_o) {
 	var assign_db = require(__dirname + '/assign_database.js');
 	app.use(assign_db);
 
+	if (options.enable_notifications)
+	{
+		var notification_checker = require(__dirname + '/notification_checker.js');
+		app.use(notification_checker);
+	}
 	
 	// TODO This is where the api logger handler and the notification handler should be included
 

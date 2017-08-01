@@ -871,17 +871,19 @@ CREATE INDEX n_address_idx ON grape.network
 	);
 -- ddl-end --
 
--- -- object: grape.system_status_function | type: TABLE --
--- -- DROP TABLE IF EXISTS grape.system_status_function CASCADE;
--- CREATE TABLE grape.system_status_function(
--- 	system_status_function serial,
--- 	request_string text,
--- 	function_name text,
--- 	function_schema text,
--- 	active boolean
--- );
--- -- ddl-end --
--- 
+-- object: grape.notification_function | type: TABLE --
+-- DROP TABLE IF EXISTS grape.notification_function CASCADE;
+CREATE TABLE grape.notification_function(
+	notification_function_id serial NOT NULL,
+	description text,
+	function_name text,
+	function_schema text,
+	active boolean,
+	CONSTRAINT notification_function_pk PRIMARY KEY (notification_function_id)
+
+);
+-- ddl-end --
+
 -- object: uh_user_idx | type: INDEX --
 -- DROP INDEX IF EXISTS grape.uh_user_idx CASCADE;
 CREATE INDEX uh_user_idx ON grape.user_history

@@ -1261,7 +1261,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="deployment" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="962.857" y="52.8571"/>
+	<position x="925.857" y="33.8571"/>
 	<column name="deployment_id">
 		<type name="serial"/>
 	</column>
@@ -1281,13 +1281,13 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="system_status_function" sql-disabled="true">
+<table name="notification_function">
 	<schema name="grape"/>
-	<position x="1230" y="49"/>
-	<column name="system_status_function">
+	<position x="1199" y="32"/>
+	<column name="notification_function_id" not-null="true">
 		<type name="serial"/>
 	</column>
-	<column name="request_string">
+	<column name="description">
 		<type name="text"/>
 	</column>
 	<column name="function_name">
@@ -1299,6 +1299,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="active">
 		<type name="boolean"/>
 	</column>
+	<constraint name="notification_function_pk" type="pk-constr" table="grape.notification_function">
+		<columns names="notification_function_id" ref-type="src-columns"/>
+	</constraint>
 </table>
 
 <index name="uh_user_idx" table="grape.user_history"
