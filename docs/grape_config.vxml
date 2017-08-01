@@ -36,5 +36,6 @@ The following options are recognized in the config passed to Grape:
 	<tr><td id="conf-ps_bgworker">ps_bgworker</td><td>Path to ps_bgworker binary</td><td></td></tr>
 	<tr><td id="conf-cache_public_js_dirs">cache_public_js_dirs</td><td>If enabled, the compiled JS files from public directories will not be cached</td><td></td></tr>
 	<tr><td id="conf-process_name">process_name</td><td>Sets the visible process name</td><td></td></tr>
+	<tr><td id="conf-enable_notifications">enable_notifications</td><td>Enables the notification subsystem</td><td></td></tr>
 </table>
 </ps_doc>

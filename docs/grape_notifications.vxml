@@ -2,12 +2,17 @@
 <ps_doc title="Grape Notifications">
 <h1 id="grape_notifications">Grape Notifications</h1>
 <note>This feature was introduced in Grape 1.0.8</note>
+<p>
+Grape supports system notifications sent through requests HTTP headers. This provides a more efficient and convenient way to provide users with updates regarding messages or the system status in general (for example warnings before going into maintenance mode). Notifications will be included if:
+<ol>
+	<li>The <i>X-Notifications</i> header is included in the request with a value</li>
+	<li>The <link id="conf-enable_notifications">enable_notifications</link> grape config option is enabled</li>
+</ol>
 
-Config setting: enable_notifications must be true
+</p>
+<h2>Defining notification functions</h2>
+<p>
+	Functions are registered in <tname>grape.notification_function</tname>, and must return a JSONB or NULL. All non-empty results will be sent back to the client (Base64 encoded) in the X-Notifications header.
 
-Header: X-Notifications
-
-Functions are stored in grape.notification_function
-Functions must return a JSONB or NULL - if not null it will be appended to an array which will be base64'ed and sent back in X-Notifications
-
+</p>
 </ps_doc>

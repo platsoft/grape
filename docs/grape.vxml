@@ -21,6 +21,7 @@ Other functionality provided for developers, are:
 	<li><link id="grape_data_import">Data import (XLS/CSV) and processing</link></li>
 	<li><link id="platsoft-background-worker">PlatSoft Background Worker</link></li>
 	<li><link id="grape_pdf">Generating PDF files from XML (using XSL stylesheets and Apache FOP)</link></li>
+	<li><link id="grape_notifications">Sending system notifications</link></li>
 </ul>
 </p>
 
@@ -69,6 +70,9 @@ Most Grape applications will have the following directories/files:
 
 <!-- include grape user network -->
 <include href="user_ip_filter.vxml" parse="vxml" level="1" /> 
+
+<!-- include notifications network -->
+<include href="grape_notifications.vxml" parse="vxml" level="1" /> 
 
 <!-- include grape settings-->
 <include href="grapesettings.vxml" parse="vxml" level="1" /> 
