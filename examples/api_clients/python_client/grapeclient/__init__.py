@@ -31,10 +31,10 @@ class GrapeClient(object):
         pickle.dump(value, open(save_path, 'wb'))
         os.chmod(save_path, 0o600)
 
-    def load_var(self, varName):
+    def load_var(self, varName, default=None):
         save_path = os.path.join(self.workdir, varName + '.pickle')
         if not os.path.exists(save_path):
-            return None
+            return default
         else:
             return pickle.load(open(save_path, 'rb'))
 
