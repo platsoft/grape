@@ -16,8 +16,8 @@
 				"type": "object",
 				"properties": {
 					"field": {"type": "string", "description": "Field to filter on"},
-					"operand": {"type": "string", "description": "One of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE', 'NULL', 'IS NULL'"},
-					"value": {"type": ["string", "number", "boolean"], "description": "Filter value"}
+					"operand": {"type": "string", "description": "One of '=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE', 'NULL', 'IS NULL', 'IN'"},
+					"value": {"type": ["string", "number", "boolean", "array"], "description": "Filter value"}
 				}
 			}
 		}
