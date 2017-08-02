@@ -41,10 +41,12 @@ BEGIN
 		_employee_guid := ($1->>'employee_guid')::UUID;
 	END IF;
 
-	IF grape.get_value('hash_passwords', 'false') = 'true' THEN
-		_hashed_password := crypt(_password, gen_salt('bf'));
-	ELSE
-		_hashed_password := _password;
+	IF _password IS NOT NULL THEN
+		IF grape.get_value('hash_passwords', 'false') = 'true' THEN
+			_hashed_password := crypt(_password, gen_salt('bf'));
+		ELSE
+			_hashed_password := _password;
+		END IF;
 	END IF;
 
 	-- Validate Username
@@ -102,13 +104,20 @@ BEGIN
 			UPDATE grape."user"
 				SET
 					username = _username,
-					password = _hashed_password,
 					email = _email,
 					fullnames = _fullnames,
 					active = _active,
 					employee_guid=COALESCE(_employee_guid, employee_guid)
 				WHERE
 					user_id = _user_id::INTEGER;
+			
+			IF _hashed_password IS NOT NULL THEN
+				UPDATE grape."user"
+					SET
+						password = _hashed_password
+					WHERE
+						user_id = _user_id::INTEGER;
+			END IF;
 
 			IF _role_names IS NOT NULL THEN
 				DELETE FROM grape.user_role WHERE user_id = _user_id::INTEGER;
