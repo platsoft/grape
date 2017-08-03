@@ -286,7 +286,7 @@ END; $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION grape.autoschedule_next(_auto_scheduler_id INTEGER, _now TIMESTAMPTZ DEFAULT NOW()) RETURNS INTEGER AS $$
+CREATE OR REPLACE FUNCTION grape.autoschedule_next(_auto_scheduler_id INTEGER, _now TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP) RETURNS INTEGER AS $$
 DECLARE
 	_schedule_id INTEGER;
 	_rec RECORD;

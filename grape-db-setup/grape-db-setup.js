@@ -360,24 +360,24 @@ function create_objects()
 
 			if (client)
 				client.end();
-
-			process.exit(0);
-			return;
-		}
-
-		var nextfile = sql_list.shift();
-		print_info("Creating " + nextfile.filename + " (" + nextfile.data.length + " bytes)");
-
-		if (client)
-		{
-			client.query(nextfile.data, next);
 		}
 		else
 		{
-			console.log('/* CONTENTS OF FILE: ' + nextfile.filename + ' */');
-			console.log(nextfile.data);
-			console.log();
-			next(null, null);
+
+			var nextfile = sql_list.shift();
+			print_info("Creating " + nextfile.filename + " (" + nextfile.data.length + " bytes)");
+
+			if (client)
+			{
+				client.query(nextfile.data, next);
+			}
+			else
+			{
+				console.log('/* CONTENTS OF FILE: ' + nextfile.filename + ' */');
+				console.log(nextfile.data);
+				console.log();
+				next(null, null);
+			}
 		}
 	}
 

@@ -32,6 +32,7 @@
 	"devDependencies": {},
 	"bin": {
 		"grape-manage": "./grape-manage/grape-manage.js",
-		"grape-query": "./scripts/grape-query.js"
+		"grape-query": "./scripts/grape-query.js",
+		"grape-db-setup": "./grape-db-setup/grape-db-setup.js"
 	}
 }
