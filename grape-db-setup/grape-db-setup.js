@@ -10,7 +10,7 @@ commander
 	.option('-c, --create', 'Create the database before attempting to create objects')
 	.option('-r, --drop', 'Drop and recreate the database before attempting to create objects')
 	.option('-i, --continue', 'Continue processing when an error occurs (by default, processing will stop)')
-	.option('-e, --schema', 'The default schema to use when creating objects (defaults to "public"). If "none" is specified, search_path will not be set')
+	.option('-e, --schema [schema]', 'The default schema to use when creating objects (defaults to "public"). If "none" is specified, search_path will not be set')
 	.parse(process.argv);
 
 
@@ -176,6 +176,11 @@ function load_manifestfile(filename)
 	var data = fs.readFileSync(filename, 'utf8');
 	var lines = data.split("\n");
 	lines.forEach(function(line) {
+		if (line.indexOf('#') >= 0)
+			line = line.substring(0, line.indexOf('#'));
+
+		line = line.trim();
+
 		if (line.trim() != '')
 		{
 			var mfilename = path.resolve(parent_directory, line);

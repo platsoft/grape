@@ -1,7 +1,51 @@
 <?xml version="1.0"?>
 <ps_doc title="Grape DB Setup" titlepage="no">
 <h1>grape-db-setup</h1>
+<p>
+	<i>grape-db-setup</i> is a tool used to load SQL files into a database. This is typically done during initial creation of a database, or when applying patches to a database. 
+	<i>grape-db-setup</i> accepts the following options:
+	<p>
+		<i><b>-d, --dburi [dburi]</b></i> Connection parameters for the target database. If dburi is not specified, the generated SQL will be printed to stdout.
+	</p>
+	<p>
+		<i><b>-s, --superdburi [superdburi]</b></i> Connection parameters that will be used when creating and dropping the database
+	</p>
+	<p>
+		<i><b>-c, --create</b></i> Create the database before attempting to create objects
+	</p>
+	<p>
+		<i><b>-r, --drop</b></i> Drop and recreate the database before attempting to create objects
+	</p>
+	<p>
+		<i><b>-i, --continue</b></i> Continue processing when an error occurs (by default, processing will stop)
+	</p>
+	<p>
+		<i><b>-e, --schema</b></i> The default schema to use when creating objects (defaults to "public"). If "none" is specified, search_path will not be set
+	</p>
 
-If no dburi is provided - the contents will be printed to stdout
+	In addition to the above mentioned options, one or more files/directories should be provided. Each of these additional arguments will be processed:
+	<ul>
+		<li>If the entry is a directory, the files in this directory will be recursively processed and <b>.sql</b> files be included in the output</li>
+		<li>If the entry is a <b>.sql</b> file, the file will be included in the output</li>
+		<li>If the entry is a <b>.manifest</b> file, the file will be read and lines will be processed accordingly</li>
+	</ul>
+</p>
+
+<h2>File order</h2>
+grape-db-setup loads SQL files alphabetically. Sometimes it might be necessary to explicitely change this load order. This can be done by adding a <i>-- Require: </i> pre-processing instruction in the SQL file. The file that is Require'd, will be loaded before the file containing the instruction. For example, having the following in an SQL file called file.sql, will force the loading of other_file.sql before file.sql:
+
+SQL files can contain a 
+<code>-- Require: other_file.sql</code>
+
+<h2>Manifest files</h2>
+Manifest files contains a list of files (sql and other manifest files) and directories. If a manifest file is provided to <i>grape-db-setup</i>, each line will be processed. Manifest files can contain comments using the # character.
+
+<code><blue># Load grape files</blue>
+../node_modules/ps-grape/db/initial.manifest
+
+db/function/
+</code>
+
+Most projects will include 2 manifest files, one to be used during initial creation, and another to recreate functions. Additionally, deployments can include manifest files in order to apply changes to target live databases.
 
 </ps_doc>

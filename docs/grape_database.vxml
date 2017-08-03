@@ -60,32 +60,7 @@ By default, grape applications will use the following schemas:
 	<li>proc</li>
 </ul>
 
-<h2>Creating the database</h2>
-grape-tools contains a script called <i>setup_database</i> to create a database from a typical setup described above. If grape-tools is installed using <icode>npm -g grape-tools</icode>, setup_database will be available in the environment.
-<code>
-  Usage: setup_database [options] [config_file] | [directory directory directory ...]
+<include href="../grape-db-setup/grape-db-setup.vxml" parse="vxml" level="1" />
 
-  Options:
-
-    -h, --help                     output usage information
-    -r, --recreate                 Drop and recreate database (a connection will be opened using the environment variables PG_SUPERUSER, PG_SUPERUSERDB and PG_SUPERUSERPASSWORD)
-    -d, --dburi [dburi]            DB connection string (postgresql://user:password@host/dbname)
-    -s, --superdburi [superdburi]  Super user DB connection string (if not specified, environment variables will be used)
-</code>
-
-If a config.js file is provided to setup_database, SQL files will be loaded in the following order: 
-<ol>
-	<li>Grape database files are loaded from <i>node_modules/ps-grape/db</i></li>
-	<li>Each entry in the <link id="conf-db_definition">db_definition</link> config option are traversed, and subdirectories named 'schema', 'function', 'view' and 'data' (in that order) are recursively read for SQL files. The 'data' directory is ignored when <i>--recreate</i> is not used</li>
-	<li>Each entry in the <link id="conf-sql_dirs">sql_dirs</link> config option are traversed recursively, and SQL files loaded</li>
-</ol>
-
-<p>
-If the <i>-r, --recreate</i> option is specified, a "CREATE DATABASE" statement will be executed in a seperate connection before the other files are loaded.
-</p>
-
-<h3>File order</h3>
-setup_database loads SQL files alphabetically. Sometimes it might be necessary to explicitely change this load order. This can be done by adding a <i>-- Require: </i> pre-processing instruction in the SQL file. The file that is Require'd, will be loaded before the file containing the instruction. For example, having the following in an SQL file called file.sql, will force the loading of other_file.sql before file.sql:
-<code>-- Require: other_file.sql</code>
 
 </ps_doc>
