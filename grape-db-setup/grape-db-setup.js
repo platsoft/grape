@@ -387,8 +387,15 @@ function create_objects()
 print_info("Building list...");
 
 commander.args.forEach(function (f) {
-	load_entry(f);
+	load_entry(f, 'command line');
 });
+
+if (sql_list.length == 0)
+{
+	print_warn('No SQL files found');
+
+	process.exit(1);
+}
 
 if (commander.drop)
 {
