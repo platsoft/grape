@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape DB Setup" titlepage="no">
+<h1>grape-db-setup</h1>
+
+If no dburi is provided - the contents will be printed to stdout
+
+</ps_doc>

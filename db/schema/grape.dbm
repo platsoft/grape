@@ -123,24 +123,17 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="active" default-value="true">
 		<type name="boolean"/>
 	</column>
-	<column name="external" default-value="0">
-		<type name="smallint"/>
-	</column>
-	<column name="blame_id">
-		<type name="integer"/>
-	</column>
 	<column name="employee_guid">
 		<type name="uuid"/>
 	</column>
 	<column name="employee_info">
-		<type name="json"/>
+		<type name="jsonb"/>
 	</column>
 	<column name="pg_role">
 		<type name="text"/>
 	</column>
-	<column name="local_only" default-value="FALSE">
-		<type name="boolean"/>
-		<comment><![CDATA[If this is true, this user will not be linked to any external systems]]></comment>
+	<column name="auth_info">
+		<type name="jsonb"/>
 	</column>
 	<constraint name="user_pk" type="pk-constr" table="grape.&quot;user&quot;">
 		<columns names="user_id" ref-type="src-columns"/>
