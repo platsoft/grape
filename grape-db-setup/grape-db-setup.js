@@ -41,8 +41,10 @@ if (commander.dburi && commander.readconfig)
 if (commander.readconfig)
 {
 	// TODO load JSON as well
-	var config = require(commander.readconfig);
-	config.dburi = config.dburi;
+	var configfile = process.cwd() + '/' + commander.readconfig;
+
+	var config = require(configfile);
+	commander.dburi = config.dburi;
 }
 
 if (!commander.schema)
@@ -69,7 +71,8 @@ function load_entry (f, source)
 
 	if (fstat.isDirectory())
 	{
-		load_directory(realpath);
+		if (load_directory(realpath) == false)
+			return false;
 	}
 	else if (fstat.isFile())
 	{
@@ -191,10 +194,15 @@ function load_manifestfile(filename)
 {
 	var parent_directory = path.dirname(filename);
 	pc.print_info("Loading manifest file " + filename);
+
+	var check = true;
 	
 	var data = fs.readFileSync(filename, 'utf8');
 	var lines = data.split("\n");
 	lines.forEach(function(line) {
+		if (check == false)
+			return false;
+
 		if (line.indexOf('#') >= 0)
 			line = line.substring(0, line.indexOf('#'));
 
@@ -204,9 +212,14 @@ function load_manifestfile(filename)
 		{
 			var mfilename = path.resolve(parent_directory, line);
 			if (load_entry(mfilename, filename) == false)
+			{
+				check = false;
 				return false;
+			}
 		}
 	});
+
+	return check;
 }
 
 /**
@@ -235,7 +248,11 @@ function create_database(superdburi, dburi, cb)
 				process.exit(1);
 			}
 
-			var obj = parse_connection_string(dburi);
+			if (typeof dburi == 'string')
+				var obj = parse_connection_string(dburi);
+			else
+				var obj = dburi;
+
 			if (!obj.database || !obj.user)
 			{
 				pc.print_err('The database options you provided through the --dburi, -d option should specify a database name and user (which will be the owner of the new database), in the format pg://username:password@hostname/databasename');
@@ -285,25 +302,32 @@ function drop_database(superdburi, dburi, cb)
 				process.exit(1);
 			}
 
-			var obj = parse_connection_string(dburi);
+			if (typeof dburi == 'string')
+				var obj = parse_connection_string(dburi);
+			else
+				var obj = dburi;
+
 			if (!obj.database || !obj.user)
 			{
 				pc.print_err('The database options you provided through the --dburi, -d option should specify a database name and user (which will be the owner of the new database), in the format pg://username:password@hostname/databasename');
 				process.exit(1);
 			}
+		
+			client.query('SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=$1', [obj.database], function(err, result) {
 
-			client.query(['DROP DATABASE "', obj.database, '"'].join(''), 
-				function(err, res) {
-					if (err)
-					{
-						pc.print_err("Error during database drop: " + err.toString() + ' (' + err.code + ')');
-						process.exit(1);
+				client.query(['DROP DATABASE "', obj.database, '"'].join(''), 
+					function(err, res) {
+						if (err)
+						{
+							pc.print_err("Error during database drop: " + err.toString() + ' (' + err.code + ')');
+							process.exit(1);
+						}
+
+						client.end();
+						cb();
 					}
-
-					client.end();
-					cb();
-				}
-			);
+				);
+			});
 		}
 	});
 
@@ -411,7 +435,6 @@ for (var i = 0; i < commander.args.length; i++)
 	var f = commander.args[i];
 	if (load_entry(f, 'command line') == false)
 	{
-		console.log("AAAA FAKSE");
 		sql_list = [];
 		break;
 	}

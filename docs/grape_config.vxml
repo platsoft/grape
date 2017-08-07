@@ -9,6 +9,7 @@ The following options are recognized in the config passed to Grape:
 	</thead>
 	<tr><td>dburi</td><td>DB connection settings</td><td></td></tr>
 	<tr><td>guest_dburi</td><td>DB connection settings for guest users</td><td></td></tr>
+	<tr><td>super_dburi</td><td>DB connection used when setting up database (by grape-db-setup)</td><td></td></tr>
 	<tr><td id="conf-api_directory">api_directory</td><td>Directory (or array of directories) containing API files</td><td></td></tr>
 	<tr><td id="conf-db_definition">db_definition</td><td>Array containing directories with DB definitions. Subdirectories schema, function, view and data will be traversed when recreating a database using the setup_database tool</td><td></td></tr>
 	<tr><td>sql_dirs</td><td>Array containing directories with DB definitions. All subdirectories will be recursively read</td><td></td></tr>
