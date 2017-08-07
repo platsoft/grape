@@ -187,4 +187,5 @@ Other:
 - Notification subsystem
 - New tool to set up a database: grape-db-setup
 - User save will not change the password if it is not provided
+- HTTPS support for GrapeClient (also applies to grape-query)
 
