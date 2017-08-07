@@ -2,11 +2,14 @@
 
 var events = require('events');
 var http = require('http');
+var https = require('https');
 var url = require('url');
 var util = require('util');
 var fs = require('fs');
 var querystring = require('querystring');
 var _path = require('path');
+
+var use_http = null;
 
 /**
  * @event login Emitted after successful login attempt
@@ -16,6 +19,7 @@ var _path = require('path');
 var GrapeClient = function(_o) {
 	events.EventEmitter.call(this);
 
+	this.protocol = 'http:';
 	this.session = null;
 	this.url = '';
 	this.hostname = 'localhost';
@@ -38,6 +42,16 @@ var GrapeClient = function(_o) {
 			this.auth = urlObj.auth;
 		if (urlObj.path)
 			this.default_path = urlObj.path;
+		this.protocol = urlObj.protocol;
+
+		if (this.protocol == 'http:')
+			use_http = http;
+		else if (this.protocol == 'https:')
+		{
+			process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+			use_http = https;
+		}
+
 	}
 
 	if (_o.username)
@@ -90,7 +104,7 @@ var GrapeClient = function(_o) {
 			});
 		};
 
-		var req = http.request(options, callback);
+		var req = use_http.request(options, callback);
 		req.write(data);
 		req.end();
 
@@ -137,7 +151,7 @@ var GrapeClient = function(_o) {
 			});
 		};
 
-		var req = http.request(options, callback);
+		var req = use_http.request(options, callback);
 		req.end();
 
 		return req;
@@ -305,7 +319,7 @@ var GrapeClient = function(_o) {
 			});
 		};
 
-		var req = http.request(options, callback);
+		var req = use_http.request(options, callback);
 
 
 		
