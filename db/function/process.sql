@@ -124,6 +124,7 @@ BEGIN
 
 		FROM grape.process AS ap
 			LEFT JOIN LATERAL (SELECT * FROM grape.schedule WHERE process_id=ap.process_id ORDER BY time_sched DESC LIMIT 1) AS sched USING (process_id)
+			ORDER BY ap.process_id
 	LOOP
 		IF _filter_processes = FALSE 
 			OR (_filter_processes = TRUE AND grape.check_process_view_permission(_rec.process_id) = TRUE) THEN
