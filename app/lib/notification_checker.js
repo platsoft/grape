@@ -17,10 +17,17 @@ module.exports = function (req, res, next) {
 	}
 
 	res.locals.db.query('SELECT * FROM grape.check_notifications()', [], function(err, result) {
-		if (err || !result.rows)
+		if (err)
 		{
-			app.get('logger').error('app', 'Notification subsystem error');
+			req.app.get('logger').error('app', 'Notification subsystem error');
 			next();
+			return;
+		}
+
+		if (!result.rows)
+		{
+			next();
+			return;
 		}
 
 		var row = result.rows[0];

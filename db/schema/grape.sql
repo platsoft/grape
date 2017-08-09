@@ -94,18 +94,14 @@ CREATE TABLE grape."user"(
 	email text,
 	fullnames text,
 	active boolean DEFAULT true,
-	external smallint DEFAULT 0,
-	blame_id integer,
 	employee_guid uuid,
-	employee_info json,
+	employee_info jsonb,
 	pg_role text,
-	local_only boolean DEFAULT FALSE,
+	auth_info jsonb,
 	CONSTRAINT user_pk PRIMARY KEY (user_id),
 	CONSTRAINT username_uq UNIQUE (username)
 
 );
--- ddl-end --
-COMMENT ON COLUMN grape."user".local_only IS 'If this is true, this user will not be linked to any external systems';
 -- ddl-end --
 
 -- object: grape.process | type: TABLE --

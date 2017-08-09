@@ -1,3 +1,6 @@
+
+-- Require: user.sql
+
 /**
  * Input:
  * 	username or email

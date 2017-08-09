@@ -1321,6 +1321,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
+<table name="authentication_token">
+	<schema name="grape"/>
+	<position x="122" y="72"/>
+</table>
+
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_role">
 	<columns names="user_id" ref-type="src-columns"/>
