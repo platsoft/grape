@@ -59,10 +59,25 @@ exports = module.exports = function(_app) {
  * 	process_id INTEGER
  * 	pg_function TEXT
  * 	description TEXT
- * 	new INTEGER
- * 	completed INTEGER
- * 	error INTEGER
- * 	running INTEGER
+ * 	process_category TEXT
+ * 	param JSON
+ * 	auto_scheduler [
+ * 		
+ * 		run_as_user
+ * 	]
+ * 	process_role [TEXT]
+ * 	schedule_id INTEGER
+ * 	time_sched
+ * 	time_started
+ * 	time_ended
+ * 	pid
+ * 	sched_param
+ * 	sched_username
+ * 	logfile
+ * 	status
+ * 	progress_completed
+ * 	progress_total
+ * 	auto_scheduler_id
  * }
  * @returnsample [{"process_id":1,"pg_function":"create_combined_tape","description":"Create combine tape","new":1,"completed":0,"error":0,"running":1},{"process_id":2,"pg_function":"apply_tapefile","description":"Apply debit orders","new":0,"completed":0,"error":0,"running":0}]
  **/
