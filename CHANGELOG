@@ -189,5 +189,5 @@ Other:
 - User save will not change the password if it is not provided
 - HTTPS support for GrapeClient (also applies to grape-query)
 - Removed lookup schema and tables from grape (this includes: lookup.relationship, lookup.bank_branch and lookup.valid_bank_name)
-- Process list API (/grape/process/list) will now return information about the most recently scheduled schedule, instead if totals
+- Process list API (/grape/process/list) will now return information about the most recently scheduled schedule, instead of totals
 
