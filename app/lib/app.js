@@ -147,6 +147,7 @@ exports = module.exports = function(_o) {
 	app.enable("trust proxy");
 
 	app.disable("x-powered-by");
+	app.disable("etag");
 
 	// Grape Utils
 	app.set('gutil', grapelib.utils);

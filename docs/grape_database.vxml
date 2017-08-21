@@ -52,13 +52,16 @@ Remember that primary key columns automatically have indexes assigned to them.
 	<li>Avoid too many indexes on a table</li>
 </ul>
 
-<h2>Schemas</h2>
+<h3>Schemas</h3>
 By default, grape applications will use the following schemas:
 <ul>
 	<li>public</li>
 	<li>grape</li>
 	<li>proc</li>
 </ul>
+
+<h2>Using NOTIFY/LISTEN</h2>
+Grape includes a utility function, <i>new_notify_handler(<b>channel_name</b>, <b>callback</b>)</i>, which will keep track of callbacks for database <u>NOTIFY</u> events. 
 
 <include href="../grape-db-setup/grape-db-setup.vxml" parse="vxml" level="1" />
 
