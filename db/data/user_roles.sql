@@ -14,3 +14,5 @@ INSERT INTO grape.access_path (role_name, regex_path) VALUES ('all', '/grape/log
 INSERT INTO grape.access_role (role_name) VALUES ('admin');
 INSERT INTO grape.access_path (role_name, regex_path) VALUES ('admin', '.*');
 
+INSERT INTO grape.access_role (role_name) VALUES ('pg_stat'); -- role that can view pg stats
+

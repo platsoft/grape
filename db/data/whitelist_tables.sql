@@ -29,4 +29,14 @@ SELECT grape.table_permissions_add('grape',
 	'{INSERT,DELETE,UPDATE}'::TEXT[]
 );
 
+SELECT grape.table_permissions_add('pg_catalog', 
+	'{pg_stat_user_functions,'
+	'pg_stat_activity,'
+	'pg_stat_replication}'::TEXT[], 
+
+	'pg_stat',
+	'SELECT'
+);
+
+
 

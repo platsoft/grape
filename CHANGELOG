@@ -191,3 +191,12 @@ Other:
 - Removed lookup schema and tables from grape (this includes: lookup.relationship, lookup.bank_branch and lookup.valid_bank_name)
 - Process list API (/grape/process/list) will now return information about the most recently scheduled schedule, instead of totals
 
+1.0.9
+- Bumped pg to 7.2.0 (https://node-postgres.com/announcements#2017-08-12-code-execution-vulnerability)
+- grape-db-setup better error messages
+- grape-db-setup read JSON file as config
+- New default role pg_stat (pg statistics monitoring)
+- Use req.ip when logging in (instead of remoteConnection IP) for proxies
+- PDF generator should catch DB errors
+- New view grape.v_pg_table_stats
+

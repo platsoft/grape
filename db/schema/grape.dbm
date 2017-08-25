@@ -912,9 +912,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="hash">
 		<type name="text"/>
 	</column>
-	<column name="hash_algo">
-		<type name="text"/>
-	</column>
 	<column name="date_inserted" default-value="NOW()">
 		<type name="timestamptz"/>
 	</column>

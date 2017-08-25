@@ -133,6 +133,18 @@ function PDFGenerator(app)
 
 		var qry = res.locals.db.query("SELECT * FROM " + callFunc, o.funcParams);
 
+		qry.on('error', function(err) {
+			var msg = err.hint || '';
+			if (err.code == '42883')
+			{
+				msg = 'The XML generator function (' + callFunc + ') does not exist';
+			}
+			msg = msg + err.toString();
+
+			self.app.get('logger').error('db', 'Error while generating PDF: ' + msg + '(at ' + (err.internalQuery || '') + ')');
+			res.status(500).send('Error: ' + msg);
+		});
+
 		qry.on('row', function(xml) {
 			var dataxml = xml.x;
 			fs.writeFileSync(xml_name, dataxml);

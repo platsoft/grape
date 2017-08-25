@@ -73,7 +73,7 @@ function login (req, res)
 		return;
 	}
 	
-	var ip_address = req.connection.remoteAddress;
+	var ip_address = req.ip;
 
 	var obj = {
 		password: req.body.password,
