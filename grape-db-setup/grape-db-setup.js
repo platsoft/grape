@@ -40,10 +40,49 @@ if (commander.dburi && commander.readconfig)
 
 if (commander.readconfig)
 {
-	// TODO load JSON as well
 	var configfile = process.cwd() + '/' + commander.readconfig;
 
-	var config = require(configfile);
+	if (path.extname(configfile) == '.json')
+	{
+		try {
+			var config = JSON.parse(fs.readFileSync(configfile, 'utf8'));
+		} catch (e) {
+			if (e.code == 'ENOENT')
+			{
+				pc.print_err('File not found: ' + configfile);
+			}
+			else
+			{
+				console.log(e);
+				pc.print_err('Could not JSON file: ' + configfile);
+			}
+			process.exit(1);
+		}
+	}
+	else
+	{
+		try {
+			var config = require(configfile);
+		} catch (e) {
+			if (e.code == 'MODULE_NOT_FOUND')
+			{
+				pc.print_err('File not found: ' + configfile);
+			}
+			else
+			{
+				console.log(e);
+				pc.print_err('Could not load module: ' + configfile);
+			}
+			process.exit(1);
+		}
+	}
+	
+	if (!config.dburi)
+	{
+		pc.print_err("The config file you provided (" + configfile + ") does not contain a dburi field");
+		process.exit(1);
+	}
+
 	commander.dburi = config.dburi;
 }
 
@@ -228,16 +267,23 @@ function load_manifestfile(filename)
  */
 function create_database(superdburi, dburi, cb)
 {
+	pc.print_info("Creating database...");
 	var client = null;
 	if (superdburi)
+	{
 		client = new pg.Client(superdburi);
+		pc.print_info("\tConnecting to " + superdburi + " for superuser connection");
+	}
 	else
+	{
 		client = new pg.Client();
+		pc.print_warn("\tFalling back to default settings for superuser connection");
+	}
 
 	client.connect(function(err) {
 		if (err)
 		{
-			pc.print_err("Error estabilishing connection" + (superdburi ? ' to ' + superdburi : '') + ": " + err.toString() + ' (' + err.code + ')');
+			pc.print_err("Error establishing connection" + (superdburi ? ' to ' + superdburi : '') + ": " + err.toString() + ' (' + err.code + ')');
 			process.exit(1);
 		}
 		else
@@ -258,6 +304,9 @@ function create_database(superdburi, dburi, cb)
 				pc.print_err('The database options you provided through the --dburi, -d option should specify a database name and user (which will be the owner of the new database), in the format pg://username:password@hostname/databasename');
 				process.exit(1);
 			}
+	
+			pc.print_info("\tTarget database name: " + obj.database);
+			pc.print_info("\tTarget database user: " + obj.user);
 
 			client.query(['CREATE DATABASE "', obj.database, '" OWNER "', obj.user, '"'].join(''), 
 				function(err, res) {
@@ -268,7 +317,9 @@ function create_database(superdburi, dburi, cb)
 					}
 
 					client.end();
+					pc.print_ok("\tDatabase created");
 					cb();
+
 				}
 			);
 		}
@@ -282,16 +333,24 @@ function create_database(superdburi, dburi, cb)
  */
 function drop_database(superdburi, dburi, cb)
 {
+	pc.print_info("Dropping database...");
 	var client = null;
 	if (superdburi)
+	{
 		client = new pg.Client(superdburi);
+		pc.print_info("\tConnecting to " + superdburi + " for superuser connection");
+	}
 	else
+	{
 		client = new pg.Client();
+		pc.print_warn("\tFalling back to default settings for superuser connection");
+	}
+
 
 	client.connect(function(err) {
 		if (err)
 		{
-			pc.print_err("Error estabilishing connection" + (superdburi ? ' to ' + superdburi : '') + ": " + err.toString() + ' (' + err.code + ')');
+			pc.print_err("Error establishing connection" + (superdburi ? ' to ' + superdburi : '') + ": " + err.toString() + ' (' + err.code + ')');
 			process.exit(1);
 		}
 		else
@@ -312,21 +371,43 @@ function drop_database(superdburi, dburi, cb)
 				pc.print_err('The database options you provided through the --dburi, -d option should specify a database name and user (which will be the owner of the new database), in the format pg://username:password@hostname/databasename');
 				process.exit(1);
 			}
+
+			pc.print_info("\tTarget database name: " + obj.database);
+			pc.print_info("\tTarget database user: " + obj.user);
+
+			// Make sure it is not the same database
+			client.query('SELECT current_database()', [], function(err, result) {
+
+				if (err)
+				{
+					pc.print_err('Error while retrieving the name of the superuser connection!');
+					process.exit(1);
+				}
+
+				if (result.rows[0].current_database == obj.database)
+				{
+					pc.print_err('You cannot use the same database for the superuser connection and the target database!');
+					pc.print_err('Hint: You can specify another connection string for the superuser connection using the -s option (pg://localhost/postgres)');
+					process.exit(1);
+				}
+
 		
-			client.query('SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=$1', [obj.database], function(err, result) {
+				client.query('SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=$1', [obj.database], function(err, result) {
 
-				client.query(['DROP DATABASE "', obj.database, '"'].join(''), 
-					function(err, res) {
-						if (err)
-						{
-							pc.print_err("Error during database drop: " + err.toString() + ' (' + err.code + ')');
-							process.exit(1);
+					client.query(['DROP DATABASE "', obj.database, '"'].join(''), 
+						function(err, res) {
+							if (err)
+							{
+								pc.print_err("Error during database drop: " + err.toString() + ' (' + err.code + ')');
+								process.exit(1);
+							}
+
+							client.end();
+							pc.print_ok("\tDatabase dropped");
+							cb();
 						}
-
-						client.end();
-						cb();
-					}
-				);
+					);
+				});
 			});
 		}
 	});
@@ -365,7 +446,7 @@ function create_objects()
 			}
 			else
 			{
-				pc.print_ok("Connected");
+				pc.print_ok("\tConnected");
 			}
 
 			next(null, null);
@@ -400,7 +481,7 @@ function create_objects()
 		}
 		if (sql_list.length <= 0)
 		{
-			pc.print_info("DONE");
+			pc.print_ok("DONE");
 
 			if (client)
 				client.end();
