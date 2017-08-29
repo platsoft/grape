@@ -82,14 +82,7 @@ BEGIN
 
 	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
 
-		IF grape.get_value('hash_passwords', 'false') = 'true' THEN
-			_password := crypt(_password, rec.password);
-			_check_password := rec.password;
-		ELSE
-			_check_password := rec.password;
-		END IF;
-
-		IF _check_password != _password THEN
+		IF grape.check_user_password(rec.password, _password) = FALSE THEN
 			RAISE DEBUG 'User % login failed. Password does not match', _user;
 			RETURN grape.api_result_error('Invalid password', 2);
 		END IF;
@@ -147,6 +140,14 @@ BEGIN
 	PERFORM pg_notify('new_session', _ret::TEXT);
 
 	RETURN _ret;
+END; $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION grape.session_insert(_user_id INTEGER) RETURNS TEXT AS $$
+DECLARE
+BEGIN
+
+
 END; $$ LANGUAGE plpgsql;
 
 

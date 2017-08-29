@@ -43,7 +43,7 @@ BEGIN
 
 	IF _password IS NOT NULL THEN
 		IF grape.get_value('hash_passwords', 'false') = 'true' THEN
-			_hashed_password := crypt(_password, gen_salt('bf'));
+			_hashed_password := grape.generate_user_pw_hash(_password);
 		ELSE
 			_hashed_password := _password;
 		END IF;
@@ -213,7 +213,7 @@ BEGIN
 
 	SELECT password INTO _password FROM grape."user" WHERE user_id=_user_id::INTEGER;
 
-	_hashed_password := crypt(_password, gen_salt('bf'));
+	_hashed_password := grape.generate_user_pw_hash(_password);
 
 	IF LENGTH(_hashed_password) = LENGTH(_password) AND SUBSTRING(_password, 1, 1) = '$' THEN
 		RAISE DEBUG 'Password hashed is the same length as password and it starts with a dollar sign, not updateing it';
@@ -260,7 +260,7 @@ BEGIN
 		RAISE NOTICE 'Cannot save a clear-text password from a hash';
 		RETURN FALSE;
 	ELSIF _hashed_locally = TRUE AND _is_hashed = FALSE THEN
-		_password_to_save := crypt(_password, gen_salt('bf'));
+		_password_to_save := grape.generate_user_pw_hash(_password);
 	END IF;
 
 	UPDATE grape."user" SET password=_password_to_save WHERE user_id=_user_id::INTEGER;
