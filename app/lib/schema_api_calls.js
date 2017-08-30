@@ -36,12 +36,10 @@ function create_schema_api_call(app, obj)
 		return;
 	}
 
-	/* TODO
-	var func_check_roles = function(req, res) {
-
-	};
-	*/
-
+	if (param.roles)
+	{
+		add_schema_access_roles(param.roles, param.id, param.method, app.get('db'));
+	}
 
 	if (param.method == 'POST')
 	{
@@ -160,6 +158,12 @@ function read_schema_file(app, file, relative) {
 		app.get('logger').warn('api', "Unknown type in JSON file " + file);
 	}
 };
+
+function add_schema_access_roles(roles, url, method, db)
+{
+	db.query("SELECT grape.add_access_path($1, $2, $3)", [url.replace(/:[a-z_]+/g, '.*'), roles, [method]], function(err, res) {
+	});
+}
 
 /**
  * Loads schemas from directory
