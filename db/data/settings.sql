@@ -9,4 +9,6 @@ SELECT grape.add_setting ('system_url', 'http://', 'URL to access system''s fron
 SELECT grape.add_setting ('dataimport_in_background', 'false', 'Run data import processing functions in the background', 'bool', false); 
 SELECT grape.add_setting ('filter_processes', 'false', 'Apply role based filtering on processes', 'bool', false); 
 SELECT grape.add_setting ('user_ip_filter', 'false', 'Enable IP filtering on users', 'bool', false); 
+SELECT grape.add_setting ('service_name', '', 'Local service name (for authentication)', 'text', false); 
+SELECT grape.add_setting ('authentication_url', 'local', 'Authentication service URL', 'text', false); 
 
