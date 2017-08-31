@@ -203,5 +203,7 @@ Other:
 - Switch over to storing salted SHA256 (using 1000 rounds) passwords (hashing functions in 
 - Automatically add access roles and access paths from schema apis to DB upon startup
 - New grape-manage command: reset_password used to reset a users password
+- Removed deprecated API call "/session/new"
+- Handle CORS headers, as described in https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
 
 

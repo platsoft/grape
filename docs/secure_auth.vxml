@@ -24,6 +24,16 @@
 		<li>GrapeUI's config.json setting secure_login needs to be set to true</li>
 	</ol>
 
+	<h2>Encryption</h2>
+	The key used to encrypt and decrypt the initial response (containing the TGT) is generated from the user's password as follows:
+	<ol>
+		<li>A: Random salt is generated</li>
+		<li>B: The salt from (A) is added to the user's password (prepended), and hashed using SHA256, and encoded in hex format</li>
+		<li>C: The output from (B) is added to the front of the salt and password, and hashed again</li>
+		<li>The process repeats for 1000 times (rounds), and the output is used as the encryption key, using AES-CBC with PKCS#7 padding</li>
+	</ol>
+	This process is also used when encrypting the Authenticator (using the session key as input) when requesting a service ticket.
+
 	<h2>Data flow</h2>
 	<code>
 <![CDATA[>>]]> POST /grape/auth/tgt {"username": ""}

@@ -217,6 +217,27 @@ exports = module.exports = function(_o) {
 			return;
 		}
 
+		if (req.headers['origin'])
+		{
+			res.set('Access-Control-Allow-Origin', req.headers['origin']);
+		}
+
+		if (req.method == 'OPTIONS')
+		{
+			// Handle pre-flight CORS request
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+		
+			logger.log('app', 'trace', ['Pre-flight CORS request from', req.headers['origin']].join(' '));
+
+			res.status(200);
+			res.set('Access-Control-Allow-Origin', req.headers['origin']);
+			res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+			res.set('Access-Control-Allow-Headers', 'X-SessionID, X-Notifications, Content-Type');
+			res.set('Access-Control-Max-Age', 86400);
+
+			res.end();
+			return;
+		}
 
 		res.locals.db = app.get('guest_db');
 		req.db = app.get('guest_db');

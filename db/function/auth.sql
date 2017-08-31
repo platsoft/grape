@@ -10,6 +10,7 @@ BEGIN
 	IF NOT FOUND THEN
 		RETURN NULL;
 	END IF;
+
 	
 	_session_key := ENCODE(gen_random_bytes(16), 'hex');
 
@@ -17,6 +18,8 @@ BEGIN
 		'username', _user.username,
 		'employee_guid', _user.employee_guid,
 		'issued_at', NOW(),
+		'valid_until', (NOW() + INTERVAL '8 hours'),
+		'issued_by', grape.get_value('service_name', ''),
 		'session_key', _session_key
 	);
 	
@@ -66,8 +69,12 @@ BEGIN
 			RETURN grape.api_error('Invalid input', -2);
 		END IF;
 	END IF;
+	
+	IF _user.employee_guid IS NULL THEN
+		RETURN grape.api_error('You username on the authentication service does not have a valid employee GUID. Please ask your system administrator to complete the configuration for your account', -98);
+	END IF;
 
-	_server_private_key := ENCODE(DIGEST('my private key', 'sha256'), 'hex');
+	_server_private_key := ENCODE(DIGEST(grape.get_server_private_key('TGT'), 'sha256'), 'hex');
 
 	_tgt := grape.create_TGT(_user.user_id);
 	_encrypted_tgt := grape.encrypt_message(_tgt::TEXT, _server_private_key, 'c5067fe37e0b025da44ec7578502c7e4');
@@ -95,45 +102,6 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION grape.create_and_wrap_TGT(_user_id INTEGER) RETURNS TEXT AS $$
-DECLARE
-	_user RECORD;
-BEGIN
-	SELECT * INTO _user FROM grape."user" WHERE user_id=_user_id::INTEGER;
-	IF NOT FOUND THEN
-		RETURN NULL;
-	END IF;
-	
-	
-
-	RETURN '';
-END; $$ LANGUAGE plpgsql;
-
--- Receives a packet with TGT
-CREATE OR REPLACE FUNCTION grape.validate_authenticator() RETURNS INTEGER AS $$
-DECLARE
-BEGIN
-
-
-END; $$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION grape.create_service_ticket(_service TEXT, _user_id INTEGER) RETURNS TEXT AS $$
-DECLARE
-	_service_ticket JSONB;
-	_user RECORD;
-	_start TIMESTAMPTZ;
-BEGIN
-	SELECT * INTO _user FROM grape."user" WHERE user_id=_user_id::INTEGER;
-
-	_service_ticket := jsonb_build_object(
-		'username', _user.username,
-		'employee_guid', _user.employee_guid,
-		'issued_at', NOW(),
-		'valid_until', (NOW() + INTERVAL '8 hours')
-	);
-
-	RETURN _service_ticket::TEXT;
-END; $$ LANGUAGE plpgsql;
 
 /**
  * Grants a service ticket based on TGT
@@ -146,30 +114,70 @@ DECLARE
 	_encrypted_authenticator TEXT;
 	_iv TEXT;
 	_salt TEXT;
-	_authenticator TEXT;
+	_authenticator JSONB;
 	_decryption_key TEXT;
 	_tgt JSONB;
+	_user RECORD;
+
+	_service_ticket TEXT;
 BEGIN
 	
 	_raw_tgt := ($1->>'tgt');
 
-	_server_private_key := ENCODE(DIGEST('my private key', 'sha256'), 'hex');
+	_server_private_key := ENCODE(DIGEST(grape.get_server_private_key('TGT'), 'sha256'), 'hex');
 	_tgt := (grape.decrypt_message(_raw_tgt, _server_private_key, 'c5067fe37e0b025da44ec7578502c7e4'))::JSONB;
 
 	RAISE NOTICE 'TGT: %', _tgt;
 
 	_requested_service := ($1->>'requested_service');
+
+	IF grape.is_valid_service(_requested_service) = FALSE AND grape.get_value('service_name', '') != _requested_service THEN
+		RETURN grape.api_error('No such service: ' + _requested_service);
+	END IF;
+
 	_encrypted_authenticator := ($1->>'authenticator');
 	_iv := ($1->>'iv');
 	_salt := ($1->>'salt');
 
 	_decryption_key := grape.generate_user_key(_tgt->>'session_key', _salt, 1000);
 
-	_authenticator := grape.decrypt_message(_encrypted_authenticator, _decryption_key, _iv);
-	
+	_authenticator := (grape.decrypt_message(_encrypted_authenticator, _decryption_key, _iv))::JSONB;
+
 	RAISE NOTICE 'Authenticator: %', _authenticator;
 
-	RETURN grape.api_success();
+	IF _authenticator ? 'username' THEN
+		SELECT * INTO _user FROM grape."user" WHERE username=(_authenticator->>'username');
+		IF NOT FOUND THEN
+			RETURN grape.api_error('No such user', -2);
+		END IF;
+	ELSIF _authenticator ? 'email' THEN
+		SELECT * INTO _user FROM grape."user" WHERE email=(_authenticator->>'email');
+		IF NOT FOUND THEN
+			RETURN grape.api_error('No such user', -2);
+		END IF;
+	END IF;
+
+	IF _user.username != _tgt->>'username' THEN
+		RETURN grape.api_error('Non-match on username');
+	END IF;
+
+	IF _user.employee_guid != (_tgt->>'employee_guid')::UUID THEN
+		RETURN grape.api_error('Non-match on employee GUID');
+	END IF;
+
+	-- Time checks
+	IF (_tgt->>'valid_until')::TIMESTAMPTZ < NOW() THEN
+		RETURN grape.api_error('TGT Expired');
+	END IF;
+
+	IF (_authenticator->>'issued_at')::TIMESTAMPTZ < (_tgt->>'issued_at')::TIMESTAMPTZ THEN
+		RETURN grape.api_error('Non-match on username');
+	END IF;
+
+	_service_ticket := grape.create_service_ticket(_requested_service, _user.user_id);
+	_service_ticket := grape.encrypt_message_for_service(_requested_service, _service_ticket);
+
+	RETURN grape.api_success(json_build_object('service_ticket', _service_ticket));
 END; $$ LANGUAGE plpgsql;
 
 
@@ -186,11 +194,17 @@ BEGIN
 	RETURN CONVERT_FROM(DECRYPT_IV(DECODE(_data, 'hex'), decode(_key, 'hex'), decode(_iv, 'hex'), 'aes-cbc/pad:pkcs'), 'utf8');
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION grape.get_server_private_key() RETURNS TEXT AS $$
+CREATE OR REPLACE FUNCTION grape.get_server_private_key(_role TEXT) RETURNS TEXT AS $$
 DECLARE
+	_s TEXT;
 BEGIN
-
-
+	SELECT my_secret INTO _s FROM grape.system_private WHERE role=_role::TEXT;
+	IF NOT FOUND THEN
+		_s := ENCODE(gen_random_bytes(32), 'hex');
+		INSERT INTO grape.system_private (my_secret, role, last_reset)
+			VALUES (_s, 'TGT', CURRENT_TIMESTAMP);
+	END IF;
+	RETURN _s;
 END; $$ LANGUAGE plpgsql;
 
 

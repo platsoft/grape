@@ -430,12 +430,18 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_private">
 	<schema name="grape"/>
-	<position x="160" y="1880"/>
+	<position x="130" y="1872"/>
 	<column name="system_private_id" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="my_secret">
-		<type name="bytea"/>
+		<type name="text"/>
+	</column>
+	<column name="role">
+		<type name="text"/>
+	</column>
+	<column name="last_reset">
+		<type name="timestamptz"/>
 	</column>
 	<constraint name="system_private_pk" type="pk-constr" table="grape.system_private">
 		<columns names="system_private_id" ref-type="src-columns"/>
@@ -1337,7 +1343,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="service">
 	<schema name="grape"/>
 	<comment><![CDATA[This table is used for the generation of service tickets]]></comment>
-	<position x="619" y="1700"/>
+	<position x="130" y="1767"/>
 	<column name="service_id" not-null="true">
 		<type name="serial"/>
 	</column>

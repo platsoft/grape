@@ -261,7 +261,9 @@ CREATE TABLE grape.system_public_key(
 -- DROP TABLE IF EXISTS grape.system_private CASCADE;
 CREATE TABLE grape.system_private(
 	system_private_id serial NOT NULL,
-	my_secret bytea,
+	my_secret text,
+	role text,
+	last_reset timestamptz,
 	CONSTRAINT system_private_pk PRIMARY KEY (system_private_id)
 
 );
@@ -934,6 +936,15 @@ CREATE TABLE grape.service(
 );
 -- ddl-end --
 COMMENT ON TABLE grape.service IS 'This table is used for the generation of service tickets';
+-- ddl-end --
+
+-- object: s_service_name_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.s_service_name_idx CASCADE;
+CREATE INDEX s_service_name_idx ON grape.service
+	USING btree
+	(
+	  service_name
+	);
 -- ddl-end --
 
 -- object: user_id_rel | type: CONSTRAINT --

@@ -68,7 +68,6 @@ BEGIN
 		_persistant := ($1->>'persistant')::BOOLEAN;
 	END IF;
 
-
 	IF grape.get_value('user_ip_filter', 'false') = 'true' THEN
 		IF grape.check_user_ip (rec.user_id::INTEGER, _ip_address::INET) = 2 THEN
 			RAISE NOTICE 'IP filter check failed for user % (IP %)', _user, _ip_address;
@@ -150,6 +149,76 @@ BEGIN
 	RETURN _session_id;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.create_session_from_service_ticket(JSONB) RETURNS JSONB AS $$
+DECLARE
+	_service_ticket_encrypted TEXT;
+	_service_ticket JSONB;
+	_user RECORD;
+	_persistant BOOLEAN;
+	_session_id TEXT;
+	_ip_address TEXT;
+	_ret JSONB;
+BEGIN
+	_service_ticket_encrypted := ($1->>'service_ticket');
+	_service_ticket := grape.validate_service_ticket(_service_ticket_encrypted);
+
+	IF _service_ticket IS NULL THEN
+		RETURN grape.api_error();
+	ELSIF _service_ticket->>'status' = 'ERROR' THEN
+		RETURN _service_ticket;
+	END IF;
+	
+	SELECT * INTO _user FROM grape."user" WHERE username=_service_ticket->>'username' AND employee_guid=(_service_ticket->>'employee_guid')::UUID; 
+	IF NOT FOUND THEN
+		RETURN grape.api_error('No such user', -3);
+	END IF;
+
+	_ip_address := $1->>'ip_address';
+	_persistant := FALSE;
+
+	IF jsonb_extract_path($1, 'persistant') IS NOT NULL THEN
+		_persistant := ($1->>'persistant')::BOOLEAN;
+	END IF;
+
+	IF grape.get_value('user_ip_filter', 'false') = 'true' THEN
+		IF grape.check_user_ip (_user.user_id::INTEGER, _ip_address::INET) = 2 THEN
+			RAISE NOTICE 'IP filter check failed for user % (IP %)', _user.username, _ip_address;
+			RETURN grape.api_result_error('IP not allowed', 4);
+		END IF;
+	END IF;
+
+	IF _user.active = false THEN
+		RAISE DEBUG 'User % login failed. User is inactive', _user;
+		RETURN grape.api_result_error('User not active', 3);
+	END IF;
+
+	IF _persistant = TRUE THEN
+		SELECT session_id INTO _session_id FROM grape."session" WHERE user_id=_user.user_id::INTEGER;
+		IF NOT FOUND THEN
+			_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address);
+		END IF;
+	ELSE
+		_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address);
+	END IF;
+
+	
+	SELECT jsonb_build_object(
+		'success', true,
+		'status', 'OK',
+		'session_id', _session_id,
+		/*'user_id', _user.user_id,*/
+		'username', _user.username,
+		'user_roles', (SELECT array_agg(role_name) FROM grape."user_role" WHERE user_id=_user.user_id::INTEGER),
+		'fullnames', _user.fullnames,
+		'email', _user.email,
+		'employee_guid', _user.employee_guid
+	) INTO _ret;
+
+	PERFORM pg_notify('new_session', _ret::TEXT);
+
+	RETURN _ret;
+
+END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION grape.logout (JSON) RETURNS JSON AS $$
 DECLARE
