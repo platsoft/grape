@@ -39,6 +39,8 @@ BEGIN
 
 	IF json_extract_path($1, 'employee_guid') IS NOT NULL THEN
 		_employee_guid := ($1->>'employee_guid')::UUID;
+	ELSIF json_extract_path($1, 'guid') IS NOT NULL THEN
+		_employee_guid := ($1->>'guid')::UUID;
 	END IF;
 
 	IF _password IS NOT NULL THEN
