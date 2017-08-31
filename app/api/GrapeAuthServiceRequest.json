@@ -1,0 +1,30 @@
+{
+	"id": "/grape/auth/service_request",
+	"description": "Request service ticket from a TGT",
+	"sqlfunc": "grape.service_ticket_request",
+	"sqlfunctype": "jsonb",
+	"name": "GrapeAuthServiceRequest",
+	"roles": ["guest"],
+	"type": "object",
+	"properties": {
+		"tgt": {"type": "string", "description": "Ticket granting ticket (TGT)"},
+		"requested_service": {"type": "string", "description": "Requested service"},
+		"authenticator": {"type": "string", "description": "Encrypted authenticator"},
+		"iv": {"type": "string", "description": "Initialization vector"},
+		"salt": {"type": "string", "description": "Salt"}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"data": {"type": "string", "description": "Encrypted data (in hex format)"},
+			"salt": {"type": "string", "description": "Salt value"},
+			"iv": {"type": "string", "description": "Initialization vector"},
+			"rounds": {"type": "string", "description": "Number of rounds to run the hash"},
+			"algo": {"type": "string", "description": "Hashing algorithm used (usually SHA256)"},
+			"status": {"enum": ["ERROR", "OK"], "description": "Return status"},
+			"message": {"type": "string", "description": "If an error occurred, a message will be provided"},
+			"code": {"type": "number", "description": "Return code (0 = success)"},
+			"error": {"type": "object", "description": "If an error occurred, this field will contain the error object"}
+		}
+	}
+}

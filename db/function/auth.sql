@@ -135,6 +135,44 @@ BEGIN
 	RETURN _service_ticket::TEXT;
 END; $$ LANGUAGE plpgsql;
 
+/**
+ * Grants a service ticket based on TGT
+ */
+CREATE OR REPLACE FUNCTION grape.service_ticket_request(JSONB) RETURNS JSONB AS $$
+DECLARE
+	_raw_tgt TEXT;
+	_server_private_key TEXT;
+	_requested_service TEXT;
+	_encrypted_authenticator TEXT;
+	_iv TEXT;
+	_salt TEXT;
+	_authenticator TEXT;
+	_decryption_key TEXT;
+	_tgt JSONB;
+BEGIN
+	
+	_raw_tgt := ($1->>'tgt');
+
+	_server_private_key := ENCODE(DIGEST('my private key', 'sha256'), 'hex');
+	_tgt := (grape.decrypt_message(_raw_tgt, _server_private_key, 'c5067fe37e0b025da44ec7578502c7e4'))::JSONB;
+
+	RAISE NOTICE 'TGT: %', _tgt;
+
+	_requested_service := ($1->>'requested_service');
+	_encrypted_authenticator := ($1->>'authenticator');
+	_iv := ($1->>'iv');
+	_salt := ($1->>'salt');
+
+	_decryption_key := grape.generate_user_key(_tgt->>'session_key', _salt, 1000);
+
+	_authenticator := grape.decrypt_message(_encrypted_authenticator, _decryption_key, _iv);
+	
+	RAISE NOTICE 'Authenticator: %', _authenticator;
+
+	RETURN grape.api_success();
+END; $$ LANGUAGE plpgsql;
+
+
 -- c5067fe37e0b025da44ec7578502c7e4
 CREATE OR REPLACE FUNCTION grape.encrypt_message(_data TEXT, _key TEXT, _iv TEXT) RETURNS TEXT AS $$
 DECLARE
@@ -148,5 +186,11 @@ BEGIN
 	RETURN CONVERT_FROM(DECRYPT_IV(DECODE(_data, 'hex'), decode(_key, 'hex'), decode(_iv, 'hex'), 'aes-cbc/pad:pkcs'), 'utf8');
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.get_server_private_key() RETURNS TEXT AS $$
+DECLARE
+BEGIN
+
+
+END; $$ LANGUAGE plpgsql;
 
 

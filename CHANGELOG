@@ -199,4 +199,9 @@ Other:
 - Use req.ip when logging in (instead of remoteConnection IP) for proxies
 - PDF generator should catch DB errors
 - New view grape.v_pg_table_stats
+- New column notification_function.emitted_event_name
+- Switch over to storing salted SHA256 (using 1000 rounds) passwords (hashing functions in 
+- Automatically add access roles and access paths from schema apis to DB upon startup
+- New grape-manage command: reset_password used to reset a users password
+
 

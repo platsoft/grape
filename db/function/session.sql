@@ -97,29 +97,11 @@ BEGIN
 
 	IF _persistant = TRUE THEN
 		SELECT session_id INTO _session_id FROM grape."session" WHERE user_id=rec.user_id::INTEGER;
-		IF FOUND THEN
-			_found := FALSE; -- prevent new session from being generated
+		IF NOT FOUND THEN
+			_session_id := grape.session_insert(rec.user_id::INTEGER, _ip_address);
 		END IF;
-	END IF;
-
-	IF _found = TRUE THEN
-		-- generate unique session id
-		WHILE _found = TRUE LOOP
-			_session_id := CONCAT(rec.user_id, '-', grape.random_string(15));
-			IF
-				EXISTS (SELECT session_id FROM grape."session" WHERE session_id=_session_id::TEXT)
-				OR EXISTS (SELECT session_id FROM grape."session_history" WHERE session_id=_session_id::TEXT)
-			THEN
-				_found := TRUE;
-			ELSE
-				_found := FALSE;
-			END IF;
-		END LOOP;
-
-		RAISE DEBUG 'User % logged in successfuly from %. Session ID is now %', _user, _ip_address, _session_id;
-
-		INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity)
-			VALUES (_session_id, _ip_address, rec.user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+	ELSE
+		_session_id := grape.session_insert(rec.user_id::INTEGER, _ip_address);
 	END IF;
 
 	SELECT array_agg(role_name) INTO _user_roles FROM grape."user_role" WHERE user_id=rec.user_id::INTEGER;
@@ -143,11 +125,29 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION grape.session_insert(_user_id INTEGER) RETURNS TEXT AS $$
+CREATE OR REPLACE FUNCTION grape.session_insert(_user_id INTEGER, _ip_address TEXT) RETURNS TEXT AS $$
 DECLARE
+	_found BOOLEAN;
+	_session_id TEXT;
 BEGIN
+	_found := TRUE;
 
+	WHILE _found = TRUE LOOP
+		_session_id := CONCAT(_user_id, '-', grape.random_string(15));
+		IF
+			EXISTS (SELECT session_id FROM grape."session" WHERE session_id=_session_id::TEXT)
+			OR EXISTS (SELECT session_id FROM grape."session_history" WHERE session_id=_session_id::TEXT)
+		THEN
+			_found := TRUE;
+		ELSE
+			_found := FALSE;
+		END IF;
+	END LOOP;
 
+	INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity)
+		VALUES (_session_id, _ip_address, _user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+	RETURN _session_id;
 END; $$ LANGUAGE plpgsql;
 
 

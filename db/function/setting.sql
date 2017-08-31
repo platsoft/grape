@@ -27,6 +27,19 @@ BEGIN
 	RETURN _val;
 END; $$ LANGUAGE plpgsql;
 
+/**
+ * @api_usage GrapeGetSetting
+ * @api_url
+ */
+CREATE OR REPLACE FUNCTION grape.get_value(JSON) RETURNS JSON AS $$
+DECLARE
+	_val TEXT;
+BEGIN
+	SELECT value INTO _val FROM grape.setting WHERE name=($1->>'name')::TEXT AND hidden=false;
+	
+	RETURN grape.api_success(jsonb_build_object('value', _val)::JSON);
+END; $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION grape.setting(_name TEXT, _default_value TEXT) RETURNS TEXT AS $$
 DECLARE
 BEGIN

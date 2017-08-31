@@ -12,8 +12,8 @@ Grape supports system notifications sent through requests HTTP headers. This pro
 </p>
 <h2>Defining notification functions</h2>
 <p>
-	Functions are registered in <tname>grape.notification_function</tname>, and must return a JSONB or NULL. All non-empty results will be sent back to the client (Base64 encoded) in the X-Notifications header.
-
+	Functions are registered in <tname>grape.notification_function</tname>, and must return a JSONB or NULL. All non-empty results will be sent back to the client (Base64 encoded) in the X-Notifications header. The array contains objects with two fields, <i>event_name</i> (containing the value of the <i>emitted_event_name</i> field) and <i>data</i>, containing the result of the notification function.
+	<img src="grape.notification_function.png" title="Notification Function Table" width="7cm" />
 </p>
 <h2>Notifications in GrapeUI</h2>
 Add the following code to the JS in your project (<fname>public/js/notification_handler.js</fname>):
@@ -26,7 +26,7 @@ $(function() {
 	}); 
 	
 	window.Grape.Notifications.on('<i><red>maintenance_mode</red></i>', function(<i>notifications</i>) { 
-	<blue>// Handler for any rows with <i><red>maintenance_mode</red></i> as its only key</blue>
+	<blue>// Handler for notifications with event_emitted_name <i><red>maintenance_mode</red></i></blue>
 	}); 
 });
 </code>

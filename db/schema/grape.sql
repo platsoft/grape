@@ -621,7 +621,6 @@ CREATE INDEX test_table_updated ON grape.test_table
 -- 	location text,
 -- 	document_guid uuid,
 -- 	hash text,
--- 	hash_algo text,
 -- 	date_inserted timestamptz DEFAULT NOW(),
 -- 	user_id integer,
 -- 	document_type text,
@@ -875,6 +874,7 @@ CREATE TABLE grape.notification_function(
 	function_name text,
 	function_schema text,
 	active boolean,
+	emitted_event_name text,
 	CONSTRAINT notification_function_pk PRIMARY KEY (notification_function_id)
 
 );
@@ -905,6 +905,35 @@ CREATE INDEX s_user_idx ON grape.session
 	(
 	  user_id
 	);
+-- ddl-end --
+
+-- object: grape.authentication_token | type: TABLE --
+-- DROP TABLE IF EXISTS grape.authentication_token CASCADE;
+CREATE TABLE grape.authentication_token(
+
+);
+-- ddl-end --
+
+-- object: nf_active_idx | type: INDEX --
+-- DROP INDEX IF EXISTS grape.nf_active_idx CASCADE;
+CREATE INDEX nf_active_idx ON grape.notification_function
+	USING btree
+	(
+	  active
+	);
+-- ddl-end --
+
+-- object: grape.service | type: TABLE --
+-- DROP TABLE IF EXISTS grape.service CASCADE;
+CREATE TABLE grape.service(
+	service_id serial NOT NULL,
+	service_name text,
+	shared_secret text,
+	CONSTRAINT service_pk PRIMARY KEY (service_id)
+
+);
+-- ddl-end --
+COMMENT ON TABLE grape.service IS 'This table is used for the generation of service tickets';
 -- ddl-end --
 
 -- object: user_id_rel | type: CONSTRAINT --

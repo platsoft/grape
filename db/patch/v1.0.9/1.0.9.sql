@@ -12,4 +12,21 @@ SELECT grape.table_permissions_add('pg_catalog',
 	'SELECT'
 );
 
+ALTER TABLE grape.notification_function ADD COLUMN emitted_event_name TEXT;
+CREATE INDEX nf_active_idx ON grape.notification_function
+	USING btree
+	(
+	  active
+	);
+CREATE TABLE grape.service(
+	service_id serial NOT NULL,
+	service_name text,
+	shared_secret text,
+	CONSTRAINT service_pk PRIMARY KEY (service_id)
+
+);
+-- ddl-end --
+COMMENT ON TABLE grape.service IS 'This table is used for the generation of service tickets';
+-- ddl-end --
+
 
