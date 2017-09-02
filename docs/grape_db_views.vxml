@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ps_doc title="API Reference" titlepage="no" tocpage="no">
+	<h1>grape.v_pg_functions</h1>
+	<table>
+		<thead>
+			<th width="20%">Name</th>
+			<th width="20%">Data Type</th>
+			<th width="60%">Description</th>
+		</thead>
+		<tr><td></td><td></td><td></td></tr>
+	</table>
+</ps_doc>

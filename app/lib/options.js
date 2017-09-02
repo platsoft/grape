@@ -22,7 +22,9 @@ exports = module.exports = function(_o) {
 		api_directories: [],
 		cache_public_js_dirs: false,
 		process_name: false,
-		enable_notifications: false
+		enable_notifications: false,
+		enable_ldap_server: false,
+		ldap_server_port: 1389
 	};
 
 

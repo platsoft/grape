@@ -9,6 +9,7 @@ var cluster = require('cluster');
 var g_app = require(__dirname + '/app.js');
 var comms = require(__dirname + '/comms.js');
 var email_notification_listener = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
+var ldap_server = require(__dirname + '/ldap.js').LDAPServer;
 var async = require('async');
 
 exports = module.exports = function(_o) {
@@ -88,6 +89,11 @@ exports = module.exports = function(_o) {
 
 				self.createDBNotificationListener();
 
+				if (self.options.enable_ldap_server == true)
+				{
+					self.createLDAPServer();
+				}
+
 				console.log("Starting " + self.options.instances + " instances");
 				for (var i = 0; i < self.options.instances; i++)
 				{
@@ -131,6 +137,16 @@ exports = module.exports = function(_o) {
 
 				var e_notify = new email_notification_listener(_o);
 				e_notify.start();
+
+				// Other db notification functions can go here
+			}
+			else if (process.env.state && process.env.state == 'ldap_server')
+			{
+				if (this.options.process_name)
+					process.title = [this.options.process_name, 'ldapserver'].join('-');
+
+				var e_ldap = new ldap_server(self.options);
+				e_ldap.start();
 
 				// Other db notification functions can go here
 			}
@@ -179,7 +195,7 @@ exports = module.exports = function(_o) {
 			}
 			else
 			{
-				self.createWorker();
+				self.createDBNotificationListener();
 			}
 		});
 		worker.on('death', function() {
@@ -188,6 +204,31 @@ exports = module.exports = function(_o) {
 		});
 
 	};
+
+	this.createLDAPServer = function() {
+		console.log("Starting LDAP server");
+		var worker = cluster.fork({"state": "ldap_server"});
+		worker.on('disconnect', function() {
+		});
+		worker.on('exit', function() {
+			console.log("LDAP server exit with code", worker.process.exitCode);
+			if (worker.process.exitCode == 5)
+			{
+				console.log("Connectivity issue. Restarting in 5 seconds...");
+				setTimeout(function() { self.createLDAPServer(); }, 5000);
+			}
+			else
+			{
+				self.createLDAPServer();
+			}
+		});
+		worker.on('death', function() {
+			console.log("DB Notify Worker died");
+			self.createLDAPServer();
+		});
+
+	};
+
 };
 
 
