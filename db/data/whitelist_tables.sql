@@ -13,6 +13,7 @@ SELECT grape.table_permissions_add('grape',
 	'v_table_permissions, '
 	'network, '
 	'v_user_networks,'
+	'v_pg_functions,'
 	'data_import, '
 	'data_import_type}'::TEXT[], 
 
@@ -23,7 +24,8 @@ SELECT grape.table_permissions_add('grape',
 SELECT grape.table_permissions_add('grape',
 	'{'
 		'access_role,'
-		'network'
+		'network,'
+		'data_import_type'
 	'}'::TEXT[],
 	'{admin}'::TEXT[],
 	'{INSERT,DELETE,UPDATE}'::TEXT[]

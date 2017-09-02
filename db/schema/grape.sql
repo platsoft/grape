@@ -54,6 +54,7 @@ CREATE TABLE grape.session(
 	user_id integer,
 	date_inserted timestamp,
 	last_activity timestamp,
+	session_origin text,
 	CONSTRAINT session_pk PRIMARY KEY (session_id)
 
 );

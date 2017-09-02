@@ -192,18 +192,25 @@ Other:
 - Process list API (/grape/process/list) will now return information about the most recently scheduled schedule, instead of totals
 
 1.0.9
+New features:
+- Grape Secure Authentication: a new authentication scheme, based on Kerberos
+- Handle CORS headers, as described in https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
 - Bumped pg to 7.2.0 (https://node-postgres.com/announcements#2017-08-12-code-execution-vulnerability)
-- grape-db-setup better error messages
-- grape-db-setup read JSON file as config
-- New default role pg_stat (pg statistics monitoring)
-- Use req.ip when logging in (instead of remoteConnection IP) for proxies
-- PDF generator should catch DB errors
+- grape-db-setup can now read JSON file as config
 - New view grape.v_pg_table_stats
+- Roles and access paths from schema API calls is now automatically registered in the database upon startup
+
+Minor changes:
+- grape-db-setup better error messages
+- New default role pg_stat (pg statistics monitoring)
+- Use req.ip when logging in (instead of remoteConnection IP) in order to ensure the correct client IP when connecting through proxies
+- PDF generator should catch DB errors
 - New column notification_function.emitted_event_name
-- Switch over to storing salted SHA256 (using 1000 rounds) passwords (hashing functions in 
+- Switch over to storing salted SHA256 (using 1000 rounds) passwords 
 - Automatically add access roles and access paths from schema apis to DB upon startup
 - New grape-manage command: reset_password used to reset a users password
+
+Removed features:
 - Removed deprecated API call "/session/new"
-- Handle CORS headers, as described in https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
 
 

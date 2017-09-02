@@ -110,7 +110,6 @@ BEGIN
 			'OK' AS "status",
 			0 AS "code",
 			_session_id AS "session_id",
-			rec.user_id AS "user_id",
 			_user AS "username",
 			_user_roles AS "user_roles",
 			rec.fullnames AS "fullnames",
@@ -206,7 +205,6 @@ BEGIN
 		'success', true,
 		'status', 'OK',
 		'session_id', _session_id,
-		/*'user_id', _user.user_id,*/
 		'username', _user.username,
 		'user_roles', (SELECT array_agg(role_name) FROM grape."user_role" WHERE user_id=_user.user_id::INTEGER),
 		'fullnames', _user.fullnames,

@@ -29,4 +29,5 @@ CREATE TABLE grape.service(
 COMMENT ON TABLE grape.service IS 'This table is used for the generation of service tickets';
 -- ddl-end --
 
+ALTER TABLE grape.setting ADD COLUMN session_origin TEXT;
 

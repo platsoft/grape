@@ -20,7 +20,6 @@
 - API logger (partitioned tables monthly?)
 	- settings: 
 
-- Loading roles from schema
 
 - Defining API calls in the SQL files directly:
 	1. /** @api_usage @api_url etc
@@ -31,4 +30,5 @@ Done:
 - send email via API call
 - pdf generator: pass xsl parameters to the pdfgenerator
 - accept HTTP authentication instead of X-SessionID (look at Authorization header)
+- Loading roles from schema
 

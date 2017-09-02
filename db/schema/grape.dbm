@@ -56,6 +56,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="last_activity">
 		<type name="timestamp"/>
 	</column>
+	<column name="session_origin">
+		<type name="text"/>
+	</column>
 	<constraint name="session_pk" type="pk-constr" table="grape.session">
 		<columns names="session_id" ref-type="src-columns"/>
 	</constraint>
@@ -450,7 +453,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_type">
 	<schema name="grape"/>
-	<position x="1855.57" y="946"/>
+	<position x="1837.57" y="939"/>
 	<column name="processing_function" not-null="true">
 		<type name="text"/>
 	</column>
