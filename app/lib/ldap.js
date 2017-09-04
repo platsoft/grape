@@ -36,17 +36,23 @@ function LDAPServer(options)
 	};
 
 	this.authenticate_user = function(dn, password, cb) {
-		var dn = dn.toString().replace(/, /g, '');
-		console.log('SELECT * FROM grape."user" WHERE CONCAT(\'o=platsoft,ou=Users,\', username)=' + dn);
-		self.db.query('SELECT * FROM grape."user" WHERE CONCAT(\'o=platsoft,ou=Users,\', username)=$1', [dn], function(err, result) {
-			console.log(err);
-			console.log("RESULT");
-			console.log(result.rows.length);
-			cb(result);
+		var dn = dn.toString().replace(/, /g, ',');
+		console.log(dn);
+		self.db.query('SELECT grape.ldap_check_credentials($1, $2, $3)', [dn, password, ''], function(err, result) {
+			if (err)
+			{
+				cb(err);
+				return;
+			}
+
+			var result_code = result.rows[0].ldap_check_credentials;
+			console.log("result code: " + result_code);
+			cb(null, result_code);
 		});
 	};
 
 	this.search_user = function(dn) {
+
 	};
 
 	this.start = function() {
@@ -88,11 +94,24 @@ function LDAPServer(options)
 
 		server.bind('ou=Users,o=platsoft', function(req, res, next) {
 
-			console.log("BIND to " + req.dn.toString() + " with password " + req.credentials);
-			var ret = self.authenticate_user(req.dn, req.credentials, function(result) {
+			var ret = self.authenticate_user(req.dn, req.credentials, function(err, return_code) {
 				
-				res.end();
-				return next();
+				switch (return_code)
+				{
+					case 0:
+						res.end();
+						return next();
+						break;
+					case -1:
+						return next(new ldap.NoSuchObjectError());
+						break;
+					case -5:
+						return next(new ldap.InvalidCredentialsError());
+						break;
+					default:
+						return next(new ldap.OtherError());
+				}
+
 			});
 
 		});

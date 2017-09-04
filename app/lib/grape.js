@@ -11,8 +11,9 @@ var comms = require(__dirname + '/comms.js');
 var email_notification_listener = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
 var ldap_server = require(__dirname + '/ldap.js').LDAPServer;
 var async = require('async');
+var events = require('events');
 
-exports = module.exports = function(_o) {
+function grape(_o) {
 	this.self = this;
 	var self  = this;
 	this.options = require(__dirname + '/options.js')(_o);
@@ -35,6 +36,8 @@ exports = module.exports = function(_o) {
 
 			// check if pidfile exists, if it does kill the process and delte the file
 			var start_pidfile = function(next) {
+				self.emit('start_pidfile');
+
 				console.log("Setting up PID file " + pidfile + " ...");
 				if (fs.existsSync(pidfile))
 				{
@@ -69,6 +72,8 @@ exports = module.exports = function(_o) {
 					fs.writeFileSync(pidfile, process.pid.toString());
 					next();
 				}
+				
+				self.emit('start_pidfile_done');
 			}
 
 			//start worker instances
@@ -126,9 +131,12 @@ exports = module.exports = function(_o) {
 					process.title = [this.options.process_name, 'apiserver'].join('-');
 				// We are a worker/child process
 				var app = g_app(_o);
+
 				var cache = new comms.worker(_o);
 				cache.start();
 				app.set('cache', cache);
+				
+				self.emit('instance', app);
 			}
 			else if (process.env.state && process.env.state == 'db_notification_listener')
 			{
@@ -232,6 +240,7 @@ exports = module.exports = function(_o) {
 };
 
 
-
+grape.prototype.__proto__ = events.EventEmitter.prototype;
+exports = module.exports = grape;
 
 

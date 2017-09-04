@@ -11,6 +11,8 @@
 
 - Make settings available in node
 
+- Broadcast/discover other grape services (using SSDP)
+
 - API call to get table information (part of table_operations.sql)
 
 - System/Frontend integrator - HTTP server that relays api calls to connected systems. HTTP requests (API calls and HTML downloads etc) can be rewritten on the fly. /cabsav/...
