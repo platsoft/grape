@@ -24,7 +24,8 @@ exports = module.exports = function(_o) {
 		process_name: false,
 		enable_notifications: false,
 		enable_ldap_server: false,
-		ldap_server_port: 1389
+		ldap_server_port: 1389,
+		delayed_response: 0
 	};
 
 

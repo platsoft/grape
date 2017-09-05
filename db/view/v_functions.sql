@@ -3,15 +3,18 @@ CREATE OR REPLACE VIEW grape.v_pg_functions AS
 	SELECT 
 		r.routine_schema, 
 		r.routine_name, 
-		array_agg((p.udt_name)::TEXT ORDER BY ordinal_position) AS parameters
+		array_remove(array_agg((p.udt_name)::TEXT ORDER BY ordinal_position), NULL) AS parameters,
+		r.type_udt_name AS return_type
+
 		FROM information_schema.routines r 
-			JOIN information_schema.parameters p ON 
+			LEFT JOIN information_schema.parameters p ON 
 				r.specific_schema=p.specific_schema 
 				AND r.specific_name=p.specific_name 
 			WHERE r.routine_schema != 'pg_catalog' 
 			GROUP BY 
 				r.routine_schema, 
-				r.routine_name
+				r.routine_name,
+				r.type_udt_name
 			ORDER BY 
 				r.routine_schema,
 				r.routine_name;

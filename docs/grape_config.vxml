@@ -41,5 +41,6 @@ The following options are recognized in the config passed to Grape:
 	<tr><td id="conf-enable_notifications">enable_notifications</td><td>Enables the notification subsystem</td><td></td></tr>
 	<tr><td id="conf-enable_ldap_server">enable_ldap_server</td><td>Enable LDAP server</td><td></td></tr>
 	<tr><td id="conf-ldap_server_port">ldap_server_port</td><td>LDAP server port to listen on</td><td></td></tr>
+	<tr><td id="conf-delayed_response">delayed_response</td><td>Delay all responses with this many milliseconds (can be used to simulate slow networks)</td><td>0</td></tr>
 </table>
 </ps_doc>

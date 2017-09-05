@@ -91,7 +91,7 @@ function db (_o) {
 			if (msg.where && msg.where != '')
 				msg.where = ' at ' + msg.where;
 
-			var str = ['Notice ', msg.severity, ':', msg.message, msg.where].join(' ');
+			var str = ['Notice ', msg.severity, ':', msg.message].join(' ');
 			if (self.options.debug)
 				self.emit('debug', str); 
 		});

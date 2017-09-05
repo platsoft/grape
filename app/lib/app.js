@@ -171,6 +171,14 @@ exports = module.exports = function(_o) {
 
 	var http_auth = require(__dirname + '/http_auth.js');
 
+	if (options.delayed_response)
+	{
+		// Sleep for a little while
+		app.use(function(req, res, next) {
+			setTimeout(next, options.delayed_response);
+		});
+	}
+
 	// Assign the session ID
 	app.use(function(req, res, next) {
 		req.session_id = null;
