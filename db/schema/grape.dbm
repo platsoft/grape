@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.0" last-position="0,0" last-zoom="0.9">
+<dbmodel pgmodeler-ver="0.9.0" last-position="0,864" last-zoom="0.9">
 <database name="grape">
 </database>
 
@@ -188,9 +188,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<constraint name="process_pk" type="pk-constr" table="grape.process">
 		<columns names="process_id" ref-type="src-columns"/>
-	</constraint>
-	<constraint name="process_uq" type="uq-constr" table="grape.process">
-		<columns names="pg_function" ref-type="src-columns"/>
 	</constraint>
 </table>
 

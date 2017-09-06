@@ -12,6 +12,7 @@
 		"process_type": {"enum": ["DB","EXEC","NODE"], "description": "Process type"},
 		"pg_function": {"type": "text", "description": "Function name"},
 		"function_schema": {"type": "text", "description": "Function schema name"},
+		"params": {"type": "array", "description": "Input parameters", "items": {"type": "object"}},
 		"process_role": {"type": "array", "items": {"type": "object", "properties": {
 			"role_name": {"type": "text", "description": "Role name"},
 			"can_view": {"type": "boolean", "description": "True if users in this role can view this process"},
