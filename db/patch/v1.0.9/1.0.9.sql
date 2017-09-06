@@ -12,6 +12,7 @@ SELECT grape.table_permissions_add('pg_catalog',
 	'SELECT'
 );
 
+
 ALTER TABLE grape.notification_function ADD COLUMN emitted_event_name TEXT;
 CREATE INDEX nf_active_idx ON grape.notification_function
 	USING btree
@@ -29,7 +30,8 @@ CREATE TABLE grape.service(
 COMMENT ON TABLE grape.service IS 'This table is used for the generation of service tickets';
 -- ddl-end --
 
-ALTER TABLE grape.setting ADD COLUMN session_origin TEXT;
+ALTER TABLE grape.session ADD COLUMN session_origin TEXT;
 
 ALTER TABLE grape.process DROP CONSTRAINT IF EXISTS "process_uq";
+
 
