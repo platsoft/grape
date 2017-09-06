@@ -1,0 +1,32 @@
+{
+	"description": "Adds/updates a process definition",
+	"id": "/grape/process/save",
+	"name": "GrapeSaveProcessDefinition",
+	"sqlfunc": "grape.save_process_definition",
+	"type": "object",
+	"roles": ["admin"],
+ 	"properties": {
+		"process_id": {"type": ["null", "number"], "description": "Process ID (will update if provided)"},
+		"description": {"type": "text", "description": "Description of process"},
+		"process_category": {"type": "text", "description": "Process Category"},
+		"process_type": {"enum": ["DB","EXEC","NODE"], "description": "Process type"},
+		"pg_function": {"type": "text", "description": "Function name"},
+		"function_schema": {"type": "text", "description": "Function schema name"},
+		"process_role": {"type": "array", "items": {"type": "object", "properties": {
+			"role_name": {"type": "text", "description": "Role name"},
+			"can_view": {"type": "boolean", "description": "True if users in this role can view this process"},
+			"can_edit": {"type": "boolean", "description": "True if users in this role can edit this process"},
+			"can_execute": {"type": "boolean", "description": "True if users in this role can execute this process"}
+		}}}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"process_id": {"type": "number", "description": "Newly inserted user_network_id"},
+			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator","standard":true},
+			"message": {"type": "string", "description": "Error message","standard":true},
+			"code": {"type": "number", "description": "Error code","standard":true},
+			"error": {"type": "json", "description": "Error details","standard":true}
+		}
+	}
+}
