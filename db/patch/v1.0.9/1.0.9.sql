@@ -31,3 +31,5 @@ COMMENT ON TABLE grape.service IS 'This table is used for the generation of serv
 
 ALTER TABLE grape.setting ADD COLUMN session_origin TEXT;
 
+ALTER TABLE grape.process DROP CONSTRAINT IF EXISTS "process_uq";
+
