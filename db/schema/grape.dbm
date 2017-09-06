@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.2" last-position="0,0" last-zoom="0.7">
+<dbmodel pgmodeler-ver="0.9.0" last-position="0,0" last-zoom="0.9">
 <database name="grape">
 </database>
 
@@ -13,68 +13,68 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="grape" fill-color="#e1e1e1">
 </schema>
 
-<table name="access_role">
+<table name="access_role" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="144" y="822"/>
+	<position x="140" y="820"/>
 	<column name="role_name" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="access_role_pk" type="pk-constr" table="grape.access_role">
 		<columns names="role_name" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="user_role">
+<table name="user_role" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="124" y="702"/>
+	<position x="120" y="700"/>
 	<column name="user_id" not-null="true">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="role_name" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="user_role_pk" type="pk-constr" table="grape.user_role">
 		<columns names="user_id,role_name" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="session">
+<table name="session" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="561" y="69"/>
+	<position x="480" y="0"/>
 	<column name="session_id" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="ip_address">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="date_inserted">
-		<type name="timestamp"/>
+		<type name="timestamp" length="1"/>
 	</column>
 	<column name="last_activity">
-		<type name="timestamp"/>
+		<type name="timestamp" length="1"/>
 	</column>
 	<column name="session_origin">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="session_pk" type="pk-constr" table="grape.session">
 		<columns names="session_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="access_path">
+<table name="access_path" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="501" y="804"/>
+	<position x="500" y="800"/>
 	<column name="role_name" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="regex_path" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="method" not-null="true" default-value="'{POST, PUT, GET}'">
-		<type name="text" dimension="1"/>
+		<type name="text" length="1" dimension="1"/>
 		<comment><![CDATA[HTTP methods accepted by this path/route eg. (GET, POST, etc)]]></comment>
 	</column>
 	<constraint name="access_path_pk" type="pk-constr" table="grape.access_path">
@@ -82,61 +82,61 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="user_history">
+<table name="user_history" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="585" y="381"/>
+	<position x="580" y="400"/>
 	<column name="user_history_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="date_inserted" default-value="CURRENT_TIMESTAMP">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<column name="data">
-		<type name="jsonb"/>
+		<type name="jsonb" length="1"/>
 	</column>
 	<column name="blame_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="user_history_id_pk" type="pk-constr" table="grape.user_history">
 		<columns names="user_history_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="user">
+<table name="user" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="123" y="283"/>
+	<position x="120" y="280"/>
 	<column name="user_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="password">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="username">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="email">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="fullnames">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="active" default-value="true">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="employee_guid">
-		<type name="uuid"/>
+		<type name="uuid" length="1"/>
 	</column>
 	<column name="employee_info">
-		<type name="jsonb"/>
+		<type name="jsonb" length="1"/>
 	</column>
 	<column name="pg_role">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="auth_info">
-		<type name="jsonb"/>
+		<type name="jsonb" length="1"/>
 	</column>
 	<constraint name="user_pk" type="pk-constr" table="grape.&quot;user&quot;">
 		<columns names="user_id" ref-type="src-columns"/>
@@ -149,42 +149,42 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="proc" fill-color="#e1e1e1">
 </schema>
 
-<table name="process" oids="true">
+<table name="process" oids="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1201.43" y="260.857"/>
+	<position x="1260" y="220"/>
 	<column name="process_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="pg_function">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="param">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<column name="process_type">
-		<type name="text"/>
+		<type name="text" length="1"/>
 		<comment><![CDATA[PG_FUNCTION; COMMAND]]></comment>
 	</column>
 	<column name="function_schema">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="process_category">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="count_new" default-value="0">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="count_completed" default-value="0">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="count_error" default-value="0">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="count_running" default-value="0">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="process_pk" type="pk-constr" table="grape.process">
 		<columns names="process_id" ref-type="src-columns"/>
@@ -199,275 +199,275 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<enumeration values="Running,Completed,Error,NewTask"/>
 </usertype>
 
-<table name="schedule_log" oids="true">
+<table name="schedule_log" oids="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1751.43" y="612.857"/>
+	<position x="2160" y="480"/>
 	<column name="schedule_log_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="schedule_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="time">
-		<type name="timestamp"/>
+		<type name="timestamp" length="1"/>
 	</column>
 	<column name="message">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="schedule_log_pk" type="pk-constr" table="grape.schedule_log">
 		<columns names="schedule_log_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="schedule" oids="true">
+<table name="schedule" oids="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1691.43" y="192.857"/>
+	<position x="1700" y="200"/>
 	<column name="schedule_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="process_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="time_sched">
-		<type name="timestamp"/>
+		<type name="timestamp" length="1"/>
 		<comment><![CDATA[Scheduled to start on]]></comment>
 	</column>
 	<column name="time_started">
-		<type name="timestamp"/>
+		<type name="timestamp" length="1"/>
 		<comment><![CDATA[Actual start]]></comment>
 	</column>
 	<column name="time_ended">
-		<type name="timestamp"/>
+		<type name="timestamp" length="1"/>
 	</column>
 	<column name="pid">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="param">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<column name="user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="logfile">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="status" default-value="'NewTask'">
-		<type name="grape.e_schedule_status"/>
+		<type name="grape.e_schedule_status" length="1"/>
 	</column>
 	<column name="progress_completed">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="progress_total">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="auto_scheduler_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="schedule_pk" type="pk-constr" table="grape.schedule">
 		<columns names="schedule_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="data_import">
+<table name="data_import" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1415.57" y="766"/>
+	<position x="1420" y="760"/>
 	<column name="data_import_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="filename">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="date_inserted" default-value="NOW()">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<column name="parameter">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<column name="description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="date_done">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<column name="record_count">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="valid_record_count">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="data_import_status">
-		<type name="smallint"/>
+		<type name="smallint" length="1"/>
 	</column>
 	<column name="processing_function">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="processing_param">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<column name="result_table">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="result_schema">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="data_processed">
-		<type name="tstzrange"/>
+		<type name="tstzrange" length="1"/>
 	</column>
 	<column name="test_table_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="data_import_pk" type="pk-constr" table="grape.data_import">
 		<columns names="data_import_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="data_import_row">
+<table name="data_import_row" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1815.57" y="786"/>
+	<position x="1860" y="780"/>
 	<column name="data_import_row_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="data_import_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="data">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<column name="processed" default-value="FALSE">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="result">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<constraint name="data_import_row_pk" type="pk-constr" table="grape.data_import_row">
 		<columns names="data_import_row_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="setting">
+<table name="setting" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<comment><![CDATA[System-wide settings]]></comment>
-	<position x="39" y="924"/>
+	<position x="40" y="920"/>
 	<column name="name" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="value">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="json_value">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<column name="hidden" default-value="FALSE">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="data_type">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="setting_pk" type="pk-constr" table="grape.setting">
 		<columns names="name" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="system_registry">
+<table name="system_registry" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="780" y="1880"/>
 	<column name="system_registry_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="product_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="physical_host">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="system_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="guid">
-		<type name="uuid"/>
+		<type name="uuid" length="1"/>
 	</column>
 	<column name="public_key">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="system_registry_pk" type="pk-constr" table="grape.system_registry">
 		<columns names="system_registry_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="system_routing">
+<table name="system_routing" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="400" y="2200"/>
 	<column name="system_routing_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="final_destination_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="routing_via_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="system_routing_pk" type="pk-constr" table="grape.system_routing">
 		<columns names="system_routing_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="system_public_key">
+<table name="system_public_key" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="460" y="1880"/>
 	<column name="system_registry_id" not-null="true">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="data">
-		<type name="bytea"/>
+		<type name="bytea" length="1"/>
 	</column>
 	<constraint name="system_public_key_pk" type="pk-constr" table="grape.system_public_key">
 		<columns names="system_registry_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="system_private">
+<table name="system_private" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="130" y="1872"/>
+	<position x="140" y="1880"/>
 	<column name="system_private_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="my_secret">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="role">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="last_reset">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<constraint name="system_private_pk" type="pk-constr" table="grape.system_private">
 		<columns names="system_private_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="data_import_type">
+<table name="data_import_type" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1837.57" y="939"/>
+	<position x="1860" y="980"/>
 	<column name="processing_function" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="short_description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="file_format_info">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="function_schema">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="param_definition">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<constraint name="data_import_type_pk" type="pk-constr" factor="100" table="grape.data_import_type">
 		<columns names="processing_function" ref-type="src-columns"/>
@@ -497,70 +497,70 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="report">
+<table name="report" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="60" y="1340"/>
 	<column name="report_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="function_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="function_schema">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="ui_params" default-value="'{}'::JSON">
-		<type name="json"/>
+		<type name="json" length="1"/>
 		<comment><![CDATA[JSON array with fields, Ex. [{name: date_begin, type: date}, {name: date_end, type: date}]]]></comment>
 	</column>
 	<column name="output_format">
-		<type name="text"/>
+		<type name="text" length="1"/>
 		<comment><![CDATA[Structure of the output data - TEXT or ROW or TABLE]]></comment>
 	</column>
 	<column name="active" default-value="TRUE">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="cache_time">
-		<type name="interval"/>
+		<type name="interval" length="1"/>
 		<comment><![CDATA[How long a result is valid for]]></comment>
 	</column>
 	<column name="report_category_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="report_pk" type="pk-constr" table="grape.report">
 		<columns names="report_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="reports_executed">
+<table name="reports_executed" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="480" y="1080"/>
 	<column name="reports_executed_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="report_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="date_inserted" default-value="NOW()">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<column name="is_deleted" default-value="TRUE">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="report_seq">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="params">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<column name="report_template_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="reports_executed_pk" type="pk-constr" table="grape.reports_executed">
 		<columns names="reports_executed_id" ref-type="src-columns"/>
@@ -583,89 +583,89 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="session_history">
+<table name="session_history" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="592" y="223"/>
+	<position x="660" y="160"/>
 	<column name="session_id" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="ip_address">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="date_inserted">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<column name="last_activity">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<column name="date_logout">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<constraint name="session_history_pk" type="pk-constr" table="grape.session_history">
 		<columns names="session_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="table_view" sql-disabled="true">
+<table name="table_view" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1005" y="2166"/>
+	<position x="1000" y="2160"/>
 	<column name="table_view_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="table_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="table_schema">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="columns">
-		<type name="jsonb"/>
+		<type name="jsonb" length="1"/>
 	</column>
 	<column name="settings">
-		<type name="jsonb"/>
+		<type name="jsonb" length="1"/>
 	</column>
 	<column name="primary_key_column">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="table_view_pk" type="pk-constr" table="grape.table_view">
 		<columns names="table_view_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="auto_scheduler">
+<table name="auto_scheduler" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1451.43" y="525.857"/>
+	<position x="1460" y="520"/>
 	<column name="auto_scheduler_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="process_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="scheduled_interval">
-		<type name="interval"/>
+		<type name="interval" length="1"/>
 	</column>
 	<column name="dow" default-value="'1111111'">
 		<type name="varchar" length="7"/>
 		<comment><![CDATA[days of week represented by 0 and 1; starting on Sunday]]></comment>
 	</column>
 	<column name="days_of_month" default-value="'*'">
-		<type name="text"/>
+		<type name="text" length="1"/>
 		<comment><![CDATA[Comma separated list of days of month]]></comment>
 	</column>
 	<column name="day_time">
-		<type name="time"/>
+		<type name="time" length="1"/>
 	</column>
 	<column name="run_as_user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="run_with_params">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<column name="active" default-value="TRUE">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<constraint name="auto_scheduler_pk" type="pk-constr" table="grape.auto_scheduler">
 		<columns names="auto_scheduler_id" ref-type="src-columns"/>
@@ -688,17 +688,17 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="list_query_whitelist">
+<table name="list_query_whitelist" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1500" y="1420"/>
+	<position x="1580" y="1340"/>
 	<column name="schema" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="tablename" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="roles">
-		<type name="text" dimension="1"/>
+		<type name="text" length="1" dimension="1"/>
 	</column>
 	<constraint name="list_query_whitelist_pk" type="pk-constr" table="grape.list_query_whitelist">
 		<columns names="schema,tablename" ref-type="src-columns"/>
@@ -713,26 +713,26 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="setting_history">
+<table name="setting_history" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="399" y="924"/>
+	<position x="400" y="920"/>
 	<column name="setting_history_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="setting_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="value">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="json_value">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<column name="date_inserted">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<column name="user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="setting_history_pk" type="pk-constr" table="grape.setting_history">
 		<columns names="setting_history_id" ref-type="src-columns"/>
@@ -803,29 +803,29 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="test_table">
+<table name="test_table" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1816.57" y="1065"/>
+	<position x="1820" y="1140"/>
 	<column name="test_table_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="table_schema" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="table_name" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="date_created">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<column name="user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="date_updated">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<constraint name="test_table_id_pk" type="pk-constr" table="grape.test_table">
 		<columns names="test_table_id" ref-type="src-columns"/>
@@ -875,132 +875,132 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="document_store" sql-disabled="true">
+<table name="document_store" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1325.71" y="1870"/>
+	<position x="1320" y="1880"/>
 	<column name="document_store_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="location">
-		<type name="text"/>
+		<type name="text" length="1"/>
 		<comment><![CDATA[Location within a document store (relative to the document store path)]]></comment>
 	</column>
 	<column name="is_local">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="lookup_seq" default-value="99">
-		<type name="smallint"/>
+		<type name="smallint" length="1"/>
 	</column>
 	<column name="insert_seq" default-value="99">
-		<type name="smallint"/>
+		<type name="smallint" length="1"/>
 	</column>
 	<constraint name="document_store_pk" type="pk-constr" table="grape.document_store">
 		<columns names="document_store_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="document" sql-disabled="true">
+<table name="document" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1780" y="1821.43"/>
+	<position x="1780" y="1820"/>
 	<column name="document_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="filename">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="location">
-		<type name="text"/>
+		<type name="text" length="1"/>
 		<comment><![CDATA[Location within a document store (relative to the document store path)]]></comment>
 	</column>
 	<column name="document_guid">
-		<type name="uuid"/>
+		<type name="uuid" length="1"/>
 	</column>
 	<column name="hash">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="date_inserted" default-value="NOW()">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<column name="user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="document_type">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="related_entity_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="file_size">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="mime_type">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="document_pk" type="pk-constr" table="grape.document">
 		<columns names="document_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="document_store_document" sql-disabled="true">
+<table name="document_store_document" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1488.57" y="2124.29"/>
+	<position x="1480" y="2120"/>
 	<column name="document_id" not-null="true">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="document_store_id" not-null="true">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="last_seen">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 	<constraint name="document_store_document_pk" type="pk-constr" table="grape.document_store_document">
 		<columns names="document_id,document_store_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="table_operation_whitelist">
+<table name="table_operation_whitelist" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1500" y="1500"/>
+	<position x="1520" y="1540"/>
 	<column name="schema" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="tablename" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="allowed_operation" not-null="true">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="roles">
-		<type name="text" dimension="1"/>
+		<type name="text" length="1" dimension="1"/>
 	</column>
 	<constraint name="insert_query_pk" type="pk-constr" table="grape.table_operation_whitelist">
 		<columns names="schema,tablename,allowed_operation" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="process_role">
+<table name="process_role" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1036.43" y="564.857"/>
+	<position x="1060" y="560"/>
 	<column name="process_role_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="process_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="role_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="can_view" default-value="TRUE">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="can_execute" default-value="FALSE">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="can_edit" default-value="FALSE">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<constraint name="process_role_pk" type="pk-constr" table="grape.process_role">
 		<columns names="process_role_id" ref-type="src-columns"/>
@@ -1023,17 +1023,17 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="user_network">
+<table name="user_network" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="404" y="582"/>
+	<position x="400" y="580"/>
 	<column name="user_network_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="user_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="network_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="whitelist_user_ip_pk" type="pk-constr" table="grape.user_network">
 		<columns names="user_network_id" ref-type="src-columns"/>
@@ -1048,17 +1048,17 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="network">
+<table name="network" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="758" y="589"/>
+	<position x="760" y="580"/>
 	<column name="network_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="address">
-		<type name="inet"/>
+		<type name="inet" length="1"/>
 	</column>
 	<constraint name="network_pk" type="pk-constr" table="grape.network">
 		<columns names="network_id" ref-type="src-columns"/>
@@ -1073,20 +1073,20 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="report_template">
+<table name="report_template" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="500" y="1380"/>
 	<column name="report_template_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="report_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="params">
-		<type name="json"/>
+		<type name="json" length="1"/>
 	</column>
 	<constraint name="report_template_pk" type="pk-constr" table="grape.report_template">
 		<columns names="report_template_id" ref-type="src-columns"/>
@@ -1104,21 +1104,21 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="report_output">
+<table name="report_output" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<comment><![CDATA[Parameters passed on to the output function]]></comment>
 	<position x="1080" y="1440"/>
 	<column name="report_output_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="report_output_type_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="params">
-		<type name="json"/>
+		<type name="json" length="1"/>
 		<comment><![CDATA[with]]></comment>
 	</column>
 	<constraint name="report_output_pk" type="pk-constr" table="grape.report_output">
@@ -1126,52 +1126,52 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="report_output_type">
+<table name="report_output_type" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="1100" y="1680"/>
 	<column name="report_output_type_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="ui_params">
-		<type name="json"/>
+		<type name="json" length="1"/>
 		<comment><![CDATA[Params to build the GUI ]]></comment>
 	</column>
 	<column name="function_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="function_schema">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="report_output_type_pk" type="pk-constr" table="grape.report_output_type">
 		<columns names="report_output_type_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="report_result">
+<table name="report_result" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="1000" y="1100"/>
 	<column name="report_result_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="reports_executed_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="text_result">
-		<type name="text"/>
+		<type name="text" length="1"/>
 		<comment><![CDATA[Used when the report's output_type is TEXT]]></comment>
 	</column>
 	<column name="row_result">
-		<type name="jsonb"/>
+		<type name="jsonb" length="1"/>
 		<comment><![CDATA[Used when the report's output_type is ROW]]></comment>
 	</column>
 	<column name="result_table_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="result_table_schema">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="reports_executed_result_pk" type="pk-constr" table="grape.report_result">
 		<columns names="report_result_id" ref-type="src-columns"/>
@@ -1181,94 +1181,94 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="report_result_output">
+<table name="report_result_output" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="1080" y="1300"/>
 	<column name="report_result_output_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="report_result_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="report_output_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="reports_executed_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="report_result_output_pk" type="pk-constr" table="grape.report_result_output">
 		<columns names="report_result_output_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="report_template_output">
+<table name="report_template_output" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="720" y="1580"/>
 	<column name="report_template_output_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="report_template_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="report_output_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<constraint name="report_template_output_pk" type="pk-constr" table="grape.report_template_output">
 		<columns names="report_template_output_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="report_role">
+<table name="report_role" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="300" y="1580"/>
 	<column name="report_role_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="report_id">
-		<type name="integer"/>
+		<type name="integer" length="1"/>
 	</column>
 	<column name="role_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="can_view" default-value="FALSE">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="can_edit" default-value="FALSE">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="can_execute">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<constraint name="report_role_pk" type="pk-constr" table="grape.report_role">
 		<columns names="report_role_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="report_category">
+<table name="report_category" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<position x="60" y="1220"/>
 	<column name="report_category_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="report_category">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="report_category_pk" type="pk-constr" table="grape.report_category">
 		<columns names="report_category_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="deployment" sql-disabled="true">
+<table name="deployment" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="925.857" y="33.8571"/>
+	<position x="1260" y="40"/>
 	<column name="deployment_id">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="date_inserted">
-		<type name="timestamptz"/>
+		<type name="timestamptz" length="1"/>
 	</column>
 </table>
 
@@ -1280,26 +1280,26 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="notification_function">
+<table name="notification_function" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1199" y="23"/>
+	<position x="1540" y="20"/>
 	<column name="notification_function_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="description">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="function_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="function_schema">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="active">
-		<type name="boolean"/>
+		<type name="boolean" length="1"/>
 	</column>
 	<column name="emitted_event_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="notification_function_pk" type="pk-constr" table="grape.notification_function">
 		<columns names="notification_function_id" ref-type="src-columns"/>
@@ -1330,11 +1330,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="authentication_token">
-	<schema name="grape"/>
-	<position x="122" y="72"/>
-</table>
-
 <index name="nf_active_idx" table="grape.notification_function"
 	 concurrent="false" unique="false" fast-update="false" buffering="false"
 	 index-type="btree" factor="0">
@@ -1343,18 +1338,18 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		</idxelement>
 </index>
 
-<table name="service">
+<table name="service" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<comment><![CDATA[This table is used for the generation of service tickets]]></comment>
-	<position x="130" y="1767"/>
+	<position x="140" y="1760"/>
 	<column name="service_id" not-null="true">
-		<type name="serial"/>
+		<type name="serial" length="1"/>
 	</column>
 	<column name="service_name">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<column name="shared_secret">
-		<type name="text"/>
+		<type name="text" length="1"/>
 	</column>
 	<constraint name="service_pk" type="pk-constr" table="grape.service">
 		<columns names="service_id" ref-type="src-columns"/>
@@ -1368,6 +1363,23 @@ CAUTION: Do not modify this file unless you know what you are doing.
 			<column name="service_name"/>
 		</idxelement>
 </index>
+
+<table name="session_activity_log" sql-disabled="true" hide-ext-attribs="true">
+	<schema name="grape"/>
+	<position x="920" y="60"/>
+	<column name="session_id">
+		<type name="text" length="1"/>
+	</column>
+	<column name="method">
+		<type name="text" length="1"/>
+	</column>
+	<column name="headers">
+		<type name="text" length="1"/>
+	</column>
+	<column name="data">
+		<type name="bytea" length="1"/>
+	</column>
+</table>
 
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_role">
@@ -1555,7 +1567,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <relationship name="rel_session_user" type="relfk"
 	 src-table="grape.session"
 	 dst-table="grape.&quot;user&quot;"
-	 src-required="false" dst-required="false"/>
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="0" y="0"/>
+	</label>
+</relationship>
 
 <relationship name="rel_user_history_user" type="relfk"
 	 src-table="grape.user_history"
