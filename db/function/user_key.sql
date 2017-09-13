@@ -1,19 +1,17 @@
 
 -- Generate the key that will be saved in the DB. this function calls itself until _rounds is 0
-CREATE OR REPLACE FUNCTION grape.generate_user_key (_password TEXT, _salt TEXT, _rounds INTEGER, _init TEXT DEFAULT NULL) RETURNS TEXT AS $$
+CREATE OR REPLACE FUNCTION grape.generate_user_key (_password TEXT, _salt TEXT, _rounds INTEGER) RETURNS TEXT AS $$
 DECLARE
+	_i INTEGER := _rounds;
+	_init TEXT;
 BEGIN
-	IF _rounds = 0 THEN
-		RETURN _init;
-	END IF;
 
-	RETURN grape.generate_user_key(
-		_password, 
-		_salt, 
-		_rounds - 1,
-		ENCODE(DIGEST(COALESCE(_init, '') || _salt || _password, 'sha256'), 'hex')
-	);
-	
+	WHILE _i > 0 LOOP
+		_init := ENCODE(DIGEST(COALESCE(_init, '') || _salt || _password, 'sha256'), 'hex');
+		_i := _i - 1;
+	END LOOP;
+
+	RETURN _init;
 END; $$ LANGUAGE plpgsql;
 
 -- Generate a string in the format sha256:SALT:HASH to save in the DB. we have to save the salt and hash algo for future reference

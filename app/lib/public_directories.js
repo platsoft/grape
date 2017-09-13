@@ -54,10 +54,17 @@ module.exports = function() {
 			} catch (e) {
 			}
 		}
+		
 
 		if (lookup_result != null)
 		{
-			res.sendFile(lookup_result);
+			app.get('logger').log('app', 'debug', 'Sending public file ' + lookup_result);
+			res.sendFile(lookup_result, {}, function(err) {
+				if (err)
+				{
+					app.get('logger').log('app', 'error', 'Error sending file: ' + err.toString());
+				}
+			});
 			return;
 		}
 	

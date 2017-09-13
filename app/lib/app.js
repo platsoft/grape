@@ -5,8 +5,8 @@
  */
 var express = require('express');
 var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
 var multipartParser = require('connect-multiparty');
+var xmlParser = require(__dirname + '/xml_body_parser.js');
 var _ = require('underscore');
 var fs = require('fs');
 var util = require('util');
@@ -138,10 +138,9 @@ exports = module.exports = function(_o) {
 	app.set('logger', logger);
 	app.set('log', logger);
 
-	// Express settings
-	app.use(bodyParser.json());
-	app.use(cookieParser());
-	app.use(multipartParser());
+
+
+
 
 	app.set("jsonp callback", true);
 	app.enable("trust proxy");
@@ -164,6 +163,13 @@ exports = module.exports = function(_o) {
 	var pdfgenerator = new grapelib.pdfgenerator(app);
 	app.set('pdfgenerator', pdfgenerator);
 
+	// Express settings
+	app.use(bodyParser.json());
+	app.use(multipartParser());
+
+	//xml body parser
+	app.use(xmlParser());
+
 
 	//Setup functions for auto create of API calls
 	var create_api_calls = require(__dirname + '/create_api_calls.js');
@@ -181,6 +187,8 @@ exports = module.exports = function(_o) {
 
 	// Assign the session ID
 	app.use(function(req, res, next) {
+		//console.log(req.method +  " " + req.url);
+		//console.log(req.headers);
 		req.session_id = null;
 
 		if (req.header('X-SessionID'))
@@ -213,6 +221,8 @@ exports = module.exports = function(_o) {
 
 		logger.log('app', 'trace', [req.ip, req.method, req.url, req.session_id, req.header('Content-Length'), req.headers.accept].join(' '));
 
+		console.log("res.headersSent: ", res.headersSent);
+
 		// if first character of path is a . return error
 		if (req.path[0] == '.')
 		{
@@ -230,22 +240,6 @@ exports = module.exports = function(_o) {
 			res.set('Access-Control-Allow-Origin', req.headers['origin']);
 		}
 
-		if (req.method == 'OPTIONS')
-		{
-			// Handle pre-flight CORS request
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
-		
-			logger.log('app', 'trace', ['Pre-flight CORS request from', req.headers['origin']].join(' '));
-
-			res.status(200);
-			res.set('Access-Control-Allow-Origin', req.headers['origin']);
-			res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-			res.set('Access-Control-Allow-Headers', 'X-SessionID, X-Notifications, Content-Type');
-			res.set('Access-Control-Max-Age', 86400);
-
-			res.end();
-			return;
-		}
 
 		res.locals.db = app.get('guest_db');
 		req.db = app.get('guest_db');
@@ -265,6 +259,25 @@ exports = module.exports = function(_o) {
 				break;
 			}
 		}
+
+		if (req.method == 'OPTIONS' && req.matched_path == null)
+		{
+			// Handle pre-flight CORS request
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+		
+			logger.log('app', 'trace', ['Pre-flight CORS request from', req.headers['origin']].join(' '));
+
+			res.status(200);
+			res.set('Access-Control-Allow-Origin', req.headers['origin']);
+			res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+			res.set('Access-Control-Allow-Headers', 'X-SessionID, X-Notifications, Content-Type');
+			res.set('Access-Control-Max-Age', 86400);
+
+			res.end();
+			return;
+		}
+
+		console.log("res.headersSent: ", res.headersSent);
 
 		next();
 	});
@@ -295,7 +308,7 @@ exports = module.exports = function(_o) {
 		app.use(notification_checker);
 	}
 	
-	// TODO This is where the api logger handler and the notification handler should be included
+	// TODO This is where the api logger handler should be included
 
 	// Load built-in API calls
 	var builtin_api_dir = __dirname + '/../api/';
@@ -305,7 +318,10 @@ exports = module.exports = function(_o) {
 	if (options.api_directories)
 	{
 		options.api_directories.forEach(function(dir) {
-			loadapifiles(dir, '');
+			if (path.isAbsolute(dir) === true)
+				loadapifiles(dir, '');
+			else
+				loadapifiles(path.join(options.base_directory, dir), '');
 		});
 	}
 	
@@ -315,7 +331,11 @@ exports = module.exports = function(_o) {
 	if (options.api_directories)
 	{
 		options.api_directories.forEach(function(dir) {
-			schema_api_calls.load_schemas(app, dir, '');
+			if (path.isAbsolute(dir) === true)
+				schema_api_calls.load_schemas(app, dir, '');
+			else
+				schema_api_calls.load_schemas(app, path.join(options.base_directory, dir), '');
+				
 		});
 	}
 

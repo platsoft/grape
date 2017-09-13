@@ -79,7 +79,8 @@ module.exports = function (req, res, next) {
 			return;
 		}
 
-		res.locals.session = ret;
+		if (!res.locals.session)
+			res.locals.session = ret;
 		next();
 	}
 

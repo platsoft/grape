@@ -1,39 +1,39 @@
 {
-	"name": "ps-grape",
-	"version": "1.0.8",
-	"description": "Platinum Software Grape Framework",
-	"main": "app/index.js",
-	"directories": {
-		"test": "test"
-	},
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"author": "Hans Lombard <hans@platsoft.net>",
-	"license": "BSD-2-Clause",
-	"dependencies": {
-		"adm-zip": "0.4.7",
-		"async": "2.5.0",
-		"body-parser": "1.17.2",
-		"commander": "2.9.0",
-		"connect-multiparty": "2.0.0",
-		"cookie-parser": "1.4.3",
-		"csv-parse": "1.1.7",
-		"express": "4.15.4",
-		"jsonschema": "1.1.1",
-		"ldapjs": "1.0.1",
-		"libxmljs": "^0.18.7",
-		"nodemailer": "4.0.1",
-		"pg": "7.3.0",
-		"pg-connection-string": "0.1.3",
-		"syntax-error": "1.1.6",
-		"underscore": "1.8.3",
-		"xlsx": "0.9.3"
-	},
-	"devDependencies": {},
-	"bin": {
-		"grape-manage": "./grape-manage/grape-manage.js",
-		"grape-query": "./scripts/grape-query.js",
-		"grape-db-setup": "./grape-db-setup/grape-db-setup.js"
-	}
+  "name": "ps-grape",
+  "version": "1.0.8",
+  "description": "Platinum Software Grape Framework",
+  "main": "app/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hans Lombard <hans@platsoft.net>",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "adm-zip": "0.4.7",
+    "async": "2.5.0",
+    "body-parser": "1.17.2",
+    "commander": "2.9.0",
+    "connect-multiparty": "2.0.0",
+    "csv-parse": "1.1.7",
+    "express": "4.15.4",
+    "express-xml-bodyparser": "^0.3.0",
+    "jsonschema": "1.1.1",
+    "ldapjs": "1.0.1",
+    "libxmljs": "^0.18.7",
+    "nodemailer": "4.0.1",
+    "pg": "7.3.0",
+    "pg-connection-string": "0.1.3",
+    "syntax-error": "1.1.6",
+    "underscore": "1.8.3",
+    "xlsx": "0.9.3"
+  },
+  "devDependencies": {},
+  "bin": {
+    "grape-manage": "./grape-manage/grape-manage.js",
+    "grape-query": "./scripts/grape-query.js",
+    "grape-db-setup": "./grape-db-setup/grape-db-setup.js"
+  }
 }

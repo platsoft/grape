@@ -38,17 +38,31 @@ if (process.argv[2] && process.argv[2].substring(0, 13) == '--project-dir')
 		process.exit(1);
 	}
 
+	try {
+		var config = require(base_directory + '/config.js');
+	} catch (e) {
+		console.log("No config.js file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
+		process.exit(1);
+	}
+
+
+}
+else if (process.argv[2] && path.extname(process.argv[2]) == '.json')
+{
+	var config = JSON.parse(fs.readFileSync(process.argv[2]));
+	process.argv.splice(2, 1);
+}
+else
+{
+	try {
+		var config = require(base_directory + '/config.js');
+	} catch (e) {
+		console.log("No config.js file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
+		process.exit(1);
+	}
 }
 
 
-
-
-try {
-	var config = require(base_directory + '/config.js');
-} catch (e) {
-	console.log("No config.js file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
-	process.exit(1);
-}
 
 var options = grape_options(config);
 
