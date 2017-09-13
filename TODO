@@ -5,11 +5,13 @@
 
 - run a grape app without a database
 - create an authentication provider
-- compiled javascript needs to be cached
 
-- Send system notifications through HTTP headers
 
-- Make settings available in node
+- Settings management:
+	- Store all settings in DB
+	- Add setting access roles
+	- Add setting categories
+	- Make available in node upon startup
 
 - Broadcast/discover other grape services (using SSDP)
 
@@ -38,4 +40,6 @@ Done:
 - accept HTTP authentication instead of X-SessionID (look at Authorization header)
 - Loading roles from schema
 - System/Frontend integrator - HTTP server that relays api calls to connected systems. HTTP requests (API calls and HTML downloads etc) can be rewritten on the fly. /cabsav/...
+- compiled javascript needs to be cached
+- Send system notifications through HTTP headers
 

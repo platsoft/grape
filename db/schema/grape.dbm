@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.0" last-position="366,372" last-zoom="0.9">
+<dbmodel pgmodeler-ver="0.9.0" last-position="365,1089" last-zoom="0.9">
 <database name="grape">
 </database>
 
@@ -874,7 +874,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document_store" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1320" y="1880"/>
+	<position x="1220" y="1880"/>
 	<column name="document_store_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1376,7 +1376,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document_store_location" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1520" y="1720"/>
+	<position x="1500" y="1680"/>
 	<column name="document_store_location_id" not-null="true">
 		<type name="serial" length="0"/>
 	</column>
@@ -1734,7 +1734,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="grape.document_store"
 	 src-required="false" dst-required="false">
 	<label ref-type="name-label">
-		<position x="0" y="0"/>
+		<position x="5.60074" y="-0.852184"/>
 	</label>
 </relationship>
 

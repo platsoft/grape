@@ -200,6 +200,8 @@ New features:
 - New view grape.v_pg_table_stats
 - Roles and access paths from schema API calls is now automatically registered in the database upon startup
 - New config option delayed_response will delay responses
+- LDAP server (experimental)
+- XML Body Parser
 
 Minor changes:
 - grape-db-setup better error messages

@@ -8,7 +8,7 @@ DECLARE
 	_service_id INTEGER;
 BEGIN
 	IF grape.is_valid_service(_service_name) = TRUE THEN
-		UPDATE grape.service SET shared_secret=_shared_secret WHERE service_name=_service_name;
+		UPDATE grape.service SET shared_secret=_shared_secret WHERE service_name=_service_name::TEXT;
 	ELSE
 		INSERT INTO grape.service (service_name, shared_secret)
 			VALUES (_service_name, _shared_secret)

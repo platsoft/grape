@@ -313,6 +313,11 @@ function create_database(superdburi, dburi, cb)
 					if (err)
 					{
 						pc.print_err("Error during database creation: " + err.toString() + ' (' + err.code + ')');
+
+						if (err.code == '42P04')
+						{
+							pc.print_err("You can use the -r option to drop the database before creation");
+						}
 						process.exit(1);
 					}
 
@@ -396,14 +401,23 @@ function drop_database(superdburi, dburi, cb)
 
 					client.query(['DROP DATABASE "', obj.database, '"'].join(''), 
 						function(err, res) {
+							client.end();
 							if (err)
 							{
-								pc.print_err("Error during database drop: " + err.toString() + ' (' + err.code + ')');
-								process.exit(1);
+								if (err.code != '3D000')
+								{
+									pc.print_err("Error during database drop: " + err.toString() + ' (' + err.code + ')');
+									process.exit(1);
+								}
+								else
+								{
+									pc.print_warn("\tFailed to drop database - it does not exist");
+								}
 							}
-
-							client.end();
-							pc.print_ok("\tDatabase dropped");
+							else
+							{
+								pc.print_ok("\tDatabase dropped");
+							}
 							cb();
 						}
 					);

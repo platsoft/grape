@@ -15,6 +15,7 @@ BEGIN
 	_session_key := ENCODE(gen_random_bytes(16), 'hex');
 
 	_tgt := jsonb_build_object(
+		'status', 'OK',
 		'username', _user.username,
 		'employee_guid', _user.employee_guid,
 		'issued_at', NOW(),
@@ -25,17 +26,6 @@ BEGIN
 	
 
 	RETURN _tgt;
-END; $$ LANGUAGE plpgsql;
-
--- Response codes:
---  0  valid
--- -1  invalid user data
--- -2  expired
-CREATE OR REPLACE FUNCTION grape.validate_TGT(JSONB) RETURNS INTEGER AS $$
-DECLARE
-BEGIN
-
-
 END; $$ LANGUAGE plpgsql;
 
 
@@ -61,13 +51,18 @@ BEGIN
 	IF $1 ? 'username' THEN
 		SELECT * INTO _user FROM grape."user" WHERE username=($1->>'username');
 		IF NOT FOUND THEN
-			RETURN grape.api_error('Invalid input', -2);
+			RETURN grape.api_error('No such user', -2);
 		END IF;
+
 	ELSIF $1 ? 'email' THEN
 		SELECT * INTO _user FROM grape."user" WHERE email=($1->>'email');
 		IF NOT FOUND THEN
-			RETURN grape.api_error('Invalid input', -2);
+			RETURN grape.api_error('No such user', -2);
 		END IF;
+	END IF;
+
+	IF _user.active = FALSE THEN
+		RETURN grape.api_error('User is not active', -3);
 	END IF;
 	
 	IF _user.employee_guid IS NULL THEN
@@ -127,7 +122,7 @@ BEGIN
 	_server_private_key := ENCODE(DIGEST(grape.get_server_private_key('TGT'), 'sha256'), 'hex');
 	_tgt := (grape.decrypt_message(_raw_tgt, _server_private_key, 'c5067fe37e0b025da44ec7578502c7e4'))::JSONB;
 
-	RAISE NOTICE 'TGT: %', _tgt;
+	-- RAISE NOTICE 'TGT: %', _tgt;
 
 	_requested_service := ($1->>'requested_service');
 
@@ -143,7 +138,7 @@ BEGIN
 
 	_authenticator := (grape.decrypt_message(_encrypted_authenticator, _decryption_key, _iv))::JSONB;
 
-	RAISE NOTICE 'Authenticator: %', _authenticator;
+	-- RAISE NOTICE 'Authenticator: %', _authenticator;
 
 	IF _authenticator ? 'username' THEN
 		SELECT * INTO _user FROM grape."user" WHERE username=(_authenticator->>'username');
@@ -202,7 +197,7 @@ BEGIN
 	IF NOT FOUND THEN
 		_s := ENCODE(gen_random_bytes(32), 'hex');
 		INSERT INTO grape.system_private (my_secret, role, last_reset)
-			VALUES (_s, 'TGT', CURRENT_TIMESTAMP);
+			VALUES (_s, _role, CURRENT_TIMESTAMP);
 	END IF;
 	RETURN _s;
 END; $$ LANGUAGE plpgsql;
