@@ -61,6 +61,13 @@ BEGIN
 	RETURN grape.api_result_error('Data not found', -5, _info);
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.api_error_invalid_data_state(_info JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
+DECLARE
+BEGIN
+	RETURN grape.api_result_error('The operation requested could not be performed on the data because the data is not in a valid state', -6, _info);
+END; $$ LANGUAGE plpgsql;
+
+
 
 
 

@@ -202,9 +202,12 @@ New features:
 - New config option delayed_response will delay responses
 - LDAP server (experimental)
 - XML Body Parser
+- API call "/grape/process/start" now accepts an optional "time_sched TIMESTAMPTZ" parameter that will start the schedule in the future
+- New API call /grape/schedule/:schedule_id/stop will terminate a running schedule
 
 Minor changes:
 - grape-db-setup better error messages
+- grape-db-setup should not fail when attempting to drop a non-existing database
 - New default role pg_stat (pg statistics monitoring)
 - Use req.ip when logging in (instead of remoteConnection IP) in order to ensure the correct client IP when connecting through proxies
 - PDF generator should catch DB errors

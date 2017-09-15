@@ -30,8 +30,11 @@
 - Socket.IO integration
 
 - make grape a WebDAV server
+- Document store:	
+	- Integrate with WebDAV
 
 - HTTP DIGEST authentication
+- SOAP API
 
 Done:
 - create API calls from JSON schema

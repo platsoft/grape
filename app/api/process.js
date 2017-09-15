@@ -19,6 +19,7 @@ exports = module.exports = function(_app) {
  * 	process_id INTEGER Process ID to start. Provide either this or a process name
  * 	process_name TEXT Process name to start. Provide either this or a process ID
  * 	param JSON Process specific options
+ * 	time_sched TIMESTAMPTZ When to run this (default to now)
  * }
  * @example {"process_name":"create_combined_tape","param":{"submission_date":"2014/05/01"}}
  * @return JSON object containing fields:
@@ -160,7 +161,40 @@ exports = module.exports = function(_app) {
 				res.locals.db.jsonb_call('grape.select_auto_scheduler', {autoscheduler_id: req.params.autoscheduler_id}, null, {response: res});
 			});
 
+/**
+ * @desc Stop a running schedule
+ * @method GET
+ * @url /grape/schedule/:schedule_id/stop
+ *
+ */
+	app.get("/grape/schedule/:schedule_id/stop", api_stop_schedule);
+
 };
+
+function api_stop_schedule(req, res)
+{
+	res.locals.db.jsonb_call('grape.stop_running_schedule', {schedule_id: req.params.schedule_id}, function(err, result) {
+		if (err)
+		{
+			var error_object = {
+				'status': 'ERROR',
+				'message': err.toString(),
+				'code': -99,
+				'error': err
+			};
+
+			res.jsonp(error_object);
+			return;
+		}
+
+		var data = result.rows[0]['grapestop_running_schedule'];
+		if (data.status == 'OK' && data.pid > 0)
+			process.kill(data.pid, 'SIGTERM');
+		
+		res.jsonp(data);
+		res.end();
+	});
+}
 
 function api_run_process_now(req, res)
 {

@@ -4,7 +4,7 @@
  * 
  * Provide a process_id and params
  */
-CREATE OR REPLACE FUNCTION grape.start_process (_process_id INTEGER, _param JSON) RETURNS INTEGER AS $$
+CREATE OR REPLACE FUNCTION grape.start_process (_process_id INTEGER, _param JSON, _time_sched TIMESTAMPTZ DEFAULT NOW()) RETURNS INTEGER AS $$
 DECLARE
 	_schedule_id INTEGER;
 	_filter_processes BOOLEAN;
@@ -16,7 +16,7 @@ BEGIN
 	END IF;
 
 	INSERT INTO grape.schedule (process_id, time_sched, param, user_id) 
-		VALUES (_process_id, CURRENT_TIMESTAMP, _param, current_user_id()) 
+		VALUES (_process_id, _time_sched, _param, current_user_id()) 
 		RETURNING schedule_id INTO _schedule_id;
 
 	RETURN _schedule_id;
@@ -27,7 +27,7 @@ END; $$ LANGUAGE plpgsql;
  * 
  * Provide a process_id and params
  */
-CREATE OR REPLACE FUNCTION grape.start_process (_process_name TEXT, _param JSON) RETURNS INTEGER AS $$
+CREATE OR REPLACE FUNCTION grape.start_process (_process_name TEXT, _param JSON, _time_sched TIMESTAMPTZ DEFAULT NOW()) RETURNS INTEGER AS $$
 DECLARE
 	_process_id INTEGER;
 	_schedule_id INTEGER;
@@ -39,7 +39,7 @@ BEGIN
 		RETURN -1;
 	END IF;
 
-	_schedule_id := grape.start_process(_process_id, _param);
+	_schedule_id := grape.start_process(_process_id, _param, _time_sched);
 
 	RETURN _schedule_id;
 END; $$ LANGUAGE plpgsql;
@@ -54,15 +54,23 @@ DECLARE
 	_process_name TEXT;
 	_param JSON;
 	_schedule_id INTEGER;
+	_time_sched TIMESTAMPTZ;
+
 BEGIN
 	_param := $1->'param';
 
+	_time_sched := NOW();
+
+	IF json_extract_path($1, 'time_sched') IS NOT NULL THEN
+		_time_sched := ($1->>'time_sched')::TIMESTAMPTZ;
+	END IF;
+
 	IF json_extract_path($1, 'process_id') IS NOT NULL THEN
 		_process_id := ($1->>'process_id')::INTEGER;
-		_schedule_id := grape.start_process(_process_id, _param);
+		_schedule_id := grape.start_process(_process_id, _param, _time_sched);
 	ELSIF json_extract_path($1, 'process_name') IS NOT NULL THEN
 		_process_name := ($1->>'process_name')::TEXT;
-		_schedule_id := grape.start_process(_process_name, _param);
+		_schedule_id := grape.start_process(_process_name, _param, _time_sched);
 	ELSE
 		RETURN grape.api_error_invalid_input();
 	END IF;
@@ -82,58 +90,6 @@ END; $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION grape.process_id_by_name(_process_name TEXT) RETURNS INTEGER AS $$
 	SELECT process_id FROM grape.process WHERE pg_function=_process_name::TEXT;
 $$ LANGUAGE sql;
-
-/**
- * Returns list of processes and totals
- * If the grape setting filter_processes is true
- */
-CREATE OR REPLACE FUNCTION grape.list_processes (JSON) RETURNS JSON AS $$
-DECLARE
-	_ret JSONB;
-	_filter_processes BOOLEAN;
-	_rec RECORD;
-BEGIN
-	_filter_processes := (grape.get_value('filter_processes', 'false'))::BOOLEAN;
-
-	_ret := '[]'::JSONB;
-
-	FOR _rec IN SELECT 
-			ap.process_id, 
-			pg_function, 
-			description, 
-			ap.process_category,
-			ap.param,
-			(SELECT json_agg(a.s) FROM 
-				(SELECT (to_jsonb(b) || jsonb_build_object('run_as_user', grape.username(run_as_user_id))) s FROM 
-					grape.auto_scheduler b 
-					WHERE process_id=ap.process_id) a) AS auto_scheduler,
-
-			(SELECT json_agg(process_role) FROM grape.process_role WHERE process_id=ap.process_id) AS process_role,
-			sched.schedule_id,
-			sched.time_sched,
-			sched.time_started,
-			sched.time_ended,
-			sched.pid,
-			sched.param AS sched_param,
-			grape.username(sched.user_id) AS sched_username,
-			sched.logfile,
-			sched.status,
-			sched.progress_completed,
-			sched.progress_total,
-			sched.auto_scheduler_id
-
-		FROM grape.process AS ap
-			LEFT JOIN LATERAL (SELECT * FROM grape.schedule WHERE process_id=ap.process_id ORDER BY time_sched DESC LIMIT 1) AS sched USING (process_id)
-			ORDER BY ap.process_id
-	LOOP
-		IF _filter_processes = FALSE 
-			OR (_filter_processes = TRUE AND grape.check_process_view_permission(_rec.process_id) = TRUE) THEN
-				_ret := _ret || to_jsonb(_rec);
-		END IF;
-	END LOOP;
-
-	RETURN _ret::JSON;
-END; $$ LANGUAGE plpgsql;
 
 
 /**
@@ -472,52 +428,59 @@ CREATE OR REPLACE FUNCTION grape.select_auto_scheduler(JSONB) RETURNS JSON AS $$
 	);
 $$ LANGUAGE sql;
 
-/**
- * Returns a list of process categories
- * {"status":"OK","categories":[null, "Internal"]}
+/*
+ * Return codes:
+ * > 0 Schedule is not a DB function, this is the PID of process
+ *  0: Schedule killed
+ *  -1: Schedule not found
+ *  -2: Schedule status is not "Running"
+ *  -3: Access denied
  */
-CREATE OR REPLACE FUNCTION grape.list_process_categories(JSON) RETURNS JSON AS $$
+CREATE OR REPLACE FUNCTION grape.stop_running_schedule(_schedule_id INTEGER) RETURNS INTEGER AS $$
 DECLARE
-	_ret JSON;
+	_sched RECORD;
 BEGIN
-	SELECT JSON_AGG(DISTINCT process_category) INTO _ret FROM grape.process;
+	-- TODO check that the current user has access to this process, if not return -3
+
+	SELECT s.*, p.process_type INTO _sched FROM grape.schedule s JOIN grape.process p USING (process_id) WHERE schedule_id=_schedule_id::INTEGER;
+	IF NOT FOUND THEN
+		RETURN -1;
+	END IF;
+
+	IF _sched.status != 'Running' THEN
+		RETURN -2;
+	END IF;
+
+	IF _sched.process_type != 'DB' AND _sched.process_type != 'SQL' AND _sched.process_type IS NOT NULL THEN
+		RETURN _sched.pid;
+	END IF;
+
+	PERFORM pg_terminate_backend(_sched.pid);
 	
-	RETURN grape.api_success('categories', _ret);
+	RETURN 0;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION grape.upsert_process(
-	_pg_function TEXT,
-	_description TEXT,
-	_param JSON,
-	_process_type TEXT,
-	_function_schema TEXT,
-	_process_category TEXT) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION grape.stop_running_schedule(JSONB) RETURNS JSONB AS $$
+DECLARE
+	_ret INTEGER;
+	_schedule_id INTEGER;
+BEGIN
+	_schedule_id := ($1->>'schedule_id')::INTEGER;
 
-	INSERT INTO grape.process (
-		pg_function,
-		description,
-		param,
-		process_type,
-		function_schema,
-		process_category
-	)
-	VALUES (
-		_pg_function,
-		_description,
-		_param,
-		_process_type,
-		_function_schema,
-		_process_category
-	)
-	ON CONFLICT (pg_function) --if processing_function name is the same updatre all the other values 
-	DO UPDATE SET 
-		pg_function=EXCLUDED.pg_function,
-		description=EXCLUDED.description,
-		param=EXCLUDED.param,
-		process_type=EXCLUDED.process_type,
-		function_schema=EXCLUDED.function_schema,
-		process_category=EXCLUDED.process_category;
+	_ret := grape.stop_running_schedule(_schedule_id);
 
-$$ LANGUAGE sql;
+	IF _ret >= 0 THEN
+		RETURN grape.api_success('pid', _ret);
+	ELSIF _ret = -1 THEN
+		RETURN grape.api_error_data_not_found();
+	ELSIF _ret = -2 THEN
+		RETURN grape.api_error_invalid_data_state();
+	ELSIF _ret = -3 THEN
+		RETURN grape.api_error_permission_denied();
+	ELSE
+		RETURN grape.api_error('Unknown error', _ret);
+	END IF;
+
+END; $$ LANGUAGE plpgsql;
 
 
