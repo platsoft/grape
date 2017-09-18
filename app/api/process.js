@@ -126,14 +126,6 @@ exports = module.exports = function(_app) {
  * @url /grape/process/:process_id
  *
  */
-	app.post("/grape/process/:process_id", api_process_info);
-
-/**
- * @desc 
- * @method GET
- * @url /grape/process/:process_id
- *
- */
 	app.get("/download/schedule_logfile/:schedule_id", api_download_schedule_logfile);
 
 /**
@@ -349,12 +341,6 @@ function api_bgworker_stop (req, res)
 		process.kill(obj.pid);
 		res.status(200).json({'status': 'OK', 'pid': obj.pid}).end();
 	});
-}
-
-function api_process_info (req, res)
-{
-	var obj = req.body;
-	res.locals.db.json_call('grape.process_info', obj, null, {response: res})
 }
 
 function api_process_autoschedule (req, res)

@@ -3,6 +3,7 @@
 	"id": "/grape/process/save",
 	"name": "GrapeSaveProcessDefinition",
 	"sqlfunc": "grape.save_process_definition",
+	"sqlfunctype": "jsonb",
 	"type": "object",
 	"roles": ["admin"],
  	"properties": {
