@@ -55,10 +55,10 @@ BEGIN
 	FOR _role IN SELECT * FROM jsonb_array_elements(_process_role) LOOP
 		PERFORM grape.process_role_update(
 			_process_id, 
-			_process_role->>'role_name', 
-			(_process_role->>'can_view')::BOOLEAN, 
-			(_process_role->>'can_execute')::BOOLEAN,
-			(_process_role->>'can_edit')::BOOLEAN
+			_role->>'role_name', 
+			(_role->>'can_view')::BOOLEAN, 
+			(_role->>'can_execute')::BOOLEAN,
+			(_role->>'can_edit')::BOOLEAN
 		);
 	END LOOP;
 
