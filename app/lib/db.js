@@ -258,6 +258,8 @@ function db (_o) {
 					return;
 				};
 				res.jsonp(result.rows[0][alias]);
+				if (self.options.debug)
+					self.emit('debug', 'DB Responding with: ' + JSON.stringify(result.rows[0][alias]));
 				return;
 			}
 		}
