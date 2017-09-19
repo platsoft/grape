@@ -259,7 +259,7 @@ BEGIN
 		AND _operation ~ allowed_operation;
 
 	IF NOT FOUND THEN
-		RETURN grape.api_error(FORMAT('Table requested (%s.%s) is not in %s whitelist', _schema, _tablename, _operation), -2);
+		RETURN grape.api_error(FORMAT('You do not have the necessary permissions to perform a %s operation on the table %s.%s', _operation, _schema, _tablename), -2);
 	END IF;
 
 	IF NOT _roles @> '{all}' AND grape.current_user_in_role(_roles) = FALSE THEN
