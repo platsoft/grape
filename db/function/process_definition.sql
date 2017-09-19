@@ -89,7 +89,7 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 		_function_schema,
 		_process_category
 	)
-	ON CONFLICT (pg_function) --if processing_function name is the same updatre all the other values 
+	ON CONFLICT (pg_function, function_schema) --if processing_function name is the same updatre all the other values 
 	DO UPDATE SET 
 		pg_function=EXCLUDED.pg_function,
 		description=EXCLUDED.description,

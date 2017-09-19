@@ -299,6 +299,9 @@ function create_database(superdburi, dburi, cb)
 			else
 				var obj = dburi;
 
+			if (!obj.user)
+				obj.user = process.env.USER;
+	
 			if (!obj.database || !obj.user)
 			{
 				pc.print_err('The database options you provided through the --dburi, -d option should specify a database name and user (which will be the owner of the new database), in the format pg://username:password@hostname/databasename');
@@ -370,6 +373,9 @@ function drop_database(superdburi, dburi, cb)
 				var obj = parse_connection_string(dburi);
 			else
 				var obj = dburi;
+
+			if (!obj.user)
+				obj.user = process.env.USER;
 
 			if (!obj.database || !obj.user)
 			{

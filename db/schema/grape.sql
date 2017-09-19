@@ -1,6 +1,6 @@
 -- Database generated with pgModeler (PostgreSQL Database Modeler).
--- pgModeler  version: 0.8.2
--- PostgreSQL version: 9.5
+-- pgModeler  version: 0.9.0
+-- PostgreSQL version: 9.6
 -- Project Site: pgmodeler.com.br
 -- Model Author: ---
 
@@ -55,6 +55,7 @@ CREATE TABLE grape.session(
 	date_inserted timestamp,
 	last_activity timestamp,
 	session_origin text,
+	headers jsonb,
 	CONSTRAINT session_pk PRIMARY KEY (session_id)
 
 );
@@ -120,7 +121,7 @@ CREATE TABLE grape.process(
 	count_error integer DEFAULT 0,
 	count_running integer DEFAULT 0,
 	CONSTRAINT process_pk PRIMARY KEY (process_id),
-	CONSTRAINT process_uq UNIQUE (pg_function)
+	CONSTRAINT process_function_schema_uq UNIQUE (pg_function,function_schema)
 
 )WITH ( OIDS = TRUE );
 -- ddl-end --
@@ -605,15 +606,12 @@ CREATE INDEX test_table_updated ON grape.test_table
 -- CREATE TABLE grape.document_store(
 -- 	document_store_id serial NOT NULL,
 -- 	description text,
--- 	location text,
 -- 	is_local boolean,
 -- 	lookup_seq smallint DEFAULT 99,
 -- 	insert_seq smallint DEFAULT 99,
 -- 	CONSTRAINT document_store_pk PRIMARY KEY (document_store_id)
 -- 
 -- );
--- -- ddl-end --
--- COMMENT ON COLUMN grape.document_store.location IS 'Location within a document store (relative to the document store path)';
 -- -- ddl-end --
 -- 
 -- -- object: grape.document | type: TABLE --
@@ -910,13 +908,6 @@ CREATE INDEX s_user_idx ON grape.session
 	);
 -- ddl-end --
 
--- object: grape.authentication_token | type: TABLE --
--- DROP TABLE IF EXISTS grape.authentication_token CASCADE;
-CREATE TABLE grape.authentication_token(
-
-);
--- ddl-end --
-
 -- object: nf_active_idx | type: INDEX --
 -- DROP INDEX IF EXISTS grape.nf_active_idx CASCADE;
 CREATE INDEX nf_active_idx ON grape.notification_function
@@ -946,6 +937,52 @@ CREATE INDEX s_service_name_idx ON grape.service
 	(
 	  service_name
 	);
+-- ddl-end --
+
+-- -- object: grape.session_activity_log | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.session_activity_log CASCADE;
+-- CREATE TABLE grape.session_activity_log(
+-- 	session_id text,
+-- 	method text,
+-- 	headers text,
+-- 	data bytea
+-- );
+-- -- ddl-end --
+-- 
+-- -- object: grape.document_store_location | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.document_store_location CASCADE;
+-- CREATE TABLE grape.document_store_location(
+-- 	document_store_location_id serial NOT NULL,
+-- 	document_store_id integer,
+-- 	physical_location text,
+-- 	CONSTRAINT document_store_location_pk PRIMARY KEY (document_store_location_id)
+-- 
+-- );
+-- -- ddl-end --
+-- 
+-- -- object: grape.pending_user | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.pending_user CASCADE;
+-- CREATE TABLE grape.pending_user(
+-- 	pending_user_id serial,
+-- 	employee_guid uuid,
+-- 	data jsonb,
+-- 	date_inserted timestamptz,
+-- 	source text
+-- );
+-- -- ddl-end --
+-- 
+-- object: grape.patch | type: TABLE --
+-- DROP TABLE IF EXISTS grape.patch CASCADE;
+CREATE TABLE grape.patch(
+	system text NOT NULL,
+	version integer NOT NULL,
+	start_time timestamptz,
+	end_time timestamptz,
+	status text,
+	log_file text,
+	CONSTRAINT patch_pk PRIMARY KEY (system,version)
+
+);
 -- ddl-end --
 
 -- object: user_id_rel | type: CONSTRAINT --
@@ -1144,4 +1181,11 @@ REFERENCES grape.report (report_id) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ddl-end --
 
+-- -- object: dsl_document_store_fk | type: CONSTRAINT --
+-- -- ALTER TABLE grape.document_store_location DROP CONSTRAINT IF EXISTS dsl_document_store_fk CASCADE;
+-- ALTER TABLE grape.document_store_location ADD CONSTRAINT dsl_document_store_fk FOREIGN KEY (document_store_id)
+-- REFERENCES grape.document_store (document_store_id) MATCH FULL
+-- ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- -- ddl-end --
+-- 
 

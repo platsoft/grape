@@ -33,5 +33,26 @@ COMMENT ON TABLE grape.service IS 'This table is used for the generation of serv
 ALTER TABLE grape.session ADD COLUMN session_origin TEXT;
 
 ALTER TABLE grape.process DROP CONSTRAINT IF EXISTS "process_uq";
+ALTER TABLE grape.session
+	ADD COLUMN "headers" pg_catalog.jsonb;
+
+CREATE INDEX s_service_name_idx ON grape.service USING btree (service_name);
+
+CREATE TABLE IF NOT EXISTS grape.patch (
+	"system" pg_catalog.text,
+	"version" pg_catalog.int4,
+	"start_time" pg_catalog.timestamptz,
+	"end_time" pg_catalog.timestamptz,
+	"status" pg_catalog.text,
+	"log_file" pg_catalog.text
+) ;
+
+ALTER TABLE grape.patch ADD CONSTRAINT patch_pk PRIMARY KEY (system, version);
+
+ALTER TABLE grape.process ADD CONSTRAINT process_function_schema_uq UNIQUE (pg_function, function_schema);
+
+DROP FUNCTION IF EXISTS grape.start_process(integer, json) CASCADE;
+
+DROP FUNCTION IF EXISTS grape.start_process(text, json) CASCADE;
 
 

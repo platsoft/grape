@@ -215,6 +215,7 @@ Minor changes:
 - Switch over to storing salted SHA256 (using 1000 rounds) passwords 
 - Automatically add access roles and access paths from schema apis to DB upon startup
 - New grape-manage command: reset_password used to reset a users password
+- When debugging is enabled, the DB response from JSON calls will now be logged
 
 Removed features:
 - Removed deprecated API call "/session/new"

@@ -1,11 +1,21 @@
 
-- email queuer
-- check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
-- static data loader keeping cache of users and sessions
+1.1.0:
+- Broadcast/discover other grape services (using SSDP)
+- Send SMSes
+- Two-factor authentication
+- API logger (partitioned tables monthly? or write session logs to a file)
+	- settings: 
+- Patch tables
+- Two factor authentication
+- HTTP DIGEST authentication
+
+Future:
+- Email queuer
+- Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
+- Static data loader keeping cache of users and sessions
 
 - run a grape app without a database
 - create an authentication provider
-
 
 - Settings management:
 	- Store all settings in DB
@@ -13,14 +23,7 @@
 	- Add setting categories
 	- Make available in node upon startup
 
-- Broadcast/discover other grape services (using SSDP)
-
 - API call to get table information (part of table_operations.sql)
-
-- Send SMSes
-
-- API logger (partitioned tables monthly? or write session logs to a file)
-	- settings: 
 
 
 - Defining API calls in the SQL files directly:
@@ -33,7 +36,6 @@
 - Document store:	
 	- Integrate with WebDAV
 
-- HTTP DIGEST authentication
 - SOAP API
 
 Done:
