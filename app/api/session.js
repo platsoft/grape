@@ -148,8 +148,7 @@ function set_password_with_service_ticket (req, res)
 
 	var obj = {
 		service_ticket: req.body.service_ticket,
-		ip_address: ip_address,
-		password: req.body.password
+		ip_address: ip_address
 	};
 	
 	res.locals.db.jsonb_call('grape.set_password_with_service_ticket', obj, null, {response: res});
