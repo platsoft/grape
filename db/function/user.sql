@@ -148,8 +148,8 @@ BEGIN
 
 	SELECT * INTO _rec FROM grape."user" WHERE username = _username::TEXT;
 	IF NOT FOUND THEN
-		INSERT INTO grape."user" (username, password, active, local_only)
-			VALUES (_username, _password, true, true)
+		INSERT INTO grape."user" (username, password, active)
+			VALUES (_username, _password, true)
 			RETURNING user_id INTO _user_id;
 
 		IF _role_names IS NOT NULL THEN
