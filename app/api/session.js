@@ -34,6 +34,19 @@ exports = module.exports = function(_app) {
  */
 	app.post('/grape/login_with_ticket', login_with_service_ticket);
 
+/**
+ * @url /grape/set_password_with_service_ticket
+ * @method POST
+ * @desc Reset password for the user with a service ticket
+ * @sqlfunc grape.create_session_from_service_ticket
+ * @body
+ * { 
+ * 	service_ticket TEXT encrypted service ticket
+ * }
+ * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
+ */
+	app.post('/grape/reset_password_with_ticket', set_password_with_service_ticket);
+
 
 /**
  * @url /grape/logout
@@ -115,6 +128,31 @@ function login_with_service_ticket (req, res)
 	};
 	
 	res.locals.db.jsonb_call('grape.create_session_from_service_ticket', obj, null, {response: res});
+}
+
+
+
+function set_password_with_service_ticket (req, res)
+{
+	if (typeof req.body.service_ticket == "undefined")
+	{
+		app.get('logger').session('info', 'invalid parameters sent to /grape/reset_password_with_ticket', req.body);
+		res.json({'status': "error", code: -1, "message": "invalid parameters"});
+		return;
+	}
+	
+	var ip_address = req.ip;
+
+	console.log('set_password_with_service_ticket');
+	console.log(req.body);
+
+	var obj = {
+		service_ticket: req.body.service_ticket,
+		ip_address: ip_address,
+		password: req.body.password
+	};
+	
+	res.locals.db.jsonb_call('grape.set_password_with_service_ticket', obj, null, {response: res});
 }
 
 
