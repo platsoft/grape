@@ -231,6 +231,8 @@ BEGIN
 	_service_ticket_encrypted := ($1->>'service_ticket');
 	_service_ticket := grape.validate_service_ticket(_service_ticket_encrypted);
 
+	raise notice 'new _service_ticket decrypted %', _service_ticket;
+
 	IF _service_ticket IS NULL THEN
 		RETURN grape.api_error();
 	ELSIF _service_ticket->>'status' = 'ERROR' THEN
@@ -275,20 +277,14 @@ BEGIN
 	-- grape.set_user_password(_user.user_id::INTEGER, _service_ticket->>'password', false);
 	-- error: insert or update on table "user_role" violates foreign key constraint "role_name_rel":
 
-	UPDATE grape."user" SET password=grape.generate_user_pw_hash($1->>'password') WHERE user_id=_user.user_id::INTEGER;
+	UPDATE grape."user" SET password=grape.generate_user_pw_hash(_service_ticket->>'password') WHERE user_id=_user.user_id::INTEGER;
 	
 	SELECT jsonb_build_object(
 		'success', true,
-		'status', 'OK',
-		'session_id', _session_id,
-		'username', _user.username,
-		'user_roles', (SELECT array_agg(role_name) FROM grape."user_role" WHERE user_id=_user.user_id::INTEGER),
-		'fullnames', _user.fullnames,
-		'email', _user.email,
-		'employee_guid', _user.employee_guid
+		'status', 'OK'
 	) INTO _ret;
 
-	PERFORM pg_notify('new_session', _ret::TEXT);
+	PERFORM pg_notify('password updated', _ret::TEXT);
 
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
