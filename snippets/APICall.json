@@ -1,0 +1,19 @@
+{
+	"description": "",
+	"id": "/path",
+	"name": "APICall",
+	"sqlfunctype": "json|jsonb",
+	"sqlfunc": "",
+	"type": "query|object",
+	"properties": {
+		"": {"type": "", "description": ""}
+	},
+	"result": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"]},
+			"message": {"type": "string", "description": "Error description"},
+			"code": {"type": "number", "description": "Error code"}
+		}
+	}
+}

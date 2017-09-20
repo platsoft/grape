@@ -114,7 +114,7 @@ GrapeCmd.run = function(opts, cb) {
 				cb("Provide username and new role");
 			}
 			opts.username = opts.argv[3];
-			opts.role= opts.argv[4];
+			opts.role = opts.argv[4];
 			update_role(opts, cb);
 			break;
 
