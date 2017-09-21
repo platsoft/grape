@@ -41,6 +41,8 @@ BEGIN
 		_employee_guid := ($1->>'employee_guid')::UUID;
 	ELSIF json_extract_path($1, 'guid') IS NOT NULL THEN
 		_employee_guid := ($1->>'guid')::UUID;
+	ELSE
+		_employee_guid := grape.generate_uuid(); 
 	END IF;
 
 	IF _password IS NOT NULL THEN
