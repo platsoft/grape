@@ -272,12 +272,7 @@ BEGIN
 		_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address);
 	END IF;
 
-	raise notice 'password test %', _service_ticket->>'password';
-
-	-- grape.set_user_password(_user.user_id::INTEGER, _service_ticket->>'password', false);
-	-- error: insert or update on table "user_role" violates foreign key constraint "role_name_rel":
-
-	UPDATE grape."user" SET password=grape.generate_user_pw_hash(_service_ticket->>'password') WHERE user_id=_user.user_id::INTEGER;
+	UPDATE grape."user" SET password=grape.generate_user_pw_hash(_service_ticket->>'user_new_password') WHERE user_id=_user.user_id::INTEGER;
 	
 	SELECT jsonb_build_object(
 		'success', true,

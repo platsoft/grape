@@ -258,17 +258,11 @@ BEGIN
 		RETURN grape.api_error('Non-match on username');
 	END IF;
 
-	-- 
-	-- _authenticator->>'service' := _requested_service;
-	-- _authenticator->>'username' := _user.username;
-	-- _authenticator->>'employee_guid' := _user.employee_guid;
-	-- _authenticator->>'issued_at' := NOW();
-	-- _authenticator->>'valid_until' := (NOW() + INTERVAL '8 hours');
-	-- _authenticator->>'issued_by' := grape.get_value('service_name', '');
+	_service_ticket := grape.create_service_ticket_generic(_requested_service, _user.user_id, _authenticator);
 
-		_service_ticket := grape.create_service_ticket(_requested_service, _user.user_id);
+	raise notice 'service ticket after combine %' , _service_ticket;
 
-	_service_ticket := grape.encrypt_message_for_service(_requested_service, _authenticator);
+	_service_ticket := grape.encrypt_message_for_service(_requested_service, _service_ticket);
 
 	RETURN grape.api_success(json_build_object('service_ticket', _service_ticket));
 END; $$ LANGUAGE plpgsql;
