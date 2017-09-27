@@ -131,7 +131,6 @@ function login_with_service_ticket (req, res)
 }
 
 
-
 function secure_request (req, res)
 {
 	if (typeof req.body.service_ticket == "undefined")
@@ -149,20 +148,13 @@ function secure_request (req, res)
 	
 	var ip_address = req.ip;
 
-	console.log('set_password_with_service_ticket');
-	console.log(req.body);
-
 	var obj = {
 		service_ticket: req.body.service_ticket,
 		ip_address: ip_address
 	};
 
-	console.log('before service_ticket to db', obj);
-	
 	res.locals.db.jsonb_call(req.body.sqlfunc, obj, null, {response: res});
 }
-
-
 
 
 function logout (req, res)
@@ -170,10 +162,8 @@ function logout (req, res)
 	req.db.json_call('grape.logout', {session_id: req.session_id}, null, {response: res});
 }
 
+
 function session_ping(req, res)
 {
 	req.db.json_call('grape.session_ping', {'session_id': req.query.session_id}, null, {response: res});
 }
-
-
-
