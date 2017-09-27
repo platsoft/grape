@@ -177,7 +177,7 @@ END; $$ LANGUAGE plpgsql;
 
 
 /**
- * Grants a service ticket based on TGT
+ * Encrypts any request params sent based on ticket
  */
 CREATE OR REPLACE FUNCTION grape.service_ticket_request_generic(JSONB) RETURNS JSONB AS $$
 DECLARE
@@ -195,20 +195,10 @@ DECLARE
 	_service_ticket TEXT;
 BEGIN
 	
-	raise notice 'service_ticket_request 1';
-
-
 	_raw_tgt := ($1->>'tgt');
-
 	_server_private_key := ENCODE(DIGEST(grape.get_server_private_key('TGT'), 'sha256'), 'hex');
 	_tgt := (grape.decrypt_message(_raw_tgt, _server_private_key, 'c5067fe37e0b025da44ec7578502c7e4'))::JSONB;
-
-	-- RAISE NOTICE 'TGT: %', _tgt;
-
 	_requested_service := ($1->>'requested_service');
-
-	raise notice 'service_ticket_request 2';
-
 
 	IF grape.is_valid_service(_requested_service) = FALSE AND grape.get_value('service_name', '') != _requested_service THEN
 		RETURN grape.api_error('No such service: ' + _requested_service);
@@ -217,17 +207,8 @@ BEGIN
 	_encrypted_authenticator := ($1->>'authenticator');
 	_iv := ($1->>'iv');
 	_salt := ($1->>'salt');
-
 	_decryption_key := grape.generate_user_key(_tgt->>'session_key', _salt, 1000);
-
-	raise notice 'service_ticket_request 3';
-	
 	_authenticator := (grape.decrypt_message(_encrypted_authenticator, _decryption_key, _iv))::JSONB;
-	raise notice 'service_ticket_request 4';
-
-	RAISE NOTICE 'Authenticator: %', _authenticator;
-
-	raise notice 'username: %', _authenticator->>'username';
 
 	IF _authenticator ? 'username' THEN
 		SELECT * INTO _user FROM grape."user" WHERE username=(_authenticator->>'username');
@@ -249,7 +230,6 @@ BEGIN
 		RETURN grape.api_error('Non-match on employee GUID');
 	END IF;
 
-	-- Time checks
 	IF (_tgt->>'valid_until')::TIMESTAMPTZ < NOW() THEN
 		RETURN grape.api_error('TGT Expired');
 	END IF;
@@ -259,9 +239,6 @@ BEGIN
 	END IF;
 
 	_service_ticket := grape.create_service_ticket_generic(_requested_service, _user.user_id, _authenticator);
-
-	raise notice 'service ticket after combine %' , _service_ticket;
-
 	_service_ticket := grape.encrypt_message_for_service(_requested_service, _service_ticket);
 
 	RETURN grape.api_success(json_build_object('service_ticket', _service_ticket));
