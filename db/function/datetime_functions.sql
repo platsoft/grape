@@ -1,0 +1,18 @@
+
+CREATE OR REPLACE FUNCTION grape.format_iso8601_timestamp(TIMESTAMPTZ) RETURNS TEXT AS $$
+	SELECT CONCAT(
+		TO_CHAR($1, 'YYYY-MM-DD'::TEXT), 
+		'T', 
+		TO_CHAR($1, 'HH24:MI:SS.MS'::TEXT),
+		TO_CHAR($1, 'OF'::TEXT)
+	);
+$$ LANGUAGE sql;
+
+-- Mon, 02 Jun 1982 23:59:59
+CREATE OR REPLACE FUNCTION grape.format_httpdate_timestamp(TIMESTAMPTZ) RETURNS TEXT AS $$
+	SELECT CONCAT(
+		TO_CHAR($1 AT TIME ZONE 'UTC', 'Dy, DD Mon YYYY HH24:MI:SS'::TEXT), 
+		' GMT'
+	);
+$$ LANGUAGE sql;
+
