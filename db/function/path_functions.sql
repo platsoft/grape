@@ -112,8 +112,13 @@ BEGIN
 	_path_parts := _path_parts[:ARRAY_LENGTH(_path_parts, 1)-1];
 
 	_ret := array_to_string(_path_parts, '/');
-	IF LEFT(_ret, 2) = '//' THEN
-		_ret := RIGHT(_ret, -1);
+
+	IF grape.is_absolute(_path) THEN
+		_ret := '/' || _ret;
+	END IF;
+
+	IF _ret != '/' THEN
+		_ret := _ret || '/';
 	END IF;
 
 	RETURN _ret;
@@ -133,4 +138,5 @@ BEGIN
 		RETURN (_path_parts[_i:_i])[1];
 	END IF;
 END; $$ LANGUAGE plpgsql;
+
 
