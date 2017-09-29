@@ -447,6 +447,11 @@ BEGIN
 		RETURN -1;
 	END IF;
 
+	IF _sched.status = 'NewTask' THEN
+		DELETE FROM grape.schedule WHERE schedule_id=_schedule_id::INTEGER;
+		RETURN 0;
+	END IF;
+
 	IF _sched.status != 'Running' THEN
 		RETURN -2;
 	END IF;
@@ -455,7 +460,7 @@ BEGIN
 		RETURN _sched.pid;
 	END IF;
 
-	PERFORM pg_terminate_backend(_sched.pid);
+	PERFORM pg_cancel_backend(_sched.pid);
 	
 	RETURN 0;
 END; $$ LANGUAGE plpgsql;
