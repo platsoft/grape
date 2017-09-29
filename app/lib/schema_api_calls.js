@@ -4,7 +4,6 @@ var _ = require('underscore');
 var Validator = require('jsonschema').validate;
 var GrapeAutoValidator = require(__dirname + '/auto_validate.js').validate;
 
-
 function create_schema_api_call(app, obj)
 {
 	app.get('logger').info('api', "Creating API call for " + obj.name + " (" + (obj.id || obj.url || 'undefined') + ")");
@@ -41,6 +40,29 @@ function create_schema_api_call(app, obj)
 		add_schema_access_roles(param.roles, param.id, param.method, app.get('db'));
 	}
 
+	var auto_validate = function(obj, param, res) {
+		if (!param.validate && param.validation_string)
+			param.validate = param.validation_string;
+
+		if (param.validate && param.no_validation === false)
+		{
+			var validate_result = GrapeAutoValidator(obj, param.validate);
+			if (validate_result.errors.length > 0)
+			{
+				app.get('logger').error('api', 'Validation failed for input ' + util.inspect(obj));
+				res.send({
+					status: 'ERROR',
+					message: 'Validation failed',
+					code: -3,
+					error: validate_result.errors
+				});
+				return false;
+			}
+		}
+
+		return true;
+	};
+
 	if (param.method == 'POST')
 	{
 		var func_db_call = function(req, res) {
@@ -57,18 +79,25 @@ function create_schema_api_call(app, obj)
 
 				if (param.no_validation === false)
 				{
-					var validate_result = Validator(obj, param);
-
-					if (validate_result.errors.length > 0)
+					if (param.validate || param.validation_string)
 					{
-						app.get('logger').error('api', 'Validation failed for input ' + util.inspect(obj));
-						res.send({
-							status: 'ERROR',
-							message: 'Validation failed',
-							code: -3,
-							error: validate_result.errors
-						});
-						return;
+						if (auto_validate(obj, param, res) === false) { return; }
+					}
+					else
+					{
+						var validate_result = Validator(obj, param);
+
+						if (validate_result.errors.length > 0)
+						{
+							app.get('logger').error('api', 'Validation failed for input ' + util.inspect(obj));
+							res.send({
+								status: 'ERROR',
+								message: 'Validation failed',
+								code: -3,
+								error: validate_result.errors
+							});
+							return;
+						}
 					}
 				}
 
@@ -90,7 +119,6 @@ function create_schema_api_call(app, obj)
 		};
 
 		app.post(param.id, [func_db_call]);
-
 	}
 	else
 	{
@@ -99,24 +127,7 @@ function create_schema_api_call(app, obj)
 			{
 				var obj = req.params;
 
-				if (!param.validate && param.validation_string)
-					param.validate = param.validation_string;
-
-				if (param.validate && param.no_validation === false)
-				{
-					var validate_result = GrapeAutoValidator(obj, param.validate);
-					if (validate_result.errors.length > 0)
-					{
-						app.get('logger').error('api', 'Validation failed for input ' + util.inspect(obj));
-						res.send({
-							status: 'ERROR',
-							message: 'Validation failed',
-							code: -3,
-							error: validate_result.errors
-						});
-						return;
-					}
-				}
+				if (auto_validate(obj, param, res) === false) { return; }
 
 				if (param.sqlfunctype == 'jsonb')
 					res.locals.db.jsonb_call(param.sqlfunc, obj, null, {response: res});
