@@ -510,7 +510,7 @@ cast_json_array_to_text_array
 			<li>filter (optional) array of fields:
 				<ul>
 					<li>field TEXT</li>
-					<li>operand TEXT of '=', '>', '>=', 'LIKE', 'ILIKE', 'IS_NULL', 'IS_NOT_NULL', 'IN'</li>
+					<li>operand TEXT of '=', '>', '&amp;lt;', '>=', '&amp;lt;=', 'LIKE', 'ILIKE', 'IS_NULL', 'IS_NOT_NULL', 'IN'</li>
 					<li>value TEXT</li>
 				</ul>
 			</li>

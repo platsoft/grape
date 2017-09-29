@@ -1,12 +1,24 @@
 <?xml version="1.0"?>
-<ps_doc title="API Reference" titlepage="no" tocpage="no">
-	<h1>grape.v_pg_functions</h1>
-	<table>
+<ps_doc title="Grape SQL View Reference" titlepage="yes" tocpage="yes">
+
+	<h1>Grape SQL Views</h1>
+
+	<!-- USER RELATED VIEWS -->
+	<!-- ================== -->
+	<h2>User Related Views</h2>
+
+	<table style="compact">
 		<thead>
-			<th width="20%">Name</th>
-			<th width="20%">Data Type</th>
-			<th width="60%">Description</th>
+			<th width="30%">Name</th>
+			<th width="30%">Data Type</th>
+			<th width="40%">Description</th>
 		</thead>
-		<tr><td></td><td></td><td></td></tr>
+		<tr>
+			<td>grape.user_access_role</td>
+			<td align="left"></td>
+			<td align="left">
+				
+			</td>
+		</tr>
 	</table>
 </ps_doc>
