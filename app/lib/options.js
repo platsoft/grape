@@ -87,6 +87,17 @@ exports = module.exports = function(_o) {
 
 	options.public_directories = _.uniq(options.public_directories, false);
 
+	// make public directories absolute
+	var new_public_directories = [];
+	options.public_directories.forEach(function(dir) {
+		if (! path.isAbsolute(dir))
+			var dir = path.resolve(options.base_directory, dir);
+
+		new_public_directories.push(dir);
+	});
+
+	options.public_directories = new_public_directories;
+
 	if (options.api_directory)
 		options.api_directories.push(options.api_directory);
 	
