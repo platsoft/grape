@@ -130,6 +130,10 @@ BEGIN
 				_oper := _filter_json->>'op';
 			END IF;
 
+			IF _filter_json->>'field' IS NULL THEN
+				RETURN grape.api_error('Missing field "field" in filter', -5);
+			END IF;
+
 			_oper := UPPER(_oper);
 			IF _oper IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
 				_filter_sql := CONCAT_WS(' ', quote_ident(_filter_json->>'field'), _oper, quote_literal(_filter_json->>'value'));
@@ -144,6 +148,8 @@ BEGIN
 				) val;
 
 				_filter_sql := CONCAT(quote_ident(_filter_json->>'field'), '::TEXT = ANY (ARRAY[',  array_to_string(_filter_array, ','), ']::TEXT[])');
+			ELSIF _oper = '@@' THEN
+				_filter_sql := CONCAT(quote_ident(_filter_json->>'field'), '::TSVECTOR @@ plainto_tsquery(LOWER(', quote_literal(_filter_json->>'value'), '))::TSQUERY');
 			ELSE
 				CONTINUE;
 			END IF;
