@@ -5,11 +5,11 @@ Grape interacts heavily with a database. Users, sessions and other data is store
 
 The following subdirectories can be found in a project's <fname>db/</fname> directory.
 	<ul>
-		<li><i>schema/</i> - The database schema file (<b>.dbm file</b> - created in <link id="install-pgmodeler">pgModeler</link>, and exported DDL to SQL files</li>
-		<li><i>function/</i> - Directories and files containing database functions</li>
-		<li><i>process/</i> - Files containing database functions related to <link id="platsoft-background-worker">background processes</link></li>
-		<li><i>data/</i> - Files containing initial data for the system</li>
-		<li><i>deployments/</i> - Containing subdirectories for specific deployments. See the section Deployments for more information regarding this</li>
+		<li><i>schema/</i> - The database schema file (<b>.dbm file</b> - created in <link id="install-pgmodeler">pgModeler</link>, and exported DDL to SQL files).</li>
+		<li><i>function/</i> - Directories and files containing database functions.</li>
+		<li><i>process/</i> - Files containing database functions related to <link id="platsoft-background-worker">background processes</link>.</li>
+		<li><i>data/</i> - Files containing initial data for the system.</li>
+		<li><i>deployments/</i> - Containing subdirectories for specific deployments. See the section Deployments for more information regarding this.</li>
 	</ul>
 
 
@@ -20,36 +20,35 @@ pgModeler is a database modelling tool specifically designed for PostgreSQL. The
 The DBM file is saved in <fname>db/schema/<red>PROJECTNAME</red>.dbm</fname>. From within pgModeler, the SQL should be exported to a file <fname>db/schema/<red>PROJECTNAME</red>.sql</fname>. When the database is created, this file will be loaded.
 
 <h3>Database functions</h3>
-Database functions (like API call handlers or business logic) usually resides in <fname>db/function/</fname>. Files should be properly named, and functions grouped together in files, in a way that is understandable to someone who is not familiar with the code. Files should be all lower-case, and words split by underscore.
+Database functions (like API call handlers or business logic) usually resides in <fname>db/function/</fname>. Files should be properly named, and functions grouped together in files, in a way that is understandable to someone who is not familiar with the code. File names should be all lowercase, and words split by a underscore. For example, <i>file_name.sql</i>.
 
 <h3>Initial data</h3>
-<red>TODO</red>
-The data/ directory.
+Initial data for the system usually resides in <fname>db/data/</fname>. These sql functions includes data such as user/access roles, settings and whitelist tables specific to the system. 
 
 <h3>Indexes</h3>
 <p>
+<note>Remember that primary key columns automatically have indexes assigned to them.</note>
 Always make indexes on the following columns:
 <ul>
-	<li>Any column that is referenced by a foreign key</li>
-	<li>Any column that references a foreign key</li>
-	<li>Any column that is used (in the WHERE clause of queries) often</li>
+	<li>Any column that is referenced by a foreign key.</li>
+	<li>Any column that references a foreign key.</li>
+	<li>Any column that is used often (in the WHERE clause of queries).</li>
 </ul>
-Remember that primary key columns automatically have indexes assigned to them. 
 </p>
 
 <h3>Naming conventions</h3>
 <ul>
-	<li>Keep table names lowercase, with words separated by underscore</li>
-	<li>If a relation (table) has an id/unique column (which should be the case in most tables), add '_id' to the table name. For example, table policy has an ID column called <i>policy_id</i>. Note that there are security risks involved in using an auto-incrementing column where the value of such column are exposed to clients, or untrusted personel.</li>
-	<li>Use a 'v_' prefix for views, for example <i>v_policy</i></li>
-	<li>Use a 'mv_' prefix for materialized views, for example <i>mv_policy_address</i></li>
-	<li>Use a '_idx' suffix for indexes, for example <i>policy_id_idx</i></li>
-	<li>Use a '_fk' suffix for foreign key constraints, with an abbreviation of the tablename as prefix, for example <i>po_policy_id_fk</i></li>
+	<li>Keep table names lowercase, with words separated by a underscore. For example, <i>table_name</i>.</li>
+	<li>If a relation (table) has an id/unique column (which should be the case in most tables), add '_id' to the table name. For example, table policy has an ID column called <i>policy_id</i>. <note>There are security risks involved in using an auto-incrementing column where the value of such a column is exposed to clients, or untrusted personnel.</note></li>
+	<li>Use a 'v_' prefix for views. For example, <i>v_policy</i></li>
+	<li>Use a 'mv_' prefix for materialized views. For example, <i>mv_policy_address</i></li>
+	<li>Use a '_idx' suffix for indexes. For example, <i>policy_id_idx</i></li>
+	<li>Use a '_fk' suffix for foreign key constraints, with an abbreviation of the tablename as prefix. For example, <i>po_policy_id_fk</i></li>
 </ul>
 <h3>Pitfalls to avoid</h3>
 <ul>
-	<li>Avoid multi-column indexes (and primary keys) unless it is really suitable for the situation</li>
-	<li>Avoid too many indexes on a table</li>
+	<li>Avoid multi-column indexes (and primary keys) unless it is really suitable for the situation.</li>
+	<li>Avoid too many indexes on a table.</li>
 </ul>
 
 <h3>Schemas</h3>
