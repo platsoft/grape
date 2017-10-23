@@ -97,5 +97,7 @@ The <b>download_public_js_files</b> API call is a special API call that will tra
 <!-- include grape sql functions -->
 <include href="grape_sql_functions.vxml" parse="vxml" level="1" /> 
 
+<!-- include grape sql views -->
+<include href="grape_db_views.vxml" parse="vxml" level="1" />
 
 </ps_doc>

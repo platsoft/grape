@@ -10,15 +10,78 @@
 	<table style="compact">
 		<thead>
 			<th width="30%">Name</th>
-			<th width="30%">Data Type</th>
-			<th width="40%">Description</th>
+			<th width="70%">Description</th>
 		</thead>
 		<tr>
 			<td>grape.user_access_role</td>
-			<td align="left"></td>
 			<td align="left">
-				
+				List of all users, which include user details, passwords and roles assigned to each user.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.v_active_users</td>
+			<td align="left">
+				Returns a list of active users and their roles.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.v_ldap_users</td>
+			<td align="left">
+				Returns a list of ldap users and their details.
 			</td>
 		</tr>
 	</table>
+
+	<!-- SESSION RELATED VIEWS -->
+	<!-- ================== -->
+	<h2>Session Related Views</h2>
+
+	<table style="compact">
+		<thead>
+			<th width="30%">Name</th>
+			<th width="70%">Description</th>
+		</thead>
+		<tr>
+			<td>grape.v_active_sessions</td>
+			<td align="left">
+				Returns a list of active sessions including user related information.
+			</td>
+		</tr>
+	</table>
+
+	<!-- OTHER UTILITY VIEWS -->
+	<!-- ================== -->
+	<h2>Other Utility Views</h2>
+
+	<table style="compact">
+		<thead>
+			<th width="30%">Name</th>
+			<th width="70%">Description</th>
+		</thead>
+		<tr>
+			<td>grape.v_process_definitions</td>
+			<td align="left">
+				List of all processes, which includes important information such as their descriptions, parameters, process types, etc. 
+			</td>
+		</tr>
+		<tr>
+			<td>grape.v_pg_functions</td>
+			<td align="left">
+				List of all routine schemas, which include the routine names, parameters and return types.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.v_pg_table_stats</td>
+			<td align="left">
+				Statistical information related to all tables.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.v_test_table</td>
+			<td align="left">
+				Used for testing purposes.
+			</td>
+		</tr>
+	</table>
+
 </ps_doc>
