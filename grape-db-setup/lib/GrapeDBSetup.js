@@ -7,6 +7,7 @@ var path = require('path');
 
 function GrapeDBSetup(options)
 {
+	this.__dirname = __dirname;
 	var self = this;
 	var sql_list = [];
 	var sql_file_list = [];
@@ -188,12 +189,16 @@ function GrapeDBSetup(options)
 	 */
 	this.create_database = function(superdburi, dburi, cb)
 	{
+		superdburi = superdburi || self.options.superdburi;
+		dburi = dburi || self.options.dburi;
+
 		pc.print_info("Creating database...");
 		var client = null;
 		if (superdburi)
 		{
 			client = new pg.Client(superdburi);
 			pc.print_info("\tConnecting to " + superdburi + " for superuser connection");
+			console.log(superdburi);
 		}
 		else
 		{
@@ -201,7 +206,10 @@ function GrapeDBSetup(options)
 			pc.print_warn("\tFalling back to default settings for superuser connection");
 		}
 
-		client.connect(function(err) {
+		console.log('About to connect');
+		console.log(client);
+		var ret = client.connect(function(err) {
+			console.log('Connected');
 			if (err)
 			{
 				pc.print_err("Error establishing connection" + (superdburi ? ' to ' + superdburi : '') + ": " + err.toString() + ' (' + err.code + ')');
@@ -263,6 +271,7 @@ function GrapeDBSetup(options)
 				);
 			}
 		});
+		console.log(ret);
 
 	}
 
@@ -272,6 +281,8 @@ function GrapeDBSetup(options)
 	 */
 	this.drop_database = function(superdburi, dburi, cb)
 	{
+		superdburi = superdburi || self.options.superdburi;
+		dburi = dburi || self.options.dburi;
 		pc.print_info("Dropping database...");
 		var client = null;
 		if (superdburi)
@@ -378,6 +389,8 @@ function GrapeDBSetup(options)
 
 	this.create_objects = function()
 	{
+		superdburi = superdburi || self.options.superdburi;
+		dburi = dburi || self.options.dburi;
 		var client = null;
 		if (self.options.dburi)
 		{
