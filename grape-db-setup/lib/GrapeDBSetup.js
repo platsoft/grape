@@ -380,7 +380,7 @@ function GrapeDBSetup(options)
 
 
 
-	this.create_objects = function()
+	this.create_objects = function(cb)
 	{
 		var client = null;
 		if (self.options.dburi)
@@ -451,6 +451,8 @@ function GrapeDBSetup(options)
 
 				if (client)
 					client.end();
+
+				typeof cb === 'function' && cb(); // calls callback if it is a function
 			}
 			else
 			{
