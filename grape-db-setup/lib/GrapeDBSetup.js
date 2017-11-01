@@ -1,5 +1,8 @@
 
 var fs = require('fs');
+
+console.log(require.resolve('pg'));
+
 var pg = require('pg');
 var parse_connection_string = require('pg-connection-string').parse;
 var pc = require(__dirname + '/print_colors.js');
@@ -207,7 +210,7 @@ function GrapeDBSetup(options)
 		}
 
 		console.log('About to connect');
-		console.log(client);
+		//console.log(client);
 		var ret = client.connect(function(err) {
 			console.log('Connected');
 			if (err)
@@ -271,7 +274,9 @@ function GrapeDBSetup(options)
 				);
 			}
 		});
+		console.log('Returned by client.connect:');
 		console.log(ret);
+		return ret;
 
 	}
 
@@ -389,8 +394,6 @@ function GrapeDBSetup(options)
 
 	this.create_objects = function()
 	{
-		superdburi = superdburi || self.options.superdburi;
-		dburi = dburi || self.options.dburi;
 		var client = null;
 		if (self.options.dburi)
 		{
