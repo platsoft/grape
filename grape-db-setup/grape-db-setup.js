@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-
 var commander = require('commander');
 
 commander
@@ -16,6 +15,7 @@ commander
 
 
 var fs = require('fs');
+const path = require('path');
 var _ = require('underscore');
 
 var util = require('util');
