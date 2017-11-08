@@ -69,6 +69,10 @@ BEGIN
 		RETURN grape.api_error('You username on the authentication service does not have a valid employee GUID. Please ask your system administrator to complete the configuration for your account', -98);
 	END IF;
 
+	IF LEFT(_user.password, 4) = '$2a$' THEN
+		RETURN grape.api_error('Incompatible password format', -4);
+	END IF;
+
 	_server_private_key := ENCODE(DIGEST(grape.get_server_private_key('TGT'), 'sha256'), 'hex');
 
 	_tgt := grape.create_TGT(_user.user_id);
