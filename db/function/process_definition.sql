@@ -1,6 +1,3 @@
-
-
-
 CREATE OR REPLACE FUNCTION grape.save_process_definition(JSONB) RETURNS JSONB AS $$
 DECLARE
 	_description TEXT;
@@ -20,9 +17,9 @@ BEGIN
 	_process_type := ($1->>'process_type');
 	_function_schema := ($1->>'function_schema');
 	_process_category := ($1->>'process_category');
-	
+
 	_process_role := ($1->'process_role');
-	
+
 	-- TODO validation, make sure process_type is one of DB, EXEC or NODE
 
 	IF _process_id IS NULL THEN
@@ -54,9 +51,9 @@ BEGIN
 
 	FOR _role IN SELECT * FROM jsonb_array_elements(_process_role) LOOP
 		PERFORM grape.process_role_update(
-			_process_id, 
-			_role->>'role_name', 
-			(_role->>'can_view')::BOOLEAN, 
+			_process_id,
+			_role->>'role_name',
+			(_role->>'can_view')::BOOLEAN,
 			(_role->>'can_execute')::BOOLEAN,
 			(_role->>'can_edit')::BOOLEAN
 		);
@@ -89,8 +86,8 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 		_function_schema,
 		_process_category
 	)
-	ON CONFLICT (pg_function, function_schema) --if processing_function name is the same updatre all the other values 
-	DO UPDATE SET 
+	ON CONFLICT (pg_function, COALESCE(function_schema, '')) --if processing_function name is the same updatre all the other values
+	DO UPDATE SET
 		pg_function=EXCLUDED.pg_function,
 		description=EXCLUDED.description,
 		param=EXCLUDED.param,
@@ -114,15 +111,15 @@ BEGIN
 
 	_ret := '[]'::JSONB;
 
-	FOR _rec IN SELECT 
-			ap.process_id, 
-			pg_function, 
-			description, 
+	FOR _rec IN SELECT
+			ap.process_id,
+			pg_function,
+			description,
 			ap.process_category,
 			ap.param,
-			(SELECT json_agg(a.s) FROM 
-				(SELECT (to_jsonb(b) || jsonb_build_object('run_as_user', grape.username(run_as_user_id))) s FROM 
-					grape.auto_scheduler b 
+			(SELECT json_agg(a.s) FROM
+				(SELECT (to_jsonb(b) || jsonb_build_object('run_as_user', grape.username(run_as_user_id))) s FROM
+					grape.auto_scheduler b
 					WHERE process_id=ap.process_id) a) AS auto_scheduler,
 
 			(SELECT json_agg(process_role) FROM grape.process_role WHERE process_id=ap.process_id) AS process_role,
@@ -143,7 +140,7 @@ BEGIN
 			LEFT JOIN LATERAL (SELECT * FROM grape.schedule WHERE process_id=ap.process_id ORDER BY time_sched DESC LIMIT 1) AS sched USING (process_id)
 			ORDER BY ap.process_id
 	LOOP
-		IF _filter_processes = FALSE 
+		IF _filter_processes = FALSE
 			OR (_filter_processes = TRUE AND grape.check_process_view_permission(_rec.process_id) = TRUE) THEN
 				_ret := _ret || to_jsonb(_rec);
 		END IF;
@@ -161,8 +158,6 @@ DECLARE
 	_ret JSON;
 BEGIN
 	SELECT JSON_AGG(DISTINCT process_category) INTO _ret FROM grape.process;
-	
+
 	RETURN grape.api_success('categories', _ret);
 END; $$ LANGUAGE plpgsql;
-
-
