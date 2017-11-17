@@ -58,7 +58,7 @@ var GrapeClient = function(_o) {
 		this.username = _o.username;
 	if (_o.password)
 		this.password = _o.password;
-	
+
 	this.postJSON = function(path, obj, cb) {
 		if (path == null)
 			var path = this.default_path;
@@ -135,7 +135,7 @@ var GrapeClient = function(_o) {
 			options.headers['Authorization'] = 'Basic ' + (new Buffer(this.auth).toString('base64'));
 		else
 			options.headers['X-SessionID'] = session_id;
-			
+
 		options.headers['X-Notifications'] = 1;
 
 		var callback = function(res) {
@@ -180,7 +180,7 @@ var GrapeClient = function(_o) {
 		}).on('error', function(err) {
 			self.emit('error', err);
 		});
-		
+
 	};
 
 	this.logout = function() {
@@ -193,7 +193,7 @@ var GrapeClient = function(_o) {
 	/**
 	 * path is the API call url
 	 * fields is an object containing key/value pairs of field names to send through
-	 * files is an object or array of objects with the following fields: 
+	 * files is an object or array of objects with the following fields:
 	 * 	file (the path to the file)
 	 * 	fieldname (field name)
 	 *
@@ -204,8 +204,8 @@ var GrapeClient = function(_o) {
 
 		var boundary_string = Math.random().toString(36).substring(10);
 		var boundary = '--' + boundary_string;
-		
-		
+
+
 		var total_size = 0;
 
 
@@ -214,7 +214,7 @@ var GrapeClient = function(_o) {
 		{
 			var contenttype = file.contenttype || 'application/octet-stream';
 			var fieldname = file.fieldname || 'file_name';
-			var filename = _path.basename(file.file);
+			var filename = _path.basename(file.filename || file.file);
 
 			var f = {
 				path: file.file,
@@ -322,7 +322,7 @@ var GrapeClient = function(_o) {
 		var req = use_http.request(options, callback);
 
 
-		
+
 		var pipe_count = 0;
 
 		_files.forEach(function(file) {
@@ -333,7 +333,7 @@ var GrapeClient = function(_o) {
 
 			pipe_count++;
 
-			readstream.on('end', function() { 
+			readstream.on('end', function() {
 				req.write("\r\n");
 				pipe_count--;
 				if (pipe_count <= 0)
@@ -353,4 +353,3 @@ var GrapeClient = function(_o) {
 GrapeClient.prototype.__proto__ = events.EventEmitter.prototype;
 
 exports = module.exports = GrapeClient;
-
