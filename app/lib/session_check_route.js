@@ -99,6 +99,8 @@ module.exports = function (req, res, next) {
 			}
 
 			var ret = result.rows[0];
+
+			console.log(ret);
 		
 			app.get('logger').session((ret.result_code == 0 ? 'GRANTED' : 'DENIED') + ' ' + session_id + ' ' + path);
 

@@ -167,3 +167,5 @@ function session_ping(req, res)
 {
 	req.db.json_call('grape.session_ping', {'session_id': req.query.session_id}, null, {response: res});
 }
+
+

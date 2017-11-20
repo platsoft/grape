@@ -1,3 +1,4 @@
+
 CREATE OR REPLACE FUNCTION grape.save_process_definition(JSONB) RETURNS JSONB AS $$
 DECLARE
 	_description TEXT;
@@ -8,12 +9,12 @@ DECLARE
 	_function_schema TEXT;
 	_process_role JSONB;
 	_role JSONB;
-	_param JSON;
+	_ui_param JSON;
 BEGIN
 	_process_id := ($1->>'process_id')::INTEGER;
 	_pg_function := ($1->>'pg_function');
 	_description := ($1->>'description');
-	_param := $1->'param';
+	_ui_param := $1->'param';
 	_process_type := ($1->>'process_type');
 	_function_schema := ($1->>'function_schema');
 	_process_category := ($1->>'process_category');
@@ -26,7 +27,7 @@ BEGIN
 		INSERT INTO grape.process (
 			pg_function,
 			description,
-			param,
+			ui_param,
 			process_type,
 			function_schema,
 			process_category
@@ -42,7 +43,7 @@ BEGIN
 		UPDATE grape.process SET
 			pg_function=_pg_function,
 			description=_description,
-			param=_param,
+			ui_param=_param,
 			process_type=_process_type,
 			function_schema=_function_schema,
 			process_category=_process_category
@@ -62,10 +63,11 @@ BEGIN
 	RETURN grape.api_success('process_id', _process_id);
 END; $$ LANGUAGE plpgsql;
 
+DROP FUNCTION IF EXISTS grape.upsert_process(TEXT,TEXT,JSON,TEXT,TEXT,TEXT);
 CREATE OR REPLACE FUNCTION grape.upsert_process(
 	_pg_function TEXT,
 	_description TEXT,
-	_param JSON,
+	_ui_param JSON,
 	_process_type TEXT,
 	_function_schema TEXT,
 	_process_category TEXT) RETURNS VOID AS $$
@@ -73,7 +75,7 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 	INSERT INTO grape.process (
 		pg_function,
 		description,
-		param,
+		ui_param,
 		process_type,
 		function_schema,
 		process_category
@@ -81,7 +83,7 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 	VALUES (
 		_pg_function,
 		_description,
-		_param,
+		_ui_param,
 		_process_type,
 		_function_schema,
 		_process_category
@@ -90,7 +92,7 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 	DO UPDATE SET
 		pg_function=EXCLUDED.pg_function,
 		description=EXCLUDED.description,
-		param=EXCLUDED.param,
+		ui_param=EXCLUDED.ui_param,
 		process_type=EXCLUDED.process_type,
 		function_schema=EXCLUDED.function_schema,
 		process_category=EXCLUDED.process_category;
@@ -116,7 +118,7 @@ BEGIN
 			pg_function,
 			description,
 			ap.process_category,
-			ap.param,
+			ap.ui_param,
 			(SELECT json_agg(a.s) FROM
 				(SELECT (to_jsonb(b) || jsonb_build_object('run_as_user', grape.username(run_as_user_id))) s FROM
 					grape.auto_scheduler b

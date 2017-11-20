@@ -33,7 +33,7 @@ DECLARE
 	_schedule_id INTEGER;
 BEGIN
 	
-	SELECT process_id INTO _process_id FROM grape.process WHERE pg_function=_process_name::TEXT;
+	SELECT process_id INTO _process_id FROM grape.process WHERE process_name=_process_name::TEXT;
 
 	IF _process_id IS NULL THEN
 		RETURN -1;
@@ -88,7 +88,7 @@ END; $$ LANGUAGE plpgsql;
  * Returns process id of name
  */
 CREATE OR REPLACE FUNCTION grape.process_id_by_name(_process_name TEXT) RETURNS INTEGER AS $$
-	SELECT process_id FROM grape.process WHERE pg_function=_process_name::TEXT;
+	SELECT process_id FROM grape.process WHERE process_name=_process_name::TEXT;
 $$ LANGUAGE sql;
 
 
@@ -167,7 +167,7 @@ BEGIN
 		_process_id := ($1->>'process_id')::INTEGER;
 	END IF;
 	IF json_extract_path($1, 'process_name') IS NOT NULL THEN
-		_process_id := (SELECT process_id FROM grape.process WHERE pg_function=$1->>'process_name');
+		_process_id := grape.process_id_by_name($1->>'process_name');
 	END IF;
 
 	IF _process_id IS NULL THEN
@@ -403,6 +403,8 @@ DECLARE
 BEGIN
 	IF $1 ? 'pg_function' THEN
 		_process_id := (SELECT process_id FROM grape.process WHERE pg_function=$1->>'pg_function');
+	ELSIF $1 ? 'process_name' THEN
+		_process_id := (SELECT process_id FROM grape.process WHERE process_name=$1->>'pg_function');
 	ELSIF $1 ? 'process_id' THEN
 		_process_id := ($1->>'process_id')::INTEGER;
 	END IF;

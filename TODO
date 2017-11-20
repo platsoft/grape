@@ -38,6 +38,8 @@ Future:
 
 - SOAP API
 
+- Input validation for grape settings
+
 Done:
 - create API calls from JSON schema
 - send email via API call
