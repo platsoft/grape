@@ -111,6 +111,34 @@ BEGIN
 	RETURN grape.api_success('schedule', _ret);
 END; $$ LANGUAGE plpgsql;
 
+/**
+ * Returns information about a process's running and future scheduled tasks
+ * Provide a process_name
+ */
+CREATE OR REPLACE FUNCTION grape.process_running_info (JSON) RETURNS JSON AS $$
+DECLARE
+	_ret JSON;
+	_process_name TEXT;
+	_process_id INTEGER;
+	_running JSON;
+	_new JSON;
+BEGIN
+	_process_name := ($1->>'process_name')::TEXT;
+	_process_id := grape.process_id_by_name(_process_name);
+
+	IF _process_id IS NULL THEN
+		RETURN grape.api_error_invalid_input();
+	END IF;
+
+	SELECT JSON_AGG(a) INTO _running FROM (SELECT schedule_id, time_started, pid, param, grape.username(user_id), progress_completed, progress_total FROM grape.schedule WHERE process_id=_process_id::INTEGER AND status='Running') a;
+	SELECT JSON_AGG(a) INTO _new FROM (SELECT schedule_id, time_sched, param, grape.username(user_id) FROM grape.schedule WHERE process_id=_process_id::INTEGER AND status='NewTask') a;
+
+	_ret := json_build_object('running', _running, 'new', _new);
+
+	RETURN grape.api_success(_ret);
+END; $$ LANGUAGE plpgsql;
+
+
 
 CREATE OR REPLACE FUNCTION grape.update_schedule_progress(_schedule_id INTEGER, _completed INTEGER, _total INTEGER) RETURNS VOID AS $$
 DECLARE

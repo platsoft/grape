@@ -10,6 +10,13 @@ DECLARE
 	_process_role JSONB;
 	_role JSONB;
 	_ui_param JSON;
+
+	_start_function_name TEXT;
+	_start_function_schema TEXT;
+	_end_function_name TEXT;
+	_end_function_schema TEXT;
+	_error_function_name TEXT;
+	_error_function_schema TEXT;
 BEGIN
 	_process_id := ($1->>'process_id')::INTEGER;
 	_pg_function := ($1->>'pg_function');
@@ -22,6 +29,19 @@ BEGIN
 	_process_role := ($1->'process_role');
 
 	-- TODO validation, make sure process_type is one of DB, EXEC or NODE
+
+	IF $1 ? 'start_function_name' AND $1 ? 'start_function_schema' THEN
+		_start_function_name := $1->>'start_function_name';
+		_start_function_schema := $1->>'start_function_schema';
+	END IF;
+	IF $1 ? 'end_function_name' AND $1 ? 'end_function_schema' THEN
+		_end_function_name := $1->>'end_function_name';
+		_end_function_schema := $1->>'end_function_schema';
+	END IF;
+	IF $1 ? 'error_function_name' AND $1 ? 'error_function_schema' THEN
+		_error_function_name := $1->>'error_function_name';
+		_error_function_schema := $1->>'error_function_schema';
+	END IF;
 
 	IF _process_id IS NULL THEN
 		INSERT INTO grape.process (
@@ -38,7 +58,7 @@ BEGIN
 			_process_type,
 			_function_schema,
 			_process_category
-		);
+		) RETURNING process_id INTO _process_id;
 	ELSE
 		UPDATE grape.process SET
 			pg_function=_pg_function,
@@ -49,6 +69,26 @@ BEGIN
 			process_category=_process_category
 		WHERE process_id=_process_id::INTEGER;
 	END IF;
+
+	IF _start_function_name IS NOT NULL THEN
+		UPDATE grape.process SET 
+			start_function_name=_start_function_name,
+			start_function_schema=_start_function_schema
+		WHERE process_id=_process_id::INTEGER;
+	END IF;
+	IF _end_function_name IS NOT NULL THEN
+		UPDATE grape.process SET 
+			end_function_name=_end_function_name,
+			end_function_schema=_end_function_schema
+		WHERE process_id=_process_id::INTEGER;
+	END IF;
+	IF _error_function_name IS NOT NULL THEN
+		UPDATE grape.process SET 
+			error_function_name=_error_function_name,
+			error_function_schema=_error_function_schema
+		WHERE process_id=_process_id::INTEGER;
+	END IF;
+
 
 	FOR _role IN SELECT * FROM jsonb_array_elements(_process_role) LOOP
 		PERFORM grape.process_role_update(
@@ -165,3 +205,6 @@ BEGIN
 
 	RETURN grape.api_success('categories', _ret);
 END; $$ LANGUAGE plpgsql;
+
+
+

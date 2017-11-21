@@ -8,6 +8,7 @@
 	"roles": ["admin"],
  	"properties": {
 		"process_id": {"type": ["null", "number"], "description": "Process ID (will update if provided)"},
+		"process_name": {"type": "text", "description": "Process name"},
 		"description": {"type": "text", "description": "Description of process"},
 		"process_category": {"type": "text", "description": "Process Category"},
 		"process_type": {"enum": ["DB","EXEC","NODE"], "description": "Process type"},
@@ -19,7 +20,13 @@
 			"can_view": {"type": "boolean", "description": "True if users in this role can view this process"},
 			"can_edit": {"type": "boolean", "description": "True if users in this role can edit this process"},
 			"can_execute": {"type": "boolean", "description": "True if users in this role can execute this process"}
-		}}}
+		}}},
+		"start_function_name": {"type": ["null", "text"], "description": "Hook: before start function name"},
+		"start_function_schema": {"type": ["null", "text"], "description": "Hook: before start function schema"},
+		"end_function_name": {"type": ["null", "text"], "description": "Hook: after successful end function name"},
+		"end_function_schema": {"type": ["null", "text"], "description": "Hook: after successful end function schema"},
+		"error_function_name": {"type": ["null", "text"], "description": "Hook: after error function name"},
+		"error_function_schema": {"type": ["null", "text"], "description": "Hook: after error function schema"}
 	},
 	"return": {
 		"type": "object",
