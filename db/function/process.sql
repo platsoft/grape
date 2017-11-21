@@ -32,8 +32,7 @@ DECLARE
 	_process_id INTEGER;
 	_schedule_id INTEGER;
 BEGIN
-	
-	SELECT process_id INTO _process_id FROM grape.process WHERE process_name=_process_name::TEXT;
+	_process_id := grape.process_id_by_name(_process_name);
 
 	IF _process_id IS NULL THEN
 		RETURN -1;

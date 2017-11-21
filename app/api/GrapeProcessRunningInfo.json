@@ -16,13 +16,13 @@
 				"username": {"type": "string", "description": "Username of user who created schedule"},
 				"progress_completed": {"type": "number", "description": "Progress done"},
 				"progress_total": {"type": "number", "description": "Total progress"}
-			}},
+			}}},
 			"new": {"type": "array", "items": {"type": "object", "properties": {
 				"schedule_id": {"type": "number", "description": "Schedule ID"},
 				"time_sched": {"type": "timestamp", "description": "Timestamp when schedule is going to start"},
 				"param": {"type": "json", "description": "Params passed to schedule"},
 				"username": {"type": "string", "description": "Username of user who created schedule"}
-			}},
+			}}},
 
 			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
 			"message": {"type": "string", "description": "Error message"},

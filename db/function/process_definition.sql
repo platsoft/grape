@@ -141,6 +141,46 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 
 $$ LANGUAGE sql;
 
+DROP FUNCTION IF EXISTS grape.upsert_process(TEXT,TEXT,TEXT,JSON,TEXT,TEXT,TEXT);
+CREATE OR REPLACE FUNCTION grape.upsert_process(
+	_process_name TEXT,
+	_pg_function TEXT,
+	_description TEXT,
+	_ui_param JSON,
+	_process_type TEXT,
+	_function_schema TEXT,
+	_process_category TEXT) RETURNS VOID AS $$
+
+	INSERT INTO grape.process (
+		process_name,
+		pg_function,
+		description,
+		ui_param,
+		process_type,
+		function_schema,
+		process_category
+	)
+	VALUES (
+		_process_name,
+		_pg_function,
+		_description,
+		_ui_param,
+		_process_type,
+		COALESCE(_function_schema, ''),
+		_process_category
+	)
+	ON CONFLICT (process_name) --if processing_function name is the same update all the other values
+	DO UPDATE SET
+		pg_function=EXCLUDED.pg_function,
+		description=EXCLUDED.description,
+		ui_param=EXCLUDED.ui_param,
+		process_type=EXCLUDED.process_type,
+		function_schema=EXCLUDED.function_schema,
+		process_category=EXCLUDED.process_category;
+
+$$ LANGUAGE sql;
+
+
 /**
  * Returns list of processes and totals
  * If the grape setting filter_processes is true
