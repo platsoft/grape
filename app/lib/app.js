@@ -48,8 +48,13 @@ exports = module.exports = function(_o) {
 				app.get('logger').log('db', 'debug', msg);
 			});
 
+			db.on('notice', function(msg) {
+				app.get('logger').log('db', 'debug', 'Notice: ' + msg);
+			});
+
+
 			db.on('end', function() {
-				app.get('logger').log('db', 'info', 'Database disconnected. Restarting');
+				app.get('logger').log('db', 'info', 'Database for default session disconnected. Restarting');
 				db.connect();
 			});
 			
@@ -77,6 +82,10 @@ exports = module.exports = function(_o) {
 				app.get('logger').log('db', 'debug', msg);
 
 			});
+			guest_db.on('notice', function(msg) {
+				app.get('logger').log('db', 'debug', 'Notice: ' + msg);
+			});
+
 
 			guest_db.on('end', function() {
 				app.get('logger').log('db', 'info', 'Guest db conn disconnected. Restarting');
