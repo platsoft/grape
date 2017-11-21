@@ -73,6 +73,7 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 	_process_category TEXT) RETURNS VOID AS $$
 
 	INSERT INTO grape.process (
+		process_name,
 		pg_function,
 		description,
 		ui_param,
@@ -82,13 +83,14 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 	)
 	VALUES (
 		_pg_function,
+		_pg_function,
 		_description,
 		_ui_param,
 		_process_type,
 		COALESCE(_function_schema, ''),
 		_process_category
 	)
-	ON CONFLICT (pg_function, function_schema) --if processing_function name is the same update all the other values
+	ON CONFLICT (process_name) --if processing_function name is the same update all the other values
 	DO UPDATE SET
 		pg_function=EXCLUDED.pg_function,
 		description=EXCLUDED.description,

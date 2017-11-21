@@ -164,7 +164,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="description">
 		<type name="text" length="1"/>
 	</column>
-	<column name="param">
+	<column name="ui_param">
 		<type name="json" length="1"/>
 	</column>
 	<column name="process_type">
@@ -177,23 +177,33 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="process_category">
 		<type name="text" length="1"/>
 	</column>
-	<column name="count_new" default-value="0">
-		<type name="integer" length="1"/>
+	<column name="process_name">
+		<type name="text" length="0"/>
 	</column>
-	<column name="count_completed" default-value="0">
-		<type name="integer" length="1"/>
+	<column name="start_function_name">
+		<type name="text" length="0"/>
 	</column>
-	<column name="count_error" default-value="0">
-		<type name="integer" length="1"/>
+	<column name="start_function_schema">
+		<type name="text" length="0"/>
 	</column>
-	<column name="count_running" default-value="0">
-		<type name="integer" length="1"/>
+	<column name="error_function_name">
+		<type name="text" length="0"/>
+	</column>
+	<column name="error_function_schema">
+		<type name="text" length="0"/>
+	</column>
+	<column name="end_function_name">
+		<type name="text" length="0"/>
+		<comment><![CDATA[Called on successful finish]]></comment>
+	</column>
+	<column name="end_function_schema">
+		<type name="text" length="0"/>
 	</column>
 	<constraint name="process_pk" type="pk-constr" table="grape.process">
 		<columns names="process_id" ref-type="src-columns"/>
 	</constraint>
-	<constraint name="process_function_schema_uq" type="uq-constr" table="grape.process">
-		<columns names="pg_function,function_schema" ref-type="src-columns"/>
+	<constraint name="process_name_uq" type="uq-constr" table="grape.process">
+		<columns names="process_name" ref-type="src-columns"/>
 	</constraint>
 </table>
 

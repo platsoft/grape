@@ -112,20 +112,25 @@ CREATE TABLE grape.process(
 	process_id serial NOT NULL,
 	pg_function text,
 	description text,
-	param json,
+	ui_param json,
 	process_type text,
 	function_schema text,
 	process_category text,
-	count_new integer DEFAULT 0,
-	count_completed integer DEFAULT 0,
-	count_error integer DEFAULT 0,
-	count_running integer DEFAULT 0,
+	process_name text,
+	start_function_name text,
+	start_function_schema text,
+	error_function_name text,
+	error_function_schema text,
+	end_function_name text,
+	end_function_schema text,
 	CONSTRAINT process_pk PRIMARY KEY (process_id),
-	CONSTRAINT process_function_schema_uq UNIQUE (pg_function,function_schema)
+	CONSTRAINT process_name_uq UNIQUE (process_name)
 
 )WITH ( OIDS = TRUE );
 -- ddl-end --
 COMMENT ON COLUMN grape.process.process_type IS 'PG_FUNCTION; COMMAND';
+-- ddl-end --
+COMMENT ON COLUMN grape.process.end_function_name IS 'Called on successful finish';
 -- ddl-end --
 
 -- object: grape.e_schedule_status | type: TYPE --
