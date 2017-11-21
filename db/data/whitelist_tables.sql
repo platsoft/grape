@@ -14,7 +14,7 @@ SELECT grape.table_permissions_add('grape',
 	'network, '
 	'v_user_networks,'
 	'v_pg_functions,'
-	'data_import, '
+	'v_data_import, '
 	'v_process_definitions, '
 	'v_active_sessions, '
 	'data_import_type}'::TEXT[], 
