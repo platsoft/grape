@@ -187,13 +187,13 @@ function db (_o) {
 
 		self.query_counter++;
 		if (self.options.debug)
-			self.emit('debug', "Query counter QS [" + self.options.session_id + "]: " + self.query_counter);
+			self.emit('debug', "Query counter QS [" + self.options.session_id + "]: " + self.query_counter + " (db state " + self.state + ")");
 
 		self.last_query_time = new Date();
 
 		var qry = self.client.query(new pg.Query(_qry_config, values));
 
-		if (callback)
+		if (callback && typeof callback == 'function')
 		{
 			qry.on('row', function(row, result) {
 				result.addRow(row);
@@ -232,11 +232,16 @@ function db (_o) {
 	 *
 	 */ 
 	this.json_call =  function(name, input, _callback, qry_options) {
+		var callback = _callback;
 		qry_options = qry_options || { rows: false, single: false, jsonb: false };
+		
+		if (_callback && typeof _callback == 'object')
+		{
+			_.extend(qry_options, _callback);
+			callback = null;
+		}
 		var alias = name;
 		alias = alias.replace(/\./g, '');
-
-		var callback = _callback;
 
 		// response is the express response object to return the result to
 		if (!callback && qry_options.response)
