@@ -28,7 +28,7 @@ module.exports = function(req, res, next) {
 			var obj = result.rows[0]['grapesession_insert'];
 			if (obj.status == 'ERROR')
 			{
-				app.get('logger').warning('session', 'Authentication failed (' + obj.message + ')');
+				app.get('logger').warn('session', 'Authentication failed (' + obj.message + ')');
 				if (req.accepts_json)
 					res.status(403).json(obj);
 				else

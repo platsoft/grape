@@ -28,7 +28,7 @@ var GC = new grapeclient({url: url});
 if (method == 'GET')
 {
 	var req = GC.getJSON(null, data, function(ret) {
-		console.log(ret);
+		console.log(JSON.stringify(ret, null, '  '));
 
 		//console.log(req.res.headers);
 	});
@@ -36,7 +36,7 @@ if (method == 'GET')
 else if (method == 'POST')
 {
 	GC.postJSON(null, data, function(ret) {
-	       console.log(ret);
+		console.log(JSON.stringify(ret, null, '  '));
 	});
 
 }
