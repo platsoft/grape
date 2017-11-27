@@ -1,6 +1,7 @@
 
 CREATE OR REPLACE FUNCTION grape.save_process_definition(JSONB) RETURNS JSONB AS $$
 DECLARE
+	_process_name TEXT;
 	_description TEXT;
 	_process_id INTEGER;
 	_process_category TEXT;
@@ -28,6 +29,8 @@ BEGIN
 
 	_process_role := ($1->'process_role');
 
+	_process_name := ($1->>'process_name');
+
 	-- TODO validation, make sure process_type is one of DB, EXEC or NODE
 
 	IF $1 ? 'start_function_name' AND $1 ? 'start_function_schema' THEN
@@ -45,6 +48,7 @@ BEGIN
 
 	IF _process_id IS NULL THEN
 		INSERT INTO grape.process (
+			process_name,
 			pg_function,
 			description,
 			ui_param,
@@ -52,18 +56,20 @@ BEGIN
 			function_schema,
 			process_category
 		) VALUES (
+			_process_name,
 			_pg_function,
 			_description,
-			_param,
+			_ui_param,
 			_process_type,
 			_function_schema,
 			_process_category
 		) RETURNING process_id INTO _process_id;
 	ELSE
 		UPDATE grape.process SET
+			process_name=_process_name,
 			pg_function=_pg_function,
 			description=_description,
-			ui_param=_param,
+			ui_param=_ui_param,
 			process_type=_process_type,
 			function_schema=_function_schema,
 			process_category=_process_category
