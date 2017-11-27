@@ -203,6 +203,7 @@ BEGIN
 
 	FOR _rec IN SELECT
 			ap.process_id,
+			process_name,
 			pg_function,
 			description,
 			ap.process_category,
@@ -224,7 +225,9 @@ BEGIN
 			sched.status,
 			sched.progress_completed,
 			sched.progress_total,
-			sched.auto_scheduler_id
+			sched.auto_scheduler_id,
+			grape.check_process_execute_permission(ap.process_id) AS can_execute,
+			grape.check_process_edit_permission(ap.process_id) AS can_edit
 
 		FROM grape.process AS ap
 			LEFT JOIN LATERAL (SELECT * FROM grape.schedule WHERE process_id=ap.process_id ORDER BY time_sched DESC LIMIT 1) AS sched USING (process_id)
