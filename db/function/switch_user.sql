@@ -2,16 +2,39 @@
 
 CREATE OR REPLACE FUNCTION grape.switch_user (_target_user_id INTEGER) RETURNS TEXT AS $$
 DECLARE
+	_target_user RECORD;
 BEGIN
+
+	SELECT * INTO _target_user FROM grape."user" WHERE user_id=_target_user::INTEGER;
+	IF NOT FOUND THEN
+		RETURN NULL;
+	END IF;
+
 	-- Make sure the following conditions are met:
 	--	Current user must have a valid session
+	IF grape.current_user_id() IS NULL THEN
+		RETURN NULL;
+	END IF;
+
 	--	Current user must belong to a role called "switch_user"
+	IF grape.current_user_in_role('switch_user') = FALSE THEN
+		RETURN NULL;
+	END IF;
+
 	-- 	The target user must not belong to the admin role
+	IF grape.is_user_in_role(_target_user_id, 'admin') = TRUE THEN
+		RETURN NULL;
+	END IF;
+
 	-- 	The target user must be active
+	IF _target_user.active != TRUE THEN
+		RETURN NULL;
+	END IF;
+
 
 	-- Log the current session out - grape.logout(json_build_object('session_id', _session_id);
 	-- Create new session - grape.session_insert()
-	-- Call grape.set_session_user_id(_target_user_id)
+	PERFORM grape.set_session_user_id(_target_user_id);
 
 	-- Returns new session ID or NULL on error
 	RETURN NULL;

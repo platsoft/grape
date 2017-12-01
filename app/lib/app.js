@@ -12,13 +12,20 @@ var fs = require('fs');
 var util = require('util');
 var path = require('path');
 var schema_api_calls = require(__dirname + '/schema_api_calls.js');
+var events = require('events');
 
 var DEFAULT_MAXSOCKETS = 500;
 
-exports = module.exports = function(_o) {
+var grape_express_app = function(_o) {
+
+	var self = this;
+	this.self = self;
 
 	// entry
-	var app = express();
+	this.app = express();
+	var app = this.app;
+
+	this.express = app;
 
 	var grapelib = require(__dirname + '/../index.js');
 
@@ -389,7 +396,8 @@ exports = module.exports = function(_o) {
 	}
 
 	start();
-	return app;
 };
 
+grape_express_app.prototype.__proto__ = events.EventEmitter.prototype;
+exports = module.exports = grape_express_app;
 

@@ -1,0 +1,20 @@
+{
+	"description": "Confirm TOTP authentication for user",
+	"id": "/grape/confirm_totp",
+	"name": "GrapeConfirmTOTP",
+	"sqlfunc": "grape.confirm_totp",
+	"sqlfunctype": "jsonb",
+	"type": "object",
+ 	"properties": {
+		"totp": {"type": "string", "description": "TOTP"}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
+			"message": {"type": "string", "description": "Error message"},
+			"code": {"type": "number", "description": "Error code"},
+			"error": {"type": "json", "description": "Error details"}
+		}
+	}
+}

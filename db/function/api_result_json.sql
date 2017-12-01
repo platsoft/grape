@@ -22,50 +22,50 @@ BEGIN
 	END IF;
 
 	RETURN _ret;
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_error(_message TEXT, _code INTEGER, _error JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN grape.api_result_error(_message, _code, _error);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_error() RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN grape.api_result_error('Unknown error', -1);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_error_invalid_input(_info JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN grape.api_result_error('Invalid input', -3, _info);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_error_invalid_field(_name TEXT) RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN grape.api_result_error('Missing or invalid field: ' || _name, -3, '{}'::JSON);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 
 CREATE OR REPLACE FUNCTION grape.api_error_permission_denied(_info JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN grape.api_result_error('Permission denied', -2, _info);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_error_data_not_found(_info JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN grape.api_result_error('Data not found', -5, _info);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_error_invalid_data_state(_info JSON DEFAULT '{}'::JSON) RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN grape.api_result_error('The operation requested could not be performed on the data because the data is not in a valid state', -6, _info);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 
 
@@ -115,7 +115,7 @@ BEGIN
 	EXECUTE _sql INTO _ret;
 
 	RETURN _ret;
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_success(_keys TEXT[], _values INTEGER[]) RETURNS JSON AS $$
 DECLARE
@@ -124,25 +124,25 @@ BEGIN
 	_types := array_fill('n'::TEXT, ARRAY[array_length(_values, 1)]);
 
 	RETURN grape.api_success(_keys, _values::TEXT[], ARRAY['n']);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_success(_key1 TEXT, _val1 INTEGER) RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN grape.api_success(ARRAY[_key1]::TEXT[], ARRAY[_val1::TEXT]::TEXT[], ARRAY['n']);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_success(_key1 TEXT, _val1 INTEGER, _key2 TEXT, _val2 INTEGER) RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN grape.api_success(ARRAY[_key1, _key2]::TEXT[], ARRAY[_val1::TEXT, _val2::TEXT]::TEXT[], ARRAY['n', 'n']);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_success(_key1 TEXT, _val1 JSON) RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN grape.api_success(ARRAY[_key1]::TEXT[], ARRAY[_val1::TEXT]::TEXT[], ARRAY['j']);
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 
 CREATE OR REPLACE FUNCTION grape.api_success() RETURNS JSON AS $$
@@ -151,13 +151,18 @@ DECLARE
 BEGIN
 	SELECT to_json(b) INTO _ret FROM (SELECT 'OK' AS "status") AS b;
 	RETURN _ret;
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION grape.api_success(JSON) RETURNS JSON AS $$
 DECLARE
 BEGIN
 	RETURN (jsonb_build_object('status', 'OK') || $1::JSONB)::JSON;
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
+
+CREATE OR REPLACE FUNCTION grape.api_success(JSONB) RETURNS JSONB AS $$
+	SELECT (jsonb_build_object('status', 'OK') || $1::JSONB)::JSONB;
+$$ LANGUAGE sql IMMUTABLE;
+
 
 /**
  * Returns success message when data is not null, otherwise it returns grape.api_error_data_not_found
@@ -169,7 +174,7 @@ CREATE OR REPLACE FUNCTION grape.api_success_if_not_null(_fieldname TEXT, _data 
 		ELSE 
 			grape.api_success(_data)
 		END;
-$$ LANGUAGE sql;
+$$ LANGUAGE sql IMMUTABLE;
 
 
 
@@ -189,7 +194,7 @@ BEGIN
 	END IF;
 	
 	RETURN grape.api_error();
-END; $$ LANGUAGE plpgsql;
+END; $$ LANGUAGE plpgsql IMMUTABLE;
 
 
 

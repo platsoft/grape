@@ -1,0 +1,28 @@
+{
+	"description": "Get information for a user",
+	"id": "/grape/user/:user_id",
+	"name": "GrapeSelectUser",
+	"sqlfunc": "grape.select_user",
+	"sqlfunctype": "jsonb",
+	"type": "query",
+	"roles": ["all"],
+	"return": {
+		"type": "object",
+		"properties": {
+			"username": {"type": "string", "description": ""},
+			"email": {"type": "string", "description": ""},
+			"fullnames": {"type": "string", "description": ""},
+			"active": {"type": "string", "description": ""},
+			"employee_guid": {"type": "string", "description": ""},
+			"employee_info": {"type": "string", "description": ""},
+			"pg_role": {"type": "string", "description": ""},
+			"totp_status": {"type": "string", "description": ""},
+			"mobile": {"type": "string", "description": ""},
+			"mobile_status": {"type": "string", "description": ""},
+			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
+			"message": {"type": "string", "description": "Error message"},
+			"code": {"type": "number", "description": "Error code"},
+			"error": {"type": "json", "description": "Error details"}
+		}
+	}
+}

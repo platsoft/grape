@@ -35,20 +35,6 @@ exports = module.exports = function(_app) {
 	app.post('/grape/login_with_ticket', login_with_service_ticket);
 
 /**
- * @url /grape/set_password_with_service_ticket
- * @method POST
- * @desc Reset password for the user with a service ticket
- * @sqlfunc grape.create_session_from_service_ticket
- * @body
- * { 
- * 	service_ticket TEXT encrypted service ticket
- * }
- * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
- */
-	app.post('/grape/secure_request', secure_request);
-
-
-/**
  * @url /grape/logout
  * @method POST
  * @desc Logout
@@ -113,47 +99,21 @@ function login (req, res)
 
 function login_with_service_ticket (req, res)
 {
+	var ip_address = req.ip;
+
 	if (typeof req.body.service_ticket == "undefined")
 	{
 		app.get('logger').session('info', 'invalid parameters sent to /grape/login_with_ticket', req.body);
 		res.json({'status': "error", code: -1, "message": "invalid parameters"});
 		return;
 	}
-	
-	var ip_address = req.ip;
 
 	var obj = {
 		service_ticket: req.body.service_ticket,
 		ip_address: ip_address
 	};
-	
+
 	res.locals.db.jsonb_call('grape.create_session_from_service_ticket', obj, null, {response: res});
-}
-
-
-function secure_request (req, res)
-{
-	if (typeof req.body.service_ticket == "undefined")
-	{
-		app.get('logger').session('info', 'invalid parameters sent to /grape/secure_request', req.body);
-		res.json({'status': "error", code: -1, "message": "invalid parameters"});
-		return;
-	}
-	else if(typeof req.body.sqlfunc == "undefined")
-	{
-		app.get('logger').session('info', 'sqlfunc not found in parameters sent to /grape/secure_request', req.body);
-		res.json({'status': "error", code: -1, "message": "invalid parameters"});
-		return;	
-	}
-	
-	var ip_address = req.ip;
-
-	var obj = {
-		service_ticket: req.body.service_ticket,
-		ip_address: ip_address
-	};
-
-	res.locals.db.jsonb_call(req.body.sqlfunc, obj, null, {response: res});
 }
 
 

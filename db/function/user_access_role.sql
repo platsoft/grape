@@ -13,4 +13,7 @@ CREATE OR REPLACE FUNCTION grape.add_user_to_access_role(_username TEXT, _access
 		RETURNING 0;
 $$ LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION grape.is_user_in_role(_user_id INTEGER, _access_role TEXT) RETURNS BOOLEAN AS $$
+	SELECT EXISTS (SELECT 1 FROM grape.user_role WHERE user_id=_user_id::INTEGER AND role_name=_access_role::TEXT);
+$$ LANGUAGE sql STABLE;
 

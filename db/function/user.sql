@@ -356,6 +356,7 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 /**
+ * @apicall:
  * IN: 
  * 	user_id 
  * OUT:
@@ -373,6 +374,9 @@ DECLARE
 BEGIN
 	IF $1 ? 'user_id' THEN
 		_user_id := ($1->>'user_id')::INTEGER;
+		IF _user_id = -1 THEN
+			_user_id := grape.current_user_id();
+		END IF;
 	END IF;
 
 	IF _user_id IS NULL THEN
@@ -383,7 +387,20 @@ BEGIN
 		RETURN grape.api_error_permission_denied();
 	END IF;
 
-	SELECT to_jsonb(u) INTO _ret FROM grape."user" u WHERE user_id=_user_id::INTEGER;
+	SELECT to_jsonb(a) INTO _ret FROM (
+		SELECT 
+			username, 
+			email, 
+			fullnames, 
+			active, 
+			employee_guid, 
+			employee_info, 
+			pg_role, 
+			COALESCE(auth_info->>'totp_status', '') AS totp_status,
+			COALESCE(auth_info->>'mobile', '') AS mobile,
+			COALESCE(auth_info->>'mobile_status', '') AS mobile_status
+		FROM grape."user" WHERE user_id=_user_id::INTEGER
+	) a;
 
 	IF NOT FOUND THEN
 		RETURN grape.api_error_data_not_found();

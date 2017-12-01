@@ -130,11 +130,11 @@ function grape(_o) {
 				if (this.options.process_name)
 					process.title = [this.options.process_name, 'apiserver'].join('-');
 				// We are a worker/child process
-				var app = g_app(_o);
+				var app = new g_app(_o);
 
 				var cache = new comms.worker(_o);
 				cache.start();
-				app.set('cache', cache);
+				app.express.set('cache', cache);
 				
 				self.emit('instance', app);
 			}

@@ -46,6 +46,8 @@ DECLARE
 
 	_message JSONB;
 	_encrypted_message TEXT;
+
+	_totp TEXT := '';
 BEGIN
 	
 	IF $1 ? 'username' THEN
@@ -66,11 +68,15 @@ BEGIN
 	END IF;
 	
 	IF _user.employee_guid IS NULL THEN
-		RETURN grape.api_error('You username on the authentication service does not have a valid employee GUID. Please ask your system administrator to complete the configuration for your account', -98);
+		RETURN grape.api_error('Your username on the authentication service does not have a valid employee GUID. Please ask your system administrator to complete the configuration for your account', -98);
 	END IF;
 
 	IF LEFT(_user.password, 4) = '$2a$' THEN
 		RETURN grape.api_error('Incompatible password format', -4);
+	END IF;
+
+	IF _user.auth_info ? 'totp_status' AND _user.auth_info->>'totp_status' = 'ok' THEN
+		_totp := grape.generate_totp(_user.auth_info->>'totp_key');
 	END IF;
 
 	_server_private_key := ENCODE(DIGEST(grape.get_server_private_key('TGT'), 'sha256'), 'hex');
@@ -86,10 +92,11 @@ BEGIN
 	SELECT * INTO _user_key FROM grape.get_user_key_fields(_user.password);
 
 	_iv := ENCODE(gen_random_bytes(16), 'hex');
-	_encrypted_message := grape.encrypt_message(_message::TEXT, _user_key.key, _iv);
+	_encrypted_message := grape.encrypt_message(_message::TEXT, CONCAT(_user_key.key, _totp), _iv);
 
 	_ret := jsonb_build_object(
 		'status', 'OK',
+		'totp_status', COALESCE(_user.auth_info->>'totp_status', ''),
 		'data', _encrypted_message,
 		'salt', _user_key.salt, 
 		'iv', _iv,
@@ -174,75 +181,6 @@ BEGIN
 	END IF;
 
 	_service_ticket := grape.create_service_ticket(_requested_service, _user.user_id);
-	_service_ticket := grape.encrypt_message_for_service(_requested_service, _service_ticket);
-
-	RETURN grape.api_success(json_build_object('service_ticket', _service_ticket));
-END; $$ LANGUAGE plpgsql;
-
-
-/**
- * Encrypts any request params sent based on ticket
- */
-CREATE OR REPLACE FUNCTION grape.service_ticket_request_generic(JSONB) RETURNS JSONB AS $$
-DECLARE
-	_raw_tgt TEXT;
-	_server_private_key TEXT;
-	_requested_service TEXT;
-	_encrypted_authenticator TEXT;
-	_iv TEXT;
-	_salt TEXT;
-	_authenticator JSONB;
-	_decryption_key TEXT;
-	_tgt JSONB;
-	_user RECORD;
-
-	_service_ticket TEXT;
-BEGIN
-	
-	_raw_tgt := ($1->>'tgt');
-	_server_private_key := ENCODE(DIGEST(grape.get_server_private_key('TGT'), 'sha256'), 'hex');
-	_tgt := (grape.decrypt_message(_raw_tgt, _server_private_key, 'c5067fe37e0b025da44ec7578502c7e4'))::JSONB;
-	_requested_service := ($1->>'requested_service');
-
-	IF grape.is_valid_service(_requested_service) = FALSE AND grape.get_value('service_name', '') != _requested_service THEN
-		RETURN grape.api_error('No such service: ' + _requested_service);
-	END IF;
-
-	_encrypted_authenticator := ($1->>'authenticator');
-	_iv := ($1->>'iv');
-	_salt := ($1->>'salt');
-	_decryption_key := grape.generate_user_key(_tgt->>'session_key', _salt, 1000);
-	_authenticator := (grape.decrypt_message(_encrypted_authenticator, _decryption_key, _iv))::JSONB;
-
-	IF _authenticator ? 'username' THEN
-		SELECT * INTO _user FROM grape."user" WHERE username=(_authenticator->>'username');
-		IF NOT FOUND THEN
-			RETURN grape.api_error('No such user', -2);
-		END IF;
-	ELSIF _authenticator ? 'email' THEN
-		SELECT * INTO _user FROM grape."user" WHERE email=(_authenticator->>'email');
-		IF NOT FOUND THEN
-			RETURN grape.api_error('No such user', -2);
-		END IF;
-	END IF;
-
-	IF _user.username != _tgt->>'username' THEN
-		RETURN grape.api_error('Non-match on username');
-	END IF;
-
-	IF _user.employee_guid != (_tgt->>'employee_guid')::UUID THEN
-		RETURN grape.api_error('Non-match on employee GUID');
-	END IF;
-
-	IF (_tgt->>'valid_until')::TIMESTAMPTZ < NOW() THEN
-		RETURN grape.api_error('TGT Expired');
-	END IF;
-
-	IF (_authenticator->>'issued_at')::TIMESTAMPTZ < (_tgt->>'issued_at')::TIMESTAMPTZ THEN
-		RETURN grape.api_error('Non-match on username');
-	END IF;
-
-	_service_ticket := grape.create_service_ticket_generic(_requested_service, _user.user_id, _authenticator);
 	_service_ticket := grape.encrypt_message_for_service(_requested_service, _service_ticket);
 
 	RETURN grape.api_success(json_build_object('service_ticket', _service_ticket));

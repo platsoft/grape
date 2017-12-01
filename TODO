@@ -1,4 +1,6 @@
 
+Enterprise mobility management (EMM)
+
 1.1.0:
 - Broadcast/discover other grape services (using SSDP)
 - Send SMSes

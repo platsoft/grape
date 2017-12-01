@@ -67,31 +67,6 @@ BEGIN
 	RETURN _service_ticket::TEXT;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION grape.create_service_ticket_generic(_service TEXT, _user_id INTEGER, _authenticator JSONB) RETURNS TEXT AS $$
-DECLARE
-	_service_ticket JSONB;
-	_test JSONB;
-	_request_params TEXT;
-	_user RECORD;
-	_start TIMESTAMPTZ;
-BEGIN
-
-	SELECT * INTO _user FROM grape."user" WHERE user_id=_user_id::INTEGER;
-
-	_service_ticket := jsonb_build_object(
-		'service', _service,
-		'username', _user.username,
-		'employee_guid', _user.employee_guid,
-		'issued_at', NOW(),
-		'valid_until', (NOW() + INTERVAL '8 hours'),
-		'issued_by', grape.get_value('service_name', '')
-	);
-
-	_service_ticket :=	_service_ticket::jsonb || _authenticator::jsonb;
-
-	RETURN _service_ticket::TEXT;
-END; $$ LANGUAGE plpgsql;
-
 -- encrypted service ticket
 CREATE OR REPLACE FUNCTION grape.validate_service_ticket (_encrypted_service_ticket TEXT) RETURNS JSONB AS $$
 DECLARE
