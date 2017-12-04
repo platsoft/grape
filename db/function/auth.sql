@@ -76,7 +76,11 @@ BEGIN
 	END IF;
 
 	IF _user.auth_info ? 'totp_status' AND _user.auth_info->>'totp_status' = 'ok' THEN
-		_totp := grape.generate_totp(_user.auth_info->>'totp_key');
+		IF $1 ? 'totp' = 'y' THEN -- did the client acquire a TOTP from the user?
+			_totp := grape.generate_totp(_user.auth_info->>'totp_key');
+		ELSE
+			RETURN grape.api_error('Missing TOTP', -400);
+		END IF;
 	END IF;
 
 	_server_private_key := ENCODE(DIGEST(grape.get_server_private_key('TGT'), 'sha256'), 'hex');
@@ -90,6 +94,10 @@ BEGIN
 	);
 
 	SELECT * INTO _user_key FROM grape.get_user_key_fields(_user.password);
+
+	IF _totp != '' THEN
+		_user_key.key := ENCODE(DIGEST(_user_key.key || _totp, 'sha256'), 'hex');
+	END IF;
 
 	_iv := ENCODE(gen_random_bytes(16), 'hex');
 	_encrypted_message := grape.encrypt_message(_message::TEXT, CONCAT(_user_key.key, _totp), _iv);

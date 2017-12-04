@@ -1,0 +1,17 @@
+{
+	"description": "Remove TOTP authentication for user",
+	"id": "/grape/remove_totp",
+	"name": "GrapeRemoveTOTP",
+	"sqlfunc": "grape.remove_totp",
+	"sqlfunctype": "jsonb",
+	"type": "object",
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
+			"message": {"type": "string", "description": "Error message"},
+			"code": {"type": "number", "description": "Error code"},
+			"error": {"type": "json", "description": "Error details"}
+		}
+	}
+}

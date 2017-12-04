@@ -95,3 +95,28 @@ BEGIN
 
 END; $$ LANGUAGE plpgsql;
 
+-- remove TOTP on user's account
+CREATE OR REPLACE FUNCTION grape.remove_totp(JSONB) RETURNS JSONB AS $$
+DECLARE
+	_user_id INTEGER;
+	_auth_info JSONB;
+BEGIN
+	IF grape.current_user_id() IS NULL THEN
+		RETURN grape.api_error_permission_denied();
+	END IF;
+
+	_user_id := grape.current_user_id();
+
+	SELECT auth_info INTO _auth_info FROM grape."user" WHERE user_id=_user_id::INTEGER;
+	IF NOT FOUND THEN
+		RETURN grape.api_error_data_not_found();
+	END IF;
+
+	_auth_info := _auth_info - 'totp_status';
+	_auth_info := _auth_info - 'totp_key';
+
+	UPDATE grape."user" SET auth_info=_auth_info WHERE user_id=_user_id::INTEGER;
+
+	RETURN grape.api_success();
+END; $$ LANGUAGE plpgsql;
+
