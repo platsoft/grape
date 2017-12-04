@@ -35,6 +35,7 @@ DECLARE
 	_username TEXT;
 	_email TEXT;
 	_provisioning_url TEXT;
+	_issuer TEXT;
 BEGIN
 	_user_id := grape.current_user_id();
 	IF _user_id IS NULL THEN
@@ -48,7 +49,10 @@ BEGIN
 	ELSE
 		SELECT auth_info->>'totp_key', username INTO _key, _username FROM grape."user" WHERE user_id=_user_id::INTEGER;
 
-		_provisioning_url := FORMAT('otpauth://totp/%s?secret=INSERT_SECRET_HERE&period=30&issuer=%s', grape.urlencode(_username), grape.urlencode('Platinum Software'));
+		_issuer := grape.urlencode(grape.get_value('product_name', 'Unknown'));
+
+		_provisioning_url := FORMAT('otpauth://totp/%s:%s?secret=INSERT_SECRET_HERE&period=30&algorithm=SHA1&digits=6&issuer=%s', 
+			_issuer, grape.urlencode(_username), _issuer);
 
 		RETURN grape.api_success(jsonb_build_object('key', _key, 'provisioning_url', _provisioning_url));
 	END IF;
