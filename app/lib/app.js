@@ -269,7 +269,7 @@ var grape_express_app = function(_o) {
 			if (!stack.route) 
 				continue;
 
-			if (stack.match(req.path))
+			if (stack.match(req.path) && stack.route._handles_method(req.method))
 			{
 				req.matched_path = stack.route.path;
 				break;
