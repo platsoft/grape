@@ -28,4 +28,14 @@ BEGIN
 	END IF;
 END; $$ LANGUAGE plpgsql;
 
+/*
+CREATE OR REPLACE FUNCTION grape.check_user_digest_access_authentication(_password_in_db TEXT, ) RETURNS BOOLEAN AS $$
+DECLARE
+	
+BEGIN
+
+
+
+END; $$ LANGUAGE plpgsql;
+*/
 

@@ -80,7 +80,6 @@ BEGIN
 	END IF;
 
 	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
-
 		IF grape.check_user_password(rec.password, _password) = FALSE THEN
 			RAISE DEBUG 'User % login failed. Password does not match', _user;
 			RETURN grape.api_result_error('Invalid password', 2);

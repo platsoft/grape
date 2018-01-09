@@ -1,8 +1,9 @@
 "use strict";
 var db;
 var app;
-var syntax_check = require('syntax-error');
-var fs = require('fs');
+const syntax_check = require('syntax-error');
+const fs = require('fs');
+const path = require('path');
 
 exports = module.exports = function(_app) {
 	app = _app;
@@ -56,13 +57,13 @@ function loadpublicjsfiles(dirname, relativedirname)
 				else
 				{
 					data += file_data;
-					app.get('logger').info('app', "Loaded public JS file " + relativedirname + file);
+					app.get('logger').info('app', "Loaded public JS file " + relativedirname + file + ' from ' + dirname);
 				}
 			}
 		}
 		else if (fstat.isDirectory())
 		{
-			data += loadpublicjsfiles(dirname + '/' + file, relativedirname + file);
+			data += loadpublicjsfiles(path.join(dirname, file), relativedirname + file);
 		}
 	}
 	return data;
@@ -83,7 +84,7 @@ function api_download_public_js_files(req, res)
 		for (var i = 0; i < public_directories.length; i++)
 		{
 			app.get('config').compile_js_dirs.forEach(function(f) { 
-				jsdata.push(loadpublicjsfiles(public_directories[i] + '/' + f, '/' + f));
+				jsdata.push(loadpublicjsfiles(path.join(public_directories[i], f), '/' + f));
 			});
 		}
 

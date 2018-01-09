@@ -44,7 +44,7 @@ module.exports = function() {
 		for (var i = 0; i < public_directories.length; i++)
 		{
 			try {
-				var fullpath = path.normalize([public_directories[i], '/', pathname].join(''));
+				var fullpath = path.join(public_directories[i], pathname);
 				var stat = fs.statSync(fullpath);
 				if (stat.isFile())
 				{

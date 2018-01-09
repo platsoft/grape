@@ -1,6 +1,10 @@
 /**
  * Entry point for a Grape app. This one starts the workers and sets up comms channel between them
  *
+ * Events:
+ * 	creating_pidfile
+ * 	pidfile_created
+ *
  */
 var _ = require('underscore');
 var fs = require('fs');
@@ -8,15 +12,54 @@ var util = require('util');
 var cluster = require('cluster');
 var g_app = require(__dirname + '/app.js');
 var comms = require(__dirname + '/comms.js');
-var email_notification_listener = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
-var ldap_server = require(__dirname + '/ldap.js').LDAPServer;
 var async = require('async');
 var events = require('events');
+var configreader = require(__dirname + '/configreader.js');
+var grapelib = require(__dirname + '/../index.js');
 
-function grape(_o) {
+var ldap_worker = require(__dirname + '/ldap.js').LDAPServer;
+var email_notification_worker = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
+
+
+function grape() {
 	this.self = this;
 	var self  = this;
-	this.options = require(__dirname + '/options.js')(_o);
+	this.options = configreader.apply(null, arguments);
+	this.logger = new grapelib.logger(this.options);
+
+	this.workers = [];
+
+	this.state = 'init';
+
+	this.setup = function() {
+		self.addWorker({
+			name: 'httplistener',
+			instance_count: 5,
+			func: g_app
+		});
+
+		self.addWorker({
+			name: 'emailer',
+			instance_count: 1,
+			func: email_notification_worker
+		});
+
+	};
+
+	this.addWorker = function(obj) {
+		if (!obj.name)
+		{
+			console.log("Missing name for worker object");
+			return;
+		}
+
+		self.workers.push({
+			name: obj.name,
+			instance_count: obj.instance_count || 1,
+			processes: [],
+			func: obj.func
+		});
+	};
 
 	this.start = function() {
 
@@ -35,8 +78,8 @@ function grape(_o) {
 				process.title = this.options.process_name;
 
 			// check if pidfile exists, if it does kill the process and delte the file
-			var start_pidfile = function(next) {
-				self.emit('start_pidfile');
+			var create_pidfile = function(next) {
+				self.emit('creating_pidfile');
 
 				console.log("Setting up PID file " + pidfile + " ...");
 				if (fs.existsSync(pidfile))
@@ -73,11 +116,11 @@ function grape(_o) {
 					next();
 				}
 				
-				self.emit('start_pidfile_done');
+				self.emit('pidfile_created');
 			}
 
 			//start worker instances
-			var start_instances = function(next) {
+			var start_processes = function(next) {
 
 				process.on('exit', function(code) {
 					console.log("Process exiting ");
@@ -91,18 +134,14 @@ function grape(_o) {
 					console.log("Caught SIGUSR2, exiting gracefully");
 					process.exit(1);
 				});
-
-				self.createDBNotificationListener();
-
-				if (self.options.enable_ldap_server == true)
+				
+				for (var i = 0; i < self.workers.length; i++)
 				{
-					self.createLDAPServer();
-				}
-
-				console.log("Starting " + self.options.instances + " instances");
-				for (var i = 0; i < self.options.instances; i++)
-				{
-					self.createWorker();
+					var worker = self.workers[i];
+					for (var j = 0; j < worker.instance_count; j++)
+					{
+						self.forkWorker(worker, j);
+					}
 				}
 
 				next();
@@ -110,7 +149,7 @@ function grape(_o) {
 
 
 			var start_comms_channel = function(next) {
-				var channel = new comms.server(_o);
+				var channel = new comms.server(self.options);
 				channel.on('error', function(message) {
 					//TODO
 					console.log("Comms channel error", message);
@@ -121,122 +160,62 @@ function grape(_o) {
 			};
 
 
-			async.series([start_pidfile, start_comms_channel, start_instances]);
+			async.series([create_pidfile, start_comms_channel, start_processes]);
 		}
 		else
 		{
-			if (process.env.state && process.env.state == 'api_listener_worker')
+			if (process.env.state)
 			{
-				if (this.options.process_name)
-					process.title = [this.options.process_name, 'apiserver'].join('-');
-				// We are a worker/child process
-				var app = new g_app(_o);
+				var instance_count = process.env.instance_count || '0';
+				var process_name = self.options.process_name || 'grape-unknown';
 
-				var cache = new comms.worker(_o);
-				cache.start();
-				app.express.set('cache', cache);
-				
-				self.emit('instance', app);
-			}
-			else if (process.env.state && process.env.state == 'db_notification_listener')
-			{
-				if (this.options.process_name)
-					process.title = [this.options.process_name, 'dbnotify'].join('-');
+				var found = false;
+				for (var i = 0; i < self.workers.length && !found; i++)
+				{
+					if (self.workers[i].name == process.env.state)
+					{
+						found = true;
+						process.title = [process_name, '-', self.workers[i].name, '[', instance_count , ']'].join('');
+						var obj = new (self.workers[i].func)(self.options);
+						if (obj.start)
+							obj.start.call(obj);
+					}
+				}
 
-				var e_notify = new email_notification_listener(_o);
-				e_notify.start();
-
-				// Other db notification functions can go here
-			}
-			else if (process.env.state && process.env.state == 'ldap_server')
-			{
-				if (this.options.process_name)
-					process.title = [this.options.process_name, 'ldapserver'].join('-');
-
-				var e_ldap = new ldap_server(self.options);
-				e_ldap.start();
-
-				// Other db notification functions can go here
-			}
-			else
-			{
-				console.log("UNKNOWN WORKER");
+				if (!found)
+				{
+					console.log("UNKNOWN WORKER " + process.env.state);
+				}
 			}
 		}
 	};
 
-	this.createWorker = function()
-	{
-		var worker = cluster.fork({"state": "api_listener_worker"});
-		worker.on('disconnect', function() {
+	this.forkWorker = function(worker, instance_idx) {
+		console.log("Starting worker: " + worker.name);
+		var new_process = cluster.fork({"state": worker.name, "instance_count": instance_idx});
+		new_process.on('disconnect', function() {
 		});
-		worker.on('exit', function() {
-			console.log("Worker exit with code", worker.process.exitCode);
-			if (worker.process.exitCode == 5)
+		new_process.on('exit', function() {
+			console.log(worker.name + "[" + instance_idx + "]: Worker process exited with code", new_process.process.exitCode);
+			if (new_process.process.exitCode == 5)
 			{
 				console.log("Connectivity issue. Restarting in 5 seconds...");
-				setTimeout(function() { self.createWorker(); }, 5000);
+				setTimeout(function() { 
+					self.forkWorker(worker, instance_idx); 
+				}, 5000);
 			}
 			else
 			{
-				self.createWorker();
+				self.forkWorker(worker, instance_idx);
 			}
 		});
-		worker.on('death', function() {
+		new_process.on('death', function() {
 			console.log("Worker died");
-			self.createWorker();
+			self.forkWorker(worker, instance_idx);
 		});
-
 	};
 
-	this.createDBNotificationListener = function() {
-		console.log("Starting DB notification listener");
-		var worker = cluster.fork({"state": "db_notification_listener"});
-		worker.on('disconnect', function() {
-		});
-		worker.on('exit', function() {
-			console.log("DB Notify Worker exit with code", worker.process.exitCode);
-			if (worker.process.exitCode == 5)
-			{
-				console.log("Connectivity issue. Restarting in 5 seconds...");
-				setTimeout(function() { self.createDBNotificationListener(); }, 5000);
-			}
-			else
-			{
-				self.createDBNotificationListener();
-			}
-		});
-		worker.on('death', function() {
-			console.log("DB Notify Worker died");
-			self.createDBNotificationListener();
-		});
-
-	};
-
-	this.createLDAPServer = function() {
-		console.log("Starting LDAP server");
-		var worker = cluster.fork({"state": "ldap_server"});
-		worker.on('disconnect', function() {
-		});
-		worker.on('exit', function() {
-			console.log("LDAP server exit with code", worker.process.exitCode);
-			if (worker.process.exitCode == 5)
-			{
-				console.log("Connectivity issue. Restarting in 5 seconds...");
-				setTimeout(function() { self.createLDAPServer(); }, 5000);
-			}
-			else
-			{
-				self.createLDAPServer();
-			}
-		});
-		worker.on('death', function() {
-			console.log("DB Notify Worker died");
-			self.createLDAPServer();
-		});
-
-	};
-
+	this.setup();
 };
 
 

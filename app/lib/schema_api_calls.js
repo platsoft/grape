@@ -1,4 +1,5 @@
 var fs = require('fs');
+const path = require('path');
 var util = require('util');
 var _ = require('underscore');
 var Validator = require('jsonschema').validate;
@@ -191,11 +192,10 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 	for (var i = 0; i < files.length; i++)
 	{
 		var file = files[i];
-		var fstat = fs.statSync(dirname + file);
+		var fstat = fs.statSync(path.join(dirname, file));
 		if (fstat.isFile())
 		{
-			var ar = file.split('.');
-			if (ar[ar.length - 1] == 'json')
+			if (path.extname(path.join(dirname, file)) == '.json')
 			{
 				// loads the api module and execute the export function with the app param.
 				try {

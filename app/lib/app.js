@@ -13,6 +13,7 @@ var util = require('util');
 var path = require('path');
 var schema_api_calls = require(__dirname + '/schema_api_calls.js');
 var events = require('events');
+var comms = require(__dirname + '/comms.js');
 
 var DEFAULT_MAXSOCKETS = 500;
 
@@ -116,12 +117,6 @@ var grape_express_app = function(_o) {
 
 		if (dirname[dirname.length - 1] != '/') dirname += '/';
 
-		if (options.api_ignore.indexOf(relativedirname) != -1)
-		{
-			app.get('logger').info('Ignoring ' + relativedirname + ' - found it in app/apiignore.js');
-			return;
-		}
-
 		var files = fs.readdirSync(dirname);
 		for (var i = 0; i < files.length; i++)
 		{
@@ -130,7 +125,7 @@ var grape_express_app = function(_o) {
 			if (fstat.isFile())
 			{
 				var ar = file.split('.');
-				if (ar[ar.length - 1] == 'js' && options.api_ignore.indexOf(file) === -1)
+				if (ar[ar.length - 1] == 'js')
 				{
 					// loads the api module and execute the export function with the app param.
 					try {
@@ -154,15 +149,11 @@ var grape_express_app = function(_o) {
 	app.set('logger', logger);
 	app.set('log', logger);
 
+	// Cache setup
+	var cache = new comms.worker(_o);
+	cache.start();
+	app.set('cache', cache);
 
-
-
-
-	app.set("jsonp callback", true);
-	app.enable("trust proxy");
-
-	app.disable("x-powered-by");
-	app.disable("etag");
 
 	// Grape Utils
 	app.set('gutil', grapelib.utils);
@@ -179,11 +170,16 @@ var grape_express_app = function(_o) {
 	var pdfgenerator = new grapelib.pdfgenerator(app);
 	app.set('pdfgenerator', pdfgenerator);
 
+
 	// Express settings
+	app.set("jsonp callback", true);
+	app.enable("trust proxy");
+	app.disable("x-powered-by");
+	app.disable("etag");
+
+	// Body parsers
 	app.use(bodyParser.json());
 	app.use(multipartParser());
-
-	//xml body parser
 	app.use(xmlParser());
 
 
@@ -236,8 +232,6 @@ var grape_express_app = function(_o) {
 		}
 
 		logger.log('app', 'trace', [req.ip, req.method, req.url, req.session_id, req.header('Content-Length'), req.headers.accept].join(' '));
-
-		console.log("res.headersSent: ", res.headersSent);
 
 		// if first character of path is a . return error
 		if (req.path[0] == '.')
@@ -318,6 +312,7 @@ var grape_express_app = function(_o) {
 	var assign_db = require(__dirname + '/assign_database.js');
 	app.use(assign_db);
 
+	// Add the results from notification functions into X-Notifications header
 	if (options.enable_notifications)
 	{
 		var notification_checker = require(__dirname + '/notification_checker.js');
@@ -356,7 +351,7 @@ var grape_express_app = function(_o) {
 	}
 
 
-	function start()
+	this.start = function ()
 	{
 		var options = app.get('config');
 		logger.info('app', 'Starting application (pid ' + process.pid + ')');
@@ -395,7 +390,6 @@ var grape_express_app = function(_o) {
 		}
 	}
 
-	start();
 };
 
 grape_express_app.prototype.__proto__ = events.EventEmitter.prototype;

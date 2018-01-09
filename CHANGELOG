@@ -220,4 +220,12 @@ Minor changes:
 Removed features:
 - Removed deprecated API call "/session/new"
 
+1.1.0
+- Two factor authentication
+- Add ability for custom worker processes in Grape
+- Grape wil emit events for each worker process created
+- The config file default_config.js will not be read by default anymore
+- Renamed options to configreader
+- Ability to include multiple config files
+
 

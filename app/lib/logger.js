@@ -88,7 +88,7 @@ var logger = function(opts) {
 
 
 	//
-	//provide a channel (default to app), loglevel (default to app) and message
+	//provide a channel (default to app), loglevel (default to debug) and message
 	this.log = function() {
 
 		var channel = 'app';
