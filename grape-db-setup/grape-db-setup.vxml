@@ -12,9 +12,6 @@
 			<i><b>-s, --superdburi [superdburi]</b></i> Connection parameters that will be used when creating and dropping the database.
 		</li>
 		<li>
-			<i><b>-c, --create</b></i> Create the database before attempting to create objects.
-		</li>
-		<li>
 			<i><b>-r, --drop</b></i> Drop and recreate the database before attempting to create objects.
 		</li>
 		<li>
@@ -48,6 +45,12 @@ Manifest files contains a list of files (sql and other manifest files) and direc
 
 db/function/
 </code>
+<p>
+	Manifest files can also be used to call a function with the contents of a JSON file from disk as input.
+	<code><b>@calljson[b]</b> <red>[Function name]</red> <red>[Filename]</red></code>
+	For example:
+	<code>@calljson grape.user_save user.json</code>
+</p>
 
 Most projects will include 2 manifest files usually:
 <ul>
