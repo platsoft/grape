@@ -170,17 +170,50 @@ function GrapeDBSetup(options)
 
 			if (line.trim() != '')
 			{
-				var mfilename = path.resolve(parent_directory, line);
-				if (self.load_entry(mfilename, filename) == false)
+				if (line.startsWith('@calljson'))
 				{
-					check = false;
-					return false;
+					var args = line.split(/\s/).filter(function(p){ return p != ''; });
+					var jsonfilename = args[2];
+					if (!path.isAbsolute(jsonfilename))
+						jsonfilename = path.resolve(parent_directory, jsonfilename);
+
+					if (args[0] == '@calljson')
+						check = self.load_json_file(args[1], 'JSON', jsonfilename);
+					else
+						check = self.load_json_file(args[1], 'JSONB', jsonfilename);
+					if (!check)
+						return false;
+				}
+				else
+				{
+					var mfilename = path.resolve(parent_directory, line);
+					if (self.load_entry(mfilename, filename) == false)
+					{
+						check = false;
+						return false;
+					}
 				}
 			}
 		});
 
 		return check;
 	}
+
+	// func = function name
+	// datatype = json or jsonb
+	// filename = file name
+	this.load_json_file = function(func, datatype, filename) {
+		pc.print_info("Loading JSON file " + filename);
+		var sql = ['SELECT ', func, '($1::', datatype, ');'].join('');
+		var data = fs.readFileSync(filename, 'utf8').trim();
+
+		sql_list.push({
+			data: sql,
+			filename: filename,
+			params: [data]
+		});
+		return true;
+	};
 
 	/**
 	 * connect to superdburi and create dburi
@@ -462,12 +495,27 @@ function GrapeDBSetup(options)
 
 				if (client)
 				{
-					client.query(nextfile.data, next);
+					if (nextfile.params)
+						client.query(nextfile.data, nextfile.params, next);
+					else
+						client.query(nextfile.data, next);
 				}
 				else
 				{
 					console.log('/* CONTENTS OF FILE: ' + nextfile.filename + ' */');
-					console.log(nextfile.data);
+					if (nextfile.params)
+					{
+						var d = nextfile.data;
+						for (var i = 0; i < nextfile.params.length; i++)
+						{
+							d = d.replace('$' + (i+1), pg.Client.prototype.escapeLiteral(nextfile.params[i]));
+						}
+						console.log(d);
+					}
+					else
+					{
+						console.log(nextfile.data);
+					}
 					console.log();
 					next(null, null);
 				}
