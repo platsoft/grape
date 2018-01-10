@@ -287,7 +287,7 @@ var grape_express_app = function(_o) {
 			return;
 		}
 
-		console.log("res.headersSent: ", res.headersSent);
+		//console.log("res.headersSent: ", res.headersSent);
 
 		next();
 	});

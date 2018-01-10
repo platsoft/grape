@@ -1,6 +1,6 @@
 {
   "name": "ps-grape",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Platinum Software Grape Framework",
   "main": "app/index.js",
   "directories": {
@@ -13,7 +13,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "adm-zip": "0.4.7",
-    "async": "2.5.0",
+    "async": "^2.5.0",
     "body-parser": "1.17.2",
     "commander": "2.9.0",
     "connect-multiparty": "2.0.0",
