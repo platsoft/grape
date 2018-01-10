@@ -39,9 +39,9 @@ if (process.argv[2] && process.argv[2].substring(0, 13) == '--project-dir')
 	}
 
 	try {
-		var config = require(base_directory + '/config.js');
+		var config = require(base_directory + '/config.json');
 	} catch (e) {
-		console.log("No config.js file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
+		console.log("No config.json file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
 		process.exit(1);
 	}
 
@@ -55,9 +55,9 @@ else if (process.argv[2] && path.extname(process.argv[2]) == '.json')
 else
 {
 	try {
-		var config = require(base_directory + '/config.js');
+		var config = require(base_directory + '/config.json');
 	} catch (e) {
-		console.log("No config.js file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
+		console.log("No config.json file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
 		process.exit(1);
 	}
 }
