@@ -151,13 +151,20 @@ function process_options(_o)
 		options.api_directories = new_dirs;
 	}
 
+	//paths
+	var path_options = ['email_template_directory', 'document_store', 'xsl_directory', 'ps_bgworker', 'fop', 'sslkey', 'sslcert'];
+
+	path_options.forEach(function(p) {
+		if (options[p] && !path.isAbsolute(options[p]))
+			options[p] = path.join(base_directory, options[p]);
+	});
 
 	return options;
 }
 
 exports = module.exports = function() {
 	var options = {
-		session_management: false,
+		session_management: true,
 		api_directory: false,
 		api_ignore: [], //files to ignore when loading api files
 		port: 3000,

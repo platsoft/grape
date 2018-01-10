@@ -227,5 +227,5 @@ Removed features:
 - The config file default_config.js will not be read by default anymore
 - Renamed options to configreader
 - Ability to include multiple config files
-
+- grape-db-setup: support @calljson(b) 
 

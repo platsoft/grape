@@ -81,6 +81,9 @@ if (commander.readconfig)
 	}
 
 	commander.dburi = config.dburi;
+
+	if (!commander.superdburi && config.superdburi)
+		commander.superdburi = config.superdburi;
 }
 
 if (!commander.schema)
