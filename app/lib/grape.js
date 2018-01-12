@@ -34,7 +34,7 @@ function grape() {
 	this.setup = function() {
 		self.addWorker({
 			name: 'httplistener',
-			instance_count: 5,
+			instance_count: self.options.instances || 5,
 			func: g_app
 		});
 

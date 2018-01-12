@@ -321,7 +321,23 @@ function api_bgworker_start(req, res)
 				return;
 			}
 
-			res.status(200).json({'status': 'OK', 'stdout': stdout}).end();
+			var err = null;
+			var lines = stdout.split("\n");
+			lines.forEach(function(line) {
+				if (line.startsWith('ERROR'))
+				{
+					err = line;
+				}
+			});
+
+			if (err)
+			{
+				res.status(500).json({'status': 'ERROR', 'error': err, 'stdout': stdout}).end();
+			}
+			else
+			{
+				res.status(200).json({'status': 'OK', 'stdout': stdout}).end();
+			}
 		}
 	);
 }
