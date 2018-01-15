@@ -304,6 +304,8 @@ BEGIN
 		_user_id := ($1->>'user_id')::INTEGER;
 	END IF;
 
+	-- TODO check that user is admin or _user_id matchs grape.current_user_id()
+
 	_ret := grape.set_user_password(_user_id, _password, _is_hashed);
 
 	IF _ret = FALSE THEN
