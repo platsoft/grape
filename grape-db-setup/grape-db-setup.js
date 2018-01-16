@@ -37,7 +37,10 @@ if (commander.dburi && commander.readconfig)
 
 if (commander.readconfig)
 {
-	var configfile = process.cwd() + '/' + commander.readconfig;
+	if (path.isAbsolute(commander.readconfig))
+		var configfile = commander.readconfig;
+	else
+		var configfile = path.join(process.cwd(), commander.readconfig);
 
 	if (path.extname(configfile) == '.json')
 	{
