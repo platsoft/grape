@@ -5,6 +5,13 @@ var parse_connection_string = require('pg-connection-string').parse;
 var pc = require(__dirname + '/print_colors.js');
 var path = require('path');
 
+function normalize_pg_string(o) 
+{
+	if (typeof o == 'string')
+		return o;
+	return JSON.stringify(o);
+}
+
 function GrapeDBSetup(options)
 {
 	var self = this;
@@ -229,7 +236,7 @@ function GrapeDBSetup(options)
 		if (superdburi)
 		{
 			client = new pg.Client(superdburi);
-			pc.print_info("\tConnecting to " + superdburi + " for superuser connection");
+			pc.print_info("\tConnecting to " + normalize_pg_string(superdburi) + " for superuser connection");
 		}
 		else
 		{
@@ -314,7 +321,7 @@ function GrapeDBSetup(options)
 		if (superdburi)
 		{
 			client = new pg.Client(superdburi);
-			pc.print_info("\tConnecting to " + superdburi + " for superuser connection");
+			pc.print_info("\tConnecting to " + normalize_pg_string(superdburi) + " for superuser connection");
 		}
 		else
 		{
@@ -326,7 +333,7 @@ function GrapeDBSetup(options)
 		client.connect(function(err) {
 			if (err)
 			{
-				pc.print_err("Error establishing connection" + (superdburi ? ' to ' + superdburi : '') + ": " + err.toString() + ' (' + err.code + ')');
+				pc.print_err("Error establishing connection" + (superdburi ? ' to ' + normalize_pg_string(superdburi) : '') + ": " + err.toString() + ' (' + err.code + ')');
 				
 				if (superdburi == 'postgres')
 				{
