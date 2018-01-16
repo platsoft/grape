@@ -221,11 +221,32 @@ Removed features:
 - Removed deprecated API call "/session/new"
 
 1.1.0
-- Two factor authentication
-- Add ability for custom worker processes in Grape
+New features:
+- Two factor authentication using TOTP
+- Add ability for custom worker processes in main Grape process
 - Grape wil emit events for each worker process created
+- Ability to include multiple config files, making Grape Modules possible
+- GrapeListQuery: Added support for @@ operator in filter, utilizing FTS
+- New password reset method using a OTP sent to the users email address (GrapeCreateNewPassword).
+- New API call GrapeSavePassword to set a password when user already logged in
+- New path functions in SQL: grape.is_absolute, grape.is_directory, grape.sanitize_path_to_array, grape.sanitize_path, grape.path_parent, grape.path_basename
+- New date format functions: grape.format_iso8601_timestamp, grape.format_httpdate_timestamp
+- grape-db-setup: Add support for a @calljson(b) instruction in manifest files
+- New view grape.v_data_import
+
+Removed features:
 - The config file default_config.js will not be read by default anymore
+- Removed -c option from grape-db-setup; it is implied by -r
+
+Major changes:
 - Renamed options to configreader
-- Ability to include multiple config files
-- grape-db-setup: support @calljson(b) 
+- Changes to background worker tables (to support start, end and error functions)
+
+Minor changes:
+- Support validation string in POST calls
+- Routes are matched using METHOD as well as PATH
+- Documentation updated
+- Terminating a bgworker process is now done by pg_cancel_backend instead of pg_terminate_backend
+- Added implicit cast from JSONB to TEXT[]
+
 

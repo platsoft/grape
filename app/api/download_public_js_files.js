@@ -57,7 +57,7 @@ function loadpublicjsfiles(dirname, relativedirname)
 				else
 				{
 					data += file_data;
-					app.get('logger').info('app', "Loaded public JS file " + relativedirname + file + ' from ' + dirname);
+					app.get('logger').info('app', "Loaded public JS file " + path.join(dirname, file));
 				}
 			}
 		}

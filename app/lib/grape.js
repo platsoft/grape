@@ -162,7 +162,7 @@ function grape() {
 
 			async.series([create_pidfile, start_comms_channel, start_processes]);
 		}
-		else
+		else  // we are the child/worker process
 		{
 			if (process.env.state)
 			{
@@ -179,6 +179,9 @@ function grape() {
 						var obj = new (self.workers[i].func)(self.options);
 						if (obj.start)
 							obj.start.call(obj);
+
+						self.emit('worker', self.workers[i], obj);
+						self.emit(['worker-', self.workers[i].name].join(''), self.workers[i], obj);
 					}
 				}
 
