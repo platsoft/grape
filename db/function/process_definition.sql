@@ -1,4 +1,3 @@
-
 CREATE OR REPLACE FUNCTION grape.save_process_definition(JSONB) RETURNS JSONB AS $$
 DECLARE
 	_process_name TEXT;
@@ -77,19 +76,19 @@ BEGIN
 	END IF;
 
 	IF _start_function_name IS NOT NULL THEN
-		UPDATE grape.process SET 
+		UPDATE grape.process SET
 			start_function_name=_start_function_name,
 			start_function_schema=_start_function_schema
 		WHERE process_id=_process_id::INTEGER;
 	END IF;
 	IF _end_function_name IS NOT NULL THEN
-		UPDATE grape.process SET 
+		UPDATE grape.process SET
 			end_function_name=_end_function_name,
 			end_function_schema=_end_function_schema
 		WHERE process_id=_process_id::INTEGER;
 	END IF;
 	IF _error_function_name IS NOT NULL THEN
-		UPDATE grape.process SET 
+		UPDATE grape.process SET
 			error_function_name=_error_function_name,
 			error_function_schema=_error_function_schema
 		WHERE process_id=_process_id::INTEGER;
@@ -148,6 +147,7 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 $$ LANGUAGE sql;
 
 DROP FUNCTION IF EXISTS grape.upsert_process(TEXT,TEXT,TEXT,JSON,TEXT,TEXT,TEXT);
+DROP FUNCTION IF EXISTS grape.upsert_process(TEXT,TEXT,TEXT,JSON,TEXT,TEXT,TEXT,TEXT,TEXT,TEXT,TEXT,TEXT,TEXT);
 CREATE OR REPLACE FUNCTION grape.upsert_process(
 	_process_name TEXT,
 	_pg_function TEXT,
@@ -155,7 +155,13 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 	_ui_param JSON,
 	_process_type TEXT,
 	_function_schema TEXT,
-	_process_category TEXT) RETURNS VOID AS $$
+	_process_category TEXT,
+	_start_function_schema TEXT = NULL,
+	_start_function_name TEXT = NULL,
+	_end_function_schema TEXT = NULL,
+	_end_function_name TEXT = NULL,
+	_error_function_schema TEXT = NULL,
+	_error_function_name TEXT = NULL) RETURNS VOID AS $$
 
 	INSERT INTO grape.process (
 		process_name,
@@ -164,7 +170,13 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 		ui_param,
 		process_type,
 		function_schema,
-		process_category
+		process_category,
+		start_function_schema,
+		start_function_name,
+		end_function_schema,
+		end_function_name,
+		error_function_schema,
+		error_function_name
 	)
 	VALUES (
 		_process_name,
@@ -173,7 +185,13 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 		_ui_param,
 		_process_type,
 		COALESCE(_function_schema, ''),
-		_process_category
+		_process_category,
+		COALESCE(_start_function_schema, _function_schema),
+		_start_function_name,
+		COALESCE(_end_function_schema, _function_schema),
+		_end_function_name,
+		COALESCE(_error_function_schema, _function_schema),
+		_error_function_name
 	)
 	ON CONFLICT (process_name) --if processing_function name is the same update all the other values
 	DO UPDATE SET
@@ -182,7 +200,14 @@ CREATE OR REPLACE FUNCTION grape.upsert_process(
 		ui_param=EXCLUDED.ui_param,
 		process_type=EXCLUDED.process_type,
 		function_schema=EXCLUDED.function_schema,
-		process_category=EXCLUDED.process_category;
+		process_category=EXCLUDED.process_category,
+		start_function_schema=EXCLUDED.start_function_schema,
+		start_function_name=EXCLUDED.start_function_name,
+		end_function_schema=EXCLUDED.end_function_schema,
+		end_function_name=EXCLUDED.end_function_name,
+		error_function_schema=EXCLUDED.error_function_schema,
+		error_function_name=EXCLUDED.error_function_name
+	;
 
 $$ LANGUAGE sql;
 
@@ -254,6 +279,3 @@ BEGIN
 
 	RETURN grape.api_success('categories', _ret);
 END; $$ LANGUAGE plpgsql;
-
-
-
