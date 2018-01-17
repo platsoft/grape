@@ -15,18 +15,11 @@ module.exports = function (req, res, next) {
 	
 	var session_id = req.session_id;
 
-	//Do not do session management checking if session id is not set and the request do not want json. We need to check if it is json because it might be a guest API call
-	if ((!session_id || session_id == 0) && !req.accepts_json)
-	{
-		next();
-		return;
-	}
-
 	/* 
 	* handles the result of a session check. 
 	* input must have a result_code (0 for success), user_id and session_id
 	*/
-	function handle_session_check (ret)
+	function handle_session_check_result (ret)
 	{
 		res.set('X-Permission-Code', ret.result_code);
 
@@ -58,7 +51,6 @@ module.exports = function (req, res, next) {
 			
 			res.set('X-Permission-Error', error_message);
 
-
 			if (req.headers.accept.indexOf('application/json') != -1)
 				res.json({status: 'ERROR', message: error_message, code: ret.result_code});
 			else
@@ -84,7 +76,6 @@ module.exports = function (req, res, next) {
 		next();
 	}
 
-
 	function check_session_path_in_database (session_id, path, method, cb)
 	{
 		app.get('logger').session('info', 'Checking path ' + path + ' against session ' + session_id);
@@ -100,9 +91,7 @@ module.exports = function (req, res, next) {
 
 			var ret = result.rows[0];
 
-			console.log(ret);
-		
-			app.get('logger').session((ret.result_code == 0 ? 'GRANTED' : 'DENIED') + ' ' + session_id + ' ' + path);
+			app.get('logger').session('trace', (ret.result_code == 0 ? 'GRANTED' : 'DENIED') + ' ' + path + ' to ' + session_id);
 
 			cb(ret);
 		});
@@ -112,13 +101,13 @@ module.exports = function (req, res, next) {
 	if (!cache)
 	{
 		check_session_path_in_database(session_id, req.matched_path, req.method, function(result) {
-			handle_session_check(result);
+			handle_session_check_result(result);
 		});
 	}
 	else
 	{
-		//create a cachename JMORI51EA94M8AZ-/session/new-POST
-		var cachename = [session_id, req.matched_path, req.method].join('-');
+		//create a cachename JMORI51EA94M8AZ:/session/new:POST
+		var cachename = [session_id, req.matched_path, req.method].join(':');
 		app.get('cache').fetch(cachename, function(message) {
 			if (typeof message.v == 'undefined' || !message.v)
 			{
@@ -126,15 +115,14 @@ module.exports = function (req, res, next) {
 
 					//only save on access allowed
 					if (result.result_code == 0)
-					{
 						app.get('cache').set(cachename, result);
-					}
-					handle_session_check(result);
+
+					handle_session_check_result(result);
 				});
 			}
 			else
 			{
-				handle_session_check(message.v);
+				handle_session_check_result(message.v);
 			}
 		});
 	}

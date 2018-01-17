@@ -121,25 +121,11 @@ BEGIN
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
 
-
 CREATE OR REPLACE FUNCTION grape.session_insert(_user_id INTEGER, _ip_address TEXT) RETURNS TEXT AS $$
 DECLARE
-	_found BOOLEAN;
 	_session_id TEXT;
 BEGIN
-	_found := TRUE;
-
-	WHILE _found = TRUE LOOP
-		_session_id := CONCAT(_user_id, '-', grape.random_string(15));
-		IF
-			EXISTS (SELECT session_id FROM grape."session" WHERE session_id=_session_id::TEXT)
-			OR EXISTS (SELECT session_id FROM grape."session_history" WHERE session_id=_session_id::TEXT)
-		THEN
-			_found := TRUE;
-		ELSE
-			_found := FALSE;
-		END IF;
-	END LOOP;
+	_session_id := CONCAT(grape.random_string(5), EXTRACT('epoch' FROM NOW())::TEXT, grape.random_string(8));
 
 	INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity)
 		VALUES (_session_id, _ip_address, _user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
@@ -199,7 +185,6 @@ BEGIN
 		_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address);
 	END IF;
 
-	
 	SELECT jsonb_build_object(
 		'success', true,
 		'status', 'OK',
@@ -216,72 +201,6 @@ BEGIN
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
 
-
-CREATE OR REPLACE FUNCTION grape.set_password_with_service_ticket(JSONB) RETURNS JSONB AS $$
-DECLARE
-	_service_ticket_encrypted TEXT;
-	_service_ticket JSONB;
-	_user RECORD;
-	_persistant BOOLEAN;
-	_session_id TEXT;
-	_ip_address TEXT;
-	_ret JSONB;
-BEGIN
-	_service_ticket_encrypted := ($1->>'service_ticket');
-	_service_ticket := grape.validate_service_ticket(_service_ticket_encrypted);
-
-	raise notice 'new _service_ticket decrypted %', _service_ticket;
-
-	IF _service_ticket IS NULL THEN
-		RETURN grape.api_error();
-	ELSIF _service_ticket->>'status' = 'ERROR' THEN
-		RETURN _service_ticket;
-	END IF;
-	
-	SELECT * INTO _user FROM grape."user" WHERE username=_service_ticket->>'username' AND employee_guid=(_service_ticket->>'employee_guid')::UUID; 
-	IF NOT FOUND THEN
-		RETURN grape.api_error('No such user', -3);
-	END IF;
-
-	_ip_address := $1->>'ip_address';
-	_persistant := FALSE;
-
-	IF jsonb_extract_path($1, 'persistant') IS NOT NULL THEN
-		_persistant := ($1->>'persistant')::BOOLEAN;
-	END IF;
-
-	IF grape.get_value('user_ip_filter', 'false') = 'true' THEN
-		IF grape.check_user_ip (_user.user_id::INTEGER, _ip_address::INET) = 2 THEN
-			RAISE NOTICE 'IP filter check failed for user % (IP %)', _user.username, _ip_address;
-			RETURN grape.api_result_error('IP not allowed', 4);
-		END IF;
-	END IF;
-
-	IF _user.active = false THEN
-		RAISE DEBUG 'User % login failed. User is inactive', _user;
-		RETURN grape.api_result_error('User not active', 3);
-	END IF;
-
-	IF _persistant = TRUE THEN
-		SELECT session_id INTO _session_id FROM grape."session" WHERE user_id=_user.user_id::INTEGER;
-		IF NOT FOUND THEN
-			_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address);
-		END IF;
-	ELSE
-		_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address);
-	END IF;
-
-	UPDATE grape."user" SET password=grape.generate_user_pw_hash(_service_ticket->>'user_new_password') WHERE user_id=_user.user_id::INTEGER;
-	
-	SELECT jsonb_build_object(
-		'success', true,
-		'status', 'OK'
-	) INTO _ret;
-
-	PERFORM pg_notify('password updated', _ret::TEXT);
-
-	RETURN _ret;
-END; $$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION grape.logout (JSON) RETURNS JSON AS $$

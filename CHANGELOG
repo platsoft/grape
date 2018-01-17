@@ -249,4 +249,10 @@ Minor changes:
 - Terminating a bgworker process is now done by pg_cancel_backend instead of pg_terminate_backend
 - Added implicit cast from JSONB to TEXT[]
 
+1.1.1
+Security fixes:
+- Do not exclude session check when session is not set
+- Do not expose user_id in generated session ID
+- Removed grape.set_password_with_service_ticket
+
 

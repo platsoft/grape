@@ -3,15 +3,13 @@ Enterprise mobility management (EMM)
 
 1.1.0:
 - Broadcast/discover other grape services (using SSDP)
-- Send SMSes
-- Two-factor authentication
 - API logger (partitioned tables monthly? or write session logs to a file)
 	- settings: 
 - Patch tables
-- Two factor authentication
 - HTTP DIGEST authentication
 
 Future:
+- Theme manager
 - Email queuer
 - Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
 - Static data loader keeping cache of users and sessions
@@ -35,7 +33,7 @@ Future:
 - Socket.IO integration
 
 - make grape a WebDAV server
-- Document store:	
+- Document store:
 	- Integrate with WebDAV
 
 - SOAP API
@@ -51,4 +49,6 @@ Done:
 - System/Frontend integrator - HTTP server that relays api calls to connected systems. HTTP requests (API calls and HTML downloads etc) can be rewritten on the fly. /cabsav/...
 - compiled javascript needs to be cached
 - Send system notifications through HTTP headers
+- Send SMSes
+- Two-factor authentication
 
