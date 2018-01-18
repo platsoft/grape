@@ -31,8 +31,9 @@ module.exports = function (req, res, next) {
 			var error_message = '';
 			if (ret.result_code == 1)
 			{  // invalid session
-				res.status(403);
-				error_message = 'Invalid session';
+				res.header('WWW-Authenticate', 'Basic realm="platsoft.net" charset=UTF-8');
+				res.status(401);
+				error_message = 'Permission denied - Invalid session';
 			}
 			else if (ret.result_code == 2)
 			{ // permission denied

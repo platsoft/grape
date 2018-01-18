@@ -254,5 +254,6 @@ Security fixes:
 - Do not exclude session check when session is not set
 - Do not expose user_id in generated session ID
 - Removed grape.set_password_with_service_ticket
+- Downloads are now also protected
 
 
