@@ -28,11 +28,12 @@ module.exports = function(req, res, next) {
 			var obj = result.rows[0]['grapesession_insert'];
 			if (obj.status == 'ERROR')
 			{
+				res.header('WWW-Authenticate', 'Basic realm="platsoft.net" charset=UTF-8');
 				app.get('logger').warn('session', 'Authentication failed (' + obj.message + ')');
 				if (req.accepts_json)
-					res.status(403).json(obj);
+					res.status(401).json(obj);
 				else
-					res.status(403).send(obj);
+					res.status(401).send(obj);
 				
 			}
 			else
