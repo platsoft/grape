@@ -1,10 +1,22 @@
 
 
 CREATE OR REPLACE FUNCTION grape.current_user_roles() RETURNS SETOF TEXT AS $$ 
-	SELECT role_name FROM grape.user_role WHERE user_id=grape.current_user_id()::INTEGER
-	UNION
-	SELECT 'all'; 
-$$ LANGUAGE sql VOLATILE;
+DECLARE
+	_role TEXT;
+BEGIN
+	IF grape.current_user_id() IS NULL THEN
+		RETURN NEXT 'guest';
+		RETURN NEXT 'any';
+	ELSE
+		RETURN NEXT 'all';
+		FOR _role IN SELECT role_name FROM grape.user_role WHERE user_id=grape.current_user_id()::INTEGER LOOP
+			RETURN NEXT _role;
+		END LOOP;
+		RETURN NEXT 'any';
+	END IF;
+
+END; 
+$$ LANGUAGE plpgsql VOLATILE;
 
 -- Returns true if the current user belongs to _role
 CREATE OR REPLACE FUNCTION grape.current_user_in_role(_role TEXT) RETURNS BOOLEAN AS $$

@@ -256,8 +256,6 @@ CREATE OR REPLACE FUNCTION grape.set_session_username(_username TEXT) RETURNS TE
 	SELECT grape.set_session_user_id(grape.user_id_from_name(_username));
 $$ LANGUAGE sql;
 
-
-
 CREATE OR REPLACE FUNCTION grape.set_session_user_id(JSON) RETURNS JSON AS $$
 DECLARE
 	_user_id INTEGER;
@@ -266,6 +264,44 @@ BEGIN
 	PERFORM set_config('grape.user_id'::TEXT, _user_id::TEXT, false);
 	RETURN '{}'::JSON;
 END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.set_session(_session_id TEXT) RETURNS VOID AS $$
+DECLARE
+	_ip_address TEXT;
+	_user_id INTEGER;
+	_username TEXT;
+BEGIN
+	SELECT
+		ip_address,
+		user_id,
+		grape.username(user_id) AS username
+	INTO 
+		_ip_address,
+		_user_id,
+		_username
+	FROM grape.session
+	WHERE session_id=_session_id::TEXT;
+
+	PERFORM set_config('grape.user_id'::TEXT, _user_id::TEXT, false);
+	PERFORM set_config('grape.username'::TEXT, _username::TEXT, false);
+	PERFORM set_config('grape.ip_address'::TEXT, _ip_address::TEXT, false);
+	PERFORM set_config('grape.session_id'::TEXT, _session_id::TEXT, false);
+
+	RETURN ;
+END; $$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION grape.set_session(JSON) RETURNS JSON AS $$
+DECLARE
+	_session_id TEXT;
+BEGIN
+	_session_id := ($1->>'session_id');
+	PERFORM grape.set_session(_session_id);
+	RETURN '{}'::JSON;
+END; $$ LANGUAGE plpgsql;
+
+
 
 
 

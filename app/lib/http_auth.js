@@ -22,18 +22,27 @@ module.exports = function(req, res, next) {
 		persistant: true
 	};
 
+	app.get('logger').session('debug', 'Using HTTP Authorization to acquire a Session ID');
+
 	db.json_call('grape.session_insert', obj, function(err, result) {
 		if (!err)
 		{
 			var obj = result.rows[0]['grapesession_insert'];
 			if (obj.status == 'ERROR')
 			{
-				res.header('WWW-Authenticate', 'Basic realm="platsoft.net" charset=UTF-8');
-				app.get('logger').warn('session', 'Authentication failed (' + obj.message + ')');
-				if (req.accepts_json)
-					res.status(401).json(obj);
+				if (req.header('X-Requested-With') != 'XMLHttpRequest')
+				{
+					res.header('WWW-Authenticate', 'Basic realm="platsoft.net" charset=UTF-8');
+					app.get('logger').warn('session', 'Authentication failed (' + obj.message + ')');
+					if (req.accepts_json)
+						res.status(401).json(obj);
+					else
+						res.status(401).send(obj);
+				}
 				else
-					res.status(401).send(obj);
+				{
+					res.status(403).send(obj);
+				}
 				
 			}
 			else

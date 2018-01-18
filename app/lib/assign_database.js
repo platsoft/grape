@@ -1,5 +1,5 @@
 // Express handler
-// Assign a database to the request based on res.local.session (session_id and user_id)
+// Assign a database to the request based on res.local.session (session_id and username)
 // 
 // After this has ran, res.locals.db and req.db will be set accordingly
 
@@ -26,8 +26,10 @@ module.exports = function (req, res, next) {
 		return;
 	}
 
+	app.get('logger').session('debug', 'Assigning database to session ', res.locals.session.session_id);
+
 	var session_id = res.locals.session.session_id;
-	var user_id = res.locals.session.user_id;
+	var username = res.locals.session.username;
 
 	// does one exist in the cache?
 	if (dbs[session_id])
@@ -51,7 +53,7 @@ module.exports = function (req, res, next) {
 		var db = new _db({
 			dburi: app.get('config').dburi, 
 			session_id: session_id,
-			user_id: user_id,
+			username: username,
 			timeout: 10000,
 			debug: app.get('config').debug
 		});

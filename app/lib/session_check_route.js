@@ -19,8 +19,10 @@ module.exports = function (req, res, next) {
 	* handles the result of a session check. 
 	* input must have a result_code (0 for success), user_id and session_id
 	*/
-	function handle_session_check_result (ret)
+	function handle_session_check_result (ret, path, session_id)
 	{
+		app.get('logger').session('trace', (ret.result_code == 0 ? 'GRANTED' : 'DENIED') + ' ' + path + ' to ' + session_id);
+
 		res.set('X-Permission-Code', ret.result_code);
 
 		// Permission denied
@@ -31,8 +33,15 @@ module.exports = function (req, res, next) {
 			var error_message = '';
 			if (ret.result_code == 1)
 			{  // invalid session
-				res.header('WWW-Authenticate', 'Basic realm="platsoft.net" charset=UTF-8');
-				res.status(401);
+				if (req.header('X-Requested-With') != 'XMLHttpRequest')
+				{
+					res.header('WWW-Authenticate', 'Basic realm="platsoft.net" charset=UTF-8');
+					res.status(401);
+				}
+				else
+				{
+					res.status(403);
+				}
 				error_message = 'Permission denied - Invalid session';
 			}
 			else if (ret.result_code == 2)
@@ -92,8 +101,6 @@ module.exports = function (req, res, next) {
 
 			var ret = result.rows[0];
 
-			app.get('logger').session('trace', (ret.result_code == 0 ? 'GRANTED' : 'DENIED') + ' ' + path + ' to ' + session_id);
-
 			cb(ret);
 		});
 	}
@@ -102,7 +109,7 @@ module.exports = function (req, res, next) {
 	if (!cache)
 	{
 		check_session_path_in_database(session_id, req.matched_path, req.method, function(result) {
-			handle_session_check_result(result);
+			handle_session_check_result(result, req.method + ':' + req.matched_path, session_id);
 		});
 	}
 	else
@@ -118,12 +125,12 @@ module.exports = function (req, res, next) {
 					if (result.result_code == 0)
 						app.get('cache').set(cachename, result);
 
-					handle_session_check_result(result);
+					handle_session_check_result(result, req.method + ':' + req.matched_path, session_id);
 				});
 			}
 			else
 			{
-				handle_session_check_result(message.v);
+				handle_session_check_result(message.v, req.method + ':' + req.matched_path, session_id);
 			}
 		});
 	}

@@ -38,3 +38,12 @@ BEGIN
 	RETURN grape.api_success('columns', _columns);
 END; $$ LANGUAGE plpgsql;
 
+/*
+CREATE OR REPLACE FUNCTION grape.pg_get_function(JSON) RETURNS JSON AS $$
+DECLARE
+BEGIN
+
+
+
+END; $$ LANGUAGE plpgsql;
+*/

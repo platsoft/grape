@@ -22,7 +22,6 @@ function db (_o) {
 		dburi: 'postgres@localhost:postgres', 
 		debug: false, 
 		session_id: null,
-		user_id: null,
 		username: null,
 		timeout: null
 	};
@@ -68,9 +67,9 @@ function db (_o) {
 				process.exit(5);
 			}
 
-			if (self.options.user_id != null)
+			if (self.options.session_id != null)
 			{
-				self.json_call('grape.set_session_user_id', {user_id: self.options.user_id}, function(err, d) { 
+				self.json_call('grape.set_session', {session_id: self.options.session_id}, function(err, d) { 
 					self.state = 'open';
 					self.emit('connected');
 				});
@@ -121,8 +120,7 @@ function db (_o) {
 		self.client.on('end', function() {
 			self.state = 'close';
 			self.emit('end', {
-				session_id: self.options.session_id, 
-				user_id: self.options.user_id
+				session_id: self.options.session_id
 			});
 
 			if (self.options.debug)

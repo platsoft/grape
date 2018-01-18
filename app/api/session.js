@@ -119,7 +119,7 @@ function login_with_service_ticket (req, res)
 
 function logout (req, res)
 {
-	req.db.json_call('grape.logout', {session_id: req.session_id}, null, {response: res});
+	req.db.json_call('grape.logout', {session_id: req.query.session_id || req.session_id}, null, {response: res});
 }
 
 

@@ -212,6 +212,11 @@ var grape_express_app = function(_o) {
 		{
 			http_auth(req, res, next);
 		}
+		else if (req.params['sessid'])
+		{
+			req.session_id = req.header('X-SessionID');
+			next();
+		}
 		else
 		{
 			next();
