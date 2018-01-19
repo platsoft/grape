@@ -93,7 +93,18 @@ function login (req, res)
 		app.get('logger').session('info', 'login attempt from ', obj.username, '@', ip_address);
 	}
 
-	res.locals.db.json_call('grape.session_insert', obj, null, {response: res});
+	res.locals.db.json_call('grape.session_insert', obj, function(err, result) {
+		result = result.rows[0].grapesession_insert;
+		if (result.status == 'OK')
+		{
+			res.set('Set-Cookie', 'session_id=' + result.session_id + '; path=/; HttpOnly');
+			res.json(result);
+		}
+		else
+		{
+			res.json(result);
+		}
+	});
 }
 
 
@@ -113,12 +124,25 @@ function login_with_service_ticket (req, res)
 		ip_address: ip_address
 	};
 
-	res.locals.db.jsonb_call('grape.create_session_from_service_ticket', obj, null, {response: res});
+	res.locals.db.jsonb_call('grape.create_session_from_service_ticket', obj, function(err, result) {
+		result = result.rows[0].grapecreate_session_from_service_ticket;
+		if (result.status == 'OK')
+		{
+			res.set('Set-Cookie', 'session_id=' + result.session_id + '; path=/; HttpOnly');
+			res.json(result);
+		}
+		else
+		{
+			res.json(result);
+		}
+
+	});
 }
 
 
 function logout (req, res)
 {
+	res.set('Set-Cookie', 'session_id=; path=/; HttpOnly');
 	req.db.json_call('grape.logout', {session_id: req.query.session_id || req.session_id}, null, {response: res});
 }
 

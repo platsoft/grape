@@ -212,9 +212,16 @@ var grape_express_app = function(_o) {
 		{
 			http_auth(req, res, next);
 		}
-		else if (req.params['sessid'])
+		else if (req.header('Cookie'))
 		{
-			req.session_id = req.header('X-SessionID');
+			var cookies = {};
+			req.header('Cookie').split(';').forEach(function(c) {
+				var ar = c.split('=');
+				cookies[ar[0]] = ar[1];
+			});
+
+			if (cookies['session_id'])
+				req.session_id = cookies['session_id'];
 			next();
 		}
 		else
