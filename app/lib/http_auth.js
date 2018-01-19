@@ -30,10 +30,11 @@ module.exports = function(req, res, next) {
 			var obj = result.rows[0]['grapesession_insert'];
 			if (obj.status == 'ERROR')
 			{
+				app.get('logger').warn('session', 'Authentication failed (' + obj.message + ')');
+				/*
 				if (req.header('X-Requested-With') != 'XMLHttpRequest')
 				{
 					res.header('WWW-Authenticate', 'Basic realm="platsoft.net" charset=UTF-8');
-					app.get('logger').warn('session', 'Authentication failed (' + obj.message + ')');
 					if (req.accepts_json)
 						res.status(401).json(obj);
 					else
@@ -43,6 +44,8 @@ module.exports = function(req, res, next) {
 				{
 					res.status(403).send(obj);
 				}
+				*/
+				res.status(403).send(obj);
 				
 			}
 			else
