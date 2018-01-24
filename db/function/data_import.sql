@@ -304,7 +304,7 @@ BEGIN
 		WHERE data_import_id = _data_import_id
 			AND data_import_status != 1)
 	THEN 
-		RETURN grape.api_error('Data import is not in correct status to be procesed', -2);
+		RETURN grape.api_error('Data import is not in correct status to be processed', -2);
 	END IF;
 
 	_dataimport_in_background := (grape.get_value('dataimport_in_background', 'false'))::BOOLEAN;
