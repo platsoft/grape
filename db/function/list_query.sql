@@ -1,4 +1,3 @@
-
 /**
  * Input fields:
  * 	tablename
@@ -64,12 +63,12 @@ BEGIN
 		_filters_join := 'AND';
 	END IF;
 
-	SELECT array_agg(roles) INTO _roles 
-		FROM (SELECT 
-			DISTINCT(unnest(roles)) AS roles 
-			FROM grape.list_query_whitelist 
-			WHERE 
-				schema = _schema::TEXT 
+	SELECT array_agg(roles) INTO _roles
+		FROM (SELECT
+			DISTINCT(unnest(roles)) AS roles
+			FROM grape.list_query_whitelist
+			WHERE
+				schema = _schema::TEXT
 				AND _tablename::TEXT ~ tablename
 			) a;
 
@@ -79,8 +78,8 @@ BEGIN
 
 	IF NOT _roles @> '{all}' AND grape.current_user_in_role(_roles) = FALSE THEN
 		SELECT array_agg(c) INTO _user_roles FROM grape.current_user_roles() c;
-		RETURN grape.api_error('Permission denied to table ' || _schema::TEXT || '.' || _tablename::TEXT, 
-			-2, 
+		RETURN grape.api_error('Permission denied to table ' || _schema::TEXT || '.' || _tablename::TEXT,
+			-2,
 			json_build_object('allowed_roles', _roles, 'user_roles', _user_roles)
 		);
 	END IF;
@@ -179,7 +178,7 @@ BEGIN
 			'$1 AS "offset", '
 			'$2 AS "limit", '
 			'$3 AS "page_number", '
-			'array_agg(a) AS records, '
+			'coalesce(array_agg(a), ''{}'') AS records, '
 			'$4 AS "total", '
 			'$5 AS "total_pages", '
 			'$6 AS "extra_data"'
@@ -190,5 +189,3 @@ BEGIN
 
         RETURN _ret;
 END; $$ LANGUAGE plpgsql;
-
-
