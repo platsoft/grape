@@ -122,7 +122,7 @@ BEGIN
 	
 
 	IF _user_id IS NULL THEN
-		RETURN grape.api_error_invalid_input();
+		RETURN grape.api_error_data_not_found();
 	END IF;
 
 	IF $1 ? 'additional_data' THEN
