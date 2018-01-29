@@ -65,7 +65,7 @@ var grape_express_app = function(_o) {
 				app.get('logger').log('db', 'info', 'Database for default session disconnected. Restarting');
 				db.connect();
 			});
-			
+
 			app.set('db', db);
 
 			/*
@@ -85,7 +85,7 @@ var grape_express_app = function(_o) {
 			guest_db.on('error', function(err) {
 				app.get('logger').log('db', 'error', err);
 			});
-			
+
 			guest_db.on('debug', function(msg) {
 				app.get('logger').log('db', 'debug', msg);
 
@@ -216,6 +216,7 @@ var grape_express_app = function(_o) {
 		{
 			var cookies = {};
 			req.header('Cookie').split(';').forEach(function(c) {
+				c = c.trim();
 				var ar = c.split('=');
 				cookies[ar[0]] = ar[1];
 			});
@@ -272,7 +273,7 @@ var grape_express_app = function(_o) {
 		for (var i = 0; i < app._router.stack.length; i++)
 		{
 			var stack = app._router.stack[i];
-			if (!stack.route) 
+			if (!stack.route)
 				continue;
 
 			if (stack.match(req.path) && stack.route._handles_method(req.method))
@@ -286,7 +287,7 @@ var grape_express_app = function(_o) {
 		{
 			// Handle pre-flight CORS request
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
-		
+
 			logger.log('app', 'trace', ['Pre-flight CORS request from', req.headers['origin']].join(' '));
 
 			res.status(200);
@@ -330,7 +331,7 @@ var grape_express_app = function(_o) {
 		var notification_checker = require(__dirname + '/notification_checker.js');
 		app.use(notification_checker);
 	}
-	
+
 	// TODO This is where the api logger handler should be included
 
 	// Load built-in API calls
@@ -347,7 +348,7 @@ var grape_express_app = function(_o) {
 				loadapifiles(path.join(options.base_directory, dir), '');
 		});
 	}
-	
+
 	// Load APIs from schemas
 	logger.info('api', "Loading built-in API schemas from " + builtin_api_dir);
 	schema_api_calls.load_schemas(app, builtin_api_dir, '');
@@ -358,7 +359,7 @@ var grape_express_app = function(_o) {
 				schema_api_calls.load_schemas(app, dir, '');
 			else
 				schema_api_calls.load_schemas(app, path.join(options.base_directory, dir), '');
-				
+
 		});
 	}
 
@@ -406,4 +407,3 @@ var grape_express_app = function(_o) {
 
 grape_express_app.prototype.__proto__ = events.EventEmitter.prototype;
 exports = module.exports = grape_express_app;
-
