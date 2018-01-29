@@ -9,6 +9,7 @@ Enterprise mobility management (EMM)
 - HTTP DIGEST authentication
 
 Future:
+- Define all API calls in JSON schema - call JS file from it
 - Theme manager
 - Email queuer
 - Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here

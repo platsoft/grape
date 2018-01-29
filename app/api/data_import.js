@@ -219,6 +219,8 @@ function api_data_import(req, res)
 					var address = XLSX.utils.encode_cell({r: 0, c: col});
 					if (worksheet[address])
 						headers.push(worksheet[address].v);
+					else
+						headers.push(address);
 				}
 
 				for (var row = 1; row <= max_row; row++)
@@ -242,7 +244,8 @@ function api_data_import(req, res)
 				if (row == 1)
 					item_queue.drain();
 			}
-			else if (originalname.search('.csv') != -1 ) {
+			else if (originalname.search('.csv') != -1 ) 
+			{
 				var rs = fs.createReadStream(file.path);
 				
 				var parser = csvparse({columns: true}, function(err, data) {
@@ -272,3 +275,6 @@ function api_data_import_download(req, res)
 	location = [location, 'data_import_'+data_import_id+extension].join('/');
 	res.download(location, filename);
 }
+
+
+
