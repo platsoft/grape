@@ -257,6 +257,13 @@ function auto_validate(obj, validate_string)
 				}
 				else if (p.data_type == 'd' || p.data_type == 't')
 				{
+					if (p.data_type == 'd')
+					{
+						// Non timezone-safe hack to avoid - vs / date parsing issues
+						if (!str_value.endsWith('Z'))
+							{ str_value = str_value + 'Z'; }
+					}
+
 					if (str_value.match (/^[0-9]{1,2}(\/|-)[0-9]{1,2}(\/|-)[0-9]{4}/) != null)
 					{
 						p.valid = true;
@@ -269,7 +276,6 @@ function auto_validate(obj, validate_string)
 					}
 					else
 					{
-
 						p.valid = false;
 					}
 				}
