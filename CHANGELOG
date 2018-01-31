@@ -255,6 +255,7 @@ Security fixes:
 - Do not expose user_id in generated session ID
 - Removed grape.set_password_with_service_ticket
 - Downloads are now also protected behind authentication
+- Save Session ID in cookies
 
 New features:
 - Added functions: grape.current_session_id and grape.current_username
