@@ -18,7 +18,23 @@ BEGIN
 	_methods := ($1->>'methods')::TEXT[];
 
 	FOREACH _m IN ARRAY _methods LOOP
-		IF _m NOT IN ('GET', 'POST', 'PUT') THEN
+		IF _m NOT IN (
+			'GET', 
+			'POST', 
+			'PUT',
+			'HEAD',
+			'DELETE',
+			'OPTIONS',
+			'MKCOL',
+			'LOCK',
+			'CONNECT',
+			'PATCH',
+			'COPY',
+			'MOVE',
+			'PROPFIND',
+			'PROPPATCH',
+			'UNLOCK'
+		) THEN
 			RETURN grape.api_error_invalid_input();
 		END IF;
 	END LOOP;
