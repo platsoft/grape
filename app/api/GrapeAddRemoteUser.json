@@ -1,0 +1,25 @@
+{
+	"id": "/grape/remote_users/add",
+	"description": "Add remote user",
+	"sqlfunc": "grape.user_save",
+	"name": "GrapeAddRemoteUser",
+	"roles": ["admin"],
+	"type": "object",
+	"properties": {
+		"auth_server": {"type": "string", "description": "Authentication server"},
+		"username": {"type": "string", "description": "Username"},
+		"fullnames": {"type": ["string", "null"], "description": "Full names"},
+		"email": {"type": ["string", "null"], "description": "Email address of user"},
+		"guid": {"type": ["string", "null"], "description": "GUID"}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"]},
+			"user_id": {"type": "number", "description": "User ID of new user"},
+			"message": {"type": "string"},
+			"code": {"type": "number"},
+			"error": {"type": "object"}
+		}
+	}
+}

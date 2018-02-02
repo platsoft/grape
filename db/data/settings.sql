@@ -14,4 +14,5 @@ SELECT grape.add_setting ('authentication_url', 'local', 'Authentication service
 SELECT grape.add_setting ('ldap_users_dn', 'ou=Users,o=platsoft', 'DN for exposing our users as LDAP users', 'text', false); 
 SELECT grape.add_setting ('basic_roles', '', 'Comma-separated list of basic user roles (all new users will be assigned these roles)', 'text', false); 
 SELECT grape.add_setting ('test_table_schema', 'tmp', 'Default schema for data import test tables', 'text', false); 
+SELECT grape.add_setting ('ldap_bind_password', 'Password123', 'LDAP bind password', 'text', true); 
 

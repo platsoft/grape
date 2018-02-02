@@ -21,46 +21,86 @@
  */
 CREATE OR REPLACE FUNCTION grape.session_insert (JSON) RETURNS JSON AS $$
 DECLARE
-	_user TEXT;
+	_username TEXT;
 	_password TEXT;
 	_email TEXT;
-	_ip_address TEXT;
-
-	rec RECORD;
-
-	_session_id TEXT;
-	_found BOOLEAN;
-	
-	_persistant BOOLEAN;
-
-	_user_roles TEXT[];
-
-	_ret JSON;
-
-	_check_password TEXT;
+	_user RECORD;
 BEGIN
 
 	IF json_extract_path($1, 'username') IS NOT NULL THEN
-		_user := $1->>'username';
-		SELECT * INTO rec FROM grape."user" WHERE username=_user::TEXT;
+		_username := $1->>'username';
+		SELECT * INTO _user FROM grape."user" WHERE username=_username::TEXT;
 	ELSIF json_extract_path($1, 'email') IS NOT NULL THEN
 		_email := $1->>'email';
-		SELECT * INTO rec FROM grape."user" WHERE email=_email::TEXT;
+		SELECT * INTO _user FROM grape."user" WHERE email=_email::TEXT;
 	ELSE
 		RETURN grape.api_error_invalid_input('{"message":"Missing email or username"}');
 	END IF;
 
-	IF rec IS NULL THEN
+	IF _user IS NULL THEN
+		RAISE DEBUG 'User % % login failed. No such user', _username, _email;
+		RETURN grape.api_result_error('No such user', 1);
+	END IF;
+
+	_password := $1->>'password';
+
+	IF _user.password IS NULL THEN
+		RETURN grape.api_result_error('Your account does not have a valid password', 3);
+	END IF;
+
+	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
+		IF grape.check_user_password(rec.password, _password) = FALSE THEN
+			RAISE DEBUG 'User % login failed. Password does not match', _username;
+			RETURN grape.api_result_error('Invalid password', 2);
+		END IF;
+	END IF;
+
+	RETURN grape.create_session_without_login($1::JSONB);
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.session_insert(_user_id INTEGER, _ip_address TEXT, _headers JSONB DEFAULT '{}') RETURNS TEXT AS $$
+DECLARE
+	_session_id TEXT;
+	_user RECORD;
+BEGIN
+	_session_id := CONCAT(grape.random_string(5), EXTRACT('epoch' FROM NOW())::TEXT, grape.random_string(8));
+
+	INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity, headers)
+		VALUES (_session_id, _ip_address, _user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, _headers);
+
+	RETURN _session_id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.create_session_without_login(JSONB) RETURNS JSONB AS $$
+DECLARE
+	_email TEXT;
+	_username TEXT;
+	_user RECORD;
+BEGIN
+	IF jsonb_extract_path($1, 'username') IS NOT NULL THEN
+		_username := $1->>'username';
+		SELECT * INTO _user FROM grape."user" WHERE username=_username::TEXT;
+	ELSIF jsonb_extract_path($1, 'email') IS NOT NULL THEN
+		_email := $1->>'email';
+		SELECT * INTO _user FROM grape."user" WHERE email=_email::TEXT;
+	ELSE
+		RETURN grape.api_error_invalid_input('{"message":"Missing email or username"}');
+	END IF;
+
+	IF _user IS NULL THEN
 		RAISE DEBUG 'User % % login failed. No such user', _user, _email;
 		RETURN grape.api_result_error('No such user', 1);
 	END IF;
 
-	IF _user IS NULL THEN
-		_user := rec.username;
+	IF _username IS NULL THEN
+		_username := _user.username;
 	END IF;
 	
-	_password := $1->>'password';
 	_ip_address := $1->>'ip_address';
+
+	IF json_extract_path($1, 'http_headers') IS NOT NULL THEN
+		_headers := ($1->'http_headers')::JSONB;
+	END IF;
 
 	_persistant := FALSE;
 
@@ -69,68 +109,33 @@ BEGIN
 	END IF;
 
 	IF grape.get_value('user_ip_filter', 'false') = 'true' THEN
-		IF grape.check_user_ip (rec.user_id::INTEGER, _ip_address::INET) = 2 THEN
-			RAISE NOTICE 'IP filter check failed for user % (IP %)', _user, _ip_address;
+		IF grape.check_user_ip (_user.user_id::INTEGER, _ip_address::INET) = 2 THEN
+			RAISE NOTICE 'IP filter check failed for user % (IP %)', _username, _ip_address;
 			RETURN grape.api_result_error('IP not allowed', 4);
 		END IF;
 	END IF;
 
-	IF rec.password IS NULL THEN
-		RETURN grape.api_result_error('Your account does not have a valid password', 3);
-	END IF;
-
-	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
-		IF grape.check_user_password(rec.password, _password) = FALSE THEN
-			RAISE DEBUG 'User % login failed. Password does not match', _user;
-			RETURN grape.api_result_error('Invalid password', 2);
-		END IF;
-	END IF;
-
-	IF rec.active = false THEN
-		RAISE DEBUG 'User % login failed. User is inactive', _user;
+	IF _user.active = false THEN
+		RAISE DEBUG 'User % login failed. User is inactive', _username;
 		RETURN grape.api_result_error('User not active', 3);
 	END IF;
 
 	_found := TRUE;
 
 	IF _persistant = TRUE THEN
-		SELECT session_id INTO _session_id FROM grape."session" WHERE user_id=rec.user_id::INTEGER;
+		SELECT session_id INTO _session_id FROM grape."session" WHERE user_id=_user.user_id::INTEGER;
 		IF NOT FOUND THEN
-			_session_id := grape.session_insert(rec.user_id::INTEGER, _ip_address);
+			_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address, _headers);
 		END IF;
 	ELSE
-		_session_id := grape.session_insert(rec.user_id::INTEGER, _ip_address);
+		_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address, _headers);
 	END IF;
 
-	SELECT array_agg(role_name) INTO _user_roles FROM grape."user_role" WHERE user_id=rec.user_id::INTEGER;
-
-	SELECT to_json(a) INTO _ret FROM (
-		SELECT 'true' AS "success",
-			'OK' AS "status",
-			0 AS "code",
-			_session_id AS "session_id",
-			_user AS "username",
-			_user_roles AS "user_roles",
-			rec.fullnames AS "fullnames",
-			rec.email AS "email",
-			rec.employee_guid AS "employee_guid"
-		) a;
+	_ret := jsonb_build_object('status', 'OK') || grape.build_session_information(_session_id);
 
 	PERFORM pg_notify('new_session', _ret::TEXT);
 
 	RETURN _ret;
-END; $$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION grape.session_insert(_user_id INTEGER, _ip_address TEXT) RETURNS TEXT AS $$
-DECLARE
-	_session_id TEXT;
-BEGIN
-	_session_id := CONCAT(grape.random_string(5), EXTRACT('epoch' FROM NOW())::TEXT, grape.random_string(8));
-
-	INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity)
-		VALUES (_session_id, _ip_address, _user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
-	RETURN _session_id;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION grape.create_session_from_service_ticket(JSONB) RETURNS JSONB AS $$
@@ -185,22 +190,66 @@ BEGIN
 		_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address);
 	END IF;
 
-	SELECT jsonb_build_object(
-		'success', true,
-		'status', 'OK',
-		'session_id', _session_id,
-		'username', _user.username,
-		'user_roles', (SELECT array_agg(role_name) FROM grape."user_role" WHERE user_id=_user.user_id::INTEGER),
-		'fullnames', _user.fullnames,
-		'email', _user.email,
-		'employee_guid', _user.employee_guid
-	) INTO _ret;
+	_ret := jsonb_build_object('status', 'OK') || grape.build_session_information(_session_id);
 
 	PERFORM pg_notify('new_session', _ret::TEXT);
 
 	RETURN _ret;
 END; $$ LANGUAGE plpgsql;
 
+-- Create session if user.auth_info->>'auth_server' = $1->>'auth_server'
+CREATE OR REPLACE FUNCTION grape.create_session_from_remote(JSONB) RETURNS JSONB AS $$
+DECLARE
+	_username TEXT;
+	_password TEXT;
+	_email TEXT;
+	_user RECORD;
+BEGIN
+
+	IF json_extract_path($1, 'username') IS NOT NULL THEN
+		_username := $1->>'username';
+		SELECT * INTO _user FROM grape."user" WHERE username=_username::TEXT;
+	ELSIF json_extract_path($1, 'email') IS NOT NULL THEN
+		_email := $1->>'email';
+		SELECT * INTO _user FROM grape."user" WHERE email=_email::TEXT;
+	ELSE
+		RETURN grape.api_error_invalid_input('{"message":"Missing email or username"}');
+	END IF;
+
+	IF NOT $1 ? 'auth_server' THEN
+		RETURN grape.api_error_invalid_input('{"message":"Missing auth_server"}');
+	END IF;
+
+	IF _user IS NULL THEN
+		RAISE DEBUG 'User % % login failed. No such user', _username, _email;
+		RETURN grape.api_result_error('No such user', 1);
+	END IF;
+
+	IF _user.auth_info IS NULL THEN
+		RETURN grape.api_result_error('Your account does not have valid authentication information', 3);
+	END IF;
+
+	IF $1->>'auth_server' != _user.auth_info->>'auth_server' THEN
+		RAISE DEBUG 'User % login failed. Auth servers does not match', _username;
+		RETURN grape.api_result_error('Invalid auth server', 2);
+	END IF;
+
+	RETURN grape.create_session_without_login($1::JSONB);
+END; $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION grape.build_session_information(_session_id TEXT) RETURNS JSONB AS $$
+	SELECT jsonb_build_object(
+		'session_id', _session_id,
+		'username', u.username,
+		'user_roles', (SELECT array_agg(role_name) FROM grape."user_role" WHERE user_id=u.user_id::INTEGER),
+		'fullnames', u.fullnames,
+		'email', u.email,
+		'employee_guid', u.employee_guid,
+		'employee_info', u.employee_info
+	) FROM grape.session s JOIN grape."user" u  USING (user_id)
+	WHERE session_id=_session_id::TEXT;
+$$ LANGUAGE sql;
 
 
 CREATE OR REPLACE FUNCTION grape.logout (JSON) RETURNS JSON AS $$
@@ -253,6 +302,7 @@ $$ LANGUAGE sql;
 
 -- Set current session to username
 CREATE OR REPLACE FUNCTION grape.set_session_username(_username TEXT) RETURNS TEXT AS $$
+	SELECT set_config('grape.username'::TEXT, _username::TEXT, false);
 	SELECT grape.set_session_user_id(grape.user_id_from_name(_username));
 $$ LANGUAGE sql;
 

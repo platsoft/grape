@@ -18,6 +18,18 @@ BEGIN
 	RETURN _service_id;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.save_service(JSONB) RETURNS JSONB AS $$
+DECLARE
+	_service_id INTEGER;
+BEGIN
+	_service_name := $1->>'service_name';
+	_shared_secret := $1->>'shared_secret';
+	
+	_service_id := grape.save_service(service_name, shared_secret);
+
+	RETURN grape.api_success('service_id', _service_id);
+END; $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION grape.encrypt_message_for_service(_service_name TEXT, _message TEXT) RETURNS TEXT AS $$
 DECLARE
 	_s TEXT;
@@ -35,7 +47,7 @@ BEGIN
 			RETURN NULL;
 		END IF;
 	ELSE
-		SELECT shared_secret INTO _s FROM grape.service WHERE service_name=_service_name;
+		SELECT shared_secret INTO _s FROM grape.service WHERE service_name=_service_name::TEXT;
 	END IF;
 
 	_dkey := ENCODE(DIGEST(_s, 'sha256'), 'hex');

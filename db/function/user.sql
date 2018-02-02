@@ -7,7 +7,7 @@
  * @input fullnames TEXT
  * @input active BOOLEAN optional
  * @input role_names TEXT[]
- * @input employee_guid GUID
+ * @input guid GUID
  */
 CREATE OR REPLACE FUNCTION grape.user_save (JSON) RETURNS JSON AS $$
 DECLARE
@@ -21,15 +21,11 @@ DECLARE
 	_role_name TEXT;
 	_hashed_password TEXT;
 	_employee_guid UUID;
+	_in JSONB := $1::JSON;
 
 	rec RECORD;
 BEGIN
 	_user_id := ($1->>'user_id')::INTEGER;
-	_username := $1->>'username';
-	_password := $1->>'password';
-	_email := $1->>'email';
-	_fullnames := $1->>'fullnames';
-	_active := ($1->>'active')::BOOLEAN;
 
 	IF json_typeof ($1->'role_names') = 'string' THEN
 		_role_names := string_to_array($1->>'role_names', ',');
@@ -41,101 +37,87 @@ BEGIN
 		_employee_guid := ($1->>'employee_guid')::UUID;
 	ELSIF json_extract_path($1, 'guid') IS NOT NULL THEN
 		_employee_guid := ($1->>'guid')::UUID;
-	ELSE
-		_employee_guid := grape.generate_uuid(); 
 	END IF;
 
-	IF _password IS NOT NULL THEN
+	IF _user_id IS NULL AND grape.current_username() = _in->>'username' THEN
+		_user_id := grape.current_user_id();
+	END IF;
+
+	IF _user_id IS NULL THEN
+		_username := $1->>'username';
+		IF _username IS NULL THEN
+			RETURN grape.api_error_invalid_field('username');
+		END IF;
+		
+		IF EXISTS (SELECT 1 FROM grape."user" WHERE username=_username::TEXT) THEN	
+			RETURN grape.api_error('Unable to insert user. The username already exists', 2);
+		END IF;
+	
+		IF _employee_guid IS NULL THEN
+			_employee_guid := grape.generate_uuid(); 
+		END IF;
+
+		INSERT INTO grape."user" (username, employee_guid) VALUES (_username, _employee_guid) RETURNING user_id INTO _user_id;
+
+		IF _role_names IS NOT NULL THEN
+			FOREACH _role_name IN ARRAY _role_names LOOP
+				INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
+			END LOOP;
+		END IF;
+
+
+	ELSE
+		IF _employee_guid IS NOT NULL THEN
+			UPDATE grape."user" SET employee_guid=_employee_guid WHERE user_id=_user_id::INTEGER;
+		END IF;
+	END IF;
+		
+	INSERT INTO grape.user_history (user_id, data, blame_id)
+		VALUES (_user_id, $1::JSONB, current_user_id());
+
+	IF _in ? 'password' THEN
+		_password := $1->>'password';
 		IF grape.get_value('hash_passwords', 'false') = 'true' THEN
 			_hashed_password := grape.generate_user_pw_hash(_password);
 		ELSE
 			_hashed_password := _password;
 		END IF;
+		
+		UPDATE grape."user" SET password = _hashed_password WHERE user_id = _user_id::INTEGER;
 	END IF;
 
-	-- Validate Username
-	IF _username IS NULL OR _username = '' THEN
-		RETURN grape.api_error('Invalid data - Username is missing', 1);
+	IF _in ? 'active' THEN
+		_active := ($1->>'active')::BOOLEAN;
+		UPDATE grape."user" SET active=_active WHERE user_id=_user_id::INTEGER;
 	END IF;
-
-	-- Default Active to True
-	IF _active IS NULL THEN
-		_active := TRUE;
-	END IF;
-
-	-- Select appropriate operations
-	IF _user_id IS NULL THEN
-		-- INSERT New User
-		SELECT * INTO rec FROM grape."user" WHERE username = _username::TEXT;
-		IF NOT FOUND THEN
-			-- INSERT : Valid data
-			INSERT INTO grape."user" (username, password, email, fullnames, active, employee_guid)
-				VALUES (_username, _hashed_password, _email, _fullnames, _active, _employee_guid)
-				RETURNING user_id INTO _user_id;
-
-			IF _role_names IS NOT NULL THEN
-				FOREACH _role_name IN ARRAY _role_names LOOP
-					INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
-				END LOOP;
-			END IF;
 	
-			INSERT INTO grape.user_history (user_id, data, blame_id)
-				VALUES (_user_id, $1::JSONB, current_user_id());
-
-			RETURN grape.api_success(json_build_object('new', 'true', 'user_id', _user_id));
-
-		ELSE
-			-- INSERT : Username taken
-			RETURN grape.api_error('Unable to insert user. The username already exists', 2);
-
-		END IF;
-	ELSE
-		-- UPDATE Existing User
-		SELECT * INTO rec FROM grape."user" WHERE user_id = _user_id::INTEGER;
-		IF NOT FOUND THEN
-			-- UPDATE : Invalid user_id
-			RETURN grape.api_error('Unable to update user. The specified user_id does not exist', 3);
-
-		ELSE
-			SELECT * INTO rec FROM grape."user" WHERE username = _username;
-			IF FOUND AND rec.user_id <> _user_id THEN
-				-- UPDATE : Existing username
-				RETURN grape.api_error('Unable to update user. The username already exists', 4);
-
-			END IF;
-
-			-- UPDATE : Valid data
-			UPDATE grape."user"
-				SET
-					username = _username,
-					email = _email,
-					fullnames = _fullnames,
-					active = _active,
-					employee_guid=COALESCE(_employee_guid, employee_guid)
-				WHERE
-					user_id = _user_id::INTEGER;
-			
-			IF _hashed_password IS NOT NULL THEN
-				UPDATE grape."user"
-					SET
-						password = _hashed_password
-					WHERE
-						user_id = _user_id::INTEGER;
-			END IF;
-
-			IF _role_names IS NOT NULL THEN
-				DELETE FROM grape.user_role WHERE user_id = _user_id::INTEGER;
-				FOREACH _role_name IN ARRAY _role_names LOOP
-					INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, trim(_role_name));
-				END LOOP;
-			END IF;
-			
-			INSERT INTO grape.user_history (user_id, data, blame_id)
-				VALUES (_user_id, $1::JSONB, current_user_id());
-
-			RETURN grape.api_success(json_build_object('new', 'false', 'user_id', _user_id));
-		END IF;
+	IF _in ? 'email' THEN
+		_email := ($1->>'email');
+		UPDATE grape."user" SET email=_email WHERE user_id=_user_id::INTEGER;
+		PERFORM grape.user_update_auth_info(_user_id, 'email_status', 'unverified');
 	END IF;
+
+	IF _in ? 'fullnames' THEN
+		_fullnames := ($1->>'fullnames');
+		UPDATE grape."user" SET fullnames=_fullnames WHERE user_id=_user_id::INTEGER;
+	END IF;
+
+	IF _role_names IS NOT NULL THEN
+		DELETE FROM grape.user_role WHERE user_id = _user_id::INTEGER;
+		FOREACH _role_name IN ARRAY _role_names LOOP
+			INSERT INTO grape.user_role(user_id, role_name) VALUES (_user_id, TRIM(_role_name));
+		END LOOP;
+	END IF;
+
+	IF _in ? 'totp_status' THEN
+		PERFORM grape.user_update_auth_info(_user_id, 'totp_status', _in->>'totp_status');
+	END IF;
+	
+	IF _in ? 'auth_server' THEN
+		PERFORM grape.user_update_auth_info(_user_id, 'auth_server', _in->>'auth_server');
+	END IF;
+	
+	RETURN grape.api_success(json_build_object('user_id', _user_id));
 END; $$ LANGUAGE plpgsql;
 
 /**

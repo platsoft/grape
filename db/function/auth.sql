@@ -71,6 +71,10 @@ BEGIN
 		RETURN grape.api_error('Your username on the authentication service does not have a valid employee GUID. Please ask your system administrator to complete the configuration for your account', -98);
 	END IF;
 
+	IF _user.auth_info ? 'auth_server' AND _user.auth_info->>'auth_server' != '' THEN
+		RETURN grape.api_error('Use external ticket server', -500, json_build_object('auth_server', _user.auth_info->>'auth_server'));
+	END IF;
+
 	IF LEFT(_user.password, 4) = '$2a$' THEN
 		RETURN grape.api_error('Incompatible password format', -4);
 	END IF;
@@ -172,20 +176,20 @@ BEGIN
 	END IF;
 
 	IF _user.username != _tgt->>'username' THEN
-		RETURN grape.api_error('Non-match on username');
+		RETURN grape.api_error('Non-match on username', -1);
 	END IF;
 
 	IF _user.employee_guid != (_tgt->>'employee_guid')::UUID THEN
-		RETURN grape.api_error('Non-match on employee GUID');
+		RETURN grape.api_error('Non-match on employee GUID', -1);
 	END IF;
 
 	-- Time checks
 	IF (_tgt->>'valid_until')::TIMESTAMPTZ < NOW() THEN
-		RETURN grape.api_error('TGT Expired');
+		RETURN grape.api_error('TGT Expired', -1);
 	END IF;
 
 	IF (_authenticator->>'issued_at')::TIMESTAMPTZ < (_tgt->>'issued_at')::TIMESTAMPTZ THEN
-		RETURN grape.api_error('Non-match on username');
+		RETURN grape.api_error('The authenticator was issued before the TGT!', -1);
 	END IF;
 
 	_service_ticket := grape.create_service_ticket(_requested_service, _user.user_id);

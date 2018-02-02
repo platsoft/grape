@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ps_doc title="PlatSoft Grape Manual" titlepage="yes" tocpage="yes" description="Developer's guide to using the PlatSoft Grape Framework">
+	<h1 id="sec-grape-auth">Authentication</h1>
+	<h2>auth_info</h2>
+	Fields used:
+		totp_status: "pending verification", "ok", 
+		totp_key
+		password_reset_code
+
+
+<h2>Access Roles</h2>
+If a user is logged in, they will always belong to the role "all".
+If a user is not authenticated, they will belong to the roles "guest".
+
+</ps_doc>

@@ -1,6 +1,10 @@
 
 Enterprise mobility management (EMM)
 
+Modules to write:
+- Shopping cart module
+- DAV
+
 1.1.0:
 - Broadcast/discover other grape services (using SSDP)
 - API logger (partitioned tables monthly? or write session logs to a file)
@@ -15,7 +19,7 @@ Future:
 - Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
 - Static data loader keeping cache of users and sessions
 
-- run a grape app without a database
+- Run a grape app without a database
 - create an authentication provider
 
 - Settings management:
