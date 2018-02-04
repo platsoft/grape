@@ -14,8 +14,9 @@ function create_schema_api_call(app, obj)
 		type: 'object',
 		method: null,
 		sqlfunc: null,
-		sqlfunctype: 'json',
-		no_validation: false
+		sqlfunctype: '',
+		no_validation: false,
+		filename: null 		// filename in which this api call is defined
 	};
 	_.extend(param, obj);
 
@@ -39,6 +40,16 @@ function create_schema_api_call(app, obj)
 	if (param.roles)
 	{
 		add_schema_access_roles(param.roles, param.id, param.method, app.get('db'));
+	}
+
+	if (param.jsfile)
+	{
+		var full_path = path.normalize(param.jsfile);
+
+		if (!path.isAbsolute(full_path))
+			full_path = path.join(path.dirname(param.filename), full_path);
+
+		param.jsfunc = require(full_path)();
 	}
 
 	var auto_validate = function(obj, param, res) {
@@ -103,9 +114,22 @@ function create_schema_api_call(app, obj)
 				}
 
 				if (param.sqlfunctype == 'jsonb')
+				{
 					res.locals.db.jsonb_call(param.sqlfunc, obj, null, {response: res});
-				else
+				}
+				else if (param.sqlfunctype == 'json')
+				{
 					res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
+				}
+				else if (param.jsfunc)
+				{
+					param.jsfunc(req, res);
+				}
+				else
+				{
+					res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
+				}
+
 			}
 			catch (e)
 			{
@@ -158,11 +182,13 @@ function read_schema_file(app, file, relative) {
 	if (util.isArray(data))
 	{
 		data.forEach(function (d) {
+			d.filename = file;
 			create_schema_api_call(app, d);
 		});
 	}
 	else if (util.isObject(data))
 	{
+		data.filename = file;
 		create_schema_api_call(app, data);
 	}
 	else
@@ -197,9 +223,8 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 		{
 			if (path.extname(path.join(dirname, file)) == '.json')
 			{
-				// loads the api module and execute the export function with the app param.
 				try {
-					module.exports.read_schema_file(app, [dirname, file].join('/'), relativedirname + file);
+					module.exports.read_schema_file(app, path.join(dirname, file), relativedirname + file);
 				} catch (e) {
 					app.get('logger').error('api', "Failed to load API file " + relativedirname + file + ' [' + util.inspect(e) + ']');
 				}
@@ -215,3 +240,5 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 }
 
 module.exports.read_schema_file = read_schema_file;
+
+

@@ -58,6 +58,7 @@ BEGIN
 	RETURN grape.create_session_without_login($1::JSONB);
 END; $$ LANGUAGE plpgsql;
 
+DROP FUNCTION IF EXISTS grape.session_insert(INTEGER, TEXT);
 CREATE OR REPLACE FUNCTION grape.session_insert(_user_id INTEGER, _ip_address TEXT, _headers JSONB DEFAULT '{}') RETURNS TEXT AS $$
 DECLARE
 	_session_id TEXT;
@@ -76,6 +77,12 @@ DECLARE
 	_email TEXT;
 	_username TEXT;
 	_user RECORD;
+	_headers JSONB;
+	_ip_address TEXT;
+	_persistant BOOLEAN;
+	_found BOOLEAN;
+	_session_id TEXT;
+	_ret JSONB;
 BEGIN
 	IF jsonb_extract_path($1, 'username') IS NOT NULL THEN
 		_username := $1->>'username';
@@ -122,6 +129,8 @@ BEGIN
 
 	_found := TRUE;
 
+	_headers := COALESCE($1->'headers', '[]'::JSONB);
+
 	IF _persistant = TRUE THEN
 		SELECT session_id INTO _session_id FROM grape."session" WHERE user_id=_user.user_id::INTEGER;
 		IF NOT FOUND THEN
@@ -147,6 +156,7 @@ DECLARE
 	_session_id TEXT;
 	_ip_address TEXT;
 	_ret JSONB;
+	_headers JSONB;
 BEGIN
 	_service_ticket_encrypted := ($1->>'service_ticket');
 	_service_ticket := grape.validate_service_ticket(_service_ticket_encrypted);
@@ -184,10 +194,10 @@ BEGIN
 	IF _persistant = TRUE THEN
 		SELECT session_id INTO _session_id FROM grape."session" WHERE user_id=_user.user_id::INTEGER;
 		IF NOT FOUND THEN
-			_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address);
+			_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address, _headers);
 		END IF;
 	ELSE
-		_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address);
+		_session_id := grape.session_insert(_user.user_id::INTEGER, _ip_address, _headers);
 	END IF;
 
 	_ret := jsonb_build_object('status', 'OK') || grape.build_session_information(_session_id);
@@ -195,46 +205,6 @@ BEGIN
 	PERFORM pg_notify('new_session', _ret::TEXT);
 
 	RETURN _ret;
-END; $$ LANGUAGE plpgsql;
-
--- Create session if user.auth_info->>'auth_server' = $1->>'auth_server'
-CREATE OR REPLACE FUNCTION grape.create_session_from_remote(JSONB) RETURNS JSONB AS $$
-DECLARE
-	_username TEXT;
-	_password TEXT;
-	_email TEXT;
-	_user RECORD;
-BEGIN
-
-	IF json_extract_path($1, 'username') IS NOT NULL THEN
-		_username := $1->>'username';
-		SELECT * INTO _user FROM grape."user" WHERE username=_username::TEXT;
-	ELSIF json_extract_path($1, 'email') IS NOT NULL THEN
-		_email := $1->>'email';
-		SELECT * INTO _user FROM grape."user" WHERE email=_email::TEXT;
-	ELSE
-		RETURN grape.api_error_invalid_input('{"message":"Missing email or username"}');
-	END IF;
-
-	IF NOT $1 ? 'auth_server' THEN
-		RETURN grape.api_error_invalid_input('{"message":"Missing auth_server"}');
-	END IF;
-
-	IF _user IS NULL THEN
-		RAISE DEBUG 'User % % login failed. No such user', _username, _email;
-		RETURN grape.api_result_error('No such user', 1);
-	END IF;
-
-	IF _user.auth_info IS NULL THEN
-		RETURN grape.api_result_error('Your account does not have valid authentication information', 3);
-	END IF;
-
-	IF $1->>'auth_server' != _user.auth_info->>'auth_server' THEN
-		RAISE DEBUG 'User % login failed. Auth servers does not match', _username;
-		RETURN grape.api_result_error('Invalid auth server', 2);
-	END IF;
-
-	RETURN grape.create_session_without_login($1::JSONB);
 END; $$ LANGUAGE plpgsql;
 
 
@@ -278,22 +248,10 @@ END; $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION grape.session_ping(JSON) RETURNS JSON AS $$
 DECLARE
 	_session_id TEXT;
-	_rec RECORD;
 BEGIN
-	_session_id := $1->>'session_id';
+	_session_id := grape.current_session_id();
 
-	SELECT s.session_id, u.username, s.user_id, u.fullnames, u.email, u.employee_guid, NULL::TEXT[] AS "user_roles" INTO _rec FROM
-		grape."session" s
-		JOIN grape."user" u USING (user_id)
-		WHERE s.session_id=_session_id::TEXT;
-
-	IF NOT FOUND THEN
-		RETURN grape.api_error('Invalid session', -2);
-	END IF;
-
-	SELECT array_agg(role_name) INTO _rec.user_roles FROM grape."user_role" WHERE user_id=_rec.user_id::INTEGER;
-
-	RETURN grape.api_success(to_json(_rec));
+	RETURN grape.api_success(grape.build_session_information(_session_id));
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION grape.set_session_user_id(_user_id INTEGER) RETURNS TEXT AS $$

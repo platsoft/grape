@@ -1,6 +1,9 @@
 
 Enterprise mobility management (EMM)
 
+- Register all API calls in DB table
+- Create API calls for stuff that is not JS files or DB functions (like PHP or python)
+
 Modules to write:
 - Shopping cart module
 - DAV

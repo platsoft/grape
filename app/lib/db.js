@@ -238,7 +238,11 @@ function db (_o) {
 			_.extend(qry_options, _callback);
 			callback = null;
 		}
+
 		var alias = name;
+		if (qry_options.alias)
+			alias = qry_options.alias;
+		
 		alias = alias.replace(/\./g, '');
 
 		// response is the express response object to return the result to

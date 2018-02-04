@@ -17,7 +17,6 @@ var events = require('events');
 var configreader = require(__dirname + '/configreader.js');
 var grapelib = require(__dirname + '/../index.js');
 
-var ldap_worker = require(__dirname + '/ldap.js').LDAPServer;
 var email_notification_worker = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
 
 

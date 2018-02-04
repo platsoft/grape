@@ -5,7 +5,7 @@ DECLARE
 	_target_user RECORD;
 BEGIN
 
-	SELECT * INTO _target_user FROM grape."user" WHERE user_id=_target_user::INTEGER;
+	SELECT * INTO _target_user FROM grape."user" WHERE user_id=_target_user_id::INTEGER;
 	IF NOT FOUND THEN
 		RETURN NULL;
 	END IF;

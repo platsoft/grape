@@ -117,6 +117,10 @@ BEGIN
 		PERFORM grape.user_update_auth_info(_user_id, 'auth_server', _in->>'auth_server');
 	END IF;
 	
+	IF _in ? 'auth_server_search_base' THEN
+		PERFORM grape.user_update_auth_info(_user_id, 'auth_server_search_base', _in->>'auth_server_search_base');
+	END IF;
+	
 	RETURN grape.api_success(json_build_object('user_id', _user_id));
 END; $$ LANGUAGE plpgsql;
 

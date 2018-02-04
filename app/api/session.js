@@ -2,7 +2,6 @@
 var logger;
 var app;
 
-const ldap = require('ldapjs');
 
 exports = module.exports = function(_app) {
 	app = _app;
@@ -22,20 +21,6 @@ exports = module.exports = function(_app) {
  * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
  */
 	app.post('/grape/login', login);
-
-/**
- * @url /grape/login_remotely
- * @method POST
- * @desc 
- * @sqlfunc grape.session_insert
- * @body
- * { 
- * 	username TEXT Username
- * 	password TEXT Password
- * }
- * @return JSON object with fields { success: true/false, session_id, code: INTEGER (0 on success), message: TEXT } 
- */
-	app.post('/grape/login_with_remote', login_via_ldap);
 
 
 /**
@@ -124,90 +109,6 @@ function login (req, res)
 	});
 }
 
-function login_via_ldap (req, res)
-{
-	var ip_address = req.ip;
-
-	var auth_server = req.body.auth_server;
-
-	var obj = {
-		password: req.body.password,
-		ip_address: ip_address,
-		auth_server: auth_server
-	};
-	
-	if (req.body.email)
-	{
-		obj.email = req.body.email;
-		app.get('logger').session('info', 'login attempt from [', obj.email, ']@', ip_address);
-	}
-	else if (req.body.username)
-	{
-		obj.username = req.body.username;
-		app.get('logger').session('info', 'login attempt from ', obj.username, '@', ip_address);
-	}
-	else
-	{
-		res.json({'status': 'ERROR', 'message': 'Invalid input'}).end();
-		return;
-	}
-
-	//TODO check that auth_server starts with ldap:// or ldaps://
-	
-	res.locals.db.query('SELECT shared_secret FROM grape.service WHERE service_name=$1', [auth_server], function(err, result) {
-
-		if (err || !result)
-		{
-			res.json({status: 'ERROR'}).end();
-			return;
-		}
-
-		if (result.rows.length == 0)
-		{
-			res.json({status: 'ERROR', message: 'Service not found in registry', code: -1}).end();
-			return;
-		}
-
-		var result = result.rows[0];
-
-		var ldapclient = ldap.createClient({
-			url: auth_server
-		});
-
-		client.bind('cn=root', result.shared_secret, function(err) {
-			if (err)
-			{
-				res.status(200).json({'status': 'ERROR', message: 'LDAP error', error: err});
-				return;
-			}
-
-			var dn = ['uid=' + obj.username, 'o=platsoft,ou=Users'].join(',');
-
-			client.bind(dn, req.body.password, function(err) {
-				if (err)
-				{
-					res.status(200).json({'status': 'ERROR', message: 'LDAP error', error: err});
-					return;
-				}
-
-				res.locals.db.json_call('grape.create_session_from_remote', obj, function(err, result) {
-					result = result.rows[0].create_session_from_remote;
-					if (result.status == 'OK')
-					{
-						res.set('Set-Cookie', 'session_id=' + result.session_id + '; path=/; HttpOnly');
-						res.json(result);
-					}
-					else
-					{
-						res.json(result);
-					}
-				});
-			});
-		});
-	});
-}
-
-
 
 function login_with_service_ticket (req, res)
 {
@@ -222,7 +123,8 @@ function login_with_service_ticket (req, res)
 
 	var obj = {
 		service_ticket: req.body.service_ticket,
-		ip_address: ip_address
+		ip_address: ip_address,
+		headers: req.headers
 	};
 
 	res.locals.db.jsonb_call('grape.create_session_from_service_ticket', obj, function(err, result) {

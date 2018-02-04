@@ -1,9 +1,8 @@
 {
 	"id": "/grape/auth/tgt",
 	"description": "Request TGT for a user",
-	"sqlfunc": "grape.TGT_request",
-	"sqlfunctype": "jsonb",
 	"name": "GrapeAuthTGTRequest",
+	"jsfile": "grape_auth_tgt_request.js",
 	"roles": ["guest"],
 	"type": "object",
 	"properties": {

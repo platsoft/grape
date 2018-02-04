@@ -10,7 +10,6 @@ BEGIN
 	IF NOT FOUND THEN
 		RETURN NULL;
 	END IF;
-
 	
 	_session_key := ENCODE(gen_random_bytes(16), 'hex');
 
@@ -71,8 +70,21 @@ BEGIN
 		RETURN grape.api_error('Your username on the authentication service does not have a valid employee GUID. Please ask your system administrator to complete the configuration for your account', -98);
 	END IF;
 
+	-- the user's password is stored on an external LDAP server
 	IF _user.auth_info ? 'auth_server' AND _user.auth_info->>'auth_server' != '' THEN
-		RETURN grape.api_error('Use external ticket server', -500, json_build_object('auth_server', _user.auth_info->>'auth_server'));
+		IF $1 ? 'password' THEN
+			_user.password = $1->>'password';
+		ELSE
+			-- this is caught by the API call
+			RETURN json_build_object(
+				'status', 'ERROR', 
+				'code', -500, 
+				'message', 
+				'Fetch password from external server', 
+				'auth_server', _user.auth_info->>'auth_server',
+				'auth_server_search_base', _user.auth_info->>'auth_server_search_base'
+			);
+		END IF;
 	END IF;
 
 	IF LEFT(_user.password, 4) = '$2a$' THEN
@@ -94,7 +106,9 @@ BEGIN
 
 	_message := jsonb_build_object(
 		'tgt', _encrypted_tgt,
-		'session_key', _tgt->>'session_key'
+		'session_key', _tgt->>'session_key',
+		'issued_by_url', grape.get_value('system_url', 'http://'),
+		'issued_by', grape.get_value('service_name', '')
 	);
 
 	SELECT * INTO _user_key FROM grape.get_user_key_fields(_user.password);
@@ -173,6 +187,8 @@ BEGIN
 		IF NOT FOUND THEN
 			RETURN grape.api_error('No such user', -2);
 		END IF;
+	ELSE
+		RETURN grape.api_error('No identity information found in authenticator', -1);
 	END IF;
 
 	IF _user.username != _tgt->>'username' THEN
@@ -189,7 +205,7 @@ BEGIN
 	END IF;
 
 	IF (_authenticator->>'issued_at')::TIMESTAMPTZ < (_tgt->>'issued_at')::TIMESTAMPTZ THEN
-		RETURN grape.api_error('The authenticator was issued before the TGT!', -1);
+		RETURN grape.api_error('The authenticator was issued before the TGT', -1);
 	END IF;
 
 	_service_ticket := grape.create_service_ticket(_requested_service, _user.user_id);
