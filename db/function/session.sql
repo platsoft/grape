@@ -1,4 +1,3 @@
-
 -- Require: user.sql
 
 /**
@@ -102,7 +101,7 @@ BEGIN
 	IF _username IS NULL THEN
 		_username := _user.username;
 	END IF;
-	
+
 	_ip_address := $1->>'ip_address';
 
 	IF json_extract_path($1, 'http_headers') IS NOT NULL THEN
@@ -166,8 +165,8 @@ BEGIN
 	ELSIF _service_ticket->>'status' = 'ERROR' THEN
 		RETURN _service_ticket;
 	END IF;
-	
-	SELECT * INTO _user FROM grape."user" WHERE username=_service_ticket->>'username' AND employee_guid=(_service_ticket->>'employee_guid')::UUID; 
+
+	SELECT * INTO _user FROM grape."user" WHERE username=_service_ticket->>'username' AND employee_guid=(_service_ticket->>'employee_guid')::UUID;
 	IF NOT FOUND THEN
 		RETURN grape.api_error('No such user', -3);
 	END IF;
@@ -283,7 +282,7 @@ BEGIN
 		ip_address,
 		user_id,
 		grape.username(user_id) AS username
-	INTO 
+	INTO
 		_ip_address,
 		_user_id,
 		_username
@@ -308,9 +307,3 @@ BEGIN
 	PERFORM grape.set_session(_session_id);
 	RETURN '{}'::JSON;
 END; $$ LANGUAGE plpgsql;
-
-
-
-
-
-

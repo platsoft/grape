@@ -1,4 +1,3 @@
-
 CREATE OR REPLACE FUNCTION grape.is_valid_service(_name TEXT) RETURNS BOOLEAN AS $$
 	SELECT COALESCE((SELECT TRUE FROM grape.service WHERE service_name=_name::TEXT) , FALSE);
 $$ LANGUAGE sql;
@@ -21,10 +20,12 @@ END; $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION grape.save_service(JSONB) RETURNS JSONB AS $$
 DECLARE
 	_service_id INTEGER;
+	_service_name TEXT;
+	_shared_secret TEXT;
 BEGIN
 	_service_name := $1->>'service_name';
 	_shared_secret := $1->>'shared_secret';
-	
+
 	_service_id := grape.save_service(service_name, shared_secret);
 
 	RETURN grape.api_success('service_id', _service_id);
@@ -114,5 +115,3 @@ BEGIN
 
 	RETURN _service_ticket;
 END; $$ LANGUAGE plpgsql;
-
-
