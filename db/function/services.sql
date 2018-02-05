@@ -17,12 +17,25 @@ BEGIN
 	RETURN _service_id;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.save_service(_service_id INTEGER, _service_name TEXT, _shared_secret TEXT, _role TEXT) RETURNS INTEGER AS $$
+DECLARE
+BEGIN
+
+
+
+END; $$ LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION grape.save_service(JSONB) RETURNS JSONB AS $$
 DECLARE
 	_service_id INTEGER;
 	_service_name TEXT;
 	_shared_secret TEXT;
 BEGIN
+	IF $1 ? 'service_id' THEN
+		_service_id := ($1->>'service_id')::INTEGER;
+	END IF;
+
 	_service_name := $1->>'service_name';
 	_shared_secret := $1->>'shared_secret';
 
@@ -94,7 +107,7 @@ BEGIN
 		RETURN grape.api_error('Configuration error: service_name is not defined', -98);
 	END IF;
 
-	SELECT shared_secret INTO _s FROM grape.service WHERE service_name=_service_name;
+	SELECT shared_secret INTO _s FROM grape.service WHERE service_name=_service_name::TEXT;
 	IF NOT FOUND THEN
 		RETURN grape.api_error('Configuration error: service_secret is not set up', -98);
 	END IF;
@@ -115,3 +128,12 @@ BEGIN
 
 	RETURN _service_ticket;
 END; $$ LANGUAGE plpgsql;
+
+/* Service roles:
+ * TICKET_ISSUER - this service can issue tickets for us - shared_key contains the encryption key specific to this issued_by service and us
+ * SERVICE_TICKET - we can issue tickets for this service, using shared_key
+ * LDAP_AUTH - this service is used to find remote users (matching user.auth_info->>'auth_server')
+ * 
+ */
+
+
