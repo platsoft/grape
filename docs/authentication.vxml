@@ -1,15 +1,69 @@
 <?xml version="1.0"?>
-<ps_doc title="PlatSoft Grape Manual" titlepage="yes" tocpage="yes" description="Developer's guide to using the PlatSoft Grape Framework">
+<ps_doc title="PlatSoft Grape Manual" titlepage="no" tocpage="no" description="Developer's guide to using the PlatSoft Grape Framework">
 	<h1 id="sec-grape-auth">Authentication</h1>
-	<h2>auth_info</h2>
-	Fields used:
-		totp_status: "pending verification", "ok", 
-		totp_key
-		password_reset_code
 
+	<h2>Login procedure</h2>
+	The login procedure described below was designed to prevent the password from being sent over the network. 
+	<ol>
+		<li>Retrieve the service name of the server we are trying to log into. GET /grape/setting/service_name</li>
+		<li><link id="auth-tgtrequest">Request a TGT</link></li>
+		<li>If the reply is an ERROR with code -400, prompt the user for a TOTP. Resend TGT Request with field totp_status set to 'y'</li>
+		<li>Generate decryption key from user's password and parameters received in TGT reply (<link id="auth-genkeys">Generating encryption and decryption key</link>)</li>
+		<li>Decrypt message and extract TGT</li>
+		<li>Request a service ticket using TGT, service name and username (<b>POST /grape/auth/service_request</b>)</li>
+		<li>Log in using Service Ticket (<b>POST /grape/login_with_ticket</b>)</li>
+	</ol>
 
 <h2>Access Roles</h2>
 If a user is logged in, they will always belong to the role "all".
 If a user is not authenticated, they will belong to the roles "guest".
+
+<h2 id="auth-genkeys">Generating user's encryption and decryption key from password</h2>
+The format of the field <tname>grape.user.password</tname> is built up as follows:
+<i>ALGO-ROUNDS:SALT:KEY</i>
+
+<ul>
+	<li><b>ALGO</b> defaults to <b>sha256</b>. This is controlled by the grape setting <link id="settings-password_hashing_rounds">password_hashing_rounds</link></li>
+	<li><b>ROUNDS</b> defaults to <b>1000</b></li>
+	<li><b>SALT</b> is a randomly generated character string (20 characters)</li>
+</ul>
+
+The key is calculated by repeating the following process <b>ROUNDS</b> times:
+<ol>
+	<li>Concatenate the result of the previous run (use an empty string on the first iteration), with the salt and user's real password</li>
+	<li>Calculate the SHA-256 (or <b>ALGO</b>) digest for the answer of (1)</li>
+	<li>Hex-encode the result from (2)</li>
+</ol>
+Messages are then encrypted and decrypted using AES-CBC with PKCS padding.
+
+<h2 id="auth-tgtrequest">TGT Request</h2>
+<p>This call is used to request a TGT (Ticket-granting ticket) for a user. The Encrypted TGT are extracted from the reply of this call, to be used in the issuing of service tickets</p>
+URL: <b>/grape/auth/tgt</b><br />
+Method: <b>POST</b><br />
+Fields: <ul>
+	<li><b>username</b></li>
+	<li><b>email</b></li>
+	<li><b>totp</b> If the user was asked for an OTP, this field should be set to 'y'. If it is not, and the account requires a TOTP, the server will respond with error code -400</li>
+</ul>
+<note color="red">Never send the actual OTP or password in any request!</note>
+Error codes: <ul>
+	<li><b>-2</b> NO SUCH USER</li>
+	<li><b>-3</b> USER IS CURRENTLY DISABLED</li>
+	<li><b>-4</b> PASSWORD IS NOT IN VALID FORMAT</li>
+	<li><b>-98</b> USER DOES NOT HAVE VALID GUID</li>
+	<li><b>-400</b> USER HAS TOTP ON ACCOUNT BUT TOTP INDICATOR IS NOT SET</li>
+	<li><b>-500</b> USER EXISTS ON ANOTHER SERVER</li>
+</ul>
+The TGT is encrypted using the server's own private key and can never be read by the user. The Encrypted TGT is added to the reply message, but the message itself (contained in the "data" field) is encrypted using the key generated from the password entered by the user, and the parameters received as part of the reply of this request (SALT, ROUNDS, ALGO).
+<img src="authorization.jpg" width="200" title="Reply from POST /grape/auth/tgt" />
+
+	<h2>User auth_info field</h2>
+	Fields used:
+	<ul>
+		<li>totp_status: "pending verification", "ok", </li>
+		<li>totp_key</li>
+		<li>password_reset_code</li>
+	</ul>
+
 
 </ps_doc>

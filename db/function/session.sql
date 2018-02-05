@@ -314,3 +314,5 @@ BEGIN
 	PERFORM grape.set_session(_session_id);
 	RETURN '{}'::JSON;
 END; $$ LANGUAGE plpgsql;
+
+

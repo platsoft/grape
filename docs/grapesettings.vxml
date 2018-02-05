@@ -27,5 +27,7 @@ Grape stores internal settings in the table <tname>grape.setting</tname>. The fo
 	<tr><td>system_url</td><td>URL to access system's frontend</td><td></td></tr>
 	<tr><td>service_name</td><td>Local service name (for authentication)</td><td></td></tr>
 	<tr><td id="setting-user_ip_filter">user_ip_filter</td><td>Enable user IP filters</td><td>false</td></tr>
+	<tr><td id="settings-password_hashing_rounds">password_hashing_rounds</td><td></td><td>1000</td></tr>
+	<tr><td id="settings-password_hashing_algo">password_hashing_algo</td><td></td><td>sha256</td></tr>
 </table>
 </ps_doc>
