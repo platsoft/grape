@@ -247,10 +247,17 @@ END; $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION grape.session_ping(JSON) RETURNS JSON AS $$
 DECLARE
 	_session_id TEXT;
+	_sess_info JSONB;
 BEGIN
 	_session_id := grape.current_session_id();
 
-	RETURN grape.api_success(grape.build_session_information(_session_id));
+	_sess_info := grape.build_session_information(_session_id);
+
+	IF _sess_info IS NULL THEN
+		RETURN grape.api_result_error('No such session', -3);
+	ELSE
+		RETURN grape.api_success(grape.build_session_information(_session_id));
+	END IF;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION grape.set_session_user_id(_user_id INTEGER) RETURNS TEXT AS $$
