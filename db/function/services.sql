@@ -71,7 +71,6 @@ BEGIN
 			RAISE NOTICE 'Unknown service name %', _service_name;
 			RETURN NULL;
 		END IF;
-	ELSE
 	END IF;
 
 	_dkey := ENCODE(DIGEST(_s, 'sha256'), 'hex');
@@ -141,6 +140,18 @@ BEGIN
 	-- TODO check time
 
 	RETURN _service_ticket;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION grape.delete_service(JSONB) RETURNS JSONB AS $$
+DECLARE
+BEGIN
+	IF NOT $1 ? 'service_id' THEN
+		RETURN grape.api_error_invalid_field('service_id');
+	END IF;
+
+	DELETE FROM grape.service WHERE service_id=($1->>'service_id')::INTEGER;
+	
+	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;
 
 
