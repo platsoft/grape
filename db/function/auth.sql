@@ -211,7 +211,10 @@ BEGIN
 	_service_ticket := grape.create_service_ticket(_requested_service, _user.user_id);
 	_service_ticket := grape.encrypt_message_for_service(_requested_service, _service_ticket);
 
-	RETURN grape.api_success(json_build_object('service_ticket', _service_ticket));
+	RETURN grape.api_success(json_build_object(
+		'service_ticket', _service_ticket, 
+		'issued_by', grape.get_value('service_name', '')
+	));
 END; $$ LANGUAGE plpgsql;
 
 
