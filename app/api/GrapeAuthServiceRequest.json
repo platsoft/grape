@@ -1,13 +1,13 @@
 {
 	"id": "/grape/auth/service_request",
 	"description": "Request service ticket from a TGT",
-	"sqlfunc": "grape.service_ticket_request",
-	"sqlfunctype": "jsonb",
+	"jsfile": "grape_auth_service_request.js",
 	"name": "GrapeAuthServiceRequest",
 	"roles": ["guest"],
 	"type": "object",
 	"properties": {
 		"tgt": {"type": "string", "description": "Ticket granting ticket (TGT)"},
+		"tgt_issued_by": {"type": "string", "description": "Service name of TGT issuer"},
 		"requested_service": {"type": "string", "description": "Requested service"},
 		"authenticator": {"type": "string", "description": "Encrypted authenticator"},
 		"iv": {"type": "string", "description": "Initialization vector"},

@@ -19,6 +19,7 @@ CREATE OR REPLACE FUNCTION grape.save_service(_service_id INTEGER, _service_name
 DECLARE
 	_new_service_id INTEGER;
 BEGIN
+	_shared_secret := TRANSLATE(_shared_secret, E'\n', '');
 	IF _service_id IS NULL THEN
 		IF grape.is_valid_service(_service_name, _role) THEN
 			RETURN NULL;

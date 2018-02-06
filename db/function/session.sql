@@ -48,7 +48,7 @@ BEGIN
 	END IF;
 
 	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
-		IF grape.check_user_password(rec.password, _password) = FALSE THEN
+		IF grape.check_user_password(_user.password, _password) = FALSE THEN
 			RAISE DEBUG 'User % login failed. Password does not match', _username;
 			RETURN grape.api_result_error('Invalid password', 2);
 		END IF;
@@ -104,13 +104,13 @@ BEGIN
 
 	_ip_address := $1->>'ip_address';
 
-	IF json_extract_path($1, 'http_headers') IS NOT NULL THEN
+	IF jsonb_extract_path($1, 'http_headers') IS NOT NULL THEN
 		_headers := ($1->'http_headers')::JSONB;
 	END IF;
 
 	_persistant := FALSE;
 
-	IF json_extract_path($1, 'persistant') IS NOT NULL THEN
+	IF jsonb_extract_path($1, 'persistant') IS NOT NULL THEN
 		_persistant := ($1->>'persistant')::BOOLEAN;
 	END IF;
 

@@ -3,91 +3,87 @@ const ldapjs = require('ldapjs');
 
 module.exports = function() {
 	
-	function get_service_ticket_from_auth_server (obj, serversettings, cb) {
+	function request_service_ticket_locally (req, res, obj)
+	{
+		res.locals.db.jsonb_call('grape.service_ticket_request', obj, null, {response: res});
+	}
+
+	function request_service_ticket_remotely (req, res, obj, auth_server_info)
+	{
 		var ldapclient = ldapjs.createClient({
-			url: serversettings.auth_server
+			url: auth_server_info.auth_server
 		});
 
-		ldapclient.bind('cn=root', serversettings.shared_secret, function(err) {
+		ldapclient.bind('cn=root', auth_server_info.auth_server_secret, function(err) {
 			if (err)
 			{
-				cb(err, null);
+				res.json({status: 'ERROR', code: -88, error: err}).end();
 				return;
 			}
 
 			// service ticket request
-			ldapclient.exop('8.1.2.2.3.11.22422.8.6.6', JSON.stringify(obj), function(err, value, res) {
+			ldapclient.exop('8.1.2.2.3.11.22422.8.6.6', JSON.stringify(obj), function(err, value, response) {
 				if (err)
 				{
-					cb(err, null);
+					res.json({status: 'ERROR', code: -88, error: err}).end();
 					return;
 				}
 				var ret = JSON.parse(value);
-				cb(null, ret);
 				ldapclient.unbind();
+				res.json(ret).end();
 			});
 
 		});
-
-	};
-
+	}
 
 	return function(req, res) {
 		var obj = {};
+		var user_obj = {};
 		
 		if (req.body.email)
+		{
 			obj.email = req.body.email;
+			user_obj.email = req.body.email;
+		}
 
 		if (req.body.username)
+		{
 			obj.username = req.body.username;
+			user_obj.username = req.body.username;
+		}
 
-		res.locals.db.jsonb_call('grape.service_ticket_request', obj, function(err, result) {
-			if (err)
-			{
-				res.json({status: 'ERROR', code: -99, error: err}).end();
-				return;
-			}
 
-			var result = result.rows[0].result;
+		obj.tgt = req.body.tgt;
+		obj.authenticator = req.body.authenticator;
+		obj.requested_service = req.body.requested_service;
+		obj.tgt_issued_by = req.body.tgt_issued_by;
+		obj.iv = req.body.iv;
+		obj.salt = req.body.salt;
 
-			console.log(result);
+		if (obj.requested_service != obj.tgt_issued_by)
+		{
+			res.locals.db.jsonb_call('grape.get_user_auth_server_info', user_obj, function(err, result) {
+				if (err)
+				{
+					res.json({status: 'ERROR', code: -99, error: err}).end();
+					return;
+				}
 
-			if (result.status == 'ERROR' && result.code == -500) // need to get password from another server
-			{
-				var auth_server = result.auth_server;
-				var auth_server_search_base = result.auth_server_search_base;
-				res.locals.db.query('SELECT shared_secret FROM grape.service WHERE service_name=$1', [auth_server], function(err, result) {
-					if (err || result.rows.length == 0)
-					{
-						res.json({status: 'ERROR', message: 'Unable to find secret for service ' + auth_server, error: err});
-						return;
-					}
-
-					var shared_secret = result.rows[0].shared_secret;
-					var serversettings = {
-						auth_server: auth_server,
-						shared_secret: shared_secret,
-						auth_server_search_base: auth_server_search_base
-					};
-
-					get_tgt_from_auth_server(obj, serversettings, function(err, result) {
-						if (err)
-						{
-							res.json({status: 'ERROR', message: err.message || 'LDAP error', error: err}).end();
-							return;
-						}
-						// TODO what if we have to authenticate against LDAP instead
-						res.json(result).end();
-					});
-				});
-
-			}
-			else
-			{
-				result.issued_by_url = 'local';
-				res.json(result).end();
-			}
-		}, {alias: 'result'});
+				var result = result.rows[0].result;
+				if (result.auth_server == 'local')
+				{
+					request_service_ticket_locally(req, res, obj);
+				}
+				else
+				{
+					request_service_ticket_remotely(req, res, obj, result);
+				}
+			}, {alias: 'result'});
+		}
+		else
+		{
+			request_service_ticket_locally(req, res, obj);
+		}
 	};
 };
 
