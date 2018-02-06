@@ -927,7 +927,13 @@ CREATE INDEX nf_active_idx ON grape.notification_function
 CREATE TABLE grape.service(
 	service_id serial NOT NULL,
 	service_name text,
+	role text,
 	shared_secret text,
+	username text,
+	description text,
+	endpoint_url text,
+	attributes jsonb,
+	guid uuid,
 	CONSTRAINT service_pk PRIMARY KEY (service_id)
 
 );
@@ -985,7 +991,35 @@ CREATE TABLE grape.patch(
 	end_time timestamptz,
 	status text,
 	log_file text,
+	note text,
 	CONSTRAINT patch_pk PRIMARY KEY (system,version)
+
+);
+-- ddl-end --
+
+-- -- object: grape.process_hook | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.process_hook CASCADE;
+-- CREATE TABLE grape.process_hook(
+-- 	process_id integer,
+-- 	event text,
+-- 	function_name text,
+-- 	function_schema text,
+-- 	process_hook_id serial
+-- );
+-- -- ddl-end --
+-- COMMENT ON COLUMN grape.process_hook.event IS 'START, END, ERROR';
+-- -- ddl-end --
+-- 
+-- object: grape.registered_api_calls | type: TABLE --
+-- DROP TABLE IF EXISTS grape.registered_api_calls CASCADE;
+CREATE TABLE grape.registered_api_calls(
+	method text NOT NULL,
+	uri text NOT NULL,
+	properties jsonb,
+	return jsonb,
+	return_type text,
+	accept_type text,
+	CONSTRAINT registered_api_calls_pk PRIMARY KEY (method,uri)
 
 );
 -- ddl-end --

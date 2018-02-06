@@ -30,48 +30,6 @@ module.exports = function() {
 
 	};
 
-	function get_password_from_auth_server (obj, serversettings, cb) {
-		
-		var ldapclient = ldap.createClient({
-			url: serversettings.auth_server
-		});
-
-		ldapclient.bind('cn=root', serversettings.shared_secret, function(err) {
-			if (err)
-			{
-				cb(err, null);
-				return;
-				res.status(200).json({'status': 'ERROR', message: 'LDAP error', error: err});
-				return;
-			}
-
-			var s_opts = {
-				scope: 'base',
-				filter: '',
-				attributes: ['password']
-			};
-
-			if (obj.username)
-				s_opts.filter = 'uid=' + obj.username;
-			else if (obj.email)
-				s_opts.filter = 'mail=' + obj.email;
-			else
-			{
-				cb({message: 'No username or email defined to search for user with'}, null);
-				return;
-			}
-
-			ldapclient.search(serversettings.auth_server_search_base, s_opts, function(err, result) {
-				console.log(result);
-				res.end();
-				ldapclient.unbind();
-			});
-
-
-		});
-
-	};
-
 	return function(req, res) {
 		var obj = {};
 		

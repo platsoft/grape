@@ -12,5 +12,5 @@ CREATE OR REPLACE VIEW grape.v_ldap_users AS SELECT
 	employee_guid,
 	active,
 	password
-	FROM grape."user";
+	FROM grape."user" WHERE active=true;
 

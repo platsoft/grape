@@ -260,5 +260,7 @@ Security fixes:
 New features:
 - Added functions: grape.current_session_id and grape.current_username
 
+1.1.2
+- New function grape.user_id_from_email
 
 

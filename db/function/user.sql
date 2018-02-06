@@ -176,6 +176,14 @@ CREATE OR REPLACE FUNCTION grape.user_id_from_fullnames(_fullnames TEXT) RETURNS
 $$ LANGUAGE sql;
 
 /**
+ * Returns user_id from email
+ */
+CREATE OR REPLACE FUNCTION grape.user_id_from_email(_email TEXT) RETURNS INTEGER AS $$
+        SELECT user_id FROM grape."user" WHERE email=_email::TEXT;
+$$ LANGUAGE sql;
+
+
+/**
  * Returns a username for fullnames
  */
 CREATE OR REPLACE FUNCTION grape.username_from_fullnames(_fullnames TEXT) RETURNS TEXT AS $$

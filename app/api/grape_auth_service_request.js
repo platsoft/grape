@@ -82,7 +82,7 @@ module.exports = function() {
 		if (req.body.username)
 			obj.username = req.body.username;
 
-		res.locals.db.jsonb_call('grape.TGT_request', obj, function(err, result) {
+		res.locals.db.jsonb_call('grape.service_ticket_request', obj, function(err, result) {
 			if (err)
 			{
 				res.json({status: 'ERROR', code: -99, error: err}).end();
