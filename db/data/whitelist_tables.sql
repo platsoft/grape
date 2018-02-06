@@ -18,6 +18,7 @@ SELECT grape.table_permissions_add('grape',
 	'v_data_import, '
 	'v_process_definitions, '
 	'v_active_sessions, '
+	'v_services, '
 	'data_import_type}'::TEXT[], 
 
 	'admin',

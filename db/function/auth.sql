@@ -80,7 +80,7 @@ BEGIN
 				'status', 'ERROR', 
 				'code', -500, 
 				'message', 
-				'Fetch password from external server', 
+				'User is not local', 
 				'auth_server', _user.auth_info->>'auth_server',
 				'auth_server_search_base', _user.auth_info->>'auth_server_search_base'
 			);
@@ -163,8 +163,8 @@ BEGIN
 
 	_requested_service := ($1->>'requested_service');
 
-	IF grape.is_valid_service(_requested_service) = FALSE AND grape.get_value('service_name', '') != _requested_service THEN
-		RETURN grape.api_error('No such service: ' + _requested_service);
+	IF grape.is_valid_service(_requested_service, 'SERVICE_TICKET') = FALSE AND grape.get_value('service_name', '') != _requested_service THEN
+		RETURN grape.api_error('No such service: ' || _requested_service, -98);
 	END IF;
 
 	_encrypted_authenticator := ($1->>'authenticator');

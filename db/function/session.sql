@@ -150,6 +150,7 @@ CREATE OR REPLACE FUNCTION grape.create_session_from_service_ticket(JSONB) RETUR
 DECLARE
 	_service_ticket_encrypted TEXT;
 	_service_ticket JSONB;
+	_issued_by TEXT;
 	_user RECORD;
 	_persistant BOOLEAN;
 	_session_id TEXT;
@@ -158,7 +159,17 @@ DECLARE
 	_headers JSONB;
 BEGIN
 	_service_ticket_encrypted := ($1->>'service_ticket');
-	_service_ticket := grape.validate_service_ticket(_service_ticket_encrypted);
+	_issued_by := ($1->>'issued_by');
+
+	IF _service_ticket_encrypted IS NULL THEN
+		RETURN grape.api_error_invalid_field('service_ticket');
+	END IF;
+	
+	IF _issued_by IS NULL THEN
+		RETURN grape.api_error_invalid_field('issued_by');
+	END IF;
+
+	_service_ticket := grape.validate_service_ticket(_service_ticket_encrypted, _issued_by);
 
 	IF _service_ticket IS NULL THEN
 		RETURN grape.api_error();

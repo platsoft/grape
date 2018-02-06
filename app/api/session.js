@@ -123,6 +123,7 @@ function login_with_service_ticket (req, res)
 
 	var obj = {
 		service_ticket: req.body.service_ticket,
+		issued_by: req.body.issued_by,
 		ip_address: ip_address,
 		headers: req.headers
 	};

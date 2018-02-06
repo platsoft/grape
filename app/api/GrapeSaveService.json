@@ -13,12 +13,12 @@
 		"description": {"type": "text", "description": "Service description"},
 		"endpoint_url": {"type": "text", "description": "Connection URL"},
 		"username": {"type": "text", "description": "Credentials Username"},
-		"provides": {"type": "array", "items": {"type": "text", "description": "Credentials Username"}}
+		"role": {"type": "text", "description": "Service role (TICKET_ISSUER, SERVICE_TICKET, LDAP_AUTH)"}
 	},
 	"return": {
 		"type": "object",
 		"properties": {
-			"process_id": {"type": "number", "description": "Newly inserted user_network_id"},
+			"service_id": {"type": "number", "description": "Newly inserted or updated service_id"},
 			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator","standard":true},
 			"message": {"type": "string", "description": "Error message","standard":true},
 			"code": {"type": "number", "description": "Error code","standard":true},

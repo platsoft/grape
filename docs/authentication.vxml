@@ -19,6 +19,7 @@ If a user is logged in, they will always belong to the role "all".
 If a user is not authenticated, they will belong to the roles "guest".
 
 <h2 id="auth-genkeys">Generating user's encryption and decryption key from password</h2>
+<p>
 The format of the field <tname>grape.user.password</tname> is built up as follows:
 <i>ALGO-ROUNDS:SALT:KEY</i>
 
@@ -28,13 +29,18 @@ The format of the field <tname>grape.user.password</tname> is built up as follow
 	<li><b>SALT</b> is a randomly generated character string (20 characters)</li>
 </ul>
 
+
 The key is calculated by repeating the following process <b>ROUNDS</b> times:
 <ol>
 	<li>Concatenate the result of the previous run (use an empty string on the first iteration), with the salt and user's real password</li>
 	<li>Calculate the SHA-256 (or <b>ALGO</b>) digest for the answer of (1)</li>
 	<li>Hex-encode the result from (2)</li>
 </ol>
+
+If a TOTP is used, the key hex-encoded SHA256 digest of the previously calculated key concatenated with the TOTP is used (<icode>HEX(SHA256(KEY + OTP))</icode>).
+
 Messages are then encrypted and decrypted using AES-CBC with PKCS padding.
+</p>
 
 <h2 id="auth-tgtrequest">TGT Request</h2>
 <p>This call is used to request a TGT (Ticket-granting ticket) for a user. The Encrypted TGT are extracted from the reply of this call, to be used in the issuing of service tickets</p>

@@ -1010,20 +1010,20 @@ CREATE TABLE grape.patch(
 -- COMMENT ON COLUMN grape.process_hook.event IS 'START, END, ERROR';
 -- -- ddl-end --
 -- 
--- object: grape.registered_api_calls | type: TABLE --
--- DROP TABLE IF EXISTS grape.registered_api_calls CASCADE;
-CREATE TABLE grape.registered_api_calls(
-	method text NOT NULL,
-	uri text NOT NULL,
-	properties jsonb,
-	return jsonb,
-	return_type text,
-	accept_type text,
-	CONSTRAINT registered_api_calls_pk PRIMARY KEY (method,uri)
-
-);
--- ddl-end --
-
+-- -- object: grape.registered_api_calls | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.registered_api_calls CASCADE;
+-- CREATE TABLE grape.registered_api_calls(
+-- 	method text NOT NULL,
+-- 	uri text NOT NULL,
+-- 	properties jsonb,
+-- 	return jsonb,
+-- 	return_type text,
+-- 	accept_type text,
+-- 	CONSTRAINT registered_api_calls_pk PRIMARY KEY (method,uri)
+-- 
+-- );
+-- -- ddl-end --
+-- 
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
