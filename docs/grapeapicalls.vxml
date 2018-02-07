@@ -107,7 +107,7 @@ The logic of the function needs to be implemented in PostgreSQL. For example, a 
 	The JavaScript file should return a function, for example:
 <code>module.exports = function() {
 	return function(req, res) {
-		// CODE GOES HERE
+		// API CODE GOES HERE
 		res.end();
 	}
 }</code>
@@ -150,15 +150,13 @@ Examples:
 </p>
 
 <h4>Generating documentation</h4>
-In the Viticulture repository, a script called <i>scripts/build_schema_api_docs.js</i> can be used to generate VXML documentation for schema-based API calls.
+In the Viticulture repository, a script called <i>scripts/build_schema_api_docs.js</i> can be used to generate VXML documentation from the API JSON files.
 <code>  Usage: build_schema_api_docs [options] directory|file [directory|file directory|file ...]
 
   Options:
 
     -h, --help                  output usage information
-    -o, --output [output_file]  Output file
-</code>
-
+    -o, --output [output_file]  Output file (vxml)</code>
 
 
 <h2 id="grape-access-control">Access control on API calls</h2>
@@ -169,13 +167,11 @@ In the Viticulture repository, a script called <i>scripts/build_schema_api_docs.
 	Each user has a list of roles assigned to him/her, and each API call has a list of access roles that is allowed to call it. There has to be an overlap between these two set of access roles, otherwise the request is denied.  See <link id="sec-grape-auth">Authentication</link> for more information.
 </p>
 <p>
-	The list of allowed access roles for each API call is defined in the "<i>roles</i>" field in the JSON schema.
-</p>
+	The list of allowed access roles for each API call is defined in the "<i>roles</i>" field in the JSON schema. All users belongs to one or more roles, and always to the role named <b>all</b>. 
 
-Access control is applied to all API calls. Before the API call is executed, the session is validated. If it cannot be validated, the default role <b>guest</b> is used. 
-All users belongs to one or more roles, and always to the role named <b>all</b>. 
 API calls are registered in the database (table <tname>access_path</tname>) by <b>path</b>, <b>method</b> and the <b>role</b> allowed.  The <b>path</b> is a regular expression, matching the incoming URL of the request.
 <note color="green">The SQL function <icode>grape.add_access_path (_path TEXT, _roles TEXT[], _methods TEXT[])</icode> can be used to add a new access path. For initial data, this is kept in the project's <fname>db/data/access_paths.sql</fname></note>
+</p>
 
 
 <h2>Consuming an API call</h2>
@@ -189,11 +185,7 @@ In order to use an API call, you will need to know the following:
 		<li>The call method. This will usually be <b>GET</b> or <b>POST</b></li>
 		<li>The input parameters. If the call's method is POST, this will be a JSON object containing fields. If it is GET, the input parameters are found in the URL</li>
 	</ol>
-	The API is consumed by making a HTTP request to the API's URL with the appropriate input parameters or body. Usually, session information will be sent in the HTTP headers in the <i>X-SessionID</i> header. The following two headers also need to be set on all API calls:
-	<ol>
-		<li>Content-type: application/json</li>
-		<li>Accept: application/json</li>
-	</ol>
+	The API is consumed by making a HTTP request to the API's URL with the appropriate input parameters or body. Usually, session information will be sent in the HTTP headers in the <i>X-SessionID</i> header. 
 </p>
 <h3>Using HTTP Authorization</h3>
 By default, grape applications support HTTP Authentication (Basic). When using this authentication method, it is not necessary to make a separate call to <i>/grape/login</i>. The username and password can be included in the HTTP headers. This should only be used over TLS, as the credentials can be reverse-encoded. The "Basic" HTTP authentication scheme is defined in <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>, which transmits credentials as user ID/password pairs, encoded using base64.

@@ -16,31 +16,19 @@
 	<li><link id="grape_public_directories">Serving static files</link></li>
 </ul>
 
-
+<img src="architecture.png" height="500" title="Grape Architecture" />
 </p>
 
-<h2>Usage</h2>
-<p>
-After installing the ps-grape package, Grape can be started as follows:
-<code><green>var</green> Grape = require('<red>ps-grape</red>');
-<green>var</green> app = <green>new</green> Grape.grape( '<red>config.json</red>' );
-app.start();</code>
-The constructor accepts any number of filenames and objects. These will be read and parsed upon startup. See <link id="grape_config_file">Configuration Files</link> for more information. 
-</p>
-<p>
-	Typically, a project will have two configuration files: <ol>
-		<li>A file for local configuration (options that is specific to a site/installation), usually named "config.json"</li>
-		<li>A file for project configuration. This file might also include references to other config files, for example when Grape modules are loaded. We usually call this file "defaults.json".</li>
-	</ol>
-</p>
+<!-- include usage -->
+<include href="usage.vxml" parse="vxml" level="1" /> 
+
+<!-- include grape config -->
+<include href="grape_config.vxml" parse="vxml" level="1" /> 
 
 <!-- include grape api calls-->
 <include href="grapeapicalls.vxml" parse="vxml" level="1" /> 
 
-<include href="grape_class_reference.vxml" parse="vxml" level="1"></include>
 
-<h2>Architecture</h2>
-<img src="architecture.png" height="500" title="Grape Architecture" />
 
 <h2 id="sec-grape-dirlayout">Application file structure</h2>
 
@@ -70,23 +58,30 @@ Most Grape applications will have the following directories/files:
 <!-- include grape logging -->
 <include href="logging.vxml" parse="vxml" level="1" /> 
 
-<!-- include grape mailer -->
-<include href="grapemailer.vxml" parse="vxml" level="1" /> 
-
-<!-- include grape pdf -->
-<include href="grapepdf.vxml" parse="vxml" level="1" /> 
-
-<!-- include grape user network -->
-<include href="user_ip_filter.vxml" parse="vxml" level="1" /> 
-
-<!-- include notifications network -->
-<include href="grape_notifications.vxml" parse="vxml" level="1" /> 
-
 <!-- include grape settings-->
 <include href="grapesettings.vxml" parse="vxml" level="1" /> 
 
-<!-- include grape config -->
-<include href="grape_config.vxml" parse="vxml" level="1" /> 
+<h2>Additional Functionality</h2>
+
+<!-- include grape user network -->
+<include href="user_ip_filter.vxml" parse="vxml" level="2" /> 
+
+<!-- include notifications network -->
+<include href="grape_notifications.vxml" parse="vxml" level="2" /> 
+
+<!-- include grape mailer -->
+<include href="grapemailer.vxml" parse="vxml" level="2" /> 
+
+<!-- include grape pdf -->
+<include href="grapepdf.vxml" parse="vxml" level="2" /> 
+
+
+<!-- include grape modules -->
+<include href="modules.vxml" parse="vxml" level="1" /> 
+
+<h2>Reference</h2>
+
+<include href="grape_class_reference.vxml" parse="vxml" level="1"></include>
 
 <!-- include grape error codes -->
 <include href="grape_error_codes.vxml" parse="vxml" level="1" /> 
@@ -99,8 +94,6 @@ Most Grape applications will have the following directories/files:
 <include href="builtin_api_calls.vxml" parse="vxml" level="1" /> 
 <h3>download_public_js_files</h3>
 The <b>download_public_js_files</b> API call is a special API call that will traverse all subdirectories in the public directories (defined by <b><i>public_directories</i></b>), with the names defined by <b><i>compile_js_dirs</i></b>. The default values for <b><i>compile_js_dirs</i></b> is <b>pages</b>. This means all subdirectories named "pages" will be traversed for JS files, and served through this call.
-
-
 
 <!-- include grape sql functions -->
 <include href="grape_sql_functions.vxml" parse="vxml" level="1" /> 

@@ -7,6 +7,8 @@ Enterprise mobility management (EMM)
 - Consolidate DB settings and Config file settings
 - Implemented API calls in PHP/Python 
 - Make roles be able to belong roles
+- Email attachments
+
 
 Modules to write:
 - Shopping cart module

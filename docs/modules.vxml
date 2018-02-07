@@ -1,4 +1,11 @@
-Other functionality provided for developers, are:
+<?xml version="1.0"?>
+<ps_doc title="API Reference" titlepage="no" tocpage="no">
+<h1>Additional Modules</h1>
+<p>
+Extended functionality is provided as part of Grape modules. A Grape Module can provide additional HTML files, API calls, database structures and functions, and workers. Grape modules are usually installed using npm.
+</p>
+
+<h2>Available Modules</h2>
 <ul>
 	<li><link id="grapemailer">Sending emails</link> (generated with templates)</li>
 	<li><link id="grape_data_import">Data import (XLS/CSV) and processing</link></li>
@@ -7,3 +14,4 @@ Other functionality provided for developers, are:
 	<li><link id="grape_notifications">Sending system notifications</link></li>
 </ul>
 
+</ps_doc>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape Workers" titlepage="no" tocpage="no">
+<h1 id="sec-grape-workers">Workers</h1>
+<p>
+Conforming to Node's design principle of single-thread multi-process, Grape spawns a number of processes when starting up. By default, 5 instances of the "HTTP Listener" worker is created. This is workers that implement an Express.JS app, and handles incoming HTTP requests. It is possible to add custom workers, or workers defined in Grape modules. 
+</p>
+<h2>Anatomy of a worker</h2>
+<p>
+</p>
+<h2>Registering a worker</h2>
+<p>
+</p>
+</ps_doc>
