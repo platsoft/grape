@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
 <ps_doc title="Grape config file" titlepage="no">
 <h1 id="grape_config_file">Grape config file</h1>
+<p>
+	The Grape constructor accepts a list of filenames and objects.  When the Grape object is instantiated, all of these files and objects are parsed and merged into a configuration object. This config object is then passed on to the rest of the application. 
+	<note color="orange">The long-term plan is to move many of the these options into <link id="sec-grape-settings">Grape settings</link> instead</note>
+	JSON config files can also have the special option "includes", an array containing paths to other config files to include. This is useful when using Grape modules.
+
 The following options are recognized in the config passed to Grape:
 
 <table>
@@ -10,7 +15,7 @@ The following options are recognized in the config passed to Grape:
 	<tr><td>dburi</td><td>DB connection settings</td><td></td></tr>
 	<tr><td>guest_dburi</td><td>DB connection settings for guest users</td><td></td></tr>
 	<tr><td>super_dburi</td><td>DB connection used when setting up database (by grape-db-setup)</td><td></td></tr>
-	<tr><td id="conf-api_directory">api_directory</td><td>Directory (or array of directories) containing API files</td><td></td></tr>
+	<tr><td id="conf-api_directory">api_directories</td><td>Array of directories containing API files</td><td></td></tr>
 	<tr><td id="conf-db_definition">db_definition</td><td>Array containing directories with DB definitions. Subdirectories schema, function, view and data will be traversed when recreating a database using the setup_database tool</td><td></td></tr>
 	<tr><td>sql_dirs</td><td>Array containing directories with DB definitions. All subdirectories will be recursively read</td><td></td></tr>
 	<tr><td>pg_temp_directory</td><td>Path to a directory to which both PostgreSQL and the running node process has write access</td><td></td></tr>
@@ -43,4 +48,5 @@ The following options are recognized in the config passed to Grape:
 	<tr><td id="conf-ldap_server_port">ldap_server_port</td><td>LDAP server port to listen on</td><td></td></tr>
 	<tr><td id="conf-delayed_response">delayed_response</td><td>Delay all responses with this many milliseconds (can be used to simulate slow networks)</td><td>0</td></tr>
 </table>
+</p>
 </ps_doc>

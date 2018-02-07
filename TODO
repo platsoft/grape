@@ -4,6 +4,9 @@ Enterprise mobility management (EMM)
 - Register all API calls in DB table
 - Create API calls for stuff that is not JS files or DB functions (like PHP or python)
 - New role 'sysadmin' used for configuration of system settings
+- Consolidate DB settings and Config file settings
+- Implemented API calls in PHP/Python 
+- Make roles be able to belong roles
 
 Modules to write:
 - Shopping cart module

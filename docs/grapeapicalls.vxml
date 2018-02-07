@@ -2,53 +2,37 @@
 <ps_doc title="Grape API calls" titlepage="no">
 <h1 id="grape_api_calls">API Calls</h1>
 
-Grape classifies between 3 different types of API calls:
-<ol>
-	<li>Filesystem request: the browser requests a file from the filesystem (for example an HTML, CSS, JS or image file)</li>
-	<li>Database API request: the API handler is implemented as a database function, accepting and returning a JSON object</li>
-	<li>JavaScript API request: the API handler is implemented as a JavaScript function, and handled completely in the Node.JS environment</li>
-</ol>
-<h2>FS Request</h2>
+<h2>Registering API calls</h2>
 <p>
-	The first and most simple is a request for a file on the filesystem. A request that does not accept JSON, and does not start with <r>/download</r>, will fall under this category. This includes the initial call for <r>index.html</r>. Files are searched for in the directories listed in the Grape config setting <i><link id="conf-public_directories">public_directories</link></i>, in the order that it is specified in the setting. The first file found matching the path (relative to any public directory) and filename is served. 
+API calls are defined in json files that looks like this:
+	<code>{
+	"description": "Calculate the square root of a number",
+	"id": "/maths/sqrt", 
+	"name": "SquareRoot",
+	"sqlfunc": "maths_sqrt",
+	"type": "object",
+	"properties": {
+		"value": { "type": "number", "description": "The input value for the square root function" }
+	},
+	"result": {
+		"type": "object",
+		"properties": {
+			"result": {"type": "number", "description": "The resulting number"},
+			"status": {"enum": ["ERROR", "OK"]}
+		}
+	}
+}</code>
+
+Usually, each API call lives in it's own file.  However, it is possible to have an array with multiple API call definitions inside a JSON file.
+</p>
+<p>
+
+	These files live in multiple directories. The list of directories it is found in, is defined in the configuration option "<b><i>api_directories</i></b>". This option is usually defined in the configuration files read by Grape upon startup. Each grape module will usually have it's own directory to add to the list. After Grape Express App Instances have been created, each of the directories found in this option is traversed, and all JSON files read and parsed.
 </p>
 
-<h2>DB API requests</h2>
-Database API calls are the most commonly used API calls. The logic for the function is typically implemented as a function in PostgreSQL. The function being called in the database accepts a JSON parameter, and returns a JSON object with the result.
-<img src="db_api_call.png" title="Anatomy of a DB API" />
-
-The logic of the function needs to be implemented in PostgreSQL. For example, a function calculating the square root of a number:
-<code lang="sql">
-	/**
-	 * @api_usage MathsSqrt
-	 * @api_url POST /maths/sqrt
-	 */
-	CREATE OR REPLACE FUNCTION maths_sqrt (JSON) RETURNS JSON AS $$
-	DECLARE
-		_value NUMERIC;
-		_result NUMERIC;
-	BEGIN
-
-		_value := ($1->>'value')::NUMERIC; <r>-- Extract values from JSON</r>
-
-		_result := sqrt(_value);           <r>-- Calculation</r>
-
-		RETURN grape.api_success('result', _result); <r>-- Build and return JSON object</r>
-	END; $$ LANGUAGE plpgsql;
-</code>
+<h2>Format of JSON Schema API call</h2>
 <p>
-The database function needs to be registered against an Express route in GrapeApp. There are two ways to do this: using a schema file, or registering it manually.
-</p>
-
-<h3>Registering the API call using schemas</h3>
-<note color="green">This method of creating DB API calls was introduced in Grape 1.0.4</note>
-
-<p>
-APIs can be defined using a format based on the JSON Schema standard (<a href="http://json-schema.org">http://json-schema.org</a>), with added fields.
-On start-up, all the directories in the project's <i><link id="conf-api_directory">api_directory</link></i> config setting is traversed for JSON files. JSON files are then parsed, and must contain a single object, or an array of objects describing the API calls. 
-</p>
-
-<p>
+The JSON format used to define APIs are loosely based on JSON Schema standard (<a href="http://json-schema.org">http://json-schema.org</a>).
 The fields in a schema object:
 <code>
 {
@@ -57,8 +41,10 @@ The fields in a schema object:
 	<blue>"name"</blue>: <r>"CamelCase name for this call"</r>,
 	<blue>"sqlfunc"</blue>: <r>"SQL function"</r>,
 	<blue>"sqlfunctype"</blue>: <r>"Specify jsonb here for JSONB functions. Defaults to JSON"</r>,
+	<blue>"jsfile": <r>"JavaScript file to execute"</r></blue>
 	<blue>"type"</blue>: <r>"Body type - use 'object' for POST methods and 'query' for GET"</r>,
 	<blue>"method"</blue>: <r>"GET or POST - defaults to POST"</r>,
+	<blue>"roles"</blue>: <r>"An array of role names that is allowed to execute this request"</r>,
 	<blue>"properties"</blue>: <r>{ Set of properties in this body. Used for POST requests }</r>,
 	<blue>"validation_string"</blue>: <r>"Validation string. Use this to validate GET/POST input"</r>,
 	<blue>"no_validation"</blue>: <r>true or false. If this is true, validation will be disabled for this call (default to false)</r>,
@@ -80,30 +66,60 @@ The <blue>properties</blue> field, which is used with the "object" type, is an a
 	}
 }
 </code>
+
+
+<h2>API Handlers</h2>
+<p>
+	Grape relays the API request to a handler. This handler can either be a function in the database, or a JavaScript file (TODO: write handlers in any language).
+</p>
+
+<h3>Database Handlers</h3>
+<p>
+	Database API calls are the most commonly used API calls. The handlers are written as functions/stored procedures in the database. The functions accepts and returns a JSON(B) object. The object is created from the request's body (in case of POST), or the request's query parameters (in the case of GETs). The name of the function is specified in the "<b><i>sqlfunc</i></b>" field. If the function accepts JSONB (instead of JSON), the value of the field "<b><i>sqlfunctype</i></b>" should be set to "jsonb".
+<img src="db_api_call.png" title="Anatomy of a DB API" width="3cm" />
+
+The logic of the function needs to be implemented in PostgreSQL. For example, a function calculating the square root of a number:
+<code lang="sql">
+	/**
+	 * @api_usage MathsSqrt
+	 * @api_url POST /maths/sqrt
+	 */
+	CREATE OR REPLACE FUNCTION maths_sqrt (JSON) RETURNS JSON AS $$
+	DECLARE
+		_value NUMERIC;
+		_result NUMERIC;
+	BEGIN
+
+		_value := ($1->>'value')::NUMERIC; <r>-- Extract values from JSON</r>
+
+		_result := sqrt(_value);           <r>-- Calculation</r>
+
+		RETURN grape.api_success('result', _result); <r>-- Build and return JSON object</r>
+	END; $$ LANGUAGE plpgsql;
+</code>
+</p>
+
+<h3>JavaScript Handlers</h3>
+<p>
+	The API handler is implemented as a JavaScript function, and handled completely in the Node.JS environment. The file should be specified using the "<b><i>js_file</i></b>" field in the JSON schema.
+</p>
+<p>
+	The JavaScript file should return a function, for example:
+<code>module.exports = function() {
+	return function(req, res) {
+		// CODE GOES HERE
+		res.end();
+	}
+}</code>
+</p>
+
 </p>
 
 <p>
 	An example of a schema definition for the sqrt function:
-	<code>{
-	"description": "Calculate the square root of a number",
-	"id": "/maths/sqrt", 
-	"name": "SquareRoot",
-	"sqlfunc": "maths_sqrt",
-	"type": "object",
-	"properties": {
-		"value": { "type": "number", "description": "The input value for the square root function" }
-	},
-	"result": {
-		"type": "object",
-		"properties": {
-			"result": {"type": "number", "description": "The resulting number"},
-			"status": {"enum": ["ERROR", "OK"]}
-		}
-	}
-}</code>
 
 <h4>Validation</h4>
-If the API call's method is POST, the received body will be validated against the JSON schema (the fields in the <i>properties</i>). When the properties field cannot be used (for example in GET calls), an <i>validate</i> field can be specified. This field contains a string, in the following format:
+Validation happen against the value of the <i>validate</i> field. This field contains a string, in the following format:
 <code>
 Validate string syntax:
       begin_expr ::= "(" <![CDATA[<begin_expr>]]> "," <![CDATA[<param-def>]]> ")"
@@ -143,114 +159,17 @@ In the Viticulture repository, a script called <i>scripts/build_schema_api_docs.
     -o, --output [output_file]  Output file
 </code>
 
-<h3>JavaScript API handlers</h3>
+
+
+<h2 id="grape-access-control">Access control on API calls</h2>
 <p>
-	API calls that are handled by JavaScript functions, can be found in the project's <i><link id="conf-api_directory">api_directory</link></i> (set in the config, usually <i>api/</i>). On startup, these directories are traversed for <i>*.js</i> files and included in the application. API calls are registered using <i>app.get</i> and <i>app.post</i>. <br />
-	For example, the contents of a JS file in the <i>api/</i> directory:
-	<code lang="js">exports = module.exports = function(app) {
-		app.get("/maths/sqrt/:value", function (req, res) { <blue>/* Logic here */</blue> });
-}</code>
+	When an HTTP request is received, Grape attempts to connect a valid session to the request. This is done by looking for an <i>X-SessionID</i> header, and additionally looking for a session ID cookie. If a valid session could be identified, the user's access roles are loaded. If no session exists, the role "guest" is used.
 </p>
 <p>
-	Example of an API call, calling a database function:
-
-<code lang="js">exports = module.exports = function(app) {
-	<blue>// register the route</blue>
-	app.get("/maths/sqrt/:value", api_maths_sqrt);
-}
-function api_maths_sqrt (req, res)
-{
-	<blue>// call the stored procedure for this API call</blue>
-	res.locals.db.json_call("maths_sqrt", <blue>// the name of the PL/pgSQL function</blue>
-		{value: req.params.value},    <blue>// Build the JSON object as input for this function</blue>
-		null,                         <blue>// Optional callback (not used here)</blue>
-		{response: res}               <blue>// Send the response to res</blue>
-	);
-}
-</code>
-
-API calls should be documented using a standard based on the doxygen style. These comments can be extracted from the code using the <i>build_jsapi_documentation.js</i> script in Viticulture to create human-readable documentation. This is especially important for front-end developers, who can then use this documentation to interact with the API calls. All projects should have API documentation ready for clients to use.
+	Each user has a list of roles assigned to him/her, and each API call has a list of access roles that is allowed to call it. There has to be an overlap between these two set of access roles, otherwise the request is denied.  See <link id="sec-grape-auth">Authentication</link> for more information.
 </p>
 <p>
-A comment block containing documentation for an API call:
-<code>
-/**
- * @api <b>URL</b> <r> The URL of the API call</r>
- * @desc <b>DESCRIPTION</b> <r>Description of the API call</r>
- * @method <b>GET/POST</b> <r>HTTP Method</r>
- * @sqlfunc <b>SQL_FUNCTION_NAME</b> <r>The SQL function used by this API call</r>
- * @param <b>NAME</b> <b>TYPE</b> <b>DESCRIPTION</b> <b>OPTIONAL</b> <b>DEFAULT</b> <r>When documenting GET requests, specify the 
-	           								       input parameters using @param</r>
- * @returnsample <b>JSON</b> <r>Example JSON of a successful return call</r>
- * @return <b>DESCRIPTION</b> <r>Description of the return values</r>
- * 
- */
-</code>
-</p>
-
-<h4>Generating documentation</h4>
-In the Viticulture repository, a script called <i>scripts/build_jsapi_documentation.js</i> can be used to generate VXML documentation for JavaScript API calls.
-<code>  Usage: build_jsapi_documentation [options] directory [directory directory ...]
-
-  Options:
-
-    -h, --help                  output usage information
-    -o, --output [output_file]  Output file
-</code>
-
-
-<h3>Non-JSON returning API calls</h3>
-An API call that is handled by a JavaScript call and needs to return something other than a JSON object, starts with <i>/download</i>.
-
-
-
-<h2 id="grape-access-control">Access control</h2>
-<p>
-	Grape manages authentication, sessions, users, passwords and provide access control. 
-	Sessions are tracked using a session ID. Session IDs are obtained by making a call to <i>POST /grape/login</i>, providing a valid username and password. On success, this call will return with the session ID, the user's ID, username, roles and employee GUID.
-	In subsequent calls, the session ID should be sent to the server using a custom header <i>X-SessionID</i> in the HTTP requests. 
-</p>
-<p>
-	Users and user-related information is stored in <tname>grape.user</tname>. Users can belong to one or more access roles, stored in <tname>grape.access_path</tname>. The link-table for these are <tname>grape.user_role</tname>. 
-</p>
-<p>
-	Grape includes the following roles and access paths by default:
-	<table>
-		<thead>
-			<th width="20%">Role</th>
-			<th width="40%">Description</th>
-			<th width="40%">Paths allowed</th>
-		</thead>
-		<tr>
-			<td>guest</td>
-			<td>No or invalid login</td>
-			<td align="left"><ul>
-				<li>/grape/login</li>
-			</ul>
-			</td>
-		</tr>
-		<tr>
-			<td>all</td>
-			<td>All logged in users</td>
-			<td align="left">
-				<ul>
-					<li>/lookup/*</li>
-					<li>/grape/list</li>
-					<li>/grape/api_list</li>
-				</ul>
-			</td>
-		</tr>
-		<tr>
-			<td>admin</td>
-			<td>Administrator</td>
-			<td align="left">
-				<ul>
-					<li>* (all paths allowed)</li>
-				</ul>
-			</td>
-		</tr>
-
-	</table>
+	The list of allowed access roles for each API call is defined in the "<i>roles</i>" field in the JSON schema.
 </p>
 
 Access control is applied to all API calls. Before the API call is executed, the session is validated. If it cannot be validated, the default role <b>guest</b> is used. 

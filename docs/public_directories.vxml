@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ps_doc title="Public Directories" titlepage="no">
+<h1 id="grape_public_directories">Public Directories</h1>
+<p>
+	When a request for a 
+	The first and most simple is a request for a file on the filesystem. A request that does not accept JSON, and does not start with <r>/download</r>, will fall under this category. This includes the initial call for <r>index.html</r>. Files are searched for in the directories listed in the Grape config setting <i><link id="conf-public_directories">public_directories</link></i>, in the order that it is specified in the setting. The first file found matching the path (relative to any public directory) and filename is served. 
+</p>
+</ps_doc>

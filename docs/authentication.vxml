@@ -2,6 +2,20 @@
 <ps_doc title="PlatSoft Grape Manual" titlepage="no" tocpage="no" description="Developer's guide to using the PlatSoft Grape Framework">
 	<h1 id="sec-grape-auth">Authentication</h1>
 
+	<h2>User management</h2>
+	<p>
+	Users and user-related information is stored in <tname>grape.user</tname>. Users can belong to one or more access roles, stored in <tname>grape.access_path</tname>. The link-table for these are <tname>grape.user_role</tname>. 
+</p>
+<h2>Access Roles</h2>
+<p>Grape comes built-in with the following access roles:
+	<ul>
+	</ul>
+</p>
+<p>
+If a user is logged in, they will always belong to the role "all".
+If a user is not authenticated, they will belong to the roles "guest".
+</p>
+
 	<h2>Login procedure</h2>
 	The login procedure described below was designed to prevent the password from being sent over the network. 
 	<ol>
@@ -13,10 +27,6 @@
 		<li>Request a service ticket using TGT, service name and username (<b>POST /grape/auth/service_request</b>)</li>
 		<li>Log in using Service Ticket (<b>POST /grape/login_with_ticket</b>)</li>
 	</ol>
-
-<h2>Access Roles</h2>
-If a user is logged in, they will always belong to the role "all".
-If a user is not authenticated, they will belong to the roles "guest".
 
 <h2 id="auth-genkeys">Generating user's encryption and decryption key from password</h2>
 <p>
