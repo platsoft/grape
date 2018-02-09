@@ -125,9 +125,6 @@ function decode_validation_string (validate_string)
 			case '0':
 				current_object.nullable = true;
 				continue;
-			case 'E':
-				current_object.empty_becomes_null = true;
-				continue;
 
 			default:
 				switch (state)
@@ -148,7 +145,11 @@ function decode_validation_string (validate_string)
 						var_name = var_name + c;
 						continue;
 					case 'var_info':
-						if (datatype_indicators.indexOf(c) >= 0)
+						if (c == 'E')
+						{
+							current_object.empty_becomes_null = true;
+						}
+						else if (datatype_indicators.indexOf(c) >= 0)
 						{
 							if (current_object.data_type)
 							{
