@@ -80,13 +80,19 @@ function create_schema_api_call(app, obj)
 		var func_db_call = function(req, res) {
 			try
 			{
-				var obj = req.body;
-				if (obj !== null && obj !== undefined)
+				var obj = req.body || {};
+				var keys = Object.keys(req.params);
+				for (var iParam = 0; iParam < keys.length; iParam++)
 				{
-					var keys = Object.keys(req.params);
-					for (var i = 0; i < keys.length; i++)
-						if (!obj.hasOwnProperty(keys[i]))
-							obj[keys[i]] = req.params[keys[i]];
+					if (!obj.hasOwnProperty(keys[iParam]))
+						obj[keys[iParam]] = req.params[keys[iParam]];
+				}
+
+				keys = Object.keys(req.query);
+				for (var iQuery = 0; iQuery < keys.length; iQuery++)
+				{
+					if (!obj.hasOwnProperty(keys[iQuery]))
+						obj[keys[iQuery]] = req.query[keys[iQuery]];
 				}
 
 				if (param.no_validation === false)
@@ -150,7 +156,13 @@ function create_schema_api_call(app, obj)
 		var func_db_call = function(req, res) {
 			try
 			{
-				var obj = req.params;
+				var obj = req.params || {};
+				var keys = Object.keys(req.query);
+				for (var iQuery = 0; iQuery < keys.length; iQuery++)
+				{
+					if (!obj.hasOwnProperty(keys[iQuery]))
+						obj[keys[iQuery]] = req.query[keys[iQuery]];
+				}
 
 				if (auto_validate(obj, param, res) === false) { return; }
 
@@ -240,5 +252,3 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 }
 
 module.exports.read_schema_file = read_schema_file;
-
-
