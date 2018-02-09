@@ -25,9 +25,13 @@
  * Examples:
  *	(batch_labreport_id: i, product_id: i, labreport: [(product_id: i)]* )
  */
+var DEBUG=0;
+
+
 function decode_validation_string (validate_string)
 {
-	//console.log("Decoding string {" + validate_string + "}");
+//	if (DEBUG)
+		//console.log("Decoding string {" + validate_string + "}");
 
 	var fields = [];
 	var i = 0;
@@ -103,7 +107,8 @@ function decode_validation_string (validate_string)
 				continue;
 			case ')':
 				save();
-				//console.log("Decoding ", validate_string, " Result: ", JSON.stringify(fields, null, '   '));
+				if (DEBUG)
+					console.log("Decoding ", validate_string, " Result: ", JSON.stringify(fields, null, '   '));
 				return {fields: fields, pos: i};
 			case '[':
 				state = 'array_def';
@@ -122,6 +127,7 @@ function decode_validation_string (validate_string)
 				continue;
 			case 'E':
 				current_object.empty_becomes_null = true;
+				current_object.nullable = true;
 				continue;
 
 			default:
@@ -291,7 +297,7 @@ function validate_object (obj, params)
 
 		if (typeof value_in_object == 'undefined')
 		{
-			if (p.optional == false)
+			if (p.optional == false && p.empty_becomes_null == false)
 			{
 				p.errors.push(p.name + ' is a required field');
 				errors.push('Required field "' + p.name + '" is missing');
@@ -301,6 +307,8 @@ function validate_object (obj, params)
 			{
 				p.valid = true;
 				p.value = undefined;
+				if (p.empty_becomes_null)
+					obj[p.name] = null;
 				continue;
 			}
 		}
@@ -417,7 +425,7 @@ function validate_object (obj, params)
 			{
 				if (p.nullable == false)
 				{
-					p['error'] = p.name + ' cannot be null';
+					p.errors.push('"' + p.name + '" cannot be null');
 					errors.push(p['error']);
 					p.valid = false;
 					continue;
@@ -426,11 +434,16 @@ function validate_object (obj, params)
 				{
 					p.valid = true;
 					p.value = null;
+
+					if (p.empty_becomes_null)
+						obj[p.name] = null;
 					continue;
 				}
 			}
-
-			validate_field(p, str_value);
+			else
+			{
+				validate_field(p, str_value);
+			}
 
 			obj[p.name] = p.value;
 			if (p['error'])

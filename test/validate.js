@@ -22,7 +22,7 @@ function test(descr, obj, string, check_func)
 	
 	if (check_func)
 	{
-		var result = check_func(ret);
+		var result = check_func(ret, obj);
 		if (ret.errors.length > 0)
 			print_warn(ret.errors.join("\n"));
 		if (result)
@@ -34,23 +34,6 @@ function test(descr, obj, string, check_func)
 	console.log();
 }
 
-/*
-var ret = auto_validate.validate({product_id: 1}, '(product_id:i)');
-console.log(ret);
-
-ret = auto_validate.validate({product_id: 1, message: 'abc'}, '(product_id:i,message:s)');
-console.log(ret);
-ret = auto_validate.validate({product_id: 1, message: 'abc', list: [2,3,4]}, '(product_id:i,message:s,list:[i])');
-console.log(ret);
-*/
-/*
-ret = auto_validate.validate({product_id: 1, message: 'abc', list: [2,3,'s']}, '(product_id:i,message:s,list:[i])');
-console.log(ret);
-*/
-/*
-ret = auto_validate.validate({product: {product_id:1,item:{name:'string_value'}}}, '(product:(product_id:i,item:(name:s)))');
-console.log(JSON.stringify(ret, null, '    '));
-*/
 
 function check_errors_0(obj)
 {
@@ -114,7 +97,18 @@ test('Testing without modifier', {
 	optional_id: null
 }, "(product_id:i,optional_id:i)", check_errors_1);
 
+var o = {product_id: 1};
+test('Testing empty becomes NULL modifier', o, "(product_id:i,optional_id:iE)", function(ret) {
+	console.log('Checking that errors.length is 0');
+	if (ret.errors.length > 0)
+		return false;
 
+	console.log('Checking that field was set');
+	if (o.optional_id === null)
+		return true;
+	else
+		return false;
+});
 
 
 
