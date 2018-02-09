@@ -1,58 +1,41 @@
 
-Enterprise mobility management (EMM)
-
+- Make roles be able to belong to roles
 - Register all API calls in DB table
 - Create API calls for stuff that is not JS files or DB functions (like PHP or python)
 - New role 'sysadmin' used for configuration of system settings
-- Consolidate DB settings and Config file settings
-- Implemented API calls in PHP/Python 
-- Make roles be able to belong roles
-- Email attachments
-
-
-Modules to write:
-- Shopping cart module
-- DAV
-
-1.1.0:
-- Broadcast/discover other grape services (using SSDP)
-- API logger (partitioned tables monthly? or write session logs to a file)
-	- settings: 
-- Patch tables
-- HTTP DIGEST authentication
-
-Future:
-- Define all API calls in JSON schema - call JS file from it
-- Theme manager
-- Email queuer
-- Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
-- Static data loader keeping cache of users and sessions
-
-- Run a grape app without a database
-- create an authentication provider
-
 - Settings management:
 	- Store all settings in DB
 	- Add setting access roles
 	- Add setting categories
 	- Make available in node upon startup
-
+	- Consolidate DB settings and Config file settings
+	- Validation settings
+- Implemented API calls in PHP/Python 
+- Email attachments
+- Log username in logfiles
+- SAML Integration
+- API logger (partitioned tables monthly? or write session logs to a file)
+	- settings: 
+- Patch tables
+- HTTP DIGEST authentication
+- Theme manager
+- Email queuer
+- Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
+- Static data loader keeping cache of users and sessions
+- Run a grape app without a database
+- create an authentication provider
 - API call to get table information (part of table_operations.sql)
-
-
-- Defining API calls in the SQL files directly:
-	1. /** @api_usage @api_url etc
-	2. load roles on startup as well (no need to put it separately in data files)
-
 - Socket.IO integration
+- Enterprise mobility management (EMM)
 
-- make grape a WebDAV server
-- Document store:
-	- Integrate with WebDAV
 
-- SOAP API
+Modules to write:
+- Shopping cart module
+- WebDAV
+	- Document store to Integrate with WebDAV
+- SSDP module (Broadcast/discover other grape services (using SSDP))
+- Expose API calls in SOAP 
 
-- Input validation for grape settings
 
 Done:
 - create API calls from JSON schema
@@ -65,4 +48,5 @@ Done:
 - Send system notifications through HTTP headers
 - Send SMSes
 - Two-factor authentication
+- Define all API calls in JSON schema - call JS file from it
 

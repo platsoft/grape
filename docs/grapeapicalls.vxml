@@ -119,22 +119,24 @@ The logic of the function needs to be implemented in PostgreSQL. For example, a 
 	An example of a schema definition for the sqrt function:
 
 <h4>Validation</h4>
-Validation happen against the value of the <i>validate</i> field. This field contains a string, in the following format:
-<code>
-Validate string syntax:
-      begin_expr ::= "(" <![CDATA[<begin_expr>]]> "," <![CDATA[<param-def>]]> ")"
-      param-def ::= <![CDATA[<param-name>]]> ":" <![CDATA[<data-type>]]> <![CDATA[<modifier-list>]]>
-      modifier-list ::= <![CDATA[<opt-modifier>]]> <![CDATA[<modifier-list>]]>
-      opt-modifier ::= "*" | "E" | "0" | ""
-      data-type ::= "s" | "i" | "f" | "b" | "d" | "t" | "a"
-
-Data types:
-      s text
-      i integer
-      f float
-      b boolean
-      d date
-      t date
+If the <i>validate</i> field is set in the API definition, validation against the incoming data will happen against this string. The validation string syntax is defined by the following <a href="https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form">Backus–Naur form</a>:
+<code><g>obj-def</g> ::= <r>"("</r> <g><![CDATA[<param-def-list>]]></g> <r>")"</r>
+<g>param-def-list</g> ::= <g><![CDATA[<param-def>]]></g> | <g><![CDATA[<param-def-list>]]></g> <r>","</r> <g><![CDATA[<param-def>]]></g>
+<g>param-def</g> ::= <g><![CDATA[<name>]]></g> <r>":"</r> <g><![CDATA[<type-info> <modifier-list>]]></g>
+<g>type-info</g> ::= <g><![CDATA[<array-def>]]> </g>| <g><![CDATA[<data-type>]]></g> | <g><![CDATA[<obj-def>]]></g>
+<g>array-def</g> ::= <r>"["</r> <g><![CDATA[<data-type>]]></g> <r>"]"</r> | <r>"["</r> <g><![CDATA[<obj-def>]]></g> <r>"]"</r>
+<g>data-type</g> ::= <r>"s"</r> | <r>"i"</r> | <r>"f"</r> | <r>"b"</r> | <r>"d"</r> | <r>"t"</r> | <r>"a"</r>
+<g>modifier-list</g> ::= <g><![CDATA[<modifier> <modifier-list>]]></g>
+<g>modifier</g> ::= <r>"*"</r> | <r>"E"</r> | <r>"0"</r> | <r>""</r></code>
+The data types that can be used:
+<ul>
+	<li>s text</li>
+	<li>i integer</li>
+	<li>f float</li>
+	<li>b boolean</li>
+	<li>d date</li>
+	<li>t date</li>
+</ul>
 
 Modifiers:
       * optional is true (default = false)
@@ -143,7 +145,6 @@ Modifiers:
 
 Examples:
       (batch_labreport_id: i, product_id: i, labreport)
-</code>
 
 <note color="green">More examples are available in the grape repository, in the <b>examples/</b> subdirectory </note>
 
