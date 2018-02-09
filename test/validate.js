@@ -1,5 +1,3 @@
-
-
 var colors = require('colors');
 
 var level = 0;
@@ -19,7 +17,7 @@ function test(descr, obj, string, check_func)
 	var ret = auto_validate.validate(obj, string);
 
 	//console.log(JSON.stringify(ret, null, '    '));
-	
+
 	if (check_func)
 	{
 		var result = check_func(ret, obj);
@@ -125,7 +123,7 @@ test('Testing nested objects', {
 			def3: {
 				abc: 'abc'
 			}
-			
+
 		}
 	}
 }, "(product: (def: (product_id:i), def2: (p1:i,p2:s,def3:(abc:s)), message:s))", check_errors_0);
@@ -220,3 +218,9 @@ test('Testing missing item in array of objects inside nested objects', {
 
 
 
+
+
+
+test('Testing not-null enforcement of empty string', {
+	product: null
+}, "(product: sE)", check_errors_1);

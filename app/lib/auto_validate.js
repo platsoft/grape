@@ -127,7 +127,6 @@ function decode_validation_string (validate_string)
 				continue;
 			case 'E':
 				current_object.empty_becomes_null = true;
-				current_object.nullable = true;
 				continue;
 
 			default:
@@ -292,7 +291,7 @@ function validate_object (obj, params)
 		p.errors = [];
 
 		var value_in_object = obj[p.name];
-		
+
 		p.original_value = value_in_object;
 
 		if (typeof value_in_object == 'undefined')
@@ -374,7 +373,7 @@ function validate_object (obj, params)
 							errors.push(err);
 						}
 					}
-				
+
 					p.valid = true;
 				}
 				else // array of simple values
@@ -393,7 +392,7 @@ function validate_object (obj, params)
 							p.valid = false;
 							p['error'] = 'Error in "' + p.name + '" array item #' + j + ': ' + field.error;
 							errors.push(p['error']);
-							
+
 							break;
 						}
 					}
@@ -443,12 +442,12 @@ function validate_object (obj, params)
 			else
 			{
 				validate_field(p, str_value);
+
+				obj[p.name] = p.value;
+				if (p['error'])
+					errors.push(p['error']);
+
 			}
-
-			obj[p.name] = p.value;
-			if (p['error'])
-				errors.push(p['error']);
-
 		}
 	}
 
