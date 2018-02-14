@@ -222,5 +222,13 @@ test('Testing missing item in array of objects inside nested objects', {
 
 
 test('Testing not-null enforcement of empty string', {
-	product: null
+	product: ''
 }, "(product: sE)", check_errors_1);
+
+test('Testing optional enforcement of empty string', {
+	product: ''
+}, "(product: s)", check_errors_0);
+
+test('Testing null permissible for empty string with E0', {
+	product: ''
+}, "(product: sE0)", check_errors_0);
