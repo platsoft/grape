@@ -119,13 +119,6 @@ function decode_validation_string (validate_string)
 			case ']':
 				state = 'var_info';
 				continue;
-			case '*':
-				current_object.optional = true;
-				continue;
-			case '0':
-				current_object.nullable = true;
-				continue;
-
 			default:
 				switch (state)
 				{
@@ -149,6 +142,15 @@ function decode_validation_string (validate_string)
 						{
 							current_object.empty_becomes_null = true;
 						}
+						else if (c == '*')
+						{
+							current_object.optional = true;
+						}
+						else if (c == '0')
+						{
+							current_object.nullable = true;
+						}
+
 						else if (datatype_indicators.indexOf(c) >= 0)
 						{
 							if (current_object.data_type)
@@ -297,7 +299,7 @@ function validate_object (obj, params)
 
 		if (typeof value_in_object == 'undefined')
 		{
-			if (p.optional == false && p.empty_becomes_null == false)
+			if (p.optional == false)
 			{
 				p.errors.push(p.name + ' is a required field');
 				errors.push('Required field "' + p.name + '" is missing');

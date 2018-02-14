@@ -26,7 +26,12 @@ function test(descr, obj, string, check_func)
 		if (result)
 			print_ok('OK');
 		else
+		{
 			print_err('FAILED');
+			print_warn('	object: ' + JSON.stringify(obj));
+			print_warn('	string: ' + string);
+			print_warn('	result: ' + JSON.stringify(ret));
+		}
 	}
 
 	console.log();
@@ -96,9 +101,9 @@ test('Testing without modifier', {
 }, "(product_id:i,optional_id:i)", check_errors_1);
 
 var o = {product_id: 1};
-test('Testing empty becomes NULL modifier', o, "(product_id:i,optional_id:iE)", function(ret) {
-	console.log('Checking that errors.length is 0');
-	if (ret.errors.length > 0)
+test('Testing empty becomes NULL modifier', o, "(product_id:i,optional_id:iE*)", function(ret) {
+	console.log('Checking that optional_id was added as null');
+	if (ret.errors.length > 0 || o.optional_id !== null)
 		return false;
 
 	console.log('Checking that field was set');
@@ -232,3 +237,15 @@ test('Testing optional enforcement of empty string', {
 test('Testing null permissible for empty string with E0', {
 	product: ''
 }, "(product: sE0)", check_errors_0);
+
+test('Testing nullable not triggered by name', {
+        product0: null
+}, "(product0: s)", check_errors_1);
+
+test('Testing optional not triggered by name', {
+	other_product: 'alpha'
+}, "(product*: s)", check_errors_1);
+
+test('Testing optional not triggered by name when empty', {
+	other_product: 'alpha'
+}, "(product*: sE)", check_errors_1);
