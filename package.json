@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Hans Lombard <hans@platsoft.net>",
-  "license": "BSD-2-Clause",
+  "license": "BSD-3-Clause",
   "dependencies": {
     "adm-zip": "0.4.7",
     "async": "^2.5.0",
@@ -18,7 +18,7 @@
     "commander": "2.9.0",
     "connect-multiparty": "2.0.0",
     "csv-parse": "1.1.7",
-    "express": "4.15.4",
+    "express": "4.16.0",
     "express-xml-bodyparser": "^0.3.0",
     "jsonschema": "1.1.1",
     "ldapjs": "1.0.1",

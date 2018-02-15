@@ -1,7 +1,12 @@
 {
-	"name": "myapp",
+	"name": "demo",
+	"version": "0.0.1",
+	"description": "Grape skeleton project",
 	"main": "index.js",
+	"license": "ISC",
+	"author": "",
 	"dependencies": {
-		"grape": "git+ssh://git@mail.platsoft.net:grape.git#master"
+		"ps-grape": "*",
+		"grape-ui": "*"
 	}
 }

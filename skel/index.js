@@ -1,10 +1,13 @@
 
 var Grape = require('ps-grape');
 
-var config = require('./config.js');
+var app = new Grape.grape("includes.json", "defaults.json", "locals.json"); 
 
-var app = new Grape.grape(config); 
+
 
 app.start();
 
+app.on('worker-httplistener', function(app) {
+	// new express app created
+});
 
