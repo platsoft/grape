@@ -1,0 +1,20 @@
+{
+	"description": "Empty",
+	"id": "/empty",
+	"name": "EmptyAPICall",
+	"sqlfunctype": "jsonb",
+	"sqlfunc": "demo.empty_handler",
+	"type": "query",
+	"validation": "(anumber:i)",
+	"properties": {
+		"anumber": {"type": "number", "description": "A number"}
+	},
+	"result": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"]},
+			"message": {"type": "string", "description": "Error description"},
+			"code": {"type": "number", "description": "Error code"}
+		}
+	}
+}

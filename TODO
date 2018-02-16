@@ -1,5 +1,6 @@
 
 Worker Mgmt:
+	- Change to IPC Connectivity between workers, instead of using the FIFO
 	- Add ability to specify PID file path in config
 	- Better/easier comms between worker processes (and perhaps remotes?)
 
@@ -44,6 +45,10 @@ Logger:
 	- Log username in logfiles
 	- API logger (partitioned tables monthly? or write session logs to a file)
 		- settings: 
+
+Functionality to be split out into different modules:
+	- Emails
+	- PDF Generator
 
 - Theme manager
 - Create an authentication provider

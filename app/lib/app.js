@@ -13,25 +13,40 @@ var util = require('util');
 var path = require('path');
 var schema_api_calls = require(__dirname + '/schema_api_calls.js');
 var events = require('events');
-var comms = require(__dirname + '/comms.js');
+var grapelib = require(__dirname + '/../index.js');
 
 var DEFAULT_MAXSOCKETS = 500;
 
-var grape_express_app = function(_o) {
+var grape_express_app = function(options, grape_obj) {
 
 	var self = this;
 	this.self = self;
 
+	this.grape_obj = grape_obj;
+
 	// entry
-	this.app = express();
-	var app = this.app;
+	var app = express();
+	this.app = app;
 
 	this.express = app;
 
-	var grapelib = require(__dirname + '/../index.js');
+	var logger = grape_obj.logger;
+	var cache = grape_obj.comms;
 
-	var options = grapelib.options(_o);
 	app.set('config', options);
+	app.set('logger', logger);
+	app.set('log', logger);
+	app.set('cache', cache);
+	app.set('comms', cache);
+
+
+
+	// Express settings
+	app.set("jsonp callback", true);
+	app.enable("trust proxy");
+	app.disable("x-powered-by");
+	app.disable("etag");
+
 
 	/**
 	 * Sets up database
@@ -144,15 +159,7 @@ var grape_express_app = function(_o) {
 	}
 
 
-	// Logger setup
-	var logger = new grapelib.logger(options);
-	app.set('logger', logger);
-	app.set('log', logger);
 
-	// Cache setup
-	var cache = new comms.worker(_o);
-	cache.start();
-	app.set('cache', cache);
 
 
 	// Grape Utils
@@ -171,11 +178,6 @@ var grape_express_app = function(_o) {
 	app.set('pdfgenerator', pdfgenerator);
 
 
-	// Express settings
-	app.set("jsonp callback", true);
-	app.enable("trust proxy");
-	app.disable("x-powered-by");
-	app.disable("etag");
 
 	// Body parsers
 	app.use(bodyParser.json());
@@ -367,8 +369,6 @@ var grape_express_app = function(_o) {
 	this.start = function ()
 	{
 		var options = app.get('config');
-		logger.info('app', 'Starting application (pid ' + process.pid + ')');
-		logger.debug('app', 'Starting with options: ' + util.inspect(options));
 
 		var http_port = false;
 

@@ -7,7 +7,7 @@ var GrapeAutoValidator = require(__dirname + '/auto_validate.js').validate;
 
 function create_schema_api_call(app, obj)
 {
-	app.get('logger').info('api', "Creating API call for " + obj.name + " (" + (obj.id || obj.url || 'undefined') + ")");
+	app.get('logger').debug('api', "Creating API call for " + obj.name + " (" + (obj.id || obj.url || 'undefined') + ")");
 
 	var param = {
 		roles: [],
@@ -188,7 +188,7 @@ function create_schema_api_call(app, obj)
 }
 
 function read_schema_file(app, file, relative) {
-	app.get('logger').info('api', "Loading schema file " + relative);
+	app.get('logger').debug('api', "Loading schema file " + relative);
 	var data = JSON.parse(fs.readFileSync(file, 'utf8'));
 
 	if (util.isArray(data))

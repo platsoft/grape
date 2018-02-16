@@ -1,0 +1,4 @@
+{
+	"dburi": "pg://",
+	"superdburi": "pg://"
+}

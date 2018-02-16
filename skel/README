@@ -3,8 +3,13 @@
 ++++++++++++++++++++++++++++++
 
 - Copy this directory
-- Edit package.json and add your application name
-- Edit config.js
+- Run grape-db-setup
 - Run npm update
 
+
+
+
+Pre-requisites:
+---------------
+- npm install -g ps-grape
 

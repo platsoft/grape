@@ -145,7 +145,12 @@ var logger = function(opts) {
 
 		if (process.stdout.isTTY)
 		{
+			var s = 'master';
+			if (process.env.state)
+				s = process.env.state;
+
 			console.log(
+					"\033[41m" + s + ":" + process.pid + "\033[0m " + 
 					self.channel_tty_colors[channel] + channel + "\033[0m " + 
 					self.level_tty_colors[level] + level + ": " + message + "\033[0m");
 		}

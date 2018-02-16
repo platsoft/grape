@@ -11,11 +11,13 @@ var fs = require('fs');
 var util = require('util');
 var cluster = require('cluster');
 var g_app = require(__dirname + '/app.js');
-var comms = require(__dirname + '/comms.js');
 var async = require('async');
 var events = require('events');
 var configreader = require(__dirname + '/configreader.js');
 var grapelib = require(__dirname + '/../index.js');
+const path = require('path');
+const IPCMemCache = require(__dirname + '/ipc_memcache.js');
+const CommsChannel = require(__dirname + '/comms.js');
 
 var email_notification_worker = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
 
@@ -24,7 +26,11 @@ function grape() {
 	this.self = this;
 	var self  = this;
 	this.options = configreader.apply(null, arguments);
-	this.logger = new grapelib.logger(this.options);
+	var logger = new grapelib.logger(this.options);
+	this.logger = logger;
+		
+	var comms = new CommsChannel(self.options, self);
+	this.comms = comms;
 
 	this.workers = [];
 
@@ -44,6 +50,16 @@ function grape() {
 			func: email_notification_worker
 		});
 
+		// TODO add custom handlers 
+		var ipcmemcache = new IPCMemCache(self.options, self);
+		
+		self.comms.addHandler('set', ipcmemcache);
+		self.comms.addHandler('fetch', ipcmemcache);
+
+		process.on('message', function(msg, handle) {
+			self.comms.handle_message(msg, handle, process);
+		});
+
 	};
 
 	this.addWorker = function(obj) {
@@ -51,7 +67,7 @@ function grape() {
 		{
 			if (!obj.name)
 			{
-				console.log("Missing name for worker object");
+				self.logger.error('app', 'Missing name for worker object ', obj.name); // TODO add some more info?
 				return;
 			}
 
@@ -69,13 +85,16 @@ function grape() {
 		// Check options
 		if (!this.options.base_directory)
 		{
+			self.logger.error('app', 'Missing base_directory ', obj.name); // TODO add some more info?
 			console.log("Error: I could not find a base directory. Specify it with the 'base_directory' option in your configuration");
 			process.exit(1);
 		}
 
 		if (cluster.isMaster)
 		{
-			var pidfile = this.options.log_directory + '/grape.pid';
+			logger.debug('app', 'Starting application with the following options: ' + util.inspect(this.options));
+
+			var pidfile = path.join(this.options.log_directory, '/grape.pid');
 
 			if (this.options.process_name)
 				process.title = this.options.process_name;
@@ -84,10 +103,10 @@ function grape() {
 			var create_pidfile = function(next) {
 				self.emit('creating_pidfile');
 
-				console.log("Setting up PID file " + pidfile + " ...");
+				self.logger.debug('app', 'Setting up PID file ', pidfile, ' ...');
 				if (fs.existsSync(pidfile))
 				{
-					console.log("PID file exists");
+					self.logger.debug('app', 'PID file already exists');
 					//check if process exists
 					var old_pid = fs.readFileSync(pidfile, 'UTF8');
 					var proc_running = false;
@@ -107,14 +126,13 @@ function grape() {
 					}
 					else
 					{
-						console.log("Overwriting PID file ");
+						self.logger.debug('app', 'Overwriting PID file');
 						fs.writeFileSync(pidfile, process.pid.toString());
 						next();
 					}
 				}
 				else
 				{
-					console.log("PID does not exist");
 					fs.writeFileSync(pidfile, process.pid.toString());
 					next();
 				}
@@ -150,26 +168,15 @@ function grape() {
 				next();
 			};
 
-
-			var start_comms_server = function(next) {
-				var channel = new comms.server(self.options);
-				channel.on('error', function(message) {
-					//TODO
-					console.log("Comms channel error", message);
-					process.exit(1);
-				});
-				channel.start();
-				next();
-			};
-
-
-			async.series([create_pidfile, start_comms_server, start_workers]);
+			async.series([create_pidfile, start_workers]);
 		}
 		else  // we are the child/worker process
 		{
 			if (process.env.state)
 			{
 				var instance_count = process.env.instance_count || '0';
+
+				logger.info('app', process.env.state,  '#' + instance_count, 'process pid', process.pid, 'started');
 				var process_name = self.options.process_name || 'grape-unknown';
 
 				var found = false;
@@ -201,7 +208,7 @@ function grape() {
 	};
 
 	this.forkWorker = function(worker, instance_idx) {
-		console.log("Starting worker: " + worker.name);
+		self.logger.info("app", "Starting worker: " + worker.name);
 		var new_process = cluster.fork({"state": worker.name, "instance_count": instance_idx});
 		new_process.on('disconnect', function() {
 		});
@@ -220,8 +227,12 @@ function grape() {
 			}
 		});
 		new_process.on('death', function() {
-			console.log("Worker died");
+			self.logger.error('app', "Worker died"); // TODO add some more info?
 			self.forkWorker(worker, instance_idx);
+		});
+		new_process.on('message', function(msg, handle) {
+			self.logger.debug('comms', 'Received a message from PID', new_process.process.pid);
+			self.comms.handle_message(msg, handle, new_process);
 		});
 	};
 

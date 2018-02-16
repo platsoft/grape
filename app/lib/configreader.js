@@ -72,9 +72,8 @@ function read_file(configfile)
 }
 
 // process a new config file (string containing path to js or json file), or object with options
-function process_options(_o)
+function process_options(_o, included_from_path)
 {
-	console.log("Processing ", _o);
 	var base_directory = null;
 	var options;
 
@@ -83,7 +82,7 @@ function process_options(_o)
 	{
 		if (!path.isAbsolute(_o))
 		{
-			_o = path.join(process.cwd(), _o);
+			_o = path.join(included_from_path, _o);
 		}
 		
 		options = read_file(_o);
@@ -100,7 +99,7 @@ function process_options(_o)
 	if (options.include && _.isArray(options.include))
 	{
 		options.include.forEach(function(file) {
-			var included_options = process_options(path.join(base_directory, file));
+			var included_options = process_options(path.join(base_directory, file), base_directory);
 			options = merge_objects(included_options, options); //the previously set options must get priority
 		});
 		delete options.include;
@@ -125,6 +124,7 @@ function process_options(_o)
 		delete options.public_directory;
 	}
 
+	/*
 	// change paths in public_directories to absolute paths
 	if (options.public_directories)
 	{
@@ -150,13 +150,38 @@ function process_options(_o)
 		});
 		options.api_directories = new_dirs;
 	}
+	*/
 
 	//paths
-	var path_options = ['email_template_directory', 'document_store', 'xsl_directory', 'ps_bgworker', 'fop', 'sslkey', 'sslcert'];
+	var path_options = [
+		'api_directories',
+		'public_directories',
+		'email_template_directory', 
+		'document_store', 
+		'xsl_directory', 
+		'ps_bgworker', 
+		'fop', 
+		'sslkey', 
+		'sslcert', 
+		'log_directory'
+	];
 
 	path_options.forEach(function(p) {
-		if (options[p] && !path.isAbsolute(options[p]))
+		if (_.isArray(options[p]))
+		{
+			var new_arr = [];
+			options[p].forEach(function(pc) {
+				if (!path.isAbsolute(pc))
+					new_arr.push(path.join(base_directory, pc));
+				else
+					new_arr.push(pc);
+			});
+			options[p] = new_arr;
+		}
+		else if (options[p] && !path.isAbsolute(options[p]))
+		{
 			options[p] = path.join(base_directory, options[p]);
+		}
 	});
 
 	return options;
@@ -165,11 +190,8 @@ function process_options(_o)
 exports = module.exports = function() {
 	var options = {
 		session_management: true,
-		api_directory: false,
-		api_ignore: [], //files to ignore when loading api files
 		port: 3000,
 		http_port: false,
-		public_directory: false,
 		debug: false,
 		instances: 1,
 		document_store: false,
@@ -181,13 +203,12 @@ exports = module.exports = function() {
 		api_directories: [],
 		cache_public_js_dirs: false,
 		process_name: false,
-		enable_notifications: false,
 		delayed_response: 0
 	};
 
 	for (var i = 0; i < arguments.length; i++)
 	{
-		options = merge_objects(options, process_options(arguments[i]));
+		options = merge_objects(options, process_options(arguments[i], path.dirname(process.mainModule.filename)));
 	}
 
 	if (!options.base_directory)

@@ -1,3 +1,6 @@
 # Load grape tables and functions
-../node_modules/ps-grape/db/initial.manifest
+../app/node_modules/ps-grape/db/initial.manifest
+
+# Change this to your real SQL file!
+schema/demo.sql
 

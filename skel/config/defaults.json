@@ -1,0 +1,7 @@
+{
+	"process_name": "demo",
+	"port": 9000,
+	"public_directories": [],
+	"api_directories": [],
+	"log_directory": "../log/"
+}

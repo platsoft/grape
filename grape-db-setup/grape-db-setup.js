@@ -10,7 +10,7 @@ commander
 	.option('-r, --recreate', 'Drop and recreate the database before creating objects')
 	.option('-i, --continue', 'Continue processing when an error occurs (by default, processing will stop)')
 	.option('-e, --schema [schema]', 'The default schema to use when creating objects (defaults to "public"). If "none" is specified, search_path will not be set')
-	.option('-a, --readconfig [config.json]', 'Reads the DBURI from the file provided (loaded as a node module and looking at the dburi export)')
+	.option('-a, --readconfig [config.json]', 'Reads the DBURI from the file provided (the file should have the "dburi" and "superdburi" fields)')
 	.parse(process.argv);
 
 

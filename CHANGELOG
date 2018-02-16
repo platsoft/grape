@@ -264,5 +264,5 @@ New features:
 - Support for remote users
 - New function grape.user_id_from_email
 - Correctly store headers
-
+- Fixed issues regarding paths when loading of config files
 

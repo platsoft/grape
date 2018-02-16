@@ -116,8 +116,12 @@ module.exports = function (req, res, next) {
 	{
 		//create a cachename JMORI51EA94M8AZ:/session/new:POST
 		var cachename = [session_id, req.matched_path, req.method].join(':');
-		app.get('cache').fetch(cachename, function(message) {
-			if (typeof message.v == 'undefined' || !message.v)
+		app.get('cache').fetch(cachename, function(err, value) {
+			if (err)
+			{
+				return;
+			}
+			if (!value)
 			{
 				check_session_path_in_database(session_id, req.matched_path, req.method, function(result) {
 
@@ -130,7 +134,7 @@ module.exports = function (req, res, next) {
 			}
 			else
 			{
-				handle_session_check_result(message.v, req.method + ':' + req.matched_path, session_id);
+				handle_session_check_result(value, req.method + ':' + req.matched_path, session_id);
 			}
 		});
 	}
