@@ -47,7 +47,7 @@ function grape() {
 	};
 
 	this.addWorker = function(obj) {
-		if (cluster.isMaster)
+		if (cluster.isMaster || process.env.state == obj.name)
 		{
 			if (!obj.name)
 			{
