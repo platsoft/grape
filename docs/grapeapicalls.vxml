@@ -79,8 +79,7 @@ The <blue>properties</blue> field, which is used with the "object" type, is an a
 <img src="db_api_call.png" title="Anatomy of a DB API" width="3cm" />
 
 The logic of the function needs to be implemented in PostgreSQL. For example, a function calculating the square root of a number:
-<code lang="sql">
-	/**
+<code lang="sql">/**
 	 * @api_usage MathsSqrt
 	 * @api_url POST /maths/sqrt
 	 */
@@ -105,7 +104,7 @@ The logic of the function needs to be implemented in PostgreSQL. For example, a 
 </p>
 <p>
 	The JavaScript file should return a function, for example:
-<code>module.exports = function() {
+<code lang="js">module.exports = function() {
 	return function(req, res) {
 		// API CODE GOES HERE
 		res.end();
@@ -150,7 +149,7 @@ Examples:
 
 </p>
 
-<h4>Generating documentation</h4>
+<h4>Generating API documentation</h4>
 In the Viticulture repository, a script called <i>scripts/build_schema_api_docs.js</i> can be used to generate VXML documentation from the API JSON files.
 <code>  Usage: build_schema_api_docs [options] directory|file [directory|file directory|file ...]
 

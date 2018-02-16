@@ -1,23 +1,8 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Grape Manual" titlepage="no" tocpage="no" description="Developer's guide to using the PlatSoft Grape Framework">
-	<h1 id="sec-grape-auth">Authentication</h1>
+<h1 id="sec-grape-auth">Secure Authentication</h1>
 
-	<h2>User management</h2>
-	<p>
-	Users and user-related information is stored in <tname>grape.user</tname>. Users can belong to one or more access roles, stored in <tname>grape.access_path</tname>. The link-table for these are <tname>grape.user_role</tname>. 
-</p>
-<h2>Access Roles</h2>
-<p>Grape comes built-in with the following access roles:
-	<ul>
-	</ul>
-</p>
-<p>
-If a user is logged in, they will always belong to the role "all".
-If a user is not authenticated, they will belong to the roles "guest".
-</p>
-
-	<h2>Login procedure</h2>
-	The login procedure described below was designed to prevent the password from being sent over the network. 
+	The secure login procedure described below was designed to prevent the password from being sent over the network. 
 	<ol>
 		<li>Retrieve the service name of the server we are trying to log into. GET /grape/setting/service_name</li>
 		<li><link id="auth-tgtrequest">Request a TGT</link></li>

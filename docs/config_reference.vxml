@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape config refereence" titlepage="no">
+<h1 id="grape_config_reference">Grape configuration reference</h1>
+<p>
+The following options are recognized in the config passed to Grape:
+
+<table style="compact">
+	<thead>
+		<th width="25%">Name</th><th width="40%">Description</th><th width="35%">Default value</th>
+	</thead>
+	<tr><td>dburi</td><td>DB connection settings</td><td></td></tr>
+	<tr><td>guest_dburi</td><td>DB connection settings for guest users</td><td></td></tr>
+	<tr><td>super_dburi</td><td>DB connection used when setting up database (by grape-db-setup)</td><td></td></tr>
+	<tr><td>debug</td><td></td><td>true</td></tr>
+	<tr><td>maxsockets</td><td>Controls the maximum number of sockets supported per HTTP listener process</td><td>500</td></tr>
+	<tr><td>pg_temp_directory</td><td>Path to a directory to which both PostgreSQL and the running node process has write access</td><td></td></tr>
+	<tr><td>bordeaux_config_file</td><td>Path to Bordeaux config file</td><td>__dirname + '/bordeaux_config.json'</td></tr>
+	<tr><td>document_store</td><td>Path to document store</td><td></td></tr>
+	<tr><td>session_management</td><td>Enable or disable session management</td><td>true</td></tr>
+	<tr><td>smtp</td><td>SMTP settings for GrapeMailer</td><td></td></tr>
+	<tr><td>server_timeout</td><td>The number of milliseconds of inactivity before a socket is presumed to have timed out</td><td>50000</td></tr>
+	<tr><td>hr_system</td><td>URL to get access to the Bordeaux system running on Savanna HR system</td><td>https://192.168.50.86:3999/</td></tr>
+	<tr><td>email_template_directory</td><td>Path to email templates (See GrapeMailer for more information)</td><td>__dirname + '/email_templates'</td></tr>
+	<tr><td id="conf-site_name">site_name</td><td>If multiple sites are used (for example different XSL files for documents), specify the site</td><td></td></tr>
+	<tr><td id="conf-xsl_directory">xsl_directory</td><td>Directory containing XSL files for PDF generation</td><td></td></tr>
+	<tr><td id="conf-fop">fop</td><td>Path to the Apache FOP binary (for generation of PDF files)</td><td></td></tr>
+	<tr><td id="conf-ps_bgworker">ps_bgworker</td><td>Path to ps_bgworker binary</td><td></td></tr>
+	<tr><td id="conf-process_name">process_name</td><td>Sets the visible process name</td><td></td></tr>
+	<tr><td id="conf-enable_ldap_server">enable_ldap_server</td><td>Enable LDAP server</td><td></td></tr>
+	<tr><td id="conf-ldap_server_port">ldap_server_port</td><td>LDAP server port to listen on</td><td></td></tr>
+</table>
+</p>
+</ps_doc>

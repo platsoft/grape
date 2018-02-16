@@ -1,32 +1,58 @@
 
-- Make roles be able to belong to roles
-- Register all API calls in DB table
-- Create API calls for stuff that is not JS files or DB functions (like PHP or python)
-- New role 'sysadmin' used for configuration of system settings
-- Settings management:
+Worker Mgmt:
+	- Add ability to specify PID file path in config
+	- Better/easier comms between worker processes (and perhaps remotes?)
+
+DB Management:
+	- Check DB connection before spawning workers
+	- Patch tables
+	- Run a grape app without a database
+
+Authentication:
+	- Make roles be able to belong to roles
+	- SAML Integration
+	- HTTP DIGEST authentication
+	- Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
+	- Static data loader keeping cache of users and sessions
+
+Security:
+	- Implement HTTP Strict Transport Security (https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet)
+	- 
+
+API calls:
+	- Register all API calls in DB table
+	- Create API calls for stuff that is not JS files or DB functions (like PHP or python) (Implemented API calls in PHP/Python )
+	- Expose API calls in SOAP 
+
+Settings management:
+	- Make settings a tree
+	- New role 'sysadmin' used for configuration of system settings
 	- Store all settings in DB
 	- Add setting access roles
 	- Add setting categories
 	- Make available in node upon startup
 	- Consolidate DB settings and Config file settings
 	- Validation settings
-- Implemented API calls in PHP/Python 
-- Email attachments
-- Log username in logfiles
-- SAML Integration
-- API logger (partitioned tables monthly? or write session logs to a file)
-	- settings: 
-- Patch tables
-- HTTP DIGEST authentication
+	- Create a function to import/export settings from JSON
+
+Emails:
+	- Split email worker into its own grape module
+	- Add support to Email attachments
+	- Email queuer
+
+Logger:
+	- Log username in logfiles
+	- API logger (partitioned tables monthly? or write session logs to a file)
+		- settings: 
+
 - Theme manager
-- Email queuer
-- Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
-- Static data loader keeping cache of users and sessions
-- Run a grape app without a database
-- create an authentication provider
+- Create an authentication provider
 - API call to get table information (part of table_operations.sql)
 - Socket.IO integration
 - Enterprise mobility management (EMM)
+- Cache the resolving of public resources
+- Make the resolving of resources modular (API calls and public dirs)
+- Make /download_public_js_files call only get files for the users role
 
 
 Modules to write:
@@ -34,7 +60,6 @@ Modules to write:
 - WebDAV
 	- Document store to Integrate with WebDAV
 - SSDP module (Broadcast/discover other grape services (using SSDP))
-- Expose API calls in SOAP 
 
 
 Done:

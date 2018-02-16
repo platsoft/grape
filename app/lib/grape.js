@@ -37,6 +37,7 @@ function grape() {
 			func: g_app
 		});
 
+		// TODO emailer must not be here
 		self.addWorker({
 			name: 'emailer',
 			instance_count: 1,
@@ -46,18 +47,21 @@ function grape() {
 	};
 
 	this.addWorker = function(obj) {
-		if (!obj.name)
+		if (cluster.isMaster)
 		{
-			console.log("Missing name for worker object");
-			return;
-		}
+			if (!obj.name)
+			{
+				console.log("Missing name for worker object");
+				return;
+			}
 
-		self.workers.push({
-			name: obj.name,
-			instance_count: obj.instance_count || 1,
-			processes: [],
-			func: obj.func
-		});
+			self.workers.push({
+				name: obj.name,
+				instance_count: obj.instance_count || 1,
+				processes: [],
+				func: obj.func
+			});
+		}
 	};
 
 	this.start = function() {
@@ -65,7 +69,7 @@ function grape() {
 		// Check options
 		if (!this.options.base_directory)
 		{
-			console.log("Error: I could not find a base directory. Specify it with the 'base_directory' option in config.js");
+			console.log("Error: I could not find a base directory. Specify it with the 'base_directory' option in your configuration");
 			process.exit(1);
 		}
 
@@ -119,7 +123,7 @@ function grape() {
 			}
 
 			//start worker instances
-			var start_processes = function(next) {
+			var start_workers = function(next) {
 
 				process.on('exit', function(code) {
 					console.log("Process exiting ");
@@ -147,7 +151,7 @@ function grape() {
 			};
 
 
-			var start_comms_channel = function(next) {
+			var start_comms_server = function(next) {
 				var channel = new comms.server(self.options);
 				channel.on('error', function(message) {
 					//TODO
@@ -159,7 +163,7 @@ function grape() {
 			};
 
 
-			async.series([create_pidfile, start_comms_channel, start_processes]);
+			async.series([create_pidfile, start_comms_server, start_workers]);
 		}
 		else  // we are the child/worker process
 		{
@@ -173,9 +177,13 @@ function grape() {
 				{
 					if (self.workers[i].name == process.env.state)
 					{
+
 						found = true;
 						process.title = [process_name, '-', self.workers[i].name, '[', instance_count , ']'].join('');
-						var obj = new (self.workers[i].func)(self.options);
+						var obj = new (self.workers[i].func)(self.options, self);
+						
+						//self.emit(['worker', self.workers[i].name, 'created'].join('-'), obj);
+
 						if (obj.start)
 							obj.start.call(obj);
 

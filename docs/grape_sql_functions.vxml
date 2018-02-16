@@ -664,7 +664,7 @@ cast_json_array_to_text_array
 
 	<!-- USER RELATED FUNCTIONS -->
 	<!-- ====================== -->
-	<h2>User related functions</h2>
+	<h2 id="sec-grape-user-functions">User related functions</h2>
 
 	<table style="compact">
 		<thead>

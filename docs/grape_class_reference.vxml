@@ -15,9 +15,19 @@ Reads and parses all arguments as configuration objects or files.
 		<li><i>func</i> The function to instantiate. Should have a "start" method</li>
 	</ul>
 </p>
-<h3>start ()</h3>
+<h3 id="sec-grape-class-reference-start">start ()</h3>
+<p>
+	The start method verifies that all the correct config options are set, and then creates all the worker processes that has been registered. It also checks if the process PID file exists, and it it does, it sends a SIGINT signal to the process ID found in the file.
+</p>
 
 <h2>Members</h2>
 <h2>Events</h2>
 <h3>worker</h3>
+<h3>worker-*</h3>
+<h3>worker-*-created</h3>
+<h3>creating_pidfile</h3>
+<h3>pidfile_created</h3>
+<p>
+</p>
+
 </ps_doc>

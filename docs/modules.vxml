@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ps_doc title="API Reference" titlepage="no" tocpage="no">
-<h1>Additional Modules</h1>
+<h1 id="sec-grape-modules">Additional Modules</h1>
 <p>
 Extended functionality is provided as part of Grape modules. A Grape Module can provide additional HTML files, API calls, database structures and functions, and workers. Grape modules are usually installed using npm.
 </p>

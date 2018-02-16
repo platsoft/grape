@@ -9,5 +9,6 @@ Conforming to Node's design principle of single-thread multi-process, Grape spaw
 </p>
 <h2>Registering a worker</h2>
 <p>
+	Before <link id="sec-grape-class-reference-start">Grape.start()</link> is called, it should be registered using <link id="sec-grape-class-reference-addWorker">Grape.addWorker(<i>options</i>)</link>.
 </p>
 </ps_doc>

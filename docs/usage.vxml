@@ -6,7 +6,7 @@ After installing the ps-grape package, Grape can be started with the following c
 <code><green>var</green> Grape = require('<red>ps-grape</red>');
 <green>var</green> app = <green>new</green> Grape.grape( '<red>config.json</red>' );
 app.start();</code>
-The constructor accepts any number of filenames and objects. Each argument will be read and parsed upon startup. See <link id="grape_config_file">Configuration Files</link> for more information on the structure of the files. 
+The constructor accepts any number of filenames and objects (<red>config.json</red> in the above example). Each argument will be read and parsed upon startup. See <link id="grape_config_file">Configuration Files</link> for more information on the structure of these files. 
 </p>
 <p>
 	Typically, a project will have two configuration files: <ol>
