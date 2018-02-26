@@ -1,0 +1,11 @@
+[
+	{
+		"name": "http.port",
+		"value": "3000",
+		"description": "HTTP Port",
+		"datatype": "number",
+		"access_roles": [
+			{"rolename": "admin", "can_read": "true", "can_update": "true"}
+		]
+	}
+]
