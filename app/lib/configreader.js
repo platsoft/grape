@@ -160,6 +160,7 @@ function process_options(_o, included_from_path)
 		'document_store', 
 		'xsl_directory', 
 		'ps_bgworker', 
+		'ps_bgworker_config',
 		'fop', 
 		'sslkey', 
 		'sslcert', 

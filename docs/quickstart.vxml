@@ -1,12 +1,15 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Grape Manual - Quickstart" titlepage="no" tocpage="no">
 <h1 id="sec-grape-quickstart">Quickstart</h1>
-The quickest way to get started with Grape is to install it and copy the "skel" directory from the module.
-<code>$ mkdir ~/demo
-$ cd ~/demo
+The quickest way to get started with Grape is to copy the skel directory from the grape-samples repository:
+<code>$ git clone git:///grape-samples
+$ cp -R grape-samples/skel/ ~/demo/
 $ npm set registry http://npm.platsoft.net:4873/
-$ npm install ps-grape --save
-$ cp -R node_modules/ps-grape/skel/* .
+$ npm install -g ps-grape
+$ cd ~/demo/app
+$ npm install
+$ cd ..
+$ grape-db-setup db/initial.manifest
 $ node index.js</code>
 
 Now you should be able to connect to <a href="http://localhost:9000/">http://localhost:9000/</a>

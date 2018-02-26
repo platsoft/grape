@@ -250,6 +250,10 @@ BEGIN
 			sched.status,
 			sched.progress_completed,
 			sched.progress_total,
+			CASE 
+				WHEN sched.progress_total = 0 THEN 0
+				ELSE ROUND((sched.progress_completed*1.0) / sched.progress_total * 100.0, 2)
+			END AS perc_complete,
 			sched.auto_scheduler_id,
 			grape.check_process_execute_permission(ap.process_id) AS can_execute,
 			grape.check_process_edit_permission(ap.process_id) AS can_edit

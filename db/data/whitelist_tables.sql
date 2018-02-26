@@ -1,6 +1,6 @@
 
 SELECT grape.table_permissions_add('grape', 
-	'{user, '
+	'{ '
 	'user_role, '
 	'user_access_role, '
 	'v_active_users,'
@@ -9,7 +9,7 @@ SELECT grape.table_permissions_add('grape',
 	'report, '
 	'list_query_whitelist, '
 	'process, '
-	'schedule, '
+	'v_process_schedules, '
 	'setting, '
 	'v_table_permissions, '
 	'network, '

@@ -2,7 +2,7 @@
 var child_process = require('child_process');
 
 
-module.exports.get_bgworker_status = function(ps_bgworker_path, cb) {
+module.exports.get_bgworker_status = function(ps_bgworker_path, config_file, cb) {
 
 	child_process.exec([ps_bgworker_path, '--status'].join(' '),
 		{
