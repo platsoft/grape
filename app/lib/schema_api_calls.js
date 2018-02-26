@@ -248,7 +248,12 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 
 	if (dirname[dirname.length - 1] != '/') dirname += '/';
 
-	var files = fs.readdirSync(dirname);
+	try {
+		var files = fs.readdirSync(dirname);
+	} catch (e) {
+		app.get('logger').error('api', 'Failed to load schemas from API directory ', dirname);
+		return;
+	}
 	for (var i = 0; i < files.length; i++)
 	{
 		var file = files[i];
