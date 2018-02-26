@@ -49,7 +49,7 @@ function create_schema_api_call(app, obj)
 		if (!path.isAbsolute(full_path))
 			full_path = path.join(path.dirname(param.filename), full_path);
 
-		param.jsfunc = require(full_path)();
+		param.jsfunc = require(full_path)(app);
 	}
 
 	var auto_validate = function(obj, param, res) {
