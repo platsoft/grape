@@ -1,7 +1,8 @@
 
 module.exports.grape = require('./lib/grape');
 module.exports.db = require('./lib/db');
-module.exports.app = require('./lib/app');
+module.exports.app = require('./lib/http_app');
+module.exports.http_app = require('./lib/http_app');
 module.exports.utils = require('./lib/util');
 module.exports.excel2007 = require('./lib/excel2007');
 module.exports.hexavigesimal = require('./lib/hexavigesimal');

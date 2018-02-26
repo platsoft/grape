@@ -173,7 +173,7 @@ var grape_express_app = function(options, grape_obj) {
 	app.set('document_store', document_store);
 	app.set('ds', document_store);
 
-	// PDF Generator setup
+	// PDF Generator setup - TODO this should not be here
 	var pdfgenerator = new grapelib.pdfgenerator(app);
 	app.set('pdfgenerator', pdfgenerator);
 
