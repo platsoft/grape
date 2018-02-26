@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Grape Manual" titlepage="no" tocpage="no" description="Developer's guide to using the PlatSoft Grape Framework">
 <h1 id="sec-grape-auth">Secure Authentication</h1>
-
-	The secure login procedure described below was designed to prevent the password from being sent over the network. 
+<p>
+	Before some resources in the system can be used, a session ID needs to be generated and sent with HTTP requests. The following steps are used to obtain a session ID for a user. This login procedure was designed to prevent any passwords from being sent over the network. 
 	<ol>
-		<li>Retrieve the service name of the server we are trying to log into. GET /grape/setting/service_name</li>
-		<li><link id="auth-tgtrequest">Request a TGT</link></li>
-		<li>If the reply is an ERROR with code -400, prompt the user for a TOTP. Resend TGT Request with field totp_status set to 'y'</li>
-		<li>Generate decryption key from user's password and parameters received in TGT reply (<link id="auth-genkeys">Generating encryption and decryption key</link>)</li>
-		<li>Decrypt message and extract TGT</li>
-		<li>Request a service ticket using TGT, service name and username (<b>POST /grape/auth/service_request</b>)</li>
-		<li>Log in using Service Ticket (<b>POST /grape/login_with_ticket</b>)</li>
+		<li>Firstly, the client (browser) retrieves the service name of the server we are trying to log into. [GET /grape/setting/service_name]</li>
+		<li>It then sends a <link id="auth-tgtrequest">TGT (Ticket Granting Ticket) Request</link></li>
+		<li>If the reply is an ERROR with code -400, the user is prompted for a TOTP (One time pin). The TGT Request is resent with the field totp_status set to 'y'</li>
+		<li>A decryption key is generated from the user's password, and the parameters received in the TGT Reply (See <link id="auth-genkeys">Generating encryption and decryption key</link>)</li>
+		<li>The message is then decrypted, and the TGT extracted</li>
+		<li>A service ticket is requested, using the TGT, service name and username (<b>POST /grape/auth/service_request</b>)</li>
+		<li>The session ID is obtained by sending the service ticket to <b>POST /grape/login_with_ticket</b></li>
 	</ol>
+</p>
 
 <h2 id="auth-genkeys">Generating user's encryption and decryption key from password</h2>
 <p>

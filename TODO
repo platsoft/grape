@@ -1,7 +1,7 @@
 
 Worker Mgmt:
-	- Change to IPC Connectivity between workers, instead of using the FIFO
-	- Add ability to specify PID file path in config
+	- Change to IPC Connectivity between workers, instead of using the FIFO [WIP - Hans]
+	- Add ability to specify PID file path in config [E]
 	- Better/easier comms between worker processes (and perhaps remotes?)
 
 DB Management:
@@ -17,8 +17,9 @@ Authentication:
 	- Static data loader keeping cache of users and sessions
 
 Security:
+	- Implement pre-flight requests properly, use it with all calls
 	- Implement HTTP Strict Transport Security (https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet)
-	- 
+	- Limit HTTP Authorization to certain users only (new role basic_auth) [E]
 
 API calls:
 	- Register all API calls in DB table
@@ -44,7 +45,7 @@ Emails:
 Logger:
 	- Log username in logfiles
 	- API logger (partitioned tables monthly? or write session logs to a file)
-		- settings: 
+		- settings: logging.log_api_calls_to_db
 
 Functionality to be split out into different modules:
 	- Emails

@@ -1,13 +1,16 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Grape Manual" titlepage="yes" tocpage="yes" description="Developer's guide to using the PlatSoft Grape Framework">
 <h1 id="sec-grape">Grape</h1>
-
 <p>
-	Grape is a web framework, created by Platinum Software. It provides a quick and easy way to get started when creating a new web application. 
+	Grape is a web framework, created at Platinum Software. It provides a way to define and create server-side functionality for web applications (for example API calls, worker process management, DB connectivity, etc)
 </p>
 
 <p>
-	Grape was designed to provide the following functionality in Platinum Software's systems:
+	Upon startup, Grape recursively reads all the config files provided. After doing this, it starts the worker processes.
+</p>
+
+<p>
+	The functionality provided can be divided into the following sections:
 <ul>
 	<li><link id="grape-access-control">Access control</link></li>
 	<li><link id="sec-grape-auth">Authorization and session management</link></li>
@@ -18,11 +21,9 @@
 </ul>
 
 It has a modular design, and supports the spawning of custom workers and modules. Several <link id="sec-grape-modules">Grape modules</link> is available for usage. 
-By default, 5 instances of the <link id="sec-grape-http">built-in HTTP Listener worker</link> is created.
+By default, 5 instances of the <link id="sec-grape-http">built-in HTTP Listener worker</link> is created. The master process also provides caching capabilities to the workers.
 </p>
-<p>
-	When Grape starts up, it reads all the config files. After doing this, it starts all the worker processes.
-</p>
+
 
 <include href="quickstart.vxml" parse="vxml" level="1" /> 
 

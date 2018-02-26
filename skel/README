@@ -13,3 +13,10 @@ Pre-requisites:
 ---------------
 - npm install -g ps-grape
 
+
+Config files:
+-------------
+config/defaults.json
+config/includes.json
+config/local.json
+

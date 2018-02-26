@@ -4,7 +4,7 @@
 The quickest way to get started with Grape is to install it and copy the "skel" directory from the module.
 <code>$ mkdir ~/demo
 $ cd ~/demo
-$ npm set registry 
+$ npm set registry http://npm.platsoft.net:4873/
 $ npm install ps-grape --save
 $ cp -R node_modules/ps-grape/skel/* .
 $ node index.js</code>
