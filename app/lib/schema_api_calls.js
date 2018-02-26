@@ -56,7 +56,7 @@ function create_schema_api_call(app, obj)
 		if (!param.validate && param.validation_string)
 			param.validate = param.validation_string;
 
-		if (param.validate && param.no_validation === false)
+		if (param.validate && param.no_validation == false)
 		{
 			var validate_result = GrapeAutoValidator(obj, param.validate);
 			if (validate_result.errors.length > 0)
@@ -186,6 +186,10 @@ function create_schema_api_call(app, obj)
 
 				if (param.sqlfunctype == 'jsonb')
 					res.locals.db.jsonb_call(param.sqlfunc, obj, null, {response: res});
+				else if (param.sqlfunctype == 'json')
+					res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
+				else if (param.jsfunc)
+					param.jsfunc(req, res);
 				else
 					res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
 			}

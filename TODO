@@ -46,6 +46,7 @@ Logger:
 	- Log username in logfiles
 	- API logger (partitioned tables monthly? or write session logs to a file)
 		- settings: logging.log_api_calls_to_db
+	- Each process should have its own logfile
 
 Functionality to be split out into different modules:
 	- Emails
