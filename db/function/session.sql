@@ -18,7 +18,7 @@
  *
  * Setting hash_passwords is used to decide if passwords are hashed or not
  */
-CREATE OR REPLACE FUNCTION grape.session_insert (JSON) RETURNS JSON AS $$
+CREATE OR REPLACE FUNCTION grape.create_session_from_password (JSON) RETURNS JSON AS $$
 DECLARE
 	_username TEXT;
 	_password TEXT;
@@ -65,8 +65,21 @@ DECLARE
 BEGIN
 	_session_id := CONCAT(grape.random_string(5), EXTRACT('epoch' FROM NOW())::TEXT, grape.random_string(8));
 
-	INSERT INTO grape."session" (session_id, ip_address, user_id, date_inserted, last_activity, headers)
-		VALUES (_session_id, _ip_address, _user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, _headers);
+	INSERT INTO grape."session" (
+		session_id, 
+		ip_address, 
+		user_id, 
+		date_inserted, 
+		last_activity, 
+		headers
+	) VALUES (
+		_session_id, 
+		_ip_address, 
+		_user_id, 
+		CURRENT_TIMESTAMP, 
+		CURRENT_TIMESTAMP, 
+		_headers
+	);
 
 	RETURN _session_id;
 END; $$ LANGUAGE plpgsql;
@@ -106,6 +119,8 @@ BEGIN
 
 	IF jsonb_extract_path($1, 'http_headers') IS NOT NULL THEN
 		_headers := ($1->'http_headers')::JSONB;
+	ELSIF jsonb_extract_path($1, 'headers') IS NOT NULL THEN
+		_headers := ($1->'headers')::JSONB;
 	END IF;
 
 	_persistant := FALSE;
@@ -226,6 +241,7 @@ CREATE OR REPLACE FUNCTION grape.build_session_information(_session_id TEXT) RET
 		'fullnames', u.fullnames,
 		'email', u.email,
 		'employee_guid', u.employee_guid,
+		'guid', u.employee_guid,
 		'employee_info', u.employee_info
 	) FROM grape.session s JOIN grape."user" u  USING (user_id)
 	WHERE session_id=_session_id::TEXT;
@@ -307,10 +323,15 @@ BEGIN
 	FROM grape.session
 	WHERE session_id=_session_id::TEXT;
 
-	PERFORM set_config('grape.user_id'::TEXT, _user_id::TEXT, false);
-	PERFORM set_config('grape.username'::TEXT, _username::TEXT, false);
-	PERFORM set_config('grape.ip_address'::TEXT, _ip_address::TEXT, false);
-	PERFORM set_config('grape.session_id'::TEXT, _session_id::TEXT, false);
+	IF FOUND THEN
+		PERFORM set_config('grape.user_id'::TEXT, _user_id::TEXT, false);
+		PERFORM set_config('grape.username'::TEXT, _username::TEXT, false);
+		PERFORM set_config('grape.ip_address'::TEXT, _ip_address::TEXT, false);
+		PERFORM set_config('grape.session_id'::TEXT, _session_id::TEXT, false);
+		PERFORM set_config('application_name'::TEXT, 'grape-' || _username::TEXT, false);
+	ELSE
+		PERFORM set_config('application_name'::TEXT, _session_id::TEXT, false);
+	END IF;
 
 	RETURN ;
 END; $$ LANGUAGE plpgsql;

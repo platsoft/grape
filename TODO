@@ -20,6 +20,8 @@ Security:
 	- Implement pre-flight requests properly, use it with all calls
 	- Implement HTTP Strict Transport Security (https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet)
 	- Limit HTTP Authorization to certain users only (new role basic_auth) [E]
+	- Make /download_public_js_files call only get files for the users role
+	- DDOS protection
 
 API calls:
 	- Register all API calls in DB table
@@ -59,8 +61,11 @@ Functionality to be split out into different modules:
 - Enterprise mobility management (EMM)
 - Cache the resolving of public resources
 - Make the resolving of resources modular (API calls and public dirs)
-- Make /download_public_js_files call only get files for the users role
 
+- Flow when receiving an HTTP Request:
+	1. Log it
+	2. Resolve it (see if it is API call or public file). If not found, 404 is returned. 
+	3. Perform pre-flight check to see if the action is allowed
 
 Modules to write:
 - Shopping cart module

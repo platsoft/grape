@@ -29,7 +29,9 @@ function loadpublicjsfiles(dirname, relativedirname)
 
 	try {
 		var files = fs.readdirSync(dirname);
-	} catch (e) { var files = []; }
+	} catch (e) { 
+		var files = []; 
+	}
 
 	for (var i = 0; i < files.length; i++)
 	{

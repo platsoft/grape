@@ -204,7 +204,8 @@ exports = module.exports = function() {
 		api_directories: [],
 		cache_public_js_dirs: false,
 		process_name: false,
-		delayed_response: 0
+		delayed_response: 0,
+		diroptions: ['directory.json'] // filenames for directory options
 	};
 
 	for (var i = 0; i < arguments.length; i++)

@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var auto_validate = require('./auto_validate.js');
+var auto_validate = require(__dirname + '/../auto_validate.js');
 
 module.exports = function(app) {
 	function validate_object(obj, validation_string)

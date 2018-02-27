@@ -17,7 +17,10 @@ var configreader = require(__dirname + '/configreader.js');
 var grapelib = require(__dirname + '/../index.js');
 const path = require('path');
 const IPCMemCache = require(__dirname + '/ipc_memcache.js');
+const IPCSessionCache = require(__dirname + '/ipc_sessioncache.js');
 const CommsChannel = require(__dirname + '/comms.js');
+const GrapeSettings = require(path.join(__dirname, 'grape_settings.js'));
+const dblib = require(path.join(__dirname, 'db.js'));
 
 var email_notification_worker = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
 
@@ -31,6 +34,10 @@ function grape() {
 		
 	var comms = new CommsChannel(self.options, self);
 	this.comms = comms;
+
+	this.db = null;
+
+	this.grape_settings = null;
 
 	this.workers = [];
 
@@ -51,14 +58,43 @@ function grape() {
 		});
 
 		// TODO add custom handlers 
-		var ipcmemcache = new IPCMemCache(self.options, self);
 		
-		self.comms.addHandler('set', ipcmemcache);
-		self.comms.addHandler('fetch', ipcmemcache);
+		self.comms.addHandler(new IPCMemCache(self.options, self));
+		self.comms.addHandler(new IPCSessionCache(self.options, self));
 
 		process.on('message', function(msg, handle) {
 			self.comms.handle_message(msg, handle, process);
 		});
+
+		var conn_name = (process.env.state || 'master') + '-' + process.pid;
+
+		var db = new dblib({
+			dburi: self.options.dburi,
+			debug: self.options.debug,
+			session_id: conn_name
+		});
+		self.db = db;
+
+		db.on('error', function(err) {
+			self.logger.log('db', 'error', err);
+		});
+
+		db.on('debug', function(msg) {
+			self.logger.log('db', 'debug', msg);
+		});
+
+		db.on('notice', function(msg) {
+			self.logger.log('db', 'debug', 'Notice: ' + msg);
+		});
+
+		db.on('end', function() {
+			self.logger.log('db', 'info', 'Database for default session disconnected. Restarting');
+			db.connect();
+		});
+
+
+		self.grape_settings = new GrapeSettings(self);
+		self.grape_settings.setup();
 
 	};
 
@@ -103,7 +139,7 @@ function grape() {
 			var create_pidfile = function(next) {
 				self.emit('creating_pidfile');
 
-				self.logger.debug('app', 'Setting up PID file ', pidfile, ' ...');
+				self.logger.debug('app', 'Setting up PID file ', pidfile);
 				if (fs.existsSync(pidfile))
 				{
 					self.logger.debug('app', 'PID file already exists');
@@ -213,7 +249,7 @@ function grape() {
 		new_process.on('disconnect', function() {
 		});
 		new_process.on('exit', function() {
-			console.log(worker.name + "[" + instance_idx + "]: Worker process exited with code", new_process.process.exitCode);
+			self.logger.error('app', worker.name, "[", instance_idx, "]: Worker process exited with code", new_process.process.exitCode);
 			if (new_process.process.exitCode == 5)
 			{
 				console.log("Connectivity issue. Restarting in 5 seconds...");
@@ -221,9 +257,16 @@ function grape() {
 					self.forkWorker(worker, instance_idx); 
 				}, 5000);
 			}
+			else if (new_process.process.exitCode == 9) // fatal error, do not restart
+			{
+				self.logger.error('app', worker.name, ' experienced a fatal error. I am not going to restart the process.');
+			}
 			else
 			{
-				self.forkWorker(worker, instance_idx);
+				console.log("Restarting in 2 seconds...");
+				setTimeout(function() { 
+					self.forkWorker(worker, instance_idx); 
+				}, 2000);
 			}
 		});
 		new_process.on('death', function() {

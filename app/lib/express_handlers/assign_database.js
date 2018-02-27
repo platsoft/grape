@@ -4,6 +4,7 @@
 // After this has ran, res.locals.db and req.db will be set accordingly
 
 var util = require('util');
+const dblib = require(__dirname + '/../db.js');
 
 module.exports = function (req, res, next) {
 	var app = req.app;
@@ -11,6 +12,10 @@ module.exports = function (req, res, next) {
 		app.set('dbs', []);
 	
 	var dbs = app.get('dbs'); //DB cache
+
+	// defaults
+	req.db = app.get('guest_db');
+	res.locals.db = req.db;
 
 	var db = app.get('db'); // If the app doesn't have a DB - do not continue
 	if (!db)
@@ -49,8 +54,7 @@ module.exports = function (req, res, next) {
 	}
 	else
 	{
-		var _db = require(__dirname + '/db.js');
-		var db = new _db({
+		var db = new dblib({
 			dburi: app.get('config').dburi, 
 			session_id: session_id,
 			username: username,

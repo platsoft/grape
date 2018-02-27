@@ -11,6 +11,8 @@ var CommsChannel = function(options, grape) {
 	this.ipc_message_handlers = {}; 
 	this.ipc_messages = {}; 
 
+	this.channels = {};
+
 	this.send = function(cmd, obj, callback) {
 		var muid = [process.pid, self.seq].join('-');
 		self.seq++;
@@ -67,13 +69,13 @@ var CommsChannel = function(options, grape) {
 
 	};
 
-	this.addHandler = function(cmd, handler) {
+	this.addHandler = function(handler) {
 		// TODO check if already exists
 		// TODO check that handler has the correct functions
-		self.ipc_message_handlers[cmd] = handler;
 		if (handler.export_functions)
 		{
 			Object.keys(handler.export_functions).forEach(function(key) {
+				self.ipc_message_handlers[key] = handler;
 				self[key] = function() {
 					handler.export_functions[key].apply(self, arguments);
 				};
@@ -95,6 +97,20 @@ var CommsChannel = function(options, grape) {
 		};
 
 		proc.send(msg);
+	};
+
+	this.create_channel = function(channel_name) {
+		self.channels[channel_name] = {
+			name: channel_name,
+			subscribers: []
+		};
+	};
+	
+	this.subscribe_to_channel = function(channel_name, handler) {
+		
+	};
+
+	this.send_to_channel = function() {
 	};
 };
 

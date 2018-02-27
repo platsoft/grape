@@ -32,7 +32,7 @@ var IPCMemCache = function(options, grape) {
 	
 	this.export_functions = [];
 	this.export_functions['fetch'] = function(name, callback) {
-		// the difference between this and self is very important here
+		// will be executed in Comms class
 		
 		this.send('fetch', {k: name}, function(msg) {
 			if (msg.error)
@@ -42,7 +42,7 @@ var IPCMemCache = function(options, grape) {
 		});
 	};
 	this.export_functions['set'] = function(name, value, callback) {
-		// the difference between this and self is very important here
+		// will be executed in Comms class
 		this.send('set', {k: name, v: value}, function(msg) {
 			if (callback)
 			{

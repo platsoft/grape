@@ -3,7 +3,7 @@ const path = require('path');
 var util = require('util');
 var _ = require('underscore');
 var Validator = require('jsonschema').validate;
-var GrapeAutoValidator = require(__dirname + '/auto_validate.js').validate;
+var GrapeAutoValidator = require(__dirname + '/../auto_validate.js').validate;
 
 function create_schema_api_call(app, obj)
 {
@@ -34,12 +34,12 @@ function create_schema_api_call(app, obj)
 	if (!param.id)
 	{
 		app.get('logger').error('api', 'No ID/URL defined in ' + util.inspect(param));
-		return;
+		return false;
 	}
 
 	if (param.roles)
 	{
-		add_schema_access_roles(param.roles, param.id, param.method, app.get('db'));
+		//add_schema_access_roles(param.roles, param.id, param.method, app.get('db'));
 	}
 
 	if (param.jsfile)
@@ -153,7 +153,12 @@ function create_schema_api_call(app, obj)
 				}
 				else if (param.jsfunc)
 				{
-					param.jsfunc(req, res);
+					try {
+						param.jsfunc(req, res);
+					} catch (e) {
+						console.log(e);
+						res.status(500).end();
+					}
 				}
 				else
 				{
@@ -189,7 +194,14 @@ function create_schema_api_call(app, obj)
 				else if (param.sqlfunctype == 'json')
 					res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
 				else if (param.jsfunc)
-					param.jsfunc(req, res);
+				{
+					try {
+						param.jsfunc(req, res);
+					} catch (e) {
+						console.log(e);
+						res.status(500).end();
+					}
+				}
 				else
 					res.locals.db.json_call(param.sqlfunc, obj, null, {response: res});
 			}
@@ -207,30 +219,45 @@ function create_schema_api_call(app, obj)
 
 		app.get(param.id, [func_db_call]);
 	}
+
+	return {
+		name: param.name,
+		url: param.id,
+		method: param.method,
+		roles: param.roles
+	};
 }
 
 function read_schema_file(app, file, relative) {
 	app.get('logger').debug('api', "Loading schema file " + relative);
 	var data = JSON.parse(fs.readFileSync(file, 'utf8'));
 
+	var list = [];
+
 	if (util.isArray(data))
 	{
 		data.forEach(function (d) {
 			d.filename = file;
-			create_schema_api_call(app, d);
+			var obj = create_schema_api_call(app, d);
+			if (obj)
+				list.push(obj);
 		});
 	}
 	else if (util.isObject(data))
 	{
 		data.filename = file;
-		create_schema_api_call(app, data);
+		var obj = create_schema_api_call(app, data);
+		if (obj)
+			list.push(obj);
 	}
 	else
 	{
 		app.get('logger').warn('api', "Unknown type in JSON file " + file);
 	}
+	return list;
 };
 
+// can hopefully be removed
 function add_schema_access_roles(roles, url, method, db)
 {
 	db.query("SELECT grape.add_access_path($1, $2, $3)", [url.replace(/:[a-z_]+/g, '.*'), roles, [method]], function(err, res) {
@@ -242,6 +269,7 @@ function add_schema_access_roles(roles, url, method, db)
  */
 module.exports.load_schemas = function (app, dirname, relativedirname) {
 	var options = app.get('options');
+	var list = [];
 
 	//make sure last character is a /
 	if (relativedirname[relativedirname.length - 1] != '/') relativedirname += '/';
@@ -252,7 +280,7 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 		var files = fs.readdirSync(dirname);
 	} catch (e) {
 		app.get('logger').error('api', 'Failed to load schemas from API directory ', dirname);
-		return;
+		return list;
 	}
 	for (var i = 0; i < files.length; i++)
 	{
@@ -263,7 +291,8 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 			if (path.extname(path.join(dirname, file)) == '.json')
 			{
 				try {
-					module.exports.read_schema_file(app, path.join(dirname, file), relativedirname + file);
+					var ar = module.exports.read_schema_file(app, path.join(dirname, file), relativedirname + file);
+					list = list.concat(ar);
 				} catch (e) {
 					app.get('logger').error('api', "Failed to load API file " + relativedirname + file + ' [' + util.inspect(e) + ']');
 				}
@@ -271,11 +300,12 @@ module.exports.load_schemas = function (app, dirname, relativedirname) {
 		}
 		else if (fstat.isDirectory())
 		{
-			module.exports.load_schemas(app, dirname + '/' + file, relativedirname + file);
+			var ar = module.exports.load_schemas(app, dirname + '/' + file, relativedirname + file);
+			list = list.concat(ar);
 		}
 	}
 
-
+	return list;
 }
 
 module.exports.read_schema_file = read_schema_file;

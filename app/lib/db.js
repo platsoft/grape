@@ -180,6 +180,8 @@ function db (_o) {
 	 * Short hand function for client.query which also logs query information
 	 */
 	this.query = function(_qry_config, values, callback) {
+		if (!values)
+			var values = [];
 		if (self.options.debug)
 			self.emit('debug', 'Query ' + _qry_config + ' ' + values.join(', '));
 
