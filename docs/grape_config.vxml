@@ -2,7 +2,16 @@
 <ps_doc title="Grape config file" titlepage="no">
 <h1 id="grape_config_file">Grape configuration files</h1>
 <p>
-	The Grape constructor accepts a list of filenames and objects.  When the Grape object is instantiated, all of these files and objects are parsed and merged into a configuration object. This config object is then passed on to the rest of the application. </p>
+	The Grape constructor accepts a list of filenames and objects.  When the Grape object is instantiated, all of these files and objects are parsed and merged into a configuration object. This config object is then passed on to the rest of the application. 
+</p>
+<p>
+	Typically, a project will have two configuration files: <ol>
+		<li>A file for local configuration (options that is specific to a site/installation), usually named "config.json"</li>
+		<li>A file for project configuration. This file might also include references to other config files, for example when Grape modules are loaded. We usually call this file "defaults.json".</li>
+	</ol>
+</p>
+
+
 <p>
 	JSON config files can also have the special option "includes", an array containing paths to other config files to include. This is useful when using Grape modules.
 	An application that creates Grape like this:
@@ -20,6 +29,12 @@ and another, some local settings:
 	"dburi": "pg://user@localhost/demo",
 	"superdburi": "pg://user@localhost/postgres"
 }</code>
+While merging the fields, the config reader performs a few special tasks:
+<ol>
+	<li>If a previous field of the same name exists and is an array, the new value will be added to the array</li>
+	<li>Fields named in "directory_fields" are interpreted as paths, and any relative paths are converted to absolute paths. The directory of the current file is used as the base directory when doing this conversion</li>
+</ol>
+
 <note color="red">Configuration files with sensitive or machine-specific information should never be checked into repositories!</note>
 For a reference of commonly-used configuration settings, see <link id="grape_config_reference">Grape configuration reference</link>
 </p>

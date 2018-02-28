@@ -4,7 +4,7 @@
 <p>
 	This built-in worker provides most of the web functionality that is associated with Grape. The process in the process table is called <b>httplistener</b>.
 </p>
-<p>The HTTP listener will listen on a port specified in the <link id="grape-conf-port">port</link> configuration option for incoming connections. The port is usually set in one of the project's configuration files. If SSL is enabled (configuration options use_https, sslkey and sslcert), the connection will be served over HTTPS.
+<p>The HTTP listener will listen for incoming connections on the port specified in the <link id="grape-conf-port">port</link> configuration option. The port is usually set in one of the project's configuration files. If SSL is enabled (configuration options use_https, sslkey and sslcert), the connection will be served over HTTPS.
 </p>
 <p>
 	When the HTTP listener receives a new HTTP request, the following steps are performed:
@@ -18,10 +18,13 @@
 	</ol>
 </p>
 
-<include href="resource_mgmt.vxml" parse="vxml" level="1" /> 
+<include href="resource_mgmt.vxml" parse="vxml" level="2" /> 
 
 <!-- include grape api calls-->
 <include href="grapeapicalls.vxml" parse="vxml" level="1" /> 
+
+<include href="public_directories.vxml" parse="vxml" level="1" /> 
+
 
 <!-- include authentication -->
 <include href="authentication.vxml" parse="vxml" level="1" />

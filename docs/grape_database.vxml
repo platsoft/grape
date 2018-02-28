@@ -67,7 +67,7 @@ By default, grape applications will use the following schemas:
 	<note color="orange">When multiple instances of workers have registered a LISTENer, all of them will be invoked when a NOTIFY is called. Only add notification listeners in worker processes, not API call handlers</note>
 </p>
 
-<include href="../grape-db-setup/grape-db-setup.vxml" parse="vxml" level="1" />
+<include href="../grape-db-setup/grape-db-setup.vxml" parse="vxml" level="2" />
 
 
 </ps_doc>

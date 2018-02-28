@@ -21,6 +21,11 @@ Reads and parses all arguments as configuration objects or files.
 </p>
 
 <h2>Members</h2>
+<h3>grape_settings</h3>
+<h3>logger</h3>
+<h3>options</h3>
+<h3>comms</h3>
+
 <h2>Events</h2>
 <h3>worker</h3>
 <h3>worker-*</h3>

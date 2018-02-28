@@ -1,15 +1,26 @@
 <?xml version="1.0"?>
 <ps_doc title="Grape Workers" titlepage="no" tocpage="no">
-<h1 id="sec-grape-workers">Custom Workers</h1>
+<h1 id="sec-grape-workers">Workers</h1>
 <p>
-	Following Node's design of single-thread multi-process applications, Grape spawns a number of processes when starting up. By default, 5 instances of the <link id="sec-grape-http">HTTP Listener</link> worker is created. It is possible to add custom workers, or workers defined in Grape modules. 
+	Following Node's design of single-thread multi-process applications, Grape spawns a number of processes when starting up. The program that starts first is called the <ib>master</ib> process.
 </p>
-<h2>Anatomy of a worker</h2>
+<p>
+	By default, 5 instances of the <link id="sec-grape-http">HTTP Listener</link> worker is created. It is possible to create custom workers, and use workers that is installed via npm.
+	<img src="internal_connections.png" title="Grape communications" width="8cm" />
+</p>
+<p>
+	Interprocess communication and watchdog functionality is implemented in the master process. If a worker process dies, the master process will restart the worker - if the error is not fatal. The IPC functionality also provides a shared memory cache between processes.
+</p>
+
+<h2 id="sec-grape-custom-workers">Custom Workers</h2>
 <p>
 </p>
-<h2>Registering a worker</h2>
+<h3>Registering a worker</h3>
 <p>
-	Before <link id="sec-grape-class-reference-start">Grape.start()</link> is called, it should be registered using <link id="sec-grape-class-reference-addWorker">Grape.addWorker(<i>options</i>)</link>.
+	Before <link id="sec-grape-class-reference-start">Grape.start()</link> is called, workers should be registered using <link id="sec-grape-class-reference-addWorker">Grape.addWorker(<i>options</i>)</link>. This function accepts an object with the following fields:
 	<code></code>
+</p>
+<h3>Communicating with parent</h3>
+<p>
 </p>
 </ps_doc>

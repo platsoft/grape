@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
 <ps_doc title="Public Directories" titlepage="no">
-<h1 id="grape_public_directories">Public Directories</h1>
+<h1 id="grape-sec-staticfiles">Public Directories</h1>
 <p>
-	When a request for a 
-	The first and most simple is a request for a file on the filesystem. A request that does not accept JSON, and does not start with <r>/download</r>, will fall under this category. This includes the initial call for <r>index.html</r>. Files are searched for in the directories listed in the Grape config setting <i><link id="conf-public_directories">public_directories</link></i>, in the order that it is specified in the setting. The first file found matching the path (relative to any public directory) and filename is served. 
+	When we speak about public directories, or static files, we usually refer to files that are publically available for download from the server. If the URL of an incoming <b>GET</b> request matches a file inside a public directory, the file's contents will be sent to the browser. Functionality like this is very important when sending the frontend (UI) to the client. It can also be used to download other files.
+</p>
+<p>
+	The list of public directories are defined in the Grape config setting <i><link id="conf-public_directories">public_directories</link></i>. The directories are read in order of appearance.
+</p>
+<p>
+	When a user initially browse to a website, the first request that the browser typically makes, is a <icode><b>GET /</b></icode> request. This is a special type of request, that will cause the application to look for and send an <fname>index.html</fname> file.
 </p>
 </ps_doc>

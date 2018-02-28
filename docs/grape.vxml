@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Grape Manual" titlepage="yes" tocpage="yes" description="Developer's guide to using the PlatSoft Grape Framework">
-<include href="overview.vxml" parse="vxml" level="0" /> 
+<h1 id="sec-grape">Grape</h1>
+<p>
+	Grape is a web framework, created at Platinum Software. It provides a way to define and create server-side functionality for web applications (for example API calls, worker process management, DB connectivity, etc).
+</p>
+<include href="overview.vxml" parse="vxml" level="1" /> 
 
 <include href="quickstart.vxml" parse="vxml" level="1" /> 
 
@@ -8,9 +12,6 @@
 <include href="http-listener.vxml" parse="vxml" level="1" /> 
 
 <include href="user_mgmt.vxml" parse="vxml" level="1" /> 
-
-<!-- include usage -->
-<include href="usage.vxml" parse="vxml" level="1" /> 
 
 
 <!-- include grape config -->

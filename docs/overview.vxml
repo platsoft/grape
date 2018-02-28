@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Grape Manual" titlepage="no" tocpage="no">
-<h1 id="sec-grape">Grape</h1>
-<p>
-	Grape is a web framework, created at Platinum Software. It provides a way to define and create server-side functionality for web applications (for example API calls, worker process management, DB connectivity, etc).
-</p>
+<h1>Overview</h1>
 
 <p>
-	Grape is installed as an NPM library, and then included in projects. A typical startup file (index.js) looks like this:
+	Grape is installed as an <link id="npm-repo">npm</link> library (<icode>npm install ps-grape</icode>). The library is then included in a Node.JS project. Usually, the program using Grape will instantiate a new Grape object in <fname>index.js</fname> (the program's entry point). The program must then call the Grape.start() function.
+</p>
+<p>
+	A typical startup file (index.js) looks like this:
 	<code lang="js">var Grape = <g>require</g>("ps-grape");
 
 var app = <green>new</green> Grape.grape(
@@ -15,16 +15,30 @@ var app = <green>new</green> Grape.grape(
 );
 
 app.start();</code>
-	When the Grape object is created, it recursively reads all the config files provided to the constructor. In the example above, it will read <fname>../config/defaults.json</fname> and <fname>../config/local.json</fname>. Configuration files can also include other configuration files. </p>
+	When the Grape object is created, all files that was provided to the constructor is recursively read. In the example above, it will read <fname>../config/defaults.json</fname> and <fname>../config/local.json</fname>. Configuration files can also include other configuration files. </p>
 <p>
-	Grape spawns a number of processes when Grape.start() is called. These processes perform various tasks, but arguably the most important process, aside from the master process, is the <link id="sec-grape-http">HTTP Listener</link> process. More than one instance of a worker process can be created, and it is possible to add custom workers (see <link id="sec-grape-workers">Workers</link> for more information).
+	The configuration files contains important information for the application to operate correctly. Most importantly, it needs to specify the connection settings for the application's database connection. The <ib>dburi</ib> field is used to specify the connection parameters.
+</p>
+<p>The most simple configuration file looks like this:
+	<code lang="js">{"dburi":"pg://user:password@localhost/database"}</code>
+	The above code can be saved into a <i>.json</i> file, and the filename provided to the Grape constructor.</p>
+<p>Various other configuration options are available, and most configuration files are much longer than the one shown above. You can find more information about configuration files in the <link id="grape_config_file">Grape Configuration</link> section.
 </p>
 <p>
-	The <link id="sec-grape-http">HTTP Listeners</link> provides alot of functionality that is typically associated with a web framework, and in Grape it is implemented as an Express application. 
+	<note color="green">The easiest way to start a new project is to clone the grape-samples repository and creating a new project by copying the contents of the <b>skel/</b> directory. The <b>skel/</b> directory contains an empty Grape project. More information on this is available in the section <link id="sec-grape-quickstart">Quickstart</link> below.</note>
 </p>
 <p>
-	<link id="grape-ipc-sec">Interprocess communication</link> and watchdog functionality is implemented in the master process. If a worker process dies, the master process will restart the worker - if the error is not fatal. The IPC functionality also provides a shared memory cache between processes.
-	<img src="internal_connections.png" title="Grape communications" width="8cm" />
+	Grape provides a lot of functionality to applications. These can broadly be categorized as follows:
+	<ul>
+		<li><link id="sec-grape-http">HTTP server</link> provides the "<i>web</i>" functionality of this <i>web</i> framework. This is used for communication between the server and the browser, and handles tasks like serving files to clients and <link id="grape_api_calls">exposing API calls</link>.</li>
+		<li><link id="sec-grape-workers">Worker management</link> - when a Grape application is running, multiple processes are created. These are called workers, and Grape manages them, as well as the communication between them</li>
+		<li><link id="sec-grape-acl">Access Control</link></li>
+		<li><link id="sec-grape-user-mgmt">User management</link></li>
+		<li><link id="sec-grape-settings">Settings management</link></li>
+		<!--<li><link id=""></link></li>-->
+	</ul>
+</p>
+<p>
 </p>
 
 <p>
