@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ps_doc title="PlatSoft Grape Manual" titlepage="yes" tocpage="yes" description="Developer's guide to using the PlatSoft Grape Framework">
+<h1 id="grape-resource-mgmt">Resource handlers</h1>
+<p>
+HTTP requests are requests for operations to be performed on a specific resource. The resource is identified by the request's URL, and the operation by the request's method (for example GET or POST). For example, consider the following HTTP request:
+<code><b>GET</b> /index.html HTTP/1.1
+Host: www.example.com</code>
+The client (browser) is asking the server to retrieve and send the data associated with the resource <i>/index.html</i>.
+</p>
+<p>
+	Each resource has a handler associated with it. In Grape, there are two default resource handlers built-in: <ol><li>The static file handler; and </li> <li><link id="grape_api_calls">the API call handler</link></li></ol>
+	When Grape receives the HTTP request illustrated above, it will identify it as a static file (because it is a file that exists in one of the public directories), and send the file accordingly. If the request can be matched to an API call, the API handler will be called instead.
+</p>
+
+</ps_doc>

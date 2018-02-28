@@ -64,7 +64,7 @@ By default, grape applications will use the following schemas:
 <h2>Using NOTIFY/LISTEN</h2>
 <p>
 	Grape includes a utility function, <i>new_notify_handler(<b>channel_name</b>, <b>callback</b>)</i>, which will keep track of callbacks for database <u>NOTIFY</u> events. This should be used in a custom background worker.
-	<note color="orange">When multiple instances of workers have registered a LISTENer, all of them will be invoked when a NOTIFY is called</note>
+	<note color="orange">When multiple instances of workers have registered a LISTENer, all of them will be invoked when a NOTIFY is called. Only add notification listeners in worker processes, not API call handlers</note>
 </p>
 
 <include href="../grape-db-setup/grape-db-setup.vxml" parse="vxml" level="1" />

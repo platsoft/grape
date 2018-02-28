@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Grape Manual" titlepage="no" tocpage="no" description="Developer's guide to using the PlatSoft Grape Framework">
-<h1 id="sec-grape-auth">Secure Authentication</h1>
+<h1 id="sec-grape-auth">Authentication</h1>
 <p>
 	Before some resources in the system can be used, a session ID needs to be generated and sent with HTTP requests. The following steps are used to obtain a session ID for a user. This login procedure was designed to prevent any passwords from being sent over the network. 
 	<ol>

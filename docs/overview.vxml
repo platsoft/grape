@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ps_doc title="PlatSoft Grape Manual" titlepage="no" tocpage="no">
+<h1 id="sec-grape">Grape</h1>
+<p>
+	Grape is a web framework, created at Platinum Software. It provides a way to define and create server-side functionality for web applications (for example API calls, worker process management, DB connectivity, etc).
+</p>
+
+<p>
+	Grape is installed as an NPM library, and then included in projects. A typical startup file (index.js) looks like this:
+	<code lang="js">var Grape = <g>require</g>("ps-grape");
+
+var app = <green>new</green> Grape.grape(
+	<r>"../config/defaults.json"</r>,
+	<r>"../config/local.json"</r>
+);
+
+app.start();</code>
+	When the Grape object is created, it recursively reads all the config files provided to the constructor. In the example above, it will read <fname>../config/defaults.json</fname> and <fname>../config/local.json</fname>. Configuration files can also include other configuration files. </p>
+<p>
+	Grape spawns a number of processes when Grape.start() is called. These processes perform various tasks, but arguably the most important process, aside from the master process, is the <link id="sec-grape-http">HTTP Listener</link> process. More than one instance of a worker process can be created, and it is possible to add custom workers (see <link id="sec-grape-workers">Workers</link> for more information).
+</p>
+<p>
+	The <link id="sec-grape-http">HTTP Listeners</link> provides alot of functionality that is typically associated with a web framework, and in Grape it is implemented as an Express application. 
+</p>
+<p>
+	<link id="grape-ipc-sec">Interprocess communication</link> and watchdog functionality is implemented in the master process. If a worker process dies, the master process will restart the worker - if the error is not fatal. The IPC functionality also provides a shared memory cache between processes.
+	<img src="internal_connections.png" title="Grape communications" width="8cm" />
+</p>
+
+<p>
+</p>
+
+</ps_doc>

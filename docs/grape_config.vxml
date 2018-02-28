@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ps_doc title="Grape config file" titlepage="no">
-<h1 id="grape_config_file">Grape configuration</h1>
+<h1 id="grape_config_file">Grape configuration files</h1>
 <p>
 	The Grape constructor accepts a list of filenames and objects.  When the Grape object is instantiated, all of these files and objects are parsed and merged into a configuration object. This config object is then passed on to the rest of the application. </p>
 <p>

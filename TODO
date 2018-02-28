@@ -9,22 +9,22 @@ DB Management:
 	- Patch tables
 	- Run a grape app without a database
 
+User Management:
+	- Add functionality for managing user preferences
+	- Use user preferences to save landing page, theme?
+
 Authentication:
 	- Make roles be able to belong to roles
 	- SAML Integration
 	- HTTP DIGEST authentication
-	- Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
-	- Static data loader keeping cache of users and sessions
 
 Security:
 	- Implement pre-flight requests properly, use it with all calls
 	- Implement HTTP Strict Transport Security (https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet)
 	- Limit HTTP Authorization to certain users only (new role basic_auth) [E]
-	- Make /download_public_js_files call only get files for the users role
 	- DDOS protection
 
 API calls:
-	- Register all API calls in DB table
 	- Create API calls for stuff that is not JS files or DB functions (like PHP or python) (Implemented API calls in PHP/Python )
 	- Expose API calls in SOAP 
 
@@ -34,7 +34,6 @@ Settings management:
 	- Store all settings in DB
 	- Add setting access roles
 	- Add setting categories
-	- Make available in node upon startup
 	- Consolidate DB settings and Config file settings
 	- Validation settings
 	- Create a function to import/export settings from JSON
@@ -60,7 +59,6 @@ Functionality to be split out into different modules:
 - Socket.IO integration
 - Enterprise mobility management (EMM)
 - Cache the resolving of public resources
-- Make the resolving of resources modular (API calls and public dirs)
 
 - Flow when receiving an HTTP Request:
 	1. Log it
@@ -73,6 +71,13 @@ Modules to write:
 	- Document store to Integrate with WebDAV
 - SSDP module (Broadcast/discover other grape services (using SSDP))
 
+WIP:
+- Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
+- Make /download_public_js_files call only get files for the users role
+- Make available in node upon startup
+- Register all API calls in DB table
+- Make the resolving of resources modular (API calls and public dirs)
+- Static data loader keeping cache of users and sessions
 
 Done:
 - create API calls from JSON schema
@@ -86,4 +91,5 @@ Done:
 - Send SMSes
 - Two-factor authentication
 - Define all API calls in JSON schema - call JS file from it
+
 
