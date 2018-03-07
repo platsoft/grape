@@ -70,7 +70,7 @@ module.exports = function() {
 				}
 
 				var result = result.rows[0].result;
-				if (result.auth_server == 'local')
+				if (!result.auth_server || result.auth_server == 'local')
 				{
 					request_service_ticket_locally(req, res, obj);
 				}
