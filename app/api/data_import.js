@@ -24,7 +24,7 @@ exports = module.exports = function(_app) {
  * @example {file_data:'...', name:'filename.csv', type:'text/csv', processing_parameters:[{x:''}], processing_function:'dimport_function_x'}
  * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
-	app.post("/grape/data_import/upload", api_data_import);
+	//app.post("/grape/data_import/upload", api_data_import);
 
 /**
  * @desc delete given data_import_id entries if not processed
@@ -50,7 +50,7 @@ exports = module.exports = function(_app) {
  * @example {}
  * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
-	app.post("/grape/data_import/process", api_data_import_process);
+	//app.post("/grape/data_import/process", api_data_import_process);
 
 /**
  * @desc download the data import file uploaded for specific data_import
@@ -143,10 +143,10 @@ function api_data_import_delete(req, res)
 	res.locals.db.json_call('grape.data_import_delete', req.body, null, {response: res});
 }
 
-function api_data_import_process(req, res)
-{
-	res.locals.db.json_call('grape.data_import_process', req.body, null, {response: res});
-}
+//function api_data_import_process(req, res)
+//{
+//	res.locals.db.json_call('grape.data_import_process', req.body, null, {response: res});
+//}
 
 function process_data_import_file(file, data_import_id, item_queue)
 {

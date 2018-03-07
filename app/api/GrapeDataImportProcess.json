@@ -1,0 +1,21 @@
+{
+	"id": "/grape/data_import/process",
+	"method": "POST",
+	"accept": "xsl,q=1;ods,q=1",
+	"description": "Upload file/files",
+	"sqlfunc": "grape.data_import_process",
+	"name": "GrapeDataImportProcess",
+	"roles": ["data_import","admin"],
+	"properties": {
+		"data_import_id": {"type": "number"}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"]},
+			"message": {"type": "string"},
+			"code": {"type": "number"},
+			"error": {"type": "object"}
+		}
+	}
+}
