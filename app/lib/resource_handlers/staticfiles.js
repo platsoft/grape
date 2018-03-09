@@ -9,14 +9,14 @@ function StaticFileHandler()
 
 	function check_permissions (req, res, next)
 	{
-		console.log("CHECK PERMISSIONS");
+		//console.log("CHECK PERMISSIONS");
 		next();
 	}
 
 	function execute (req, res, next)
 	{
 		var app = req.app;
-		console.log("EXECUTE");
+		//console.log("EXECUTE");
 		app.get('logger').log('app', 'debug', 'Sending public file ' + req.handler.matched_path);
 		res.sendFile(req.handler.matched_path, {}, function(err) {
 			if (err)

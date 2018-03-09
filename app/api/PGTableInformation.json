@@ -4,6 +4,7 @@
 	"name": "PGTableInformation",
 	"sqlfunc": "grape.pg_table_information",
 	"type": "object",
+	"roles": ["admin"],
  	"properties": {
 		"tablename": {"type": "string", "description": "Table or view name"},
 		"schema": {"type": "string", "description": "Schema name of table or view"}

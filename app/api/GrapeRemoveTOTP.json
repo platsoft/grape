@@ -1,10 +1,11 @@
 {
 	"description": "Remove TOTP authentication for user",
-	"id": "/grape/remove_totp",
+	"url": "/grape/remove_totp",
 	"name": "GrapeRemoveTOTP",
 	"sqlfunc": "grape.remove_totp",
 	"sqlfunctype": "jsonb",
-	"type": "object",
+	"method": "POST",
+	"roles": ["all"],
 	"return": {
 		"type": "object",
 		"properties": {

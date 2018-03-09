@@ -13,16 +13,20 @@ User Management:
 	- Add functionality for managing user preferences
 	- Use user preferences to save landing page, theme?
 
+HTTP:
+	- Implement ETag
+	- Properly implement the HEAD method https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
+	- Implement pre-flight requests (OPTIONS) properly
+
 Authentication:
 	- Make roles be able to belong to roles
 	- SAML Integration
 	- HTTP DIGEST authentication
 
 Security:
-	- Implement pre-flight requests properly, use it with all calls
 	- Implement HTTP Strict Transport Security (https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet)
 	- Limit HTTP Authorization to certain users only (new role basic_auth) [E]
-	- DDOS protection
+	- DDOS protection (rate limiter)
 
 API calls:
 	- Create API calls for stuff that is not JS files or DB functions (like PHP or python) (Implemented API calls in PHP/Python )
@@ -70,6 +74,7 @@ Modules to write:
 - WebDAV
 	- Document store to Integrate with WebDAV
 - SSDP module (Broadcast/discover other grape services (using SSDP))
+- GrapeShell - provides interaction with DB from CMD for power-users
 
 WIP:
 - Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here

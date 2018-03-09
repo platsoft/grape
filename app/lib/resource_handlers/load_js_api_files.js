@@ -29,7 +29,7 @@ module.exports = function(app, dirname) {
 					// loads the api module and execute the export function with the app param.
 					try {
 						require(dirname + file)(app);
-						app.get('logger').info('api', "Loaded API file " + relativedirname + file);
+						app.get('logger').debug('api', "Loaded API file " + relativedirname + file);
 					} catch (e) {
 						app.get('logger').error('api', "Failed to load API file " + relativedirname + file + ' [' + util.inspect(e) + ']');
 					}

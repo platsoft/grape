@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.0" last-position="0,1097" last-zoom="0.9">
+<dbmodel pgmodeler-ver="0.9.0" last-position="0,0" last-zoom="0.9">
 <database name="grape">
 </database>
 
@@ -15,7 +15,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="access_role" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="140" y="820"/>
+	<position x="340" y="860"/>
 	<column name="role_name" not-null="true">
 		<type name="text" length="1"/>
 	</column>
@@ -26,7 +26,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user_role" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="100" y="660"/>
+	<position x="300" y="700"/>
 	<column name="user_id" not-null="true">
 		<type name="integer" length="1"/>
 	</column>
@@ -40,7 +40,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="session" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="480" y="20"/>
+	<position x="680" y="60"/>
 	<column name="session_id" not-null="true">
 		<type name="text" length="1"/>
 	</column>
@@ -69,7 +69,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="access_path" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="500" y="800"/>
+	<position x="700" y="840"/>
 	<column name="role_name" not-null="true">
 		<type name="text" length="1"/>
 	</column>
@@ -87,7 +87,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user_history" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="580" y="400"/>
+	<position x="900" y="440"/>
 	<column name="user_history_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -110,7 +110,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="80" y="240"/>
+	<position x="340" y="300"/>
 	<column name="user_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -141,6 +141,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="auth_info">
 		<type name="jsonb" length="1"/>
 	</column>
+	<column name="preferences">
+		<type name="jsonb" length="0"/>
+	</column>
 	<constraint name="user_pk" type="pk-constr" table="grape.&quot;user&quot;">
 		<columns names="user_id" ref-type="src-columns"/>
 	</constraint>
@@ -154,7 +157,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="process" oids="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1300" y="200"/>
+	<position x="1500" y="240"/>
 	<column name="process_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -214,7 +217,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule_log" oids="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="2160" y="480"/>
+	<position x="2360" y="520"/>
 	<column name="schedule_log_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -234,7 +237,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="schedule" oids="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1700" y="200"/>
+	<position x="1900" y="240"/>
 	<column name="schedule_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -283,7 +286,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1420" y="760"/>
+	<position x="1620" y="800"/>
 	<column name="data_import_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -339,7 +342,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_row" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1860" y="780"/>
+	<position x="2060" y="820"/>
 	<column name="data_import_row_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -363,7 +366,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="setting" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<comment><![CDATA[System-wide settings]]></comment>
-	<position x="40" y="920"/>
+	<position x="240" y="960"/>
 	<column name="name" not-null="true">
 		<type name="text" length="1"/>
 	</column>
@@ -389,7 +392,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_registry" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="800" y="1820"/>
+	<position x="1000" y="1860"/>
 	<column name="system_registry_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -415,7 +418,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_routing" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="400" y="2200"/>
+	<position x="600" y="2240"/>
 	<column name="system_routing_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -432,7 +435,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_public_key" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="340" y="1840"/>
+	<position x="540" y="1880"/>
 	<column name="system_registry_id" not-null="true">
 		<type name="integer" length="1"/>
 	</column>
@@ -446,7 +449,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="system_private" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="60" y="2060"/>
+	<position x="260" y="2100"/>
 	<column name="system_private_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -466,7 +469,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="data_import_type" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1860" y="980"/>
+	<position x="2060" y="1020"/>
 	<column name="processing_function" not-null="true">
 		<type name="text" length="1"/>
 	</column>
@@ -512,7 +515,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="60" y="1340"/>
+	<position x="260" y="1380"/>
 	<column name="report_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -550,7 +553,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="reports_executed" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="480" y="1080"/>
+	<position x="700" y="1180"/>
 	<column name="reports_executed_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -598,7 +601,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="session_history" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="680" y="180"/>
+	<position x="980" y="240"/>
 	<column name="session_id" not-null="true">
 		<type name="text" length="1"/>
 	</column>
@@ -624,7 +627,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="table_view" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1000" y="2100"/>
+	<position x="1200" y="2140"/>
 	<column name="table_view_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -650,7 +653,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="auto_scheduler" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1520" y="520"/>
+	<position x="1720" y="560"/>
 	<column name="auto_scheduler_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -703,7 +706,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="list_query_whitelist" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1580" y="1340"/>
+	<position x="1780" y="1380"/>
 	<column name="schema" not-null="true">
 		<type name="text" length="1"/>
 	</column>
@@ -728,7 +731,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="setting_history" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="400" y="920"/>
+	<position x="600" y="960"/>
 	<column name="setting_history_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -818,7 +821,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="test_table" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1820" y="1140"/>
+	<position x="2020" y="1180"/>
 	<column name="test_table_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -890,7 +893,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document_store" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1220" y="1880"/>
+	<position x="1420" y="1920"/>
 	<column name="document_store_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -913,7 +916,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1840" y="1840"/>
+	<position x="2040" y="1880"/>
 	<column name="document_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -955,7 +958,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document_store_document" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1540" y="2120"/>
+	<position x="1740" y="2160"/>
 	<column name="document_id" not-null="true">
 		<type name="integer" length="1"/>
 	</column>
@@ -972,7 +975,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="table_operation_whitelist" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1560" y="1460"/>
+	<position x="1760" y="1500"/>
 	<column name="schema" not-null="true">
 		<type name="text" length="1"/>
 	</column>
@@ -992,7 +995,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="process_role" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1080" y="620"/>
+	<position x="1280" y="660"/>
 	<column name="process_role_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1034,7 +1037,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="user_network" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="400" y="580"/>
+	<position x="700" y="620"/>
 	<column name="user_network_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1059,7 +1062,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="network" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="780" y="660"/>
+	<position x="1040" y="760"/>
 	<column name="network_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1084,7 +1087,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report_template" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="500" y="1380"/>
+	<position x="700" y="1420"/>
 	<column name="report_template_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1116,7 +1119,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="report_output" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<comment><![CDATA[Parameters passed on to the output function]]></comment>
-	<position x="1080" y="1440"/>
+	<position x="1280" y="1480"/>
 	<column name="report_output_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1137,7 +1140,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report_output_type" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1080" y="1680"/>
+	<position x="1280" y="1720"/>
 	<column name="report_output_type_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1161,7 +1164,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report_result" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1080" y="1100"/>
+	<position x="1280" y="1140"/>
 	<column name="report_result_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1192,7 +1195,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report_result_output" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1080" y="1300"/>
+	<position x="1280" y="1340"/>
 	<column name="report_result_output_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1212,7 +1215,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report_template_output" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="720" y="1580"/>
+	<position x="920" y="1620"/>
 	<column name="report_template_output_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1229,7 +1232,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report_role" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="360" y="1600"/>
+	<position x="560" y="1640"/>
 	<column name="report_role_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1255,7 +1258,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="report_category" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="60" y="1220"/>
+	<position x="260" y="1260"/>
 	<column name="report_category_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1269,7 +1272,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="deployment" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="2100" y="60"/>
+	<position x="2300" y="100"/>
 	<column name="deployment_id">
 		<type name="serial" length="1"/>
 	</column>
@@ -1291,7 +1294,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="notification_function" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1540" y="20"/>
+	<position x="1740" y="60"/>
 	<column name="notification_function_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1350,7 +1353,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="service" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<comment><![CDATA[This table is used for the generation of service tickets]]></comment>
-	<position x="60" y="1840"/>
+	<position x="260" y="1880"/>
 	<column name="service_id" not-null="true">
 		<type name="serial" length="1"/>
 	</column>
@@ -1393,7 +1396,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="session_activity_log" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="920" y="60"/>
+	<position x="1120" y="100"/>
 	<column name="session_id">
 		<type name="text" length="1"/>
 	</column>
@@ -1410,7 +1413,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="document_store_location" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1500" y="1680"/>
+	<position x="1700" y="1720"/>
 	<column name="document_store_location_id" not-null="true">
 		<type name="serial" length="0"/>
 	</column>
@@ -1427,7 +1430,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="pending_user" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="60" y="80"/>
+	<position x="260" y="120"/>
 	<column name="pending_user_id">
 		<type name="serial" length="0"/>
 	</column>
@@ -1447,7 +1450,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="patch" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="1220" y="40"/>
+	<position x="1420" y="80"/>
 	<column name="system" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -1476,7 +1479,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="process_hook" sql-disabled="true">
 	<schema name="grape"/>
-	<position x="1080" y="200"/>
+	<position x="1280" y="240"/>
 	<column name="process_id">
 		<type name="integer" length="0"/>
 	</column>
@@ -1497,7 +1500,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="registered_api_calls" sql-disabled="true" hide-ext-attribs="true">
 	<schema name="grape"/>
-	<position x="940" y="380"/>
+	<position x="1180" y="440"/>
 	<column name="method" not-null="true">
 		<type name="text" length="0"/>
 	</column>

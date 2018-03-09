@@ -2,7 +2,6 @@ var fs = require('fs');
 const path = require('path');
 var util = require('util');
 var _ = require('underscore');
-var Validator = require('jsonschema').validate;
 var GrapeAutoValidator = require(__dirname + '/../auto_validate.js').validate;
 
 function create_schema_api_call(app, obj)
@@ -37,9 +36,10 @@ function create_schema_api_call(app, obj)
 		return false;
 	}
 
-	if (param.roles)
+	if (!param.roles || !param.roles.length)
 	{
-		//add_schema_access_roles(param.roles, param.id, param.method, app.get('db'));
+		app.get('logger').error('api', 'No roles defined for the API call', param.name);
+		return false;
 	}
 
 	if (param.jsfile)
@@ -124,22 +124,6 @@ function create_schema_api_call(app, obj)
 					if (param.validate || param.validation_string)
 					{
 						if (auto_validate(obj, param, res) === false) { return; }
-					}
-					else
-					{
-						var validate_result = Validator(obj, param);
-
-						if (validate_result.errors.length > 0)
-						{
-							app.get('logger').error('api', 'Validation failed for input ' + util.inspect(obj));
-							res.send({
-								status: 'ERROR',
-								message: 'Validation failed',
-								code: -3,
-								error: validate_result.errors
-							});
-							return;
-						}
 					}
 				}
 

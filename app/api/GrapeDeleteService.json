@@ -1,10 +1,11 @@
 {
 	"description": "Delete a service",
-	"id": "/grape/service/delete",
+	"url": "/grape/service/delete",
 	"name": "GrapeDeleteService",
 	"sqlfunc": "grape.delete_service",
 	"sqlfunctype": "jsonb",
-	"type": "object",
+	"method": "POST",
+	"roles": ["admin"],
  	"properties": {
 		"service_id": {"type": "number", "description": "Service ID"}
 	},

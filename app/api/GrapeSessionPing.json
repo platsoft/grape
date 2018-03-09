@@ -1,0 +1,17 @@
+{
+	"url": "/grape/session_ping",
+	"method": "GET",
+	"description": "Session ping",
+	"jsfile": "session_ping.js",
+	"name": "GrapeSessionPing",
+	"roles": ["all", "guest"],
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"]},
+			"message": {"type": "string"},
+			"code": {"type": "number"},
+			"error": {"type": "object"}
+		}
+	}
+}

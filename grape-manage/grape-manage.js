@@ -5,7 +5,7 @@
 var fs = require('fs');
 var util = require('util');
 var path = require('path');
-var grape_options = require(__dirname + '/../app/lib/options.js');
+var configreader = require(__dirname + '/../app/lib/configreader.js');
 var pg = require('pg');
 var funcs = require('./funcs');
 
@@ -39,9 +39,9 @@ if (process.argv[2] && process.argv[2].substring(0, 13) == '--project-dir')
 	}
 
 	try {
-		var config = require(base_directory + '/config.json');
+		var config = require(base_directory + '/config/grape_manage.json');
 	} catch (e) {
-		console.log("No config.json file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
+		console.log("No config/grape_manage.json file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
 		process.exit(1);
 	}
 
@@ -55,7 +55,7 @@ else if (process.argv[2] && path.extname(process.argv[2]) == '.json')
 else
 {
 	try {
-		var config = require(base_directory + '/config.json');
+		var config = require(base_directory + '/config/grape_manage.json');
 	} catch (e) {
 		console.log("No config.json file found! Make sure that you are in a project directory. Alternatively, use the --project-dir option");
 		process.exit(1);
@@ -64,7 +64,7 @@ else
 
 
 
-var options = grape_options(config);
+var options = configreader(config);
 
 
 function debug(msg)

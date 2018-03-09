@@ -1,10 +1,11 @@
 {
 	"description": "Lists all process categories found in grape.process",
-	"id": "/grape/list_process_categories",
+	"url": "/grape/list_process_categories",
 	"name": "GrapeListProcessCategories",
 	"sqlfunc": "grape.list_process_categories",
 	"type": "query",
 	"method": "GET",
+	"roles": ["admin"],
 	"return": {
 		"type": "object",
 		"properties": {

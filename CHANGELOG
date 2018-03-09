@@ -274,4 +274,14 @@ New features:
 - Removed API call /session/list/:date
 - Settings from DB is now available in grape app, and in API calls via app.get('grape_settings')
 - "admin" role can no longer do anything automatically
+- grape-manage will now read from config/grape_manage.json
+- Grape will now refuse to start if the DB version does not match package.json
+- Email functionality has been moved to it's own repository, grape-email-sender
+- Removed /api_list
+
+- Renamed config setting "instances" to "http_instance_count"
+- New config option "listen"
+- Add new config setting "db_idle_timeout"
+
+
 

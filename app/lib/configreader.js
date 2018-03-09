@@ -124,33 +124,6 @@ function process_options(_o, included_from_path)
 		delete options.public_directory;
 	}
 
-	/*
-	// change paths in public_directories to absolute paths
-	if (options.public_directories)
-	{
-		var new_pds = [];
-		options.public_directories.forEach(function(pd) {
-			if (path.isAbsolute(pd))
-				new_pds.push(pd);
-			else
-				new_pds.push(path.join(base_directory, pd));
-		});
-		options.public_directories = new_pds;
-	}
-
-	// change paths in api_directories to absolute paths
-	if (options.api_directories)
-	{
-		var new_dirs = [];
-		options.api_directories.forEach(function(dir) {
-			if (path.isAbsolute(dir))
-				new_dirs.push(dir);
-			else
-				new_dirs.push(path.join(base_directory, dir));
-		});
-		options.api_directories = new_dirs;
-	}
-	*/
 
 	//paths
 	var path_options = [
@@ -166,6 +139,12 @@ function process_options(_o, included_from_path)
 		'sslcert', 
 		'log_directory'
 	];
+
+	if (options['path_options'] && _.isArray(options['path_options']))
+	{
+		path_options = path_options.concat(options['path_options']);
+		delete options['path_options'];
+	}
 
 	path_options.forEach(function(p) {
 		if (_.isArray(options[p]))
@@ -190,22 +169,23 @@ function process_options(_o, included_from_path)
 
 exports = module.exports = function() {
 	var options = {
-		session_management: true,
-		port: 3000,
-		http_port: false,
-		debug: false,
-		instances: 1,
-		document_store: false,
-		base_directory: false,
-		log_directory: false,
-		server_timeout: 50000,
-		compile_js_dirs: ['pages'],
-		public_directories: [],
 		api_directories: [],
+		base_directory: false,
 		cache_public_js_dirs: false,
-		process_name: false,
+		compile_js_dirs: ['pages'],
+		db_idle_timeout: 10000, // 10 seconds
+		debug: false,
 		delayed_response: 0,
-		diroptions: ['directory.json'] // filenames for directory options
+		diroption_files: ['directory.json'], // filenames for directory options
+		document_store: false,
+		http_instance_count: 1,
+		http_port: false,
+		listen: [], // local addresses/ports to bind on
+		log_directory: false,
+		public_directories: [],
+		process_name: false,
+		server_timeout: 50000,
+		session_management: true
 	};
 
 	for (var i = 0; i < arguments.length; i++)

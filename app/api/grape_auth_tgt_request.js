@@ -48,7 +48,7 @@ module.exports = function() {
 
 			var result = result.rows[0].result;
 
-			console.log(result);
+			//console.log(result);
 
 			if (result.status == 'ERROR' && result.code == -500) // need to get password from another server
 			{

@@ -1,9 +1,10 @@
 {
 	"description": "Delete a record from a table (the table needs to be whitelisted)",
-	"id": "/grape/delete_record",
+	"url": "/grape/delete_record",
 	"name": "GrapeDeleteRecord",
 	"sqlfunc": "grape.delete_record",
-	"type": "object",
+	"method": "POST",
+	"roles": ["all"],
  	"properties": {
 		"tablename": {"type": "string", "description": "Table name to delete the record from"},
 		"schema": {"type": "string", "description": "Schema name of table"},

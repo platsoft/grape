@@ -30,12 +30,9 @@ exports = module.exports = function(_app) {
 
 /**
  * @desc Add a auto schedule to a process 
- * @method POST
  * @sqlfunc grape.save_process_auto_scheduler
- * @url /grape/process/autoschedule
  * @body 
  * {
- * 	process_id INTEGER Process ID to set autoscheduler for 
  * 	auto_scheduler_id INTEGER Optional, and if given this will update the existing auto_scheduler
  * 	day_time TIME Time to run
  * 	scheduled_interval INTERVAL Interval to run (1 hour, 10 minutes, etc). Set either this, or time
@@ -45,10 +42,8 @@ exports = module.exports = function(_app) {
  * 	user_id INTEGER Run as user id
  * 	active BOOLEAN
  * }
- * @return JSON object containing fields:
  *
  **/
-	app.post("/grape/process/autoschedule", api_process_autoschedule);
 
 /**
  * @desc List processes
@@ -361,11 +356,6 @@ function api_bgworker_stop (req, res)
 		process.kill(obj.pid);
 		res.status(200).json({'status': 'OK', 'pid': obj.pid}).end();
 	});
-}
-
-function api_process_autoschedule (req, res)
-{
-	res.locals.db.json_call('grape.save_process_auto_scheduler', req.body, null, {response: res});
 }
 
 

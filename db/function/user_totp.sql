@@ -95,6 +95,17 @@ BEGIN
 
 END; $$ LANGUAGE plpgsql;
 
+/**
+ * possible results are: 
+ *	'' (empty string) - 2FA not enabled
+ *	'pending verification'
+ *	'ok'
+ */
+CREATE OR REPLACE FUNCTION grape.get_user_totp_status (_user_id INTEGER) RETURNS TEXT AS $$
+	SELECT COALESCE(u.auth_info->>'totp_status', '') FROM grape."user" u WHERE user_id=_user_id::INTEGER;
+$$ LANGUAGE sql;
+
+
 -- remove TOTP on user's account
 CREATE OR REPLACE FUNCTION grape.remove_totp(JSONB) RETURNS JSONB AS $$
 DECLARE

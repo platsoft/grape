@@ -1,10 +1,11 @@
 {
 	"description": "Confirm TOTP authentication for user",
-	"id": "/grape/confirm_totp",
+	"url": "/grape/confirm_totp",
 	"name": "GrapeConfirmTOTP",
 	"sqlfunc": "grape.confirm_totp",
 	"sqlfunctype": "jsonb",
-	"type": "object",
+	"method": "POST",
+	"roles": ["all"],
  	"properties": {
 		"totp": {"type": "string", "description": "TOTP"}
 	},

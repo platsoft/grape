@@ -58,7 +58,7 @@ module.exports = function (req, res, next) {
 			dburi: app.get('config').dburi, 
 			session_id: session_id,
 			username: username,
-			timeout: 10000,
+			db_idle_timeout: app.get('config').db_idle_timeout || 10000,
 			debug: app.get('config').debug
 		});
 

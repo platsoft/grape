@@ -100,7 +100,7 @@ var GrapeClient = function(_o) {
 
 			res.on('end', function() {
 				var obj = JSON.parse(chunks.join(''));
-				cb(obj);
+				cb(obj, res);
 			});
 		};
 
@@ -147,7 +147,7 @@ var GrapeClient = function(_o) {
 
 			res.on('end', function() {
 				var obj = JSON.parse(chunks.join(''));
-				cb(obj);
+				cb(obj, res);
 			});
 		};
 

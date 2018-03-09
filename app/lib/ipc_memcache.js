@@ -5,7 +5,7 @@ var IPCMemCache = function(options, grape) {
 	this.self = self;
 	this.dataStore = {};
 
-	// message received
+	// message received by master process from child
 	this.handle_message = function(msg, callback) {
 		if (msg.cmd == 'fetch')
 		{
@@ -30,6 +30,7 @@ var IPCMemCache = function(options, grape) {
 		}
 	};
 	
+	// functions to send messages
 	this.export_functions = [];
 	this.export_functions['fetch'] = function(name, callback) {
 		// will be executed in Comms class

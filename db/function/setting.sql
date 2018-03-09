@@ -13,7 +13,7 @@ BEGIN
 	INSERT INTO grape.setting_history (setting_name, value, json_value, date_inserted, user_id) 
 		VALUES (_name, _value, NULL, NOW(), current_user_id());
 	
-	PERFORM pg_notify('reload_settings');
+	PERFORM pg_notify('reload_settings', '');
 
 	RETURN _value;
 END; $$ LANGUAGE plpgsql;
@@ -63,7 +63,7 @@ BEGIN
 		INSERT INTO grape.setting (name, value, hidden, description, data_type)
 			VALUES (_name, _initial_value, _hidden, _description, _data_type);
 	
-		PERFORM pg_notify('reload_settings');
+		PERFORM pg_notify('reload_settings', _name);
 	END IF;
 	RETURN _initial_value;
 END; $$ LANGUAGE plpgsql;

@@ -27,7 +27,7 @@ var CommsChannel = function(options, grape) {
 	};
 
 	this.handle_message = function(msg, handle, proc) {
-		self.logger.debug('comms', 'Handling incoming message', msg);
+		//self.logger.debug('comms', 'Handling incoming message', JSON.stringify(msg));
 		if (msg.cmd)
 		{
 			var cmd = msg.cmd;

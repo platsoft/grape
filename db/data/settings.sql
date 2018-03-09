@@ -17,3 +17,6 @@ SELECT grape.add_setting ('test_table_schema', 'tmp', 'Default schema for data i
 SELECT grape.add_setting ('ldap_bind_password', 'Password123', 'LDAP bind password', 'text', true); 
 SELECT grape.add_setting ('logging.log_api_calls_to_db', 'false', 'Log all API calls to DB', 'bool', false); 
 
+
+SELECT grape.add_setting ('grape_version', '1.1.3', 'Grape Version', 'text', false); 
+

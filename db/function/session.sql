@@ -47,6 +47,10 @@ BEGIN
 		RETURN grape.api_result_error('Your account does not have a valid password', 3);
 	END IF;
 
+	IF grape.get_user_totp_status(_user.user_id) = 'ok' THEN
+		-- TODO stuff
+	END IF;
+
 	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
 		IF grape.check_user_password(_user.password, _password) = FALSE THEN
 			RAISE DEBUG 'User % login failed. Password does not match', _username;
@@ -216,6 +220,13 @@ BEGIN
 		RETURN grape.api_result_error('User not active', 3);
 	END IF;
 
+	IF jsonb_extract_path($1, 'http_headers') IS NOT NULL THEN
+		_headers := ($1->'http_headers')::JSONB;
+	ELSIF jsonb_extract_path($1, 'headers') IS NOT NULL THEN
+		_headers := ($1->'headers')::JSONB;
+	END IF;
+
+
 	IF _persistant = TRUE THEN
 		SELECT session_id INTO _session_id FROM grape."session" WHERE user_id=_user.user_id::INTEGER;
 		IF NOT FOUND THEN
@@ -242,8 +253,10 @@ CREATE OR REPLACE FUNCTION grape.build_session_information(_session_id TEXT) RET
 		'email', u.email,
 		'employee_guid', u.employee_guid,
 		'guid', u.employee_guid,
-		'employee_info', u.employee_info
-	) FROM grape.session s JOIN grape."user" u  USING (user_id)
+		'employee_info', u.employee_info,
+		'user_preferences', u.preferences
+	) FROM grape.session s 
+	JOIN grape."user" u  USING (user_id)
 	WHERE session_id=_session_id::TEXT;
 $$ LANGUAGE sql;
 

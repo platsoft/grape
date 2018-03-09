@@ -27,6 +27,8 @@ Reads and parses all arguments as configuration objects or files.
 <h3>comms</h3>
 
 <h2>Events</h2>
+<h3>*-beforestart</h3>
+<h3>*-afterstart</h3>
 <h3>worker</h3>
 <h3>worker-*</h3>
 <h3>worker-*-created</h3>

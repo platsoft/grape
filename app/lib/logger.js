@@ -1,15 +1,18 @@
 
-var _ = require('underscore');
-var fs = require('fs');
-var util = require('util');
+const _ = require('underscore');
+const fs = require('fs-extra');
+const util = require('util');
+const path = require('path');
 
 /**
  * levels:
  * 	debug (and the default log level)
- * 	trace
  * 	info
  * 	warn
- * 	error
+ * 	err
+ * 	crit
+ * 	alert
+ * 	emerg
  *
  * channels:
  * 	app - app related messages (and the default log channel)
@@ -30,10 +33,28 @@ var logger = function(opts) {
 	var streams = new Object();
 	this.streams = streams;
 
-	this.levels = ['debug', 'info', 'warn', 'error', 'trace'];
+	var local_log_stream = null;
+	this.local_log_stream = local_log_stream;
+	this.local_log_stream_date = null;
+
+	this.levels = ['emerg', 'alert', 'crit', 'err', 'warn', 'notice', 'info', 'debug'];
 	this.channels = ['api', 'app', 'session', 'db', 'comms'];
 
-	this.level_tty_colors = {'debug': "\033[35m", 'info': "\033[32m", 'warn': "\033[33m", 'error': "\033[31m", 'trace': "\033[36m"};
+	this.level_aliases = {
+		'trace': 'info',
+		'error': 'err',
+	};
+
+	this.level_tty_colors = {
+		'emerg': "\033[31m", 
+		'alert': "\033[35m", 
+		'crit': "\033[31m", 
+		'err': "\033[31m", 
+		'warn': "\033[33m",
+		'notice': "\033[34m",
+		'info': "\033[32m",
+		'debug': "\033[37m"
+	};
 	this.channel_tty_colors = {'api': "\033[42m", 'app': "\033[43m", 'session': "\033[47m", 'db': "\033[45m", 'comms': "\033[46m"};
 
 	this._join_args = function(args, skip) {
@@ -81,10 +102,25 @@ var logger = function(opts) {
 		var args = ['error'].concat(self._join_args(arguments));
 		self.log.apply(self, args);
 	};
+	this.err = this.error;
 	this.warn = function() {
 		var args = ['warn'].concat(self._join_args(arguments));
 		self.log.apply(self, args);
 	};
+	this.emerg = function() {
+		var args = ['emerg'].concat(self._join_args(arguments));
+		self.log.apply(self, args);
+	};
+	this.crit = function() {
+		var args = ['crit'].concat(self._join_args(arguments));
+		self.log.apply(self, args);
+	};
+	this.alert = function() {
+		var args = ['alert'].concat(self._join_args(arguments));
+		self.log.apply(self, args);
+	};
+
+
 
 
 	//
@@ -104,6 +140,8 @@ var logger = function(opts) {
 					level = str;
 				else if (self.channels.indexOf(str) >= 0)
 					channel = str;
+				else if (self.level_aliases[str])
+					level = self.level_aliases[str];
 				else
 					message_list.push(str);
 			}
@@ -120,6 +158,8 @@ var logger = function(opts) {
 					level = str;
 				else if (self.channels.indexOf(str) >= 0)
 					channel = str;
+				else if (self.level_aliases[str])
+					level = self.level_aliases[str];
 				else
 					message_list.push(str);
 			}
@@ -138,56 +178,86 @@ var logger = function(opts) {
 			else
 				ar.push(util.inspect(message_list[i]));
 		}
+
+		if (level == 'debug' && self.options.debug == false)
+			return;
 		
 		var message = ar.join(' ');
 
-		var streamname = channel + '-' + level;
+		self.log_event(level, channel, message);
+	};
 
+	this.get_local_log_file = function() {
+		var d = new Date();
+
+		// TODO use momentjs
+		var date_now = [d.getFullYear(), 
+			('00' + (d.getMonth()+1)).slice(-2), 
+			('00' + d.getDate()).slice(-2)
+		].join('');
+
+		if (!self.local_log_stream || date_now != self.local_log_stream_date)
+		{
+			var s = 'master';
+			if (process.env.state)
+				s = process.env.state;
+		
+			var logfilename = [s, '-', process.pid, '-', date_now, '.log'].join('');
+			var logdirectory = path.join(
+				self.options.log_directory, 
+				d.getFullYear().toString(), 
+				('00' + (d.getMonth()+1)).slice(-2), 
+				('00' + d.getDate()).slice(-2)
+			);
+
+			fs.ensureDirSync(logdirectory);
+
+			var fullname = path.join(logdirectory, logfilename);
+
+			if (self.local_log_stream)
+				self.local_log_stream.end();
+
+			self.local_log_stream = fs.createWriteStream(fullname, {flags: 'a'});
+			self.local_log_stream_date = date_now;
+		}
+		
+		return self.local_log_stream;
+	};
+
+	this.log_event = function(level, channel, message) {
 		if (process.stdout.isTTY)
 		{
 			var s = 'master';
 			if (process.env.state)
 				s = process.env.state;
 
-			console.log(
-					"\033[41m" + s + ":" + process.pid + "\033[0m " + 
-					self.channel_tty_colors[channel] + channel + "\033[0m " + 
-					self.level_tty_colors[level] + level + ": " + message + "\033[0m");
-		}
-		self.logToStream('all', streamname + ": " + message);
-		self.logToStream(streamname, message);
-	};
+			var proc_bg_color_code = "\033[47;34m";
+			var reset_color_code = "\033[0m";
 
-	this.logToStream = function(streamname, message) {
+			var output = [];
+
+			output.push([proc_bg_color_code, s, ':', process.pid, reset_color_code].join(''));
+
+			output.push([self.channel_tty_colors[channel], channel, reset_color_code].join(''));
+
+			output.push([self.level_tty_colors[level], level, ": ", message, reset_color_code].join(''));
+			
+			//output.push([].join(''));
+
+			console.log(output.join(' '));
+		}
+		
+		var stream = self.get_local_log_file();
+		
 		var d = new Date();
+		// TODO use momentjs
 		var d_str = ['[', d.getFullYear(), '/', ('00' + (d.getMonth()+1)).slice(-2), '/', ('00' + d.getDate()).slice(-2), ' ', ('00' + d.getHours()).slice(-2), ':', ('00' + d.getMinutes()).slice(-2), ':', ('00' + d.getSeconds()).slice(-2), ']'].join('');
 
-		var data = [d_str, ' ', message, "\n"].join('');
+		stream.write([d_str, channel, level, message].join(' '));
+		stream.write("\n");
 
-		var stream = self.getWriteStream(streamname);
-		stream.write(data);
 	};
 
-	this.getWriteStream = function(streamname) {
-		if (typeof self.streams[streamname] == 'undefined' || !self.streams[streamname])
-		{
-			var d = new Date();
-			var fname = [self.options.log_directory, '/', streamname, '-', d.toJSON().slice(0, 10).replace(/\-/g, ''), '.log'].join('');
-			
-			self.streams[streamname] = fs.createWriteStream(fname, {flags: 'a'});
-
-			var symlinkname = [self.options.log_directory, '/', streamname, '-current.log'].join('');
-			try {
-				fs.unlinkSync(symlinkname);
-			} catch (e) { }
-				
-			try {
-				fs.symlinkSync(fname, symlinkname);
-			} catch (e) { console.log(e); }
-		}
-
-		return self.streams[streamname];
-	};
 };
 
 exports = module.exports = logger;

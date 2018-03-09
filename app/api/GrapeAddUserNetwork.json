@@ -1,9 +1,10 @@
 {
 	"description": "Whitelist user to network for IP filtering",
-	"id": "/grape/add_user_network",
+	"url": "/grape/add_user_network",
 	"name": "GrapeAddUserNetwork",
 	"sqlfunc": "grape.user_ip_whitelist_insert",
-	"type": "object",
+	"method": "POST",
+	"roles": ["admin"],
  	"properties": {
 		"user_id": {"type": "number", "description": "User ID"},
 		"network_id": {"type": "number", "description": "Network ID"},

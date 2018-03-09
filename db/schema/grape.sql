@@ -100,6 +100,7 @@ CREATE TABLE grape."user"(
 	employee_info jsonb,
 	pg_role text,
 	auth_info jsonb,
+	preferences jsonb,
 	CONSTRAINT user_pk PRIMARY KEY (user_id),
 	CONSTRAINT username_uq UNIQUE (username)
 

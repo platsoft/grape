@@ -73,7 +73,7 @@ function APIHandler(app)
 		res.set('X-Permission-Code', err.code);
 
 		var settings = self.app.get('grape_settings');
-		if (req.session_id)
+		if (req.session_id) // session is fine but permission was denied
 		{
 			res.status(403);
 		}
@@ -95,7 +95,7 @@ function APIHandler(app)
 			}
 
 			res.set('Location', login_url);
-			res.status(302);
+			res.status(302); // unauthorized
 
 			if (req.accepts('html') == 'html')
 			{
@@ -137,7 +137,7 @@ function APIHandler(app)
 			if (api_def[req.method])
 			{
 				var allowed_roles = api_def[req.method];
-				self.app.logger.debug('api', 'Checking', user_roles, 'against', allowed_roles);
+				self.app.logger.debug('api', 'Checking user roles', user_roles, 'against allowed roles', allowed_roles);
 
 				if (_.intersection(allowed_roles, user_roles).length > 0)
 				{
@@ -171,7 +171,9 @@ function APIHandler(app)
 
 	function execute (req, res, next)
 	{
-		console.log("EXECUTE");
+		//console.log("EXECUTE");
+		
+		req.app.get('logger').info('session', 'Executing API call ', req.handler.matched_path, 'for user', res.locals.session.username);
 
 		// Assign a database connection for the request before jumping into the call
 		assign_db_handler(req, res, next);

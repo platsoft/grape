@@ -40,7 +40,8 @@ function init_database(app)
 		var guest_db = new dblib({
 			dburi: options.guest_dburi || options.dburi,
 			debug: options.debug,
-			session_id: 'grape-guest-' || process.pid.toString(),
+			session_id: 'grape-guest-' + process.pid.toString(),
+			username: 'guest',
 			debug_logger: function(s) { app.get('logger').db(s); }
 		});
 
@@ -102,6 +103,8 @@ var grape_express_app = function(options, grape_obj) {
 
 	app.set('resource_handlers', resource_handlers);
 
+	app.set('grape', grape_obj);
+
 	app.set('grape_settings', grape_obj.grape_settings);
 
 	// Express settings
@@ -128,11 +131,12 @@ var grape_express_app = function(options, grape_obj) {
 	
 	app.set('db', grape_obj.db);
 
+
 	// Express Handlers goes here:
 	
 	// Step 1: Log incoming request
 	app.use(function(req, res, next) {
-		logger.log('app', 'trace', [req.ip, req.method, req.url, req.header('Content-Length') || 0].join(' '));
+		logger.log('session', 'info', [req.ip, req.method, req.url, req.header('Content-Length') || 0].join(' '));
 		next();
 	});
 
@@ -158,7 +162,7 @@ var grape_express_app = function(options, grape_obj) {
 	// Log the result from the session check
 	app.use(function(req, res, next){
 		if (req.session_id)
-			logger.log('session', 'debug', 'Valid session. User: ', req.session.username);
+			logger.log('session', 'debug', 'Valid session identified for user ', req.session.username);
 		else
 			logger.log('session', 'debug', 'No valid session - continuing as guest');
 		next();
@@ -235,7 +239,39 @@ var grape_express_app = function(options, grape_obj) {
 			var privateKey = fs.readFileSync(options.sslkey);
 			var certificate = fs.readFileSync(options.sslcert);
 
-			var server = https.createServer({key: privateKey, cert: certificate}, app).listen(options.port);
+			var server = https.createServer({key: privateKey, cert: certificate}, app);
+			if (options.port)
+			{
+				server.listen(options.port);
+				logger.info('SSL listening on ' + options.port);
+			}
+			else if (options.listen)
+			{
+				options.listen.forEach(function(l) {
+					var obj;
+					if (typeof l == 'string')
+					{
+						var ar = l.split(':');
+						if (ar.length == 2)
+						{
+							obj = {host: ar[0], port: ar[1]};
+						}
+						else
+						{
+							obj = l; // TODO ipv6 addresses
+						}
+					}
+					else
+					{
+						obj = l;
+					}
+						
+					if (!obj.host)
+						obj.host = null;
+					server.listen(obj);
+					logger.info('SSL listening on ' + obj.host + ':' + obj.port);
+				});
+			}
 
 			server.on('error', function(err) {
 				if (err.code == 'EADDRINUSE')
@@ -247,7 +283,6 @@ var grape_express_app = function(options, grape_obj) {
 
 			self.https_server = server;
 
-			logger.info('SSL listening on ' + options.port);
 
 			if (options.http_port)
 				http_port = options.http_port;

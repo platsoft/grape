@@ -22,17 +22,18 @@ const CommsChannel = require(__dirname + '/comms.js');
 const GrapeSettings = require(path.join(__dirname, 'grape_settings.js'));
 const dblib = require(path.join(__dirname, 'db.js'));
 
-var email_notification_worker = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
+//var email_notification_worker = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
 
 
 function grape() {
 	this.self = this;
 	var self  = this;
 	this.options = configreader.apply(null, arguments);
+
 	var logger = new grapelib.logger(this.options);
 	this.logger = logger;
 		
-	var comms = new CommsChannel(self.options, self);
+	var comms = null;
 	this.comms = comms;
 
 	this.db = null;
@@ -46,18 +47,21 @@ function grape() {
 	this.setup = function() {
 		self.addWorker({
 			name: 'httplistener',
-			instance_count: self.options.instances || 5,
+			instance_count: self.options.http_instance_count || 5,
 			func: g_app
 		});
 
-		// TODO emailer must not be here
+		/*
 		self.addWorker({
 			name: 'emailer',
 			instance_count: 1,
 			func: email_notification_worker
 		});
+		*/
+	};
 
-		// TODO add custom handlers 
+	this.setup_comms = function(next) {
+		self.comms = new CommsChannel(self.options, self);
 		
 		self.comms.addHandler(new IPCMemCache(self.options, self));
 		self.comms.addHandler(new IPCSessionCache(self.options, self));
@@ -65,6 +69,12 @@ function grape() {
 		process.on('message', function(msg, handle) {
 			self.comms.handle_message(msg, handle, process);
 		});
+		next();
+	};
+
+	this.setup_database = function(next) {
+
+		self.logger.debug('app', 'Attempting database connection...');
 
 		var conn_name = (process.env.state || 'master') + '-' + process.pid;
 
@@ -88,14 +98,54 @@ function grape() {
 		});
 
 		db.on('end', function() {
-			self.logger.log('db', 'info', 'Database for default session disconnected. Restarting');
-			db.connect();
+			if (db.no_reconnect)
+			{
+			}
+			else
+			{
+				self.logger.log('db', 'info', 'Database for default session disconnected. Restarting');
+				db.connect();
+			}
 		});
 
+		db.on('connected', function() {
+			self.logger.info('app', 'Initial database connection succeeded');
+			self.grape_settings.setup(function(err) {
+				if (err)
+				{
+					self.logger.error('db', 'Error while loading settings.', err);
+				}
+				else
+				{
+					next();
+				}
+			});
+
+		});
 
 		self.grape_settings = new GrapeSettings(self);
-		self.grape_settings.setup();
 
+	};
+
+	this.check_grape_version = function(next) {
+		try {
+			var pkg = JSON.parse(fs.readFileSync(__dirname + '/../../package.json', 'utf8'));
+		} catch (e) {
+			self.logger.error('app', 'Error when loading package.json');
+			next();
+			return;
+		}
+
+		var db_grape_version = self.grape_settings.get_value('grape_version', '0');
+		if (db_grape_version != pkg.version)
+		{
+			self.logger.crit('app', 'The grape version in your database (', db_grape_version, ') does not match the one that is currently running (', pkg.version, '). Please apply the necessary patches to get your database up too date');
+			self.db.disconnect(true); // going to quit
+		}
+		else
+		{
+			next();
+		}
 	};
 
 	this.addWorker = function(obj) {
@@ -204,66 +254,96 @@ function grape() {
 				next();
 			};
 
-			async.series([create_pidfile, start_workers]);
+			async.series([
+				create_pidfile, 
+				self.setup_comms, 
+				self.setup_database, 
+				self.check_grape_version,
+				start_workers
+			]);
 		}
 		else  // we are the child/worker process
 		{
-			if (process.env.state)
-			{
-				var instance_count = process.env.instance_count || '0';
-
-				logger.info('app', process.env.state,  '#' + instance_count, 'process pid', process.pid, 'started');
-				var process_name = self.options.process_name || 'grape-unknown';
-
-				var found = false;
-				for (var i = 0; i < self.workers.length && !found; i++)
+			function run_start_function() {
+				if (process.env.state)
 				{
-					if (self.workers[i].name == process.env.state)
+					var instance_count = process.env.instance_count || '0';
+
+					logger.info('app', process.env.state,  '#' + instance_count, 'process pid', process.pid, 'started');
+					var process_name = self.options.process_name || 'grape-unknown';
+
+					var found = false;
+					for (var i = 0; i < self.workers.length && !found; i++)
 					{
+						if (self.workers[i].name == process.env.state)
+						{
 
-						found = true;
-						process.title = [process_name, '-', self.workers[i].name, '[', instance_count , ']'].join('');
-						var obj = new (self.workers[i].func)(self.options, self);
-						
-						//self.emit(['worker', self.workers[i].name, 'created'].join('-'), obj);
+							found = true;
+							process.title = [process_name, '-', self.workers[i].name, '[', instance_count , ']'].join('');
+							try {
+								var obj = new (self.workers[i].func)(self.options, self);
 
-						if (obj.start)
-							obj.start.call(obj);
+								self.emit([self.workers[i].name, 'beforestart'].join('-'), self.workers[i], obj);
+							
+								if (obj.start)
+									obj.start.call(obj);
+							} catch (e) {
+								self.logger.crit('app', 'Unhandled exception in worker during startup', e);
+								//setTimeout(function() { process.exit(8); }, 1);
+							}
+							
+							self.emit([self.workers[i].name, 'afterstart'].join('-'), self.workers[i], obj);
 
-						self.emit('worker', self.workers[i], obj);
-						self.emit(['worker-', self.workers[i].name].join(''), self.workers[i], obj);
+							self.emit('worker', self.workers[i], obj);
+
+							// deprecated
+							self.emit(['worker-', self.workers[i].name].join(''), self.workers[i], obj);
+						}
+					}
+
+					if (!found)
+					{
+						console.log("UNKNOWN WORKER " + process.env.state);
 					}
 				}
-
-				if (!found)
-				{
-					console.log("UNKNOWN WORKER " + process.env.state);
-				}
 			}
+
+			async.series([self.setup_comms, self.setup_database, run_start_function]);
 		}
 	};
 
 	this.forkWorker = function(worker, instance_idx) {
 		self.logger.info("app", "Starting worker: " + worker.name);
 		var new_process = cluster.fork({"state": worker.name, "instance_count": instance_idx});
+		new_process.on('online', function() {
+			self.logger.info('app', 'Worker process ', worker.name, "[", instance_idx, "] is now online as pid ", new_process.process.pid);
+		});
+
 		new_process.on('disconnect', function() {
 		});
+
 		new_process.on('exit', function() {
-			self.logger.error('app', worker.name, "[", instance_idx, "]: Worker process exited with code", new_process.process.exitCode);
 			if (new_process.process.exitCode == 5)
 			{
-				console.log("Connectivity issue. Restarting in 5 seconds...");
+				self.logger.error('app', worker.name, "[", instance_idx, "]: Worker process ", new_process.process.pid, " experienced a connectivity issue. Restarting in 5 seconds");
+				setTimeout(function() { 
+					self.forkWorker(worker, instance_idx); 
+				}, 5000);
+			}
+			else if (new_process.process.exitCode == 8) // unhandled exception
+			{
+				self.logger.error('app', worker.name, "[", instance_idx, "]: Worker process ", new_process.process.pid, " experienced an Unhandled Exception. Restarting in 5 seconds");
 				setTimeout(function() { 
 					self.forkWorker(worker, instance_idx); 
 				}, 5000);
 			}
 			else if (new_process.process.exitCode == 9) // fatal error, do not restart
 			{
-				self.logger.error('app', worker.name, ' experienced a fatal error. I am not going to restart the process.');
+				self.logger.error('app', worker.name, "[", instance_idx, "]: Worker process ", new_process.process.pid, " experienced a fatal error. I am not going to restart the process.");
 			}
 			else
 			{
-				console.log("Restarting in 2 seconds...");
+				self.logger.error('app', worker.name, "[", instance_idx, "]: Worker process ", new_process.process.pid, " exited with code", new_process.process.exitCode);
 				setTimeout(function() { 
 					self.forkWorker(worker, instance_idx); 
 				}, 2000);
@@ -274,7 +354,7 @@ function grape() {
 			self.forkWorker(worker, instance_idx);
 		});
 		new_process.on('message', function(msg, handle) {
-			self.logger.debug('comms', 'Received a message from PID', new_process.process.pid);
+			//self.logger.debug('comms', 'Received a message from PID', new_process.process.pid);
 			self.comms.handle_message(msg, handle, new_process);
 		});
 	};

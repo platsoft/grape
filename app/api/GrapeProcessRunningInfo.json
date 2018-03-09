@@ -1,10 +1,11 @@
 {
 	"description": "Return info on running and scheduled tasks for a process",
-	"id": "/grape/process_running_info/:process_name",
+	"url": "/grape/process_running_info/:process_name",
 	"name": "GrapeProcessRunningInfo",
 	"sqlfunc": "grape.process_running_info",
 	"type": "query",
 	"method": "GET",
+	"roles": ["admin", "process"],
 	"return": {
 		"type": "object",
 		"properties": {

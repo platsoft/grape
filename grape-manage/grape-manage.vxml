@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ps_doc title="Grape-Manage" titlepage="no">
 <h1>grape-manage</h1>
-<i>grape-manage</i> is a tool used to provide a common interface for custom scripts and commands that operates in a project's directory. It can be installed using <icode>npm install -g ps-grape</icode>. Commands can be added per-project, and the command should be executed from within the project directory. <i>grape-manage</i> will scan <icode>$CWD/cmd</icode> and <icode>$CMD/scripts/cmd/</icode> for commands. The program comes with the following built-in commands:
+<i>grape-manage</i> is a tool used to provide a common interface for custom scripts and commands that operates in a project's directory. It can be installed using <icode>npm install -g ps-grape</icode>. Commands can be added per-project, and the command should be executed from within the project directory. <i>grape-manage</i> will scan a list of directories defined in it's config file (PROJECTDIR/config/grape_manage.json) for commands to include. The program comes with the following built-in commands:
 <ul>
 	<li><i>list</i> - Lists all available commands</li>
 	<li><i>start</i> - Starts the Node server</li>

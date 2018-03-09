@@ -25,18 +25,25 @@ var grapeclient = require(__dirname + '/../index.js').grapeclient;
 
 var GC = new grapeclient({url: url});
 
+function done(ret, res)
+{
+	
+		console.log('Type: ', res.headers['content-type']);
+		console.log(res);
+		console.log(JSON.stringify(ret, null, '  '));
+}
+
 if (method == 'GET')
 {
-	var req = GC.getJSON(null, data, function(ret) {
-		console.log(JSON.stringify(ret, null, '  '));
-
+	var req = GC.getJSON(null, data, function(ret, res) {
+		done(ret, res);
 		//console.log(req.res.headers);
 	});
 }
 else if (method == 'POST')
 {
-	GC.postJSON(null, data, function(ret) {
-		console.log(JSON.stringify(ret, null, '  '));
+	GC.postJSON(null, data, function(ret, res) {
+		done(ret, res);
 	});
 
 }

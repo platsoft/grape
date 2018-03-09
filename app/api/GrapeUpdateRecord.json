@@ -1,9 +1,10 @@
 {
 	"description": "Updates a record in a table (the table needs to be whitelisted)",
-	"id": "/grape/update_record",
+	"url": "/grape/update_record",
 	"name": "GrapeUpdateRecord",
 	"sqlfunc": "grape.update_record",
-	"type": "object",
+	"method": "POST",
+	"roles": ["all"],
  	"properties": {
 		"tablename": {"type": "string", "description": "Name of the table to update"},
 		"schema": {"type": "string", "description": "Schema name of table"},

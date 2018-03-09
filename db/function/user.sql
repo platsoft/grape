@@ -391,7 +391,6 @@ BEGIN
 			active, 
 			employee_guid, 
 			employee_info, 
-			pg_role, 
 			COALESCE(auth_info->>'totp_status', '') AS totp_status,
 			COALESCE(auth_info->>'mobile', '') AS mobile,
 			COALESCE(auth_info->>'mobile_status', '') AS mobile_status
