@@ -35,6 +35,7 @@ BEGIN
 END; $$ LANGUAGE plpgsql ;
 
 /*
+ * PKCS #5 v2.1
  * RFC8018 Section 5.2 https://tools.ietf.org/html/rfc8018#section-5.2
  */
 CREATE OR REPLACE FUNCTION pbkdf2.pbkdf2 
