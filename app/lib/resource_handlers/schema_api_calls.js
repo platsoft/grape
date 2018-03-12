@@ -12,8 +12,6 @@ function create_schema_api_call(app, obj)
 		roles: [],
 		type: 'object',
 		method: null,
-		sqlfunc: null,
-		sqlfunctype: '',
 		no_validation: false,
 		filename: null 		// filename in which this api call is defined
 	};
@@ -41,7 +39,7 @@ function create_schema_api_call(app, obj)
 		app.get('logger').error('api', 'No roles defined for the API call', param.name, 'No-one will be able to use it');
 		return false;
 	}
-
+	
 	if (param.jsfile)
 	{
 		var full_path = path.normalize(param.jsfile);
@@ -50,6 +48,14 @@ function create_schema_api_call(app, obj)
 			full_path = path.join(path.dirname(param.filename), full_path);
 
 		param.jsfunc = require(full_path)();
+	}
+	else if (param.sqlfunc)
+	{
+	}
+	else
+	{
+		app.get('logger').error('api', 'No handler (sqlfunc or jsfile) is defined for the API call', param.name, 'No-one will be able to use it');
+		return false;
 	}
 
 	var auto_validate = function(obj, param, res) {

@@ -192,8 +192,7 @@ BEGIN
 
 	IF json_extract_path($1, 'process_id') IS NOT NULL THEN
 		_process_id := ($1->>'process_id')::INTEGER;
-	END IF;
-	IF json_extract_path($1, 'process_name') IS NOT NULL THEN
+	ELSIF json_extract_path($1, 'process_name') IS NOT NULL THEN
 		_process_id := grape.process_id_by_name($1->>'process_name');
 	END IF;
 
@@ -431,13 +430,13 @@ BEGIN
 	IF $1 ? 'pg_function' THEN
 		_process_id := (SELECT process_id FROM grape.process WHERE pg_function=$1->>'pg_function');
 	ELSIF $1 ? 'process_name' THEN
-		_process_id := (SELECT process_id FROM grape.process WHERE process_name=$1->>'pg_function');
+		_process_id := (SELECT process_id FROM grape.process WHERE process_name=$1->>'process_name');
 	ELSIF $1 ? 'process_id' THEN
 		_process_id := ($1->>'process_id')::INTEGER;
 	END IF;
 	
 	IF _process_id IS NULL THEN
-		RETURN grape.api_error_invalid_input();
+		RETURN grape.api_error_invalid_input(json_build_object('reason', 'Process could not be found'));
 	END IF;
 
 	IF $1 ? 'param' THEN

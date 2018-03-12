@@ -1,0 +1,14 @@
+{
+	"description": "Sends SIGTERM to a running process's PID",
+	"method": "GET",
+	"url": "/grape/schedule/:schedule_id/stop",
+	"name": "GrapeProcessStop",
+	"jsfile": "stop_process.js",
+	"roles": ["admin", "process_operator"],
+	"properties": {
+		"process_id": {"description": "ID of process to start. "},
+		"process_name": {"description": "ID of process to start. "},
+		"param": {"type": "JSON", "description": "ID of process to start. "},
+		"time_sched": {"type": "TIMESTAMPTZ", "description": "When to start the process. Defaults to NOW."}
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"name": "GrapeBGWorkerStatus",
+	"url": "/grape/bgworker/status",
+	"method": "GET",
+	"jsfile": "bgworker_status.js",
+	"roles": ["admin"],
+	"returnsamples": [
+		{"status": "OK", "state": "Not running" },
+		{"status": "OK", "state": "Running", "pid": "12497", "cmdline": "ps_bgworker raisin@localhost/raisin [/home/hans/platsoft/raisin]" }
+	]
+}

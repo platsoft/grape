@@ -1,0 +1,7 @@
+{
+	"name": "GrapeDownloadScheduleLog",
+	"url": "/download/schedule_logfile/:schedule_id",
+	"method": "GET",
+	"roles": ["admin", "process_operator"],
+	"jsfile": "download_schedule_logfile.js"
+}

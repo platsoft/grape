@@ -26,7 +26,7 @@ exports = module.exports = function(_app) {
  *
  *
  **/
-	app.post("/grape/process/start", api_start_process);
+//	app.post("/grape/process/start", api_start_process);
 
 /**
  * @desc Add a auto schedule to a process 
@@ -49,7 +49,6 @@ exports = module.exports = function(_app) {
  * @desc List processes
  * @method GET
  * @url /grape/process/list
- * @example {"process_name":"create_combined_tape","param":{"submission_date":"2014/05/01"}}
  * @return JSON array with objects containing fields:
  * {
  * 	process_id INTEGER
@@ -77,7 +76,7 @@ exports = module.exports = function(_app) {
  * }
  * @returnsample [{"process_id":1,"pg_function":"create_combined_tape","description":"Create combine tape","new":1,"completed":0,"error":0,"running":1},{"process_id":2,"pg_function":"apply_tapefile","description":"Apply debit orders","new":0,"completed":0,"error":0,"running":0}]
  **/
-	app.get("/grape/process/list", api_list_processes);
+//	app.get("/grape/process/list", api_list_processes);
 
 /**
  * @desc Get lines from schedule logfile
@@ -97,7 +96,7 @@ exports = module.exports = function(_app) {
  * @returnsample { status: 'OK', state: 'Not running' }
  * @returnsample { status: 'OK', state: 'Running', pid: '12497', cmdline: 'ps_bgworker raisin@localhost/raisin [/home/hans/platsoft/raisin]' }
  */
-	app.get("/grape/bgworker/status", api_bgworker_status);
+//	app.get("/grape/bgworker/status", api_bgworker_status);
 
 /**
  * @desc Start ps_bgworker process
@@ -105,7 +104,7 @@ exports = module.exports = function(_app) {
  * @url /grape/bgworker/start
  *
  */
-	app.post("/grape/bgworker/start", api_bgworker_start);
+//	app.post("/grape/bgworker/start", api_bgworker_start);
 
 /**
  * @desc Kills ps_bgworker process
@@ -113,15 +112,7 @@ exports = module.exports = function(_app) {
  * @url /grape/bgworker/stop
  *
  */
-	app.post("/grape/bgworker/stop", api_bgworker_stop);
-
-/**
- * @desc 
- * @method GET
- * @url /grape/process/:process_id
- *
- */
-	app.get("/download/schedule_logfile/:schedule_id", api_download_schedule_logfile);
+//	app.post("/grape/bgworker/stop", api_bgworker_stop);
 
 /**
  * @desc Starts a process function - this should never be calle from a frontend
@@ -148,56 +139,12 @@ exports = module.exports = function(_app) {
 				res.locals.db.jsonb_call('grape.select_auto_scheduler', {autoscheduler_id: req.params.autoscheduler_id}, null, {response: res});
 			});
 
-/**
- * @desc Stop a running schedule
- * @method GET
- * @url /grape/schedule/:schedule_id/stop
- *
- */
-	app.get("/grape/schedule/:schedule_id/stop", api_stop_schedule);
 
 };
-
-function api_stop_schedule(req, res)
-{
-	res.locals.db.jsonb_call('grape.stop_running_schedule', {schedule_id: req.params.schedule_id}, function(err, result) {
-		if (err)
-		{
-			var error_object = {
-				'status': 'ERROR',
-				'message': err.toString(),
-				'code': -99,
-				'error': err
-			};
-
-			res.jsonp(error_object);
-			return;
-		}
-
-		var data = result.rows[0]['grapestop_running_schedule'];
-		if (data.status == 'OK' && data.pid > 0)
-			process.kill(data.pid, 'SIGTERM');
-		
-		res.jsonp(data);
-		res.end();
-	});
-}
 
 function api_run_process_now(req, res)
 {
 	res.locals.db.jsonb_call('grape.run_process_function', {pg_function: req.params.process_name, params: req.body}, null, {response: res});
-}
-
-function api_start_process(req, res)
-{
-	var obj = req.body;
-	res.locals.db.json_call('grape.start_process', obj, null, {response: res});
-}
-
-function api_list_processes(req, res)
-{
-	var obj = {};
-	res.locals.db.json_call('grape.list_processes', obj, null, {response: res});
 }
 
 
@@ -246,116 +193,5 @@ function api_get_schedule_logfile (req, res)
 
 }
 
-function api_download_schedule_logfile (req, res)
-{
-	var schedule_id = req.params.schedule_id;
-	var offset = 0;
-
-	res.locals.db.json_call('grape.schedule_info', {schedule_id: req.params.schedule_id}, function(err, result) {
-		if (err)
-		{
-			res.json('{}').end(); //ERROR
-			return;
-		}
-
-		var obj = result.rows[0]['grapeschedule_info'];
-		var schedule = obj.schedule;
-
-		if (schedule.logfile[0] === '~') {
-			schedule.logfile = path.join(process.env.HOME, schedule.logfile.slice(1));
-		}
-		var logfilename = path.resolve(schedule.logfile);
-
-		try {
-			res.sendFile(logfilename); 
-		}
-		catch (e) {
-			console.log(e);
-			res.send(e).end(); //ERROR
-			return;
-		}
-	});
-
-}
-
-
-function api_bgworker_status(req, res)
-{
-	var config = app.get('config');
-	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
-	var ps_bgworker_config = config.ps_bgworker_config || '';
-
-	bgworker_lib.get_bgworker_status(ps_bgworker_path, ps_bgworker_config, function(err, obj) {
-		if (err)
-		{
-			res.status(200).json({'status': 'ERROR', 'error': err}).end();
-			return;
-		}
-
-		res.status(200).json({
-			'status': 'OK',
-			'state': obj.pid == 0 ? 'Not running' : 'Running',
-			'pid': obj.pid,
-			'cmdline': obj.cmdline}
-		).end();
-	});
-}
-
-function api_bgworker_start(req, res)
-{
-	var config = app.get('config');
-	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
-	var ps_bgworker_config = config.ps_bgworker_config || '';
-	child_process.exec([ps_bgworker_path, ps_bgworker_config].join(' '),
-		{
-			timeout: 2000,
-			encoding: 'utf8',
-			cwd: config.base_directory
-		},
-		function(err, stdout, stderr) {
-			if (err && !stdout)
-			{
-				res.status(200).json({'status': 'ERROR', 'error': err}).end();
-				return;
-			}
-
-			var err = null;
-			var lines = stdout.split("\n");
-			lines.forEach(function(line) {
-				if (line.startsWith('ERROR'))
-				{
-					err = line;
-				}
-			});
-
-			if (err)
-			{
-				res.status(200).json({'status': 'ERROR', 'error': err, 'stdout': stdout}).end();
-			}
-			else
-			{
-				res.status(200).json({'status': 'OK', 'stdout': stdout}).end();
-			}
-		}
-	);
-}
-
-function api_bgworker_stop (req, res)
-{
-
-	var config = app.get('config');
-	var ps_bgworker_path = config.ps_bgworker || 'ps_bgworker';
-	var ps_bgworker_config = config.ps_bgworker_config || '';
-
-	bgworker_lib.get_bgworker_status(ps_bgworker_path, ps_bgworker_config, function(err, obj) {
-		if (err)
-		{
-			res.status(200).json({'status': 'ERROR', 'error': err}).end();
-			return;
-		}
-		process.kill(obj.pid);
-		res.status(200).json({'status': 'OK', 'pid': obj.pid}).end();
-	});
-}
 
 
