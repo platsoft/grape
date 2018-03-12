@@ -17,6 +17,12 @@ CREATE OR REPLACE FUNCTION grape.remove_user_from_access_role(_username TEXT, _a
 	DELETE FROM grape.user_role WHERE user_id=grape.user_id_from_name(_username) AND role_name=_access_role::TEXT RETURNING 1;
 $$ LANGUAGE sql;
 
+/**
+ *
+ */
+CREATE OR REPLACE FUNCTION grape.get_user_assigned_roles(_user_id INTEGER) RETURNS SETOF TEXT AS $$
+	SELECT role_name FROM grape.user_role WHERE user_id=_user_id::INTEGER ORDER BY role_name;
+$$ LANGUAGE sql STABLE;
 
 CREATE OR REPLACE FUNCTION grape.get_user_roles(_user_id INTEGER) RETURNS SETOF TEXT AS $$
 	WITH RECURSIVE rec_user_roles(role_name) AS (

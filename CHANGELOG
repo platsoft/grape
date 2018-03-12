@@ -272,31 +272,39 @@ New features:
 Major changes:
 - Change to IPC Connectivity between workers, instead of using a FIFO
 - Settings from DB is now available in grape app, and in API calls via app.get('grape_settings')
-- Check DB connection before spawning workers
-- Grape will now refuse to start if the DB version does not match the version in package.json
-- Each process has it's own logfile now, and each day has it's own directory
+- DB connection will be checked before spawning workers
+- Grape will now refuse to start if the grape version saved in the DB does not match the version in package.json
 - The resolving of resources are now modular
+
+Changes to logger:
+- Each process has it's own logfile now
+- A new log file will be created for each day
+- Many improvements to quality of logged messages
+- Usernames of sessions are logged in logfiles
+
+Changes to authentication:
 - Permission checks on API calls has been moved to Node
-- Session validation checks are now cached properly
-- Roles can now belong to roles
-
 - "admin" role can no longer do anything automatically
-
-- Many improvements to logger
+- Roles can now belong to roles
+- New default password hashing rounds updated to 10000
+- PBKDF2 key derivation function added
+- Session validation checks are now cached properly
 
 Minor changes:
 - Do not restart worker process after fatal error
 - Renamed config setting "instances" to "http_instance_count"
 - New config option "listen"
 - Add new config setting "db_idle_timeout"
-- grape-manage will now read from config/grape_manage.json
-- Usernames of sessions are logged in logfiles
+
 
 Deprecated features:
 - JS API calls (add "old_style_js_api_calls" to your project's config to enable it)
+- grape-manage has been deprecated in favour of grape-shell
 
 Removed features:
 - Removed API call /session/list/:date
 - Email functionality has been moved to it's own repository, grape-email-sender
 - Removed /api_list
+- Adding API calls to grape.access_path is not necessary with JSON schema API calls anymore, as the roles should be defined in the .json file
+
 

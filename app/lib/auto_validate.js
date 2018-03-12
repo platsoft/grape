@@ -342,7 +342,7 @@ function validate_object (obj, params)
 		}
 		else if (p.is_array)
 		{
-			if (typeof value_in_object == 'object' && value_in_object.length) // make sure it's an array
+			if (Array.isArray(value_in_object))
 			{
 				var found_error = false;
 				var new_items = [];

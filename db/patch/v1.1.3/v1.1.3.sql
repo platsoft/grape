@@ -21,6 +21,5 @@ ALTER TABLE grape.access_role_role ADD CONSTRAINT gar_child_role_access_role_fk 
 REFERENCES grape.access_role (role_name) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-
-
+SELECT grape.table_permissions_add('grape', '{v_access_roles}'::TEXT[], 'admin', 'SELECT');
 

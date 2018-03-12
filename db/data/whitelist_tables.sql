@@ -5,7 +5,7 @@ SELECT grape.table_permissions_add('grape',
 	'user_access_role, '
 	'v_active_users,'
 	'v_users,'
-	'access_role, '
+	'v_access_roles, '
 	'report, '
 	'list_query_whitelist, '
 	'process, '
@@ -27,7 +27,6 @@ SELECT grape.table_permissions_add('grape',
 
 SELECT grape.table_permissions_add('grape',
 	'{'
-		'access_role,'
 		'network,'
 		'data_import_type'
 	'}'::TEXT[],

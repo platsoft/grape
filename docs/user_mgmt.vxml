@@ -19,6 +19,13 @@
 		<li>If a user is not authenticated, they will belong to the role "guest".</li>
 	</ul>
 </p>
+<h3>Roles in roles</h3>
+<p>
+	Roles can belong to other roles. For example, if a child role <i>role2</i> belongs to a parent role <i>role1</i>, and a user belongs to <i>role2</i>, that user will automatically be included in <i>role1</i>. Multiple levels are supported.
+</p>
+<p>
+	The SQL function grape.add_access_role_to_role can be used to add a role to a role. 
+</p>
 
 <h2>Creating initial users</h2>
 <b><r>TODO</r></b>

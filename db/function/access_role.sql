@@ -33,6 +33,9 @@ BEGIN
 	RETURN _parent_role;
 END; $$ LANGUAGE plpgsql;
 
+/**
+ * returns all the roles that _role_name belongs to (recursively), including itself
+ */
 CREATE OR REPLACE FUNCTION grape.get_role_roles(_role_name TEXT) RETURNS SETOF TEXT AS $$
 	WITH RECURSIVE rec_roles(role_name) AS (
 		SELECT _role_name AS role_name
@@ -44,5 +47,27 @@ CREATE OR REPLACE FUNCTION grape.get_role_roles(_role_name TEXT) RETURNS SETOF T
 	)
 	SELECT DISTINCT role_name FROM rec_roles ORDER BY role_name;
 $$ LANGUAGE sql STABLE;
+
+CREATE OR REPLACE FUNCTION grape.get_role_assigned_roles(_role_name TEXT) RETURNS SETOF TEXT AS $$
+	SELECT parent_role_name FROM grape.access_role_role WHERE child_role_name=_role_name::TEXT ORDER BY parent_role_name;
+$$ LANGUAGE sql STABLE;
+
+/**
+ */
+CREATE OR REPLACE FUNCTION grape.save_access_role(JSONB) RETURNS JSONB AS $$
+DECLARE
+	_role_name TEXT;
+	_parent_role TEXT;
+BEGIN
+	_role_name := $1->>'role_name';
+	
+	DELETE FROM grape.access_role_role WHERE child_role_name=_role_name::TEXT;
+
+	FOR _parent_role IN SELECT * FROM jsonb_array_elements_text($1->'assigned_roles') LOOP
+		PERFORM grape.add_access_role_to_role(_role_name, _parent_role);
+	END LOOP;
+
+	RETURN grape.api_success();
+END; $$ LANGUAGE plpgsql;
 
 
