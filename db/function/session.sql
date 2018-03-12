@@ -248,7 +248,7 @@ CREATE OR REPLACE FUNCTION grape.build_session_information(_session_id TEXT) RET
 	SELECT jsonb_build_object(
 		'session_id', _session_id,
 		'username', u.username,
-		'user_roles', (SELECT array_agg(role_name) FROM grape."user_role" WHERE user_id=u.user_id::INTEGER),
+		'user_roles', (SELECT array_agg(role_name) FROM grape.get_user_roles(u.user_id) role_name),
 		'fullnames', u.fullnames,
 		'email', u.email,
 		'employee_guid', u.employee_guid,

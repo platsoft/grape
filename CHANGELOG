@@ -278,6 +278,7 @@ Major changes:
 - The resolving of resources are now modular
 - Permission checks on API calls has been moved to Node
 - Session validation checks are now cached properly
+- Roles can now belong to roles
 
 - "admin" role can no longer do anything automatically
 
