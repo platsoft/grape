@@ -14,7 +14,7 @@ BEGIN
 	RETURN _init;
 END; $$ LANGUAGE plpgsql;
 
--- Generate a string in the format sha256:SALT:HASH to save in the DB. we have to save the salt and hash algo for future reference
+-- Generate a string in the format pbkdf2sha256-ROUNDS:SALT:HASH to save in the DB. we have to save the salt and hash algo for future reference
 CREATE OR REPLACE FUNCTION grape.generate_user_pw_hash(_password TEXT) RETURNS TEXT AS $$
 DECLARE
 	_salt TEXT;
@@ -23,13 +23,16 @@ DECLARE
 	_key TEXT;
 BEGIN
 
-	_rounds := grape.get_value('password_hashing_rounds', '1000')::INTEGER;
+	_rounds := grape.get_value('password_hashing_rounds', '10000')::INTEGER;
 	_algorithm := grape.get_value('password_hashing_algo', 'sha256'); -- we cannot really go over sha256 because AES takes 256 as key input
 
 	_salt := encode(gen_random_bytes(10), 'hex');
 	
-	_key := grape.generate_user_key(_password, _salt, _rounds);
-
+	IF _algorithm = 'sha256' THEN
+		_key := grape.generate_user_key(_password, _salt, _rounds);
+	ELSIF _algorithm = 'pbkdf2sha256' THEN
+		_key := encode(pbkdf2.pbkdf2('sha256', _password, _salt, _rounds, 20), 'hex');
+	END IF;
 	
 	RETURN CONCAT_WS(':', _algorithm || '-' || _rounds::TEXT, _salt, _key);
 END; $$ LANGUAGE plpgsql;

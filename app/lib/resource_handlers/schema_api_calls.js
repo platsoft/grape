@@ -38,7 +38,7 @@ function create_schema_api_call(app, obj)
 
 	if (!param.roles || !param.roles.length)
 	{
-		app.get('logger').error('api', 'No roles defined for the API call', param.name);
+		app.get('logger').error('api', 'No roles defined for the API call', param.name, 'No-one will be able to use it');
 		return false;
 	}
 

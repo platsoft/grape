@@ -1,0 +1,19 @@
+{
+	"description": "Gets list of all known settings",
+	"id": "/grape/settings",
+	"name": "GrapeListSettings",
+	"sqlfunc": "grape.list_settings",
+	"method": "GET",
+	"roles": ["admin"],
+	"return": {
+		"type": "object",
+		"properties": {
+			"settings": {"type": "array", "description": "Value of the setting", "items": {
+			}},
+			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
+			"message": {"type": "string", "description": "Error message"},
+			"code": {"type": "number", "description": "Error code"},
+			"error": {"type": "json", "description": "Error details"}
+		}
+	}
+}

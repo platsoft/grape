@@ -1,11 +1,9 @@
 
 Worker Mgmt:
-	- Change to IPC Connectivity between workers, instead of using the FIFO [WIP - Hans]
 	- Add ability to specify PID file path in config [E]
 	- Better/easier comms between worker processes (and perhaps remotes?)
 
 DB Management:
-	- Check DB connection before spawning workers
 	- Patch tables
 	- Run a grape app without a database
 
@@ -48,10 +46,8 @@ Emails:
 	- Email queuer
 
 Logger:
-	- Log username in logfiles
 	- API logger (partitioned tables monthly? or write session logs to a file)
 		- settings: logging.log_api_calls_to_db
-	- Each process should have its own logfile
 
 Functionality to be split out into different modules:
 	- Emails
@@ -67,7 +63,8 @@ Functionality to be split out into different modules:
 - Flow when receiving an HTTP Request:
 	1. Log it
 	2. Resolve it (see if it is API call or public file). If not found, 404 is returned. 
-	3. Perform pre-flight check to see if the action is allowed
+	3. Perform pre-flight check to see if the action is allowed. If not, and session is invalid, send 302 and navigate to login
+	4. 
 
 Modules to write:
 - Shopping cart module
@@ -77,14 +74,14 @@ Modules to write:
 - GrapeShell - provides interaction with DB from CMD for power-users
 
 WIP:
-- Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
 - Make /download_public_js_files call only get files for the users role
-- Make available in node upon startup
-- Register all API calls in DB table
-- Make the resolving of resources modular (API calls and public dirs)
-- Static data loader keeping cache of users and sessions
+- Make DB available in node upon startup
 
 Done:
+- Make the resolving of resources modular (API calls and public dirs)
+- Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
+- Check DB connection before spawning workers
+- Change to IPC Connectivity between workers, instead of using a FIFO
 - create API calls from JSON schema
 - send email via API call
 - pdf generator: pass xsl parameters to the pdfgenerator
@@ -96,5 +93,7 @@ Done:
 - Send SMSes
 - Two-factor authentication
 - Define all API calls in JSON schema - call JS file from it
+- Static data loader keeping cache of users and sessions
+- Each process should have its own logfile
 
 

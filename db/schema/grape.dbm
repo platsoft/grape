@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.0" last-position="0,0" last-zoom="0.9">
+<dbmodel pgmodeler-ver="0.9.0" last-position="0,432" last-zoom="0.9">
 <database name="grape">
 </database>
 
@@ -134,9 +134,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="employee_info">
 		<type name="jsonb" length="1"/>
-	</column>
-	<column name="pg_role">
-		<type name="text" length="1"/>
 	</column>
 	<column name="auth_info">
 		<type name="jsonb" length="1"/>
@@ -366,7 +363,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="setting" hide-ext-attribs="true">
 	<schema name="grape"/>
 	<comment><![CDATA[System-wide settings]]></comment>
-	<position x="240" y="960"/>
+	<position x="240" y="1040"/>
 	<column name="name" not-null="true">
 		<type name="text" length="1"/>
 	</column>
@@ -1524,6 +1521,21 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
+<table name="access_role_role" hide-ext-attribs="true">
+	<schema name="grape"/>
+	<comment><![CDATA[Table for access roles that belongs to other access roles]]></comment>
+	<position x="40" y="840"/>
+	<column name="parent_role_name" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="child_role_name" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="access_role_role_pk" type="pk-constr" table="grape.access_role_role">
+		<columns names="parent_role_name,child_role_name" ref-type="src-columns"/>
+	</constraint>
+</table>
+
 <constraint name="user_id_rel" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.&quot;user&quot;" table="grape.user_role">
 	<columns names="user_id" ref-type="src-columns"/>
@@ -1696,6 +1708,18 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.document_store" sql-disabled="true" table="grape.document_store_location">
 	<columns names="document_store_id" ref-type="src-columns"/>
 	<columns names="document_store_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="gar_parent_role_name_access_role_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.access_role" table="grape.access_role_role">
+	<columns names="parent_role_name" ref-type="src-columns"/>
+	<columns names="role_name" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="gar_child_role_access_role_fk" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="grape.access_role" table="grape.access_role_role">
+	<columns names="child_role_name" ref-type="src-columns"/>
+	<columns names="role_name" ref-type="dst-columns"/>
 </constraint>
 
 <relationship name="rel_user_role_user" type="relfk"
@@ -1878,5 +1902,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<position x="5.60074" y="-0.852184"/>
 	</label>
 </relationship>
+
+<relationship name="rel_access_role_role_access_role" type="relfk"
+	 src-table="grape.access_role_role"
+	 dst-table="grape.access_role"
+	 src-required="false" dst-required="false"/>
 
 </dbmodel>

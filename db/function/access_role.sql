@@ -20,3 +20,13 @@ BEGIN
 	RETURN _role_name;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION grape.add_access_role_to_role(_child_role TEXT, _parent_role TEXT) RETURNS TEXT AS $$
+DECLARE
+BEGIN
+	IF NOT EXISTS (SELECT 1 FROM grape.access_role_role WHERE parent_role_name=_parent_role::TEXT AND child_role_name=_child_role::TEXT) THEN
+		INSERT INTO grape.access_role_role(child_role_name, parent_role_name) VALUES (_child_role, _parent_role);
+	END IF;
+	RETURN _role_name;
+END; $$ LANGUAGE plpgsql;
+
+

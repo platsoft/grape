@@ -31,7 +31,7 @@ module.exports = function (req, res, next) {
 		return;
 	}
 
-	app.get('logger').session('debug', 'Assigning database to session ', res.locals.session.session_id);
+	app.get('logger').session('debug', 'Creating a database connection for session', res.locals.session.session_id, 'user', res.locals.session.username);
 
 	var session_id = res.locals.session.session_id;
 	var username = res.locals.session.username;

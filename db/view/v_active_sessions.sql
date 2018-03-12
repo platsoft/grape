@@ -1,4 +1,5 @@
 
+DROP VIEW IF EXISTS grape.v_active_sessions;
 CREATE OR REPLACE VIEW grape.v_active_sessions AS 
 	SELECT 
 		s.session_id,
@@ -6,6 +7,7 @@ CREATE OR REPLACE VIEW grape.v_active_sessions AS
 		s.date_inserted,
 		s.last_activity,
 		s.session_origin,
+		s.headers,
 		u.username,
 		u.email,
 		u.fullnames

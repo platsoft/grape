@@ -1,0 +1,8 @@
+{
+	"name": "GrapeSystemInfo",
+	"url": "/grape/system_info",
+	"method": "GET",
+	"description": "Gets system information",
+	"roles": ["all"],
+	"jsfile": "system_info.js"
+}

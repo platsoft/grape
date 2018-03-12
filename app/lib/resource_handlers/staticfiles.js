@@ -17,7 +17,7 @@ function StaticFileHandler()
 	{
 		var app = req.app;
 		//console.log("EXECUTE");
-		app.get('logger').log('app', 'debug', 'Sending public file ' + req.handler.matched_path);
+		app.get('logger').log('session', 'info', 'Sending public file ' + req.handler.matched_path);
 		res.sendFile(req.handler.matched_path, {}, function(err) {
 			if (err)
 			{

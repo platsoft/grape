@@ -98,7 +98,6 @@ CREATE TABLE grape."user"(
 	active boolean DEFAULT true,
 	employee_guid uuid,
 	employee_info jsonb,
-	pg_role text,
 	auth_info jsonb,
 	preferences jsonb,
 	CONSTRAINT user_pk PRIMARY KEY (user_id),
@@ -1025,6 +1024,18 @@ CREATE TABLE grape.patch(
 -- );
 -- -- ddl-end --
 -- 
+-- object: grape.access_role_role | type: TABLE --
+-- DROP TABLE IF EXISTS grape.access_role_role CASCADE;
+CREATE TABLE grape.access_role_role(
+	parent_role_name text NOT NULL,
+	child_role_name text NOT NULL,
+	CONSTRAINT access_role_role_pk PRIMARY KEY (parent_role_name,child_role_name)
+
+);
+-- ddl-end --
+COMMENT ON TABLE grape.access_role_role IS 'Table for access roles that belongs to other access roles';
+-- ddl-end --
+
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)
@@ -1228,4 +1239,18 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- ON DELETE NO ACTION ON UPDATE NO ACTION;
 -- -- ddl-end --
 -- 
+-- object: gar_parent_role_name_access_role_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.access_role_role DROP CONSTRAINT IF EXISTS gar_parent_role_name_access_role_fk CASCADE;
+ALTER TABLE grape.access_role_role ADD CONSTRAINT gar_parent_role_name_access_role_fk FOREIGN KEY (parent_role_name)
+REFERENCES grape.access_role (role_name) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: gar_child_role_access_role_fk | type: CONSTRAINT --
+-- ALTER TABLE grape.access_role_role DROP CONSTRAINT IF EXISTS gar_child_role_access_role_fk CASCADE;
+ALTER TABLE grape.access_role_role ADD CONSTRAINT gar_child_role_access_role_fk FOREIGN KEY (child_role_name)
+REFERENCES grape.access_role (role_name) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ddl-end --
+
 

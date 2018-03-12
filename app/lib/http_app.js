@@ -136,7 +136,7 @@ var grape_express_app = function(options, grape_obj) {
 	
 	// Step 1: Log incoming request
 	app.use(function(req, res, next) {
-		logger.log('session', 'info', [req.ip, req.method, req.url, req.header('Content-Length') || 0].join(' '));
+		logger.log('session', 'info', [req.ip, req.method, req.url].join(' '));
 		next();
 	});
 
@@ -162,9 +162,10 @@ var grape_express_app = function(options, grape_obj) {
 	// Log the result from the session check
 	app.use(function(req, res, next){
 		if (req.session_id)
-			logger.log('session', 'debug', 'Valid session identified for user ', req.session.username);
+			logger.log('session', 'debug', 'Valid session identified for user', req.session.username);
 		else
-			logger.log('session', 'debug', 'No valid session - continuing as guest');
+			logger.log('session', 'debug', 'No session - continuing as guest');
+		// TODO log to session log
 		next();
 	});
 

@@ -70,7 +70,7 @@ BEGIN
 		RETURN grape.api_error('Your username on the authentication service does not have a valid employee GUID. Please ask your system administrator to complete the configuration for your account', -98);
 	END IF;
 
-	-- the user's password is stored on an external LDAP server
+	-- the user's password is stored on an external server
 	IF _user.auth_info ? 'auth_server' AND _user.auth_info->>'auth_server' != '' THEN
 		IF $1 ? 'password' THEN
 			_user.password = $1->>'password';
@@ -79,10 +79,10 @@ BEGIN
 			RETURN json_build_object(
 				'status', 'ERROR', 
 				'code', -500, 
-				'message', 
-				'User is not local', 
+				'message', 'User is not local', 
 				'auth_server', _user.auth_info->>'auth_server',
-				'auth_server_search_base', _user.auth_info->>'auth_server_search_base'
+				'auth_server_search_base', _user.auth_info->>'auth_server_search_base',
+				'totp_status', COALESCE(_user.auth_info->>'totp_status', '')
 			);
 		END IF;
 	END IF;
@@ -91,6 +91,7 @@ BEGIN
 		RETURN grape.api_error('Incompatible password format', -4);
 	END IF;
 
+	/* move to login
 	IF _user.auth_info ? 'totp_status' AND _user.auth_info->>'totp_status' = 'ok' THEN
 		IF $1 ? 'totp' = 'y' THEN -- did the client acquire a TOTP from the user?
 			_totp := grape.generate_totp(_user.auth_info->>'totp_key');
@@ -98,6 +99,7 @@ BEGIN
 			RETURN grape.api_error('Missing TOTP', -400);
 		END IF;
 	END IF;
+	*/
 
 	_server_private_key := ENCODE(DIGEST(grape.get_server_private_key('TGT'), 'sha256'), 'hex');
 
@@ -113,12 +115,13 @@ BEGIN
 
 	SELECT * INTO _user_key FROM grape.get_user_key_fields(_user.password);
 
-	IF _totp != '' THEN
-		_user_key.key := ENCODE(DIGEST(_user_key.key || _totp, 'sha256'), 'hex');
-	END IF;
+	--IF _totp != '' THEN
+	--	_user_key.key := ENCODE(DIGEST(_user_key.key || _totp, 'sha256'), 'hex');
+	--END IF;
 
 	_iv := ENCODE(gen_random_bytes(16), 'hex');
-	_encrypted_message := grape.encrypt_message(_message::TEXT, CONCAT(_user_key.key, _totp), _iv);
+
+	_encrypted_message := grape.encrypt_message(_message::TEXT, _user_key.key, _iv);
 
 	_ret := jsonb_build_object(
 		'status', 'OK',

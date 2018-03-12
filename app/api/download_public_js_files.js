@@ -66,7 +66,7 @@ module.exports = function() {
 					else
 					{
 						data += file_data;
-						app.get('logger').info('app', "Loaded public JS file " + path.join(dirname, file));
+						app.get('logger').debug('app', "Loaded public JS file " + path.join(dirname, file));
 					}
 				}
 			}

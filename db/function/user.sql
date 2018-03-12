@@ -259,6 +259,7 @@ BEGIN
 		RETURN FALSE;
 	ELSIF _hashed_locally = TRUE AND _is_hashed = FALSE THEN
 		_password_to_save := grape.generate_user_pw_hash(_password);
+		-- TODO save the password for SCRAM-SHA256 perhaps in auth_info
 	END IF;
 
 	UPDATE grape."user" SET password=_password_to_save WHERE user_id=_user_id::INTEGER;
