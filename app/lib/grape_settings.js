@@ -17,12 +17,14 @@ var GrapeSettings = function(grape_app) {
 			new_settings[row.name] = row;
 		});
 		qry.on('error', function(err) {
-			cb(err);
+			if (cb)
+				cb(err);
 		});
 		qry.on('end', function() {
 			self.app.logger.log('app', 'info', Object.keys(new_settings).length, 'settings loaded');
 			self.settings = new_settings;
-			cb(null);
+			if (cb)
+				cb(null);
 		});
 	};
 

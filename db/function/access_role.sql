@@ -60,6 +60,8 @@ DECLARE
 	_parent_role TEXT;
 BEGIN
 	_role_name := $1->>'role_name';
+
+	PERFORM grape.add_access_role(_role_name);
 	
 	DELETE FROM grape.access_role_role WHERE child_role_name=_role_name::TEXT;
 

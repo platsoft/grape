@@ -1,6 +1,6 @@
 {
 	"description": "Get performance statistics",
-	"url": "/grape/perf_stats",
+	"url": "/grape/perf",
 	"name": "GrapePerfStats",
 	"jsfile": "grape_perf.js",
 	"method": "GET",

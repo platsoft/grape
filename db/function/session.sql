@@ -1,4 +1,5 @@
 -- Require: user.sql
+-- Require: user_access_role.sql
 
 /**
  * Input:

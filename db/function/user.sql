@@ -77,7 +77,7 @@ BEGIN
 
 	IF _in ? 'password' THEN
 		_password := $1->>'password';
-		IF grape.get_value('hash_passwords', 'false') = 'true' THEN
+		IF grape.get_value('auth.hash_passwords', 'false') = 'true' THEN
 			_hashed_password := grape.generate_user_pw_hash(_password);
 		ELSE
 			_hashed_password := _password;
@@ -204,8 +204,8 @@ DECLARE
 	_hashed_password TEXT;
 BEGIN
 
-	IF grape.get_value('hash_passwords', 'false') != 'true' THEN
-		RAISE DEBUG 'hash_passwords in settings is not true';
+	IF grape.get_value('auth.hash_passwords', 'false') != 'true' THEN
+		RAISE DEBUG 'auth.hash_passwords in settings is not true';
 		RETURN -2;
 	END IF;
 
@@ -250,7 +250,7 @@ DECLARE
 	_password_to_save TEXT;
 BEGIN
 	-- do we hash local passwords?
-	_hashed_locally := grape.get_value('hash_passwords', 'false')::BOOLEAN;
+	_hashed_locally := grape.get_value('auth.hash_passwords', 'false')::BOOLEAN;
 
 	IF _hashed_locally = _is_hashed THEN
 		_password_to_save := _password;

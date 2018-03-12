@@ -132,7 +132,7 @@ BEGIN
 	END IF;
 
 	_sysname := grape.get_value('product_name', 'Unknown');
-	_hashed_locally := grape.get_value('hash_passwords', 'false')::BOOLEAN;
+	_hashed_locally := grape.get_value('auth.hash_passwords', 'false')::BOOLEAN;
 
 	IF _hashed_locally = true THEN
 		-- we have to generate a new password

@@ -54,6 +54,15 @@ module.exports = function() {
 					next(null, {'load': d});
 				});
 			},
+			function(next) {
+				res.locals.db.jsonb_call('grape.pg_information', {}, 
+					function (err, dbresults) {
+						next(null, {'pg_info': dbresults.rows[0].pginfo});
+					}, 
+					{alias: 'pginfo'}
+				);
+			},
+
 		], function(err, results) {
 			var obj = {};
 			for (var i = 0; i < results.length; i++)

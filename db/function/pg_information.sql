@@ -8,7 +8,8 @@ BEGIN
 	_ret := jsonb_build_object('status', 'OK', 
 		'current_database', current_database(),
 		'pg_postmaster_start_time', pg_postmaster_start_time(),
-		'version', version()
+		'version', version(),
+		'connection_count', (SELECT COUNT(*) FROM pg_stat_activity)
 	);
 
 	RETURN _ret;

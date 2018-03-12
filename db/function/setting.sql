@@ -69,7 +69,7 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION grape.list_settings(JSON) RETURNS JSON AS $$
-	SELECT grape.api_success('settings', json_agg(setting)) FROM grape.setting;
+	SELECT grape.api_success('settings', json_agg(setting)) FROM (SELECT * FROM grape.setting ORDER BY name) setting;
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION grape.save_setting(JSON) RETURNS JSON AS $$

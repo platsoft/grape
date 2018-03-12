@@ -9,7 +9,7 @@ BEGIN
 		RETURN NEXT 'any';
 	ELSE
 		RETURN NEXT 'all';
-		FOR _role IN SELECT role_name FROM grape.user_role WHERE user_id=grape.current_user_id()::INTEGER LOOP
+		FOR _role IN SELECT * FROM grape.get_user_roles(grape.current_user_id()::INTEGER) LOOP
 			RETURN NEXT _role;
 		END LOOP;
 		RETURN NEXT 'any';
@@ -21,18 +21,16 @@ $$ LANGUAGE plpgsql VOLATILE;
 -- Returns true if the current user belongs to _role
 CREATE OR REPLACE FUNCTION grape.current_user_in_role(_role TEXT) RETURNS BOOLEAN AS $$
 	SELECT EXISTS (
-		SELECT 1 FROM grape.user_role 
-			WHERE user_id=grape.current_user_id()::INTEGER 
-				AND (_role='all' OR role_name=_role::TEXT)
+		SELECT 1 FROM grape.current_user_roles() role_name
+			WHERE (_role='all' OR role_name=_role::TEXT)
 		);
 $$ LANGUAGE sql VOLATILE;	
 
 -- Returns true if the current user belongs to any of _roles
 CREATE OR REPLACE FUNCTION grape.current_user_in_role(_roles TEXT[]) RETURNS BOOLEAN AS $$
 	SELECT EXISTS (
-		SELECT 1 FROM grape.user_role 
-			WHERE user_id=grape.current_user_id()::INTEGER 
-				AND ( role_name=ANY(_roles) OR 'all'=ANY(_roles) )
+		SELECT 1 FROM grape.current_user_roles() role_name
+			WHERE ( role_name=ANY(_roles) OR 'all'=ANY(_roles) )
 		);
 $$ LANGUAGE sql VOLATILE;	
 
