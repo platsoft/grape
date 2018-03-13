@@ -1,0 +1,10 @@
+{
+	"description": "Lists all processes",
+	"url": "/grape/process/list",
+	"name": "GrapeListProcesses",
+	"sqlfunc": "grape.list_processes",
+	"method": "GET",
+	"roles": ["all"],
+	"return": {
+	}
+}

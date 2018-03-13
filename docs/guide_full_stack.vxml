@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<ps_doc title="Getting started" titlepage="no" tocpage="no">
+Install packages:
+<code>$ npm set registry http://npm.platsoft.net:4873/
+$ npm init --yes
+$ npm install ps-grape grape-ui grape-ui-login --save
+</code>
+Create <icode>public/index.html</icode> with the following contents:
+<code><![CDATA[<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>My Project</title>
+
+  <link href="grape-ui/dist/grape-bundle.css" rel="stylesheet" type="text/css" />
+  <script src="grape-ui/dist/grape-bundle.js" type="text/javascript"></script>
+ </head>
+ <body></body>
+</html>]]>
+</code>
+Create <icode>includes.json</icode> containing:
+<code>
+{
+	"include": [
+		"node_modules/grape-ui/grape_config.json",
+		"node_modules/grape-ui-login/grape_config.json"
+	]
+}       
+</code>
+Create <icode>db/initial.manifest</icode> containing:
+<code>../node_modules/ps-grape/db/initial.manifest</code>
+</ps_doc>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ps_doc title="Public Directories" titlepage="no">
+<h1 id="grape-sec-staticfiles">Public Directories</h1>
+<p>
+	When we speak about public directories, or static files, we usually refer to files that are publically available for download from the server. If the URL of an incoming <b>GET</b> request matches a file inside a public directory, the file's contents will be sent to the browser. Functionality like this is very important when sending the frontend (UI) to the client. It can also be used to download other files.
+</p>
+<p>
+	The list of public directories are defined in the Grape config setting <i><link id="conf-public_directories">public_directories</link></i>. The directories are read in order of appearance.
+</p>
+<p>
+	When a user initially browse to a website, the first request that the browser typically makes, is a <icode><b>GET /</b></icode> request. This is a special type of request, that will cause the application to look for and send an <fname>index.html</fname> file.
+</p>
+</ps_doc>

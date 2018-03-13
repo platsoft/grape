@@ -1,0 +1,20 @@
+{
+	"id": "/grape/data_import/upload",
+	"method": "POST",
+	"accept": "xsl,q=1;ods,q=1",
+	"description": "Upload file/files",
+	"jsfile": "data_import_upload.js",
+	"name": "GrapeDataImport",
+	"roles": ["data_import","admin"],
+	"properties": {
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"]},
+			"message": {"type": "string"},
+			"code": {"type": "number"},
+			"error": {"type": "object"}
+		}
+	}
+}

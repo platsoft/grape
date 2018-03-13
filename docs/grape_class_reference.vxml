@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<ps_doc title="grape_init" titlepage="yes" tocpage="yes">
+<h1>Grape class reference</h1>
+Below follows a reference for the Grape object (the thing that gets returned from <icode>new Grape.grape()</icode>).
+
+<h2>Methods</h2>
+<h3>constructor (config, config, ...)</h3>
+Reads and parses all arguments as configuration objects or files.
+<h3>addWorker (options)</h3>
+<p>
+	options should include:
+	<ul>
+		<li><i>name</i> The worker name. After the worker has started up, an event called <i>'worker-' + name</i> will be emitted.</li>
+		<li><i>instance_count</i> The number of instances to start. Defaults to 1</li>
+		<li><i>func</i> The function to instantiate. Should have a "start" method</li>
+	</ul>
+</p>
+<h3 id="sec-grape-class-reference-start">start ()</h3>
+<p>
+	The start method verifies that all the correct config options are set, and then creates all the worker processes that has been registered. It also checks if the process PID file exists, and it it does, it sends a SIGINT signal to the process ID found in the file.
+</p>
+
+<h2>Members</h2>
+<h3>grape_settings</h3>
+<h3>logger</h3>
+<h3>options</h3>
+<h3>comms</h3>
+
+<h2>Events</h2>
+<h3>*-beforestart</h3>
+<h3>*-afterstart</h3>
+<h3>worker</h3>
+<h3>worker-*</h3>
+<h3>worker-*-created</h3>
+<h3>creating_pidfile</h3>
+<h3>pidfile_created</h3>
+<p>
+</p>
+
+</ps_doc>

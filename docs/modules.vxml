@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ps_doc title="API Reference" titlepage="no" tocpage="no">
+<h1 id="sec-grape-modules">Additional Modules</h1>
+<p>
+Extended functionality is provided as part of Grape modules. A Grape Module can provide additional HTML files, API calls, database structures and functions, and workers. Grape modules are usually installed using npm.
+</p>
+<h2>Using an external module</h2>
+<p>
+	Modules that adds extra API calls or UI files to a project, should come with a <fname>grape_config.json</fname> file. This file must define all the configuration that should be added to the project that is using the module. The project must then include the module's <fname>grape_config.json</fname> in it's own configuration. Some modules requires extra configuration, and the documentation should be consulted for more information.
+</p>
+<p>
+	Modules that is installed from npm needs to be added to the project's <fname>package.json</fname> file.
+</p>
+
+<h2>Available Modules</h2>
+<p>
+<ul>
+	<li><link id="grapemailer">Sending emails</link> (generated with templates)</li>
+	<li><link id="grape_data_import">Data import (XLS/CSV) and processing</link></li>
+	<li><link id="platsoft-background-worker">PlatSoft Background Worker</link></li>
+	<li><link id="grape_pdf">Generating PDF files from XML (using XSL stylesheets and Apache FOP)</link></li>
+	<li><link id="grape_notifications">Sending system notifications</link></li>
+</ul>
+GrapeUI also contains a bunch of Grape modules.
+</p>
+
+</ps_doc>

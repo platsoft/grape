@@ -1,75 +1,3 @@
-/**
- * THE FUNCTIONS IN THIS FILE IS STILL A WORK IN PROGRESS
- */
-/**
- * Input schema Schema name
- * Input tables Array of table names
- * Input roles Array of role names
- * Input allowed_operation Operation to allow, must be one of INSERT, UPDATE or DELETE
- */
-CREATE OR REPLACE FUNCTION grape.table_operation_whitelist_add(_schema TEXT, _tables TEXT[], _roles TEXT[], _allowed_operation TEXT) RETURNS BOOLEAN AS $$
-DECLARE
-	_table TEXT;
-BEGIN
-	FOREACH _table IN ARRAY _tables LOOP
-		IF EXISTS (SELECT 1 FROM grape.table_operation_whitelist WHERE 
-				schema = _schema::TEXT 
-				AND tablename = _table::TEXT 
-				AND allowed_operation=_allowed_operation::TEXT
-			) THEN
-				UPDATE grape.table_operation_whitelist 
-					SET 
-						roles=_roles
-					WHERE 
-						schema = _schema::TEXT 
-						AND tablename = _table::TEXT
-						AND allowed_operation = _allowed_operation::TEXT;
-
-		ELSE
-			INSERT INTO grape.table_operation_whitelist(schema, tablename, roles, allowed_operation)
-				VALUES (_schema, _table, _roles, _allowed_operation);
-		END IF;
-	END LOOP;
-	RETURN true;
-END; $$ LANGUAGE plpgsql;
-
-/**
- * Removes table from insert query whitelist
- */
-CREATE OR REPLACE FUNCTION grape.table_operation_whitelist_delete(_schema TEXT, _tablename TEXT) RETURNS BOOLEAN AS $$
-DECLARE
-BEGIN
-	DELETE FROM grape.table_operation_whitelist WHERE schema = _schema::TEXT AND tablename = _tablename::TEXT;
-	RETURN TRUE;
-END; $$ LANGUAGE plpgsql;
-
--- Checks permissions against current user
--- returns NULL if allowed, and grape return if error
-CREATE OR REPLACE FUNCTION grape.table_operation_check_permissions (_schema TEXT, _tablename TEXT, _operation TEXT) RETURNS JSON AS $$
-DECLARE
-	_roles TEXT[];
-	_user_roles TEXT[];
-BEGIN
-	SELECT roles INTO _roles FROM grape.table_operation_whitelist WHERE 
-		schema = _schema::TEXT 
-		AND _tablename::TEXT ~ tablename 
-		AND _operation ~ allowed_operation;
-
-	IF NOT FOUND THEN
-		RETURN grape.api_error(FORMAT('Table requested (%s.%s) is not in %s whitelist', _schema, _tablename, _operation), -2);
-	END IF;
-
-	IF NOT _roles @> '{all}' AND grape.current_user_in_role(_roles) = FALSE THEN
-		SELECT array_agg(c) INTO _user_roles FROM grape.current_user_roles() c;
-		RETURN grape.api_error('Permission denied to table ' || _schema::TEXT || '.' || _tablename::TEXT, 
-			-2, 
-			json_build_object('allowed_roles', _roles, 'user_roles', _user_roles)
-		);
-	END IF;
-
-	RETURN NULL;
-END; $$ LANGUAGE plpgsql;
-
 
 CREATE OR REPLACE FUNCTION grape.build_filter_sql (_schema TEXT, _tablename TEXT, _filter JSON) RETURNS TEXT AS $$
 DECLARE
@@ -383,7 +311,7 @@ BEGIN
 	IF json_extract_path_text($1, 'returning') IS NOT NULL THEN
 		_returning_column := $1->>'returning';
 		IF _returning_column = '*' THEN
-			_returning_sql := 'RETURNING ' || ($1->>'returning');
+			_returning_sql := 'RETURNING *';
 		ELSE
 			_returning_sql := 'RETURNING ' || quote_ident($1->>'returning');
 		END IF;

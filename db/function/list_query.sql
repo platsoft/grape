@@ -1,34 +1,3 @@
-
-CREATE OR REPLACE FUNCTION grape.list_query_whitelist_add(_schema TEXT, _tables TEXT[], _roles TEXT[]) RETURNS BOOLEAN AS $$
-DECLARE
-	_table TEXT;
-BEGIN
-	FOREACH _table IN ARRAY _tables LOOP
-		IF EXISTS (SELECT 1 FROM grape.list_query_whitelist WHERE schema = _schema::TEXT AND tablename = _table::TEXT) THEN
-			UPDATE grape.list_query_whitelist SET roles=_roles WHERE schema = _schema::TEXT AND tablename = _table::TEXT;
-		ELSE
-			INSERT INTO grape.list_query_whitelist(schema, tablename, roles)
-				VALUES (_schema, _table, _roles);
-		END IF;
-	END LOOP;
-	RETURN true;
-END; $$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION grape.list_query_whitelist_add (_schema TEXT, _tables TEXT[]) RETURNS BOOLEAN AS $$
-DECLARE
-BEGIN
-	RETURN grape.list_query_whitelist_add(_schema, _tables, '{all}'::TEXT[]);
-END; $$ LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE FUNCTION grape.list_query_whitelist_delete(_schema TEXT, _tablename TEXT) RETURNS BOOLEAN AS $$
-DECLARE
-BEGIN
-	DELETE FROM grape.list_query_whitelist WHERE schema = _schema::TEXT and tablename = _tablename::TEXT;
-	RETURN TRUE;
-END; $$ LANGUAGE plpgsql;
-
-
 /**
  * Input fields:
  * 	tablename
@@ -94,23 +63,23 @@ BEGIN
 		_filters_join := 'AND';
 	END IF;
 
-	SELECT array_agg(roles) INTO _roles 
-		FROM (SELECT 
-			DISTINCT(unnest(roles)) AS roles 
-			FROM grape.list_query_whitelist 
-			WHERE 
-				schema = _schema::TEXT 
+	SELECT array_agg(roles) INTO _roles
+		FROM (SELECT
+			DISTINCT(unnest(roles)) AS roles
+			FROM grape.list_query_whitelist
+			WHERE
+				schema = _schema::TEXT
 				AND _tablename::TEXT ~ tablename
 			) a;
 
 	IF NOT FOUND THEN
-		RETURN grape.api_error('Table requested is not in whitelist', -2);
+		RETURN grape.api_error(CONCAT('Table requested (', _schema::TEXT, '.', _tablename::TEXT, ' is not in whitelist', -2));
 	END IF;
 
 	IF NOT _roles @> '{all}' AND grape.current_user_in_role(_roles) = FALSE THEN
 		SELECT array_agg(c) INTO _user_roles FROM grape.current_user_roles() c;
-		RETURN grape.api_error('Permission denied to table ' || _schema::TEXT || '.' || _tablename::TEXT, 
-			-2, 
+		RETURN grape.api_error('Permission denied to table ' || _schema::TEXT || '.' || _tablename::TEXT,
+			-2,
 			json_build_object('allowed_roles', _roles, 'user_roles', _user_roles)
 		);
 	END IF;
@@ -160,6 +129,10 @@ BEGIN
 				_oper := _filter_json->>'op';
 			END IF;
 
+			IF _filter_json->>'field' IS NULL THEN
+				RETURN grape.api_error('Missing field "field" in filter', -5);
+			END IF;
+
 			_oper := UPPER(_oper);
 			IF _oper IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
 				_filter_sql := CONCAT_WS(' ', quote_ident(_filter_json->>'field'), _oper, quote_literal(_filter_json->>'value'));
@@ -174,6 +147,8 @@ BEGIN
 				) val;
 
 				_filter_sql := CONCAT(quote_ident(_filter_json->>'field'), '::TEXT = ANY (ARRAY[',  array_to_string(_filter_array, ','), ']::TEXT[])');
+			ELSIF _oper = '@@' THEN
+				_filter_sql := CONCAT(quote_ident(_filter_json->>'field'), '::TSVECTOR @@ plainto_tsquery(LOWER(', quote_literal(_filter_json->>'value'), '))::TSQUERY');
 			ELSE
 				CONTINUE;
 			END IF;
@@ -203,7 +178,7 @@ BEGIN
 			'$1 AS "offset", '
 			'$2 AS "limit", '
 			'$3 AS "page_number", '
-			'array_agg(a) AS records, '
+			'coalesce(array_agg(a), ''{}'') AS records, '
 			'$4 AS "total", '
 			'$5 AS "total_pages", '
 			'$6 AS "extra_data"'
@@ -214,5 +189,3 @@ BEGIN
 
         RETURN _ret;
 END; $$ LANGUAGE plpgsql;
-
-

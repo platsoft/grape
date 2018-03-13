@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<ps_doc title="PlatSoft Grape Manual" titlepage="no" tocpage="no">
+<h1 id="sec-grape-dirlayout">Project file structure</h1>
+
+Most Grape applications will have the following directories/files:
+<ul>
+	<li><i>app/ </i> <ul>
+			<li><i><link id="grape_api_calls">api/</link></i> - API schemas to be loaded and registered by Node on startup</li>
+			<li><i>index.js</i> - Application entry point</li>
+		</ul>
+	</li>
+	<li>
+		<i><link id="grape_database">db/</link></i> - Database-related files
+	</li>
+	<li><i>config/ </i> <ul>
+		<li><i>defaults.json</i> - Grape config file containing product-specific settings</li>
+		<li><i>local.json</i> - Grape config file containing local-specific</li>
+	</ul></li>
+	<li><i>public/</i> - Public (HTML, Frontend JavaScript and CSS files). See Grape Frontend Development for more information regarding the contents of this directory</li>
+	<li><i>scripts/</i> - Scripts</li>
+	<li><i><link id="grape_config_file">config.json.example</link></i> - Example Grape config file</li>
+	<li><i>log/</i> - Log files  (should not be checked into the repo)</li>
+</ul>
+
+</ps_doc>

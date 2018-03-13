@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape Secure Authentication" titlepage="no" tocpage="no">
+	<h1>Grape Secure Authentication</h1>
+	<h2>Benefits</h2>
+	<ul>
+		<li>No passwords are transmitted over the network (not encrypted or hashed)</li>
+		<li>User passwords are stored in one location, and does not have to be shared amongst services</li>
+		<li>User only needs to enter a password once in order to get access to multiple services</li>
+	</ul>
+	<h2>Overview of authentication process</h2>
+	<ol>
+		<li>Client gets the authentication service URL (<i>GET /grape/setting/authentication_url</i>)</li>
+		<li>Client gets the service name of the local service (<i>GET /grape/setting/service_name</i>)</li>
+		<li>Client sends a request for a TGT (<i>POST /grape/auth/tgt</i>) to the authentication service</li>
+		<li>Server responds with TGT and service key</li>
+		<li>Client decodes the message to retrieve the session key, and encrypted TGT</li>
+		<li>Client sends authenticator (encrypted with session key), unopened TGT, and requested service (local service), to request a service ticket (<i>POST /grape/auth/service_request</i>)</li>
+	</ol>
+	<h2>Pre-requisites</h2>
+	<ol>
+		<li>service_name needs to be set (ie hansws.pinotage.platsoft.net)</li>
+		<li>authentication_url needs to be set</li>
+		<li>User passwords needs to be hashed with SHA256 scheme</li>
+		<li>GrapeUI's config.json setting secure_login needs to be set to true</li>
+	</ol>
+
+	<h2>Encryption</h2>
+	The key used to encrypt and decrypt the initial response (containing the TGT) is generated from the user's password as follows:
+	<ol>
+		<li>A: Random salt is generated</li>
+		<li>B: The salt from (A) is added to the user's password (prepended), and hashed using SHA256, and encoded in hex format</li>
+		<li>C: The output from (B) is added to the front of the salt and password, and hashed again</li>
+		<li>The process repeats for 1000 times (rounds), and the output is used as the encryption key, using AES-CBC with PKCS#7 padding</li>
+	</ol>
+	This process is also used when encrypting the Authenticator (using the session key as input) when requesting a service ticket.
+
+	<h2>Data flow</h2>
+	<code>
+<![CDATA[>>]]> POST /grape/auth/tgt {"username": ""}
+<![CDATA[<<]]> {"iv":"d8a9b050fc7f63363f1ae977966b3bf9","algo":"sha256","data":"f7af560710447f0293e217ebf
+b663d3b8c29f57c21a673cee87e26fd21f9643dbb5d601da11dbc2b5d6950968b0b7670bac57fb4ee237fc661f1d332f6
+05d6cbfd11b032ddae13cc75976b427e389792d8f40865603cd6fdb9637194dcd57376097e725b1221a9591b008e3a00a
+a94b25ebea83e5631a3665075bde1def81ba6e17405969664222f3615b84f6a0fa91024d5972a240fd12274b9437c49dc
+af855113d4a77123ae41691d633572fc711e03efbfef65727797349d14e28030db89988b64dea130c2603b05a4b11cbb0
+496077e2943baaf4dcc528f926b63b0aa16aa6850cc4d568af21a7c735f6bb17a9380787232d8a2b6bcaffb366e047646
+5ec2ca4efbeadcea81d729485c0fdb02da5915754afbd7bc3280dd74231cebf05437db5e9151ebdffb6b06ae965b4afe6
+ba6f782ee98daf4c300408ab490b7e550c61186e0a9b9b14158fa1fd0a208412e2105d03663ad2fd6d62b354270ad737c"
+,"salt":"f206b9de2bf9077f3166","rounds":1000,"status":"OK"}
+<![CDATA[>>]]> POST /grape/auth/service_request {"tgt":"7a57698fa83178e345e5860637f3e5545f126bb
+96f1b19a8b7a89b03222f96432a295a229e21933d6bbc4031b61fbaa81a13089af50852e9bafd62d39cc998a2d843df
+6013e068d6fd9e3ab654718fd7c078880ba99ba78c50304dc793e8ac1323b321ba0fcedb894eaf5bbe7a3934a830632
+667efd8e3210c29fbc6272917b0c24ea02b8f1d938da2de753ce3bd06a0","requested_service":"testing.pinot
+age.platinumlife.local","authenticator":"f37e4493ef50322f06038b1ba62a7797a61cd5c72f659a0d76807e
+6c70cfb1eeadcab15237c5a67753cb4b35e0bd637d5e8ff221ae85a8f388d2d974f54cc079","iv":"44fc4ff32c219
+7afa35d83be380a31f6","salt":"663e8d3b2212895f1dfca3c97ce1fc1e"}
+	</code>
+</ps_doc>

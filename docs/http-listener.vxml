@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<ps_doc>
+<h1 id="sec-grape-http">HTTP Listener Worker</h1>
+<p>
+	This built-in worker provides most of the web functionality that is associated with Grape. The process in the process table is called <b>httplistener</b>.
+</p>
+<p>The HTTP listener will listen for incoming connections on the port specified in the <link id="grape-conf-port">port</link> configuration option. The port is usually set in one of the project's configuration files. If SSL is enabled (configuration options use_https, sslkey and sslcert), the connection will be served over HTTPS.
+</p>
+<p>
+	When the HTTP listener receives a new HTTP request, the following steps are performed:
+	<ol>
+		<li>The request is logged</li>
+		<li>The body parsers are called (JSON, Multipart, XML, etc)</li>
+		<li>The requested resource is looked up and matched to a resource handler</li>
+		<li>The connection's session is checked and validated against active sessions</li>
+		<li>The resource and requested operation is validated against the session</li>
+		<li>The resource handler is executed (API call executed, file fetched from disk, etc)</li>
+	</ol>
+</p>
+
+<include href="resource_mgmt.vxml" parse="vxml" level="2" /> 
+
+<!-- include grape api calls-->
+<include href="grapeapicalls.vxml" parse="vxml" level="1" /> 
+
+<include href="public_directories.vxml" parse="vxml" level="1" /> 
+
+
+<!-- include authentication -->
+<include href="authentication.vxml" parse="vxml" level="1" />
+
+<!-- include grape user network -->
+<include href="user_ip_filter.vxml" parse="vxml" level="2" /> 
+
+<h2>Adding TLS/SSL support</h2>
+<p>
+	If the configuration option <b>use_https</b> is set to true, the process will attempt to read the files <b>sslkey</b> (containing the path to the SSL key file) and <b>sslcert</b> (containing the path to the SSL certificate file). Certificates can be generated with the following command:
+	<code>$ openssl req -x509 -nodes -newkey rsa:2048 -keyout private.pem -out public.pem</code>
+	which will create two files, <fname>private.pem</fname> (used for <b>sslkey</b>) and <fname>public.pem</fname> (used for <b>sslcert</b>). 
+</p>
+
+
+<h2>Configuration options</h2>
+<p>
+	The following configuration options are specific to the HTTP Listener Worker:
+<table style="compact">
+	<thead>
+		<th width="25%">Name</th><th width="40%">Description</th><th width="35%">Default value</th>
+	</thead>
+	<tr><td id="conf-api_directory">api_directories</td><td>Array of directories containing API files</td><td></td></tr>
+	<tr><td id="conf-cache_public_js_dirs">cache_public_js_dirs</td><td>If enabled, the compiled JS files from public directories will not be cached</td><td></td></tr>
+	<tr><td>compile_js_dirs</td><td>List of directory names that will be recursed when all JS is being compiled</td><td>['pages']</td></tr>
+	<tr><td id="conf-delayed_response">delayed_response</td><td>Delay all responses with this many milliseconds (this is used to simulate slow networks)</td><td>0</td></tr>
+	<tr><td id="conf-enable_notifications">enable_notifications</td><td>Enables the notification subsystem</td><td></td></tr>
+	<tr><td>http_port</td><td>If this is set, and HTTPS is enabled (use_https), then a normal HTTP server wil listen on this port</td><td></td></tr>
+	<tr><td>instances</td><td>Controls the number of HTTP listener applications started</td><td>1</td></tr>
+	<tr><td>maxsockets</td><td>Controls the maximum number of sockets supported per HTTP listener process</td><td>500</td></tr>
+	<tr><td id="grape-conf-port">port</td><td>Port on which the UI will be available</td><td></td></tr>
+	<tr><td id="conf-public_directories">public_directories</td><td>Array with a list of directories containing public files</td><td></td></tr>
+	<tr><td>use_https</td><td>Enable or disable HTTPS. sslkey and sslcert need to be set up correctly</td><td>false</td></tr>
+	<tr><td>server_timeout</td><td>The number of milliseconds of inactivity before a socket is presumed to have timed out</td><td>50000</td></tr>
+	<tr><td>sslkey</td><td>Path to private SSL key file</td><td>__dirname + '/cert/private.pem'</td></tr>
+	<tr><td>sslcert</td><td>Path to private SSL public certificate</td><td>__dirname + '/cert/public_nopass.pem'</td></tr>
+</table>
+
+</p>
+
+</ps_doc>

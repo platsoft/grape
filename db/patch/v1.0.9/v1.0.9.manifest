@@ -1,0 +1,4 @@
+1.0.9.sql
+system_private.sql
+../../functions.manifest
+../../data/whitelist_tables.sql

@@ -2,67 +2,55 @@
 <ps_doc title="Grape API calls" titlepage="no">
 <h1 id="grape_api_calls">API Calls</h1>
 
-Grape classifies between 3 different types of API calls:
-<ol>
-	<li>Filesystem request: the browser requests a file from the filesystem (for example an HTML, CSS, JS or image file)</li>
-	<li>Database API request: the API handler is implemented as a database function, accepting and returning a JSON object</li>
-	<li>JavaScript API request: the API handler is implemented as a JavaScript function, and handled completely in the Node.JS environment</li>
-</ol>
-<h2>FS Request</h2>
+<h2>Registering API calls</h2>
 <p>
-	The first and most simple is a request for a file on the filesystem. A request that does not accept JSON, and does not start with <r>/download</r>, will fall under this category. This includes the initial call for <r>index.html</r>. Files are searched for in the directories listed in the Grape config setting <i><link id="conf-public_directories">public_directories</link></i>, in the order that it is specified in the setting. The first file found matching the path (relative to any public directory) and filename is served. 
+	API calls are defined in JSON files, and created when a Grape object is created. The files can be found in a projects <b>api/</b> directory, and looks like this:
+	<code lang="js">{
+	"description": "Calculate the square root of a number",
+	"url": "/maths/sqrt", 
+	"name": "SquareRoot",
+	"sqlfunc": "maths_sqrt",
+	"method": "POST",
+	"validate": "(value:i)",
+	"roles": ["guest", "all"],
+	"result": {
+		"type": "object",
+		"properties": {
+			"result": {"type": "number", "description": "The resulting number"},
+			"status": {"enum": ["ERROR", "OK"]}
+		}
+	}
+}</code>
+In the example above, the application will listen for a <b>POST</b> request to <b>/maths/sqrt</b>, and call the PostgreSQL function <b>maths_sqrt</b>, sending the request's body as a JSON parameter.
+</p>
+<p>
+Usually, each API call lives in it's own file.  However, it is possible to have an array with multiple API call definitions inside a JSON file.
+</p>
+<p>
+
+	These files can live in multiple directories. The list of directories it is found in, is defined in the configuration option "<b><i>api_directories</i></b>". This option is defined in the configuration files read by Grape upon startup. Each grape module will usually have it's own directory to add to the list. After the HTTP Listener have been created, each of the directories found in this option is traversed, and the API calls found in the files are created.
 </p>
 
-<h2>DB API requests</h2>
-Database API calls are the most commonly used API calls. The logic for the function is typically implemented as a function in PostgreSQL. The function being called in the database accepts a JSON parameter, and returns a JSON object with the result.
-<img src="db_api_call.png" title="Anatomy of a DB API" />
-
-The logic of the function needs to be implemented in PostgreSQL. For example, a function calculating the square root of a number:
-<code lang="sql">
-	CREATE OR REPLACE FUNCTION maths_sqrt (JSON) RETURNS JSON AS $$
-	DECLARE
-		_value NUMERIC;
-		_result NUMERIC;
-	BEGIN
-
-		_value := ($1->>'value')::NUMERIC; <r>-- Extract values from JSON</r>
-
-		_result := sqrt(_value);           <r>-- Calculation</r>
-
-		RETURN grape.api_success('result', _result); <r>-- Build and return JSON object</r>
-	END; $$ LANGUAGE plpgsql;
-</code>
+<h2>Fields of JSON Schema API call</h2>
 <p>
-The database function needs to be registered against an Express route in GrapeApp. There are two ways to do this: using a schema file, or registering it manually.
-</p>
-
-<h3>Registering the API call using schemas</h3>
-<note color="green">This method of creating DB API calls was introduced in Grape 1.0.4</note>
-
-<p>
-APIs can be defined using a format based on the JSON Schema standard (<a href="http://json-schema.org">http://json-schema.org</a>), with added fields.
-On start-up, all the directories in the project's <i><link id="conf-api_directory">api_directory</link></i> config setting is traversed for JSON files. JSON files are then parsed, and must contain a single object, or an array of objects describing the API calls. 
-</p>
-
-<p>
-The fields in a schema object:
-<code>
-{
+The following fields are recognized in a schema object:
+<code>{
 	<blue>"description"</blue>: <r>"API call description"</r>,
-	<blue>"id"</blue>: <r>"URL of the call"</r>,
+	<blue>"url"</blue>: <r>"URL of the call"</r>,
 	<blue>"name"</blue>: <r>"CamelCase name for this call"</r>,
 	<blue>"sqlfunc"</blue>: <r>"SQL function"</r>,
 	<blue>"sqlfunctype"</blue>: <r>"Specify jsonb here for JSONB functions. Defaults to JSON"</r>,
-	<blue>"type"</blue>: <r>"Body type - use 'object' for POST methods and 'query' for GET"</r>,
+	<blue>"jsfile": <r>"JavaScript file to execute"</r></blue>
 	<blue>"method"</blue>: <r>"GET or POST - defaults to POST"</r>,
-	<blue>"properties"</blue>: <r>{ Set of properties in this body. Used for POST requests }</r>,
-	<blue>"validation_string"</blue>: <r>"Validation string. Use this to validate GET input"</r>,
-	<blue>"no_validation"</blue>: <r>true or false. If this is true, validation will be disabled for this call (default to false)</r>,
-	<blue>"return"</blue>: <r>{ 
+	<blue>"roles"</blue>: [<r>An array of role names that is allowed to execute this request</r>],
+	<blue>"properties"</blue>: {<r>Set of properties in this body. Used to generate documentation</r>},
+	<blue>"validate"</blue>: <r>"Validation string. Use this to validate GET/POST input"</r>,
+	<blue>"no_validation"</blue>: <r>true or false. If this is true, validation will be disabled for this call</r>,
+	<blue>"return"</blue>: { 
 			<blue>"type"</blue>: <r>"Return type (default to object)"</r>
 			<blue>"properties"</blue>: <r>{ Set of properties in this body }</r>
 			<blue>"example"</blue>: <r>{ Example of a resulting JSON }</r>
-		}</r>
+		}
 }
 </code>
 The <blue>properties</blue> field, which is used with the "object" type, is an associative array with the field name as key, and the field properties as the object.  For example:
@@ -78,182 +66,140 @@ The <blue>properties</blue> field, which is used with the "object" type, is an a
 </code>
 </p>
 
+<h2>Input Validation</h2>
 <p>
-	An example of a schema definition for the sqrt function:
-	<code>{
-	"description": "Calculate the square root of a number",
-	"id": "/maths/sqrt", 
-	"name": "SquareRoot",
-	"sqlfunc": "maths_sqrt",
-	"type": "object",
-	"properties": {
-		"value": { "type": "number", "description": "The input value for the square root function" }
-	},
-	"result": {
-		"type": "object",
-		"properties": {
-			"result": {"type": "number", "description": "The resulting number"},
-			"status": {"enum": ["ERROR", "OK"]}
-		}
-	}
-}</code>
+If the <i>validate</i> field is set in the API definition, validation against the incoming data will happen against this string. The validation string syntax is defined by the following <a href="https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form">Backus–Naur form</a>:
+<code><g>obj-def</g> ::= <r>"("</r> <g><![CDATA[<param-def-list>]]></g> <r>")"</r>
+<g>param-def-list</g> ::= <g><![CDATA[<param-def>]]></g> | <g><![CDATA[<param-def-list>]]></g> <r>","</r> <g><![CDATA[<param-def>]]></g>
+<g>param-def</g> ::= <g><![CDATA[<name>]]></g> <r>":"</r> <g><![CDATA[<type-info> <modifier-list>]]></g>
+<g>type-info</g> ::= <g><![CDATA[<array-def>]]> </g>| <g><![CDATA[<data-type>]]></g> | <g><![CDATA[<obj-def>]]></g>
+<g>array-def</g> ::= <r>"["</r> <g><![CDATA[<data-type>]]></g> <r>"]"</r> | <r>"["</r> <g><![CDATA[<obj-def>]]></g> <r>"]"</r>
+<g>data-type</g> ::= <r>"s"</r> | <r>"i"</r> | <r>"f"</r> | <r>"b"</r> | <r>"d"</r> | <r>"t"</r> | <r>"a"</r>
+<g>modifier-list</g> ::= <g><![CDATA[<modifier> <modifier-list>]]></g>
+<g>modifier</g> ::= <r>"*"</r> | <r>"E"</r> | <r>"0"</r> | <r>""</r></code>
+The data types that can be used:
+<ul>
+	<li>s text</li>
+	<li>i integer</li>
+	<li>f float</li>
+	<li>b boolean</li>
+	<li>d date</li>
+	<li>t datetime</li>
+</ul>
 
-<h4>Validation</h4>
-If the API call's method is POST, the received body will be validated against the JSON schema (the fields in the <i>properties</i>). When the properties field cannot be used (for example in GET calls), an <i>validate</i> field can be specified. This field contains a string, in the following format:
-<code>
-Validate string syntax:
-      begin_expr ::= "(" <![CDATA[<begin_expr>]]> "," <![CDATA[<param-def>]]> ")"
-      param-def ::= <![CDATA[<param-name>]]> ":" <![CDATA[<data-type>]]> <![CDATA[<modifier-list>]]>
-      modifier-list ::= <![CDATA[<opt-modifier>]]> <![CDATA[<modifier-list>]]>
-      opt-modifier ::= "*" | "E" | "0" | ""
-      data-type ::= "s" | "i" | "f" | "b" | "d" | "t" | "a"
+Field modifiers:
+<ul>
+	<li><b>*</b> optional is true (default = false)</li>
+	<li><b>E</b> Empty becomes null</li>
+	<li><b>0</b> Nullable</li>
+</ul>
 
-Data types:
-      s text
-      i integer
-      f float
-      b boolean
-      d date
-      t date
-
-Modifiers:
-      * optional is true (default = false)
-      E Empty becomes null
-      0 Nullable
-
-Examples:
-      (batch_labreport_id: i, product_id: i, labreport)
-</code>
+<h3>Examples</h3>
+<p>
+	The validation string <icode>(batch_id: i, products: [s], qty: f*, labreport: (description:s))</icode> means the object being validated must conform to the following rules:
+	<ul>
+		<li>It must have a <b>batch_id</b> field with an integer value</li>
+		<li>It must have a <b>products</b> field, which is an array of strings</li>
+		<li>It can optionally have a <b>qty</b> field, of type float</li>
+		<li><b>labreport</b> is a nested object, with one field, <b>description</b>, which must be a string</li>
+	</ul>
+</p>
 
 <note color="green">More examples are available in the grape repository, in the <b>examples/</b> subdirectory </note>
 
 </p>
 
-<h4>Generating documentation</h4>
-In the Viticulture repository, a script called <i>scripts/build_schema_api_docs.js</i> can be used to generate VXML documentation for schema-based API calls.
+
+<h2>Database API Calls</h2>
+<p>
+	If an API call definition contains a "<b>sqlfunc</b>" field, it is named a "Database API call". The PostgreSQL function named in the <b>sqlfunc</b> field will be called when the API call is executed.
+</p>
+<p>
+	Database API calls are the most commonly used API calls. The handlers are written as functions/stored procedures in the database. The functions accepts and returns a JSON or JSONB object. <b>sqlfunctype</b> should be set to "JSONB" if the function accepts a JSONB parameter.
+</p>
+<p>
+	The object that is sent to the SQL function is created from the request's body (in the case of POST), or the request's query parameters (in the case of GET calls).
+</p>
+<img src="db_api_call.png" title="Anatomy of a DB API" width="5cm" />
+<p>
+The logic of the function needs to be implemented in PostgreSQL. For example, a function calculating the square root of a number:
+<code lang="sql">/**
+ * @api_usage MathsSqrt
+ * @api_url POST /maths/sqrt
+ */
+CREATE OR REPLACE FUNCTION maths_sqrt (JSON) RETURNS JSON AS $$
+DECLARE
+	_value NUMERIC;
+	_result NUMERIC;
+BEGIN
+	_value := ($1->>'value')::NUMERIC; <r>-- Extract values from JSON</r>
+	_result := sqrt(_value);           <r>-- Calculation</r>
+	RETURN grape.api_success('result', _result); <r>-- Build and return JSON object</r>
+END; $$ LANGUAGE plpgsql;
+</code>
+</p>
+
+<h2>JavaScript Handlers</h2>
+<p>
+	The API handler is implemented as a JavaScript function, and handled completely in the Node.JS environment. The file should be specified using the "<b><i>jsfile</i></b>" field in the JSON schema. The JavaScript file path should be specified relative to the JSON file path.
+</p>
+<p>
+	The JavaScript file should return a function, for example:
+<code lang="js">module.exports = function() {
+	return function(req, res) {
+		// API CODE GOES HERE
+		res.end();
+	}
+}</code>
+
+The equivalent maths_sqrt function, implemented in JavaScript instead of SQL, will look like this:
+<code lang="js">module.exports = function() {
+	return function(req, res) {
+		var v = parseFloat(req.body.value);
+		res.json({status: 'OK', result: Maths.sqrt()}).end();
+	}
+}</code>
+
+When writing API calls in JavaScript, you have access to the following fields:
+<ul>
+	<li><b>req.app</b> - the grape express application</li>
+	<li><b>res.locals.db</b> - database connection</li>
+	<li><b>res.locals.session</b> - session information. If the a valid session is available, res.locals.session.session_id will be set</li>
+	<li><b>res.locals.session.user_roles</b> - list of roles associated with the current session</li>
+</ul>
+
+</p>
+
+
+<h2 id="grape-access-control">Access control on API calls</h2>
+<p>
+	When an HTTP request is received, Grape attempts to connect a valid session to the request. This is done by looking for an <i>X-SessionID</i> header, and additionally looking for a session ID cookie. If a valid session could be identified, the user's access roles are loaded. If no valid session exists, the role "guest" is used.
+</p>
+<p>
+	Each user has a list of roles assigned to him/her, and each API call has a list of access roles that is allowed to call it. There has to be an overlap between these two sets of access roles for the request to be allowed. If no overlap exists, the request is denied. 
+</p>
+<p>
+	The list of allowed access roles for each API call is defined in the "<i>roles</i>" field in the JSON schema. All users belongs to one or more roles, and always to the role named <b>all</b>. 
+
+</p>
+<p>
+	See <link id="sec-grape-auth">Authentication</link> for more information on how to get a Session ID.
+</p>
+
+
+
+
+
+<h2>Generating API documentation</h2>
+<p>
+In the Viticulture repository, a script called <i>scripts/build_schema_api_docs.js</i> can be used to generate VXML documentation from the API JSON files.
 <code>  Usage: build_schema_api_docs [options] directory|file [directory|file directory|file ...]
 
   Options:
 
     -h, --help                  output usage information
-    -o, --output [output_file]  Output file
-</code>
-
-<h3>JavaScript API handlers</h3>
-<p>
-	API calls that are handled by JavaScript functions, can be found in the project's <i><link id="conf-api_directory">api_directory</link></i> (set in the config, usually <i>api/</i>). On startup, these directories are traversed for <i>*.js</i> files and included in the application. API calls are registered using <i>app.get</i> and <i>app.post</i>. <br />
-	For example, the contents of a JS file in the <i>api/</i> directory:
-	<code lang="js">exports = module.exports = function(app) {
-		app.get("/maths/sqrt/:value", function (req, res) { <blue>/* Logic here */</blue> });
-}</code>
+    -o, --output [output_file]  Output file (vxml)</code>
 </p>
-<p>
-	Example of an API call, calling a database function:
-
-<code lang="js">exports = module.exports = function(app) {
-	<blue>// register the route</blue>
-	app.get("/maths/sqrt/:value", api_maths_sqrt);
-}
-function api_maths_sqrt (req, res)
-{
-	<blue>// call the stored procedure for this API call</blue>
-	res.locals.db.json_call("maths_sqrt", <blue>// the name of the PL/pgSQL function</blue>
-		{value: req.params.value},    <blue>// Build the JSON object as input for this function</blue>
-		null,                         <blue>// Optional callback (not used here)</blue>
-		{response: res}               <blue>// Send the response to res</blue>
-	);
-}
-</code>
-
-API calls should be documented using a standard based on the doxygen style. These comments can be extracted from the code using the <i>build_jsapi_documentation.js</i> script in Viticulture to create human-readable documentation. This is especially important for front-end developers, who can then use this documentation to interact with the API calls. All projects should have API documentation ready for clients to use.
-</p>
-<p>
-A comment block containing documentation for an API call:
-<code>
-/**
- * @api <b>URL</b> <r> The URL of the API call</r>
- * @desc <b>DESCRIPTION</b> <r>Description of the API call</r>
- * @method <b>GET/POST</b> <r>HTTP Method</r>
- * @sqlfunc <b>SQL_FUNCTION_NAME</b> <r>The SQL function used by this API call</r>
- * @param <b>NAME</b> <b>TYPE</b> <b>DESCRIPTION</b> <b>OPTIONAL</b> <b>DEFAULT</b> <r>When documenting GET requests, specify the 
-	           								       input parameters using @param</r>
- * @returnsample <b>JSON</b> <r>Example JSON of a successful return call</r>
- * @return <b>DESCRIPTION</b> <r>Description of the return values</r>
- * 
- */
-</code>
-</p>
-
-<h4>Generating documentation</h4>
-In the Viticulture repository, a script called <i>scripts/build_jsapi_documentation.js</i> can be used to generate VXML documentation for JavaScript API calls.
-<code>  Usage: build_jsapi_documentation [options] directory [directory directory ...]
-
-  Options:
-
-    -h, --help                  output usage information
-    -o, --output [output_file]  Output file
-</code>
-
-
-<h3>Non-JSON returning API calls</h3>
-An API call that is handled by a JavaScript call and needs to return something other than a JSON object, starts with <i>/download</i>.
-
-
-
-<h2 id="grape-access-control">Access control</h2>
-<p>
-	Grape manages authentication, sessions, users, passwords and provide access control. 
-	Sessions are tracked using a session ID. Session IDs are obtained by making a call to <i>POST /grape/login</i>, providing a valid username and password. On success, this call will return with the session ID, the user's ID, username, roles and employee GUID.
-	In subsequent calls, the session ID should be sent to the server using a custom header <i>X-SessionID</i> in the HTTP requests. 
-</p>
-<p>
-	Users and user-related information is stored in <tname>grape.user</tname>. Users can belong to one or more access roles, stored in <tname>grape.access_path</tname>. The link-table for these are <tname>grape.user_role</tname>. 
-</p>
-<p>
-	Grape includes the following roles and access paths by default:
-	<table>
-		<thead>
-			<th width="20%">Role</th>
-			<th width="40%">Description</th>
-			<th width="40%">Paths allowed</th>
-		</thead>
-		<tr>
-			<td>guest</td>
-			<td>No or invalid login</td>
-			<td align="left"><ul>
-				<li>/grape/login</li>
-			</ul>
-			</td>
-		</tr>
-		<tr>
-			<td>all</td>
-			<td>All logged in users</td>
-			<td align="left">
-				<ul>
-					<li>/lookup/*</li>
-					<li>/grape/list</li>
-					<li>/grape/api_list</li>
-				</ul>
-			</td>
-		</tr>
-		<tr>
-			<td>admin</td>
-			<td>Administrator</td>
-			<td align="left">
-				<ul>
-					<li>* (all paths allowed)</li>
-				</ul>
-			</td>
-		</tr>
-
-	</table>
-</p>
-
-Access control is applied to all API calls. Before the API call is executed, the session is validated. If it cannot be validated, the default role <b>guest</b> is used. 
-All users belongs to one or more roles, and always to the role named <b>all</b>. 
-API calls are registered in the database (table <tname>access_path</tname>) by <b>path</b>, <b>method</b> and the <b>role</b> allowed.  The <b>path</b> is a regular expression, matching the incoming URL of the request.
-<note color="green">The SQL function <icode>grape.add_access_path (_path TEXT, _roles TEXT[], _methods TEXT[])</icode> can be used to add a new access path. For initial data, this is kept in the project's <fname>db/data/access_paths.sql</fname></note>
-
 
 <h2>Consuming an API call</h2>
 <p>
@@ -266,7 +212,9 @@ In order to use an API call, you will need to know the following:
 		<li>The call method. This will usually be <b>GET</b> or <b>POST</b></li>
 		<li>The input parameters. If the call's method is POST, this will be a JSON object containing fields. If it is GET, the input parameters are found in the URL</li>
 	</ol>
-	The API is consumed by making a HTTP request to the API's URL with the appropriate input parameters or body. Usually, session information will be sent in the HTTP headers.
+	The API is consumed by making a HTTP request to the API's URL with the appropriate input parameters or body. Usually, session information will be sent in the HTTP headers in the <i>X-SessionID</i> header. 
 </p>
+<h3>Using HTTP Authorization</h3>
+By default, grape applications support HTTP Authentication (Basic). When using this authentication method, it is not necessary to make a separate call to <i>/grape/login</i>. The username and password can be included in the HTTP headers. This should only be used over TLS, as the credentials can be reverse-encoded. The "Basic" HTTP authentication scheme is defined in <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>, which transmits credentials as user ID/password pairs, encoded using base64.
 </ps_doc>
 

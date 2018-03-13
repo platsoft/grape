@@ -1,0 +1,7 @@
+{
+	"url":"/grape/save_setting",
+	"method": "POST",
+	"sqlfunc": "grape.save_setting",
+	"description": "Saves setting",
+	"roles": ["admin"]
+}

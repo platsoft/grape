@@ -1,0 +1,16 @@
+{
+	"name": "GrapeSaveAccessRole",
+	"roles": ["admin"],
+	"url": "/grape/save_access_role",
+	"sqlfunc": "grape.save_access_role",
+	"sqlfunctype": "jsonb",
+	"method": "POST",
+	"validate": "(role_name:s,assigned_roles:[s])",
+	"properties": {
+		"role_name": {"type": "text", "description": "Role name"},
+		"assigned_roles": {"type": "Array of text fields", "description": "Assigned roles"}
+	},
+	"return": {
+		"status": {"type": "text", "description": "Status code (OK or ERROR)"}
+	}
+}

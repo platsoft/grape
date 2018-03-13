@@ -1,9 +1,10 @@
 {
 	"description": "Inserts a new record into a whitelisted table",
-	"id": "/grape/insert_record",
+	"url": "/grape/insert_record",
 	"name": "GrapeInsertRecord",
 	"sqlfunc": "grape.insert_record",
-	"type": "object",
+	"method": "POST",
+	"roles": ["all"],
  	"properties": {
 		"tablename": {"type": "string", "description": "Table name to insert record into"},
 		"schema": {"type": "string", "description": "Schema name of table"},

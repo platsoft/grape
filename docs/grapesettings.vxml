@@ -1,28 +1,40 @@
 <?xml version="1.0"?>
 <ps_doc title="PlatSoft Developer Manual" titlepage="no">
-<h1>Grape settings</h1>
-Grape stores internal settings in the table <tname>grape.setting</tname>. The following functions can be used to read and manipulate these settings:
+<h1 id="sec-grape-settings">Grape settings</h1>
+<p>
+Grape stores internal settings in the table <tname>grape.setting</tname>. The following SQL functions can be used to read and manipulate these settings:
 <ol>
 	<li><i>grape.set_value (<b>name</b> TEXT, <b>value</b> TEXT)</i> - sets the value of setting <b>name</b> to <b>value</b></li>
 	<li><i>grape.get_value (<b>name</b> TEXT, <b>default_value</b> TEXT)</i> - returns the value of the setting <b>name</b>, or if it does not exist returns <b>default_value</b></li>
 	<li><i>grape.setting (<b>name</b> TEXT, <b>default_value</b> TEXT)</i> - alias for <i>grape.get_value (<b>name</b> TEXT, <b>default_value</b> TEXT)</i></li>
 </ol>
+</p>
+<p>
+	Grape keeps a local cache of settings found in the database. This can be accessed from the NodeJS environment using Grape.grape_settings.
+</p>
 
 <h2>Known Grape settings</h2>
+<p>
 <table>
 	<thead>
 		<th width="25%">Name</th><th width="50%">Description</th><th width="25%">Default value</th>
 	</thead>
-	<tr><td>hash_passwords</td><td>Indicate whether passwords in grape.user is hashed</td><td>false</td></tr>
-	<tr><td>allow_default_paths</td><td>If a path is not found and this setting is true, access will be granted</td><td>false</td></tr>
+	<tr><td>default_access_allowed</td><td>If a path is not found and this setting is true, access will be granted</td><td>false</td></tr>
+	<tr><td>authentication_url</td><td>URL for the server that will grant access to users for this system</td><td>local</td></tr>
+	<tr><td id="setting-dataimport_in_background">dataimport_in_background</td><td>Run data import processing functions in the background</td><td>false</td></tr>
+	<tr><td id="setting-data_upload_schema">data_upload_schema</td><td>Default schema for data import tables</td><td>grape</td></tr>
+	<tr><td>disable_passwords</td><td>If true, authentication will not check whether the password is correct</td><td>false</td></tr>
+	<tr><td id="setting-filter_processes">filter_processes</td><td>Apply role based filtering on processes</td><td>false</td></tr>
 	<tr><td>grape_version</td><td>Current Grape version</td><td></td></tr>
+	<tr><td>hash_passwords</td><td>Indicate whether passwords in grape.user is hashed</td><td>false</td></tr>
 	<tr><td>product_name</td><td>Name of the current system</td><td></td></tr>
 	<tr><td>product_uuid</td><td>Unique identifier for the product/system</td><td></td></tr>
 	<tr><td>product_version</td><td>Product version</td><td></td></tr>
-	<tr><td id="setting-data_upload_schema">data_upload_schema</td><td>Default schema for data import tables</td><td>grape</td></tr>
-	<tr><td>disable_passwords</td><td>If true, authentication will not check whether the password is correct</td><td>false</td></tr>
 	<tr><td>system_url</td><td>URL to access system's frontend</td><td></td></tr>
-	<tr><td id="setting-dataimport_in_background">dataimport_in_background</td><td>Run data import processing functions in the background</td><td>false</td></tr>
-	<tr><td id="setting-filter_processes">filter_processes</td><td>Apply role based filtering on processes</td><td>false</td></tr>
+	<tr><td>service_name</td><td>Local service name (for authentication)</td><td></td></tr>
+	<tr><td id="setting-user_ip_filter">user_ip_filter</td><td>Enable user IP filters</td><td>false</td></tr>
+	<tr><td id="settings-password_hashing_rounds">password_hashing_rounds</td><td></td><td>1000</td></tr>
+	<tr><td id="settings-password_hashing_algo">password_hashing_algo</td><td></td><td>sha256</td></tr>
 </table>
+</p>
 </ps_doc>

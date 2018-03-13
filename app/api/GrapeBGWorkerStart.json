@@ -1,0 +1,7 @@
+{
+	"name": "GrapeBGWorkerStart",
+	"url": "/grape/bgworker/start",
+	"method": "POST",
+	"jsfile": "bgworker_start.js",
+	"roles": ["admin"]
+}

@@ -9,6 +9,7 @@
 	<tr><td>-2</td><td align="left">Permission Denied</td></tr>
 	<tr><td>-3</td><td align="left">Invalid Input</td></tr>
 	<tr><td>-5</td><td align="left">Requested data not found</td></tr>
+	<tr><td>-98</td><td align="left">Configuration Error</td></tr>
 	<tr><td>-99</td><td align="left">Database Error</td></tr>
 </table>
 </ps_doc>

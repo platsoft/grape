@@ -1,0 +1,14 @@
+{
+	"description": "Get performance statistics",
+	"url": "/grape/perf",
+	"name": "GrapePerfStats",
+	"jsfile": "grape_perf.js",
+	"method": "GET",
+	"roles": ["all"],
+	"return": {
+		"type": "object",
+		"properties": {
+			
+		}
+	}
+}

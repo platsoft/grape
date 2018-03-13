@@ -1,0 +1,22 @@
+{
+	"description": "Delete a service",
+	"url": "/grape/service/delete",
+	"name": "GrapeDeleteService",
+	"sqlfunc": "grape.delete_service",
+	"sqlfunctype": "jsonb",
+	"method": "POST",
+	"roles": ["admin"],
+ 	"properties": {
+		"service_id": {"type": "number", "description": "Service ID"}
+	},
+	"example": {"service_id": "1"},
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"], "description": "Status indicator"},
+			"message": {"type": "string", "description": "Error message"},
+			"code": {"type": "number", "description": "Error code"},
+			"error": {"type": "json", "description": "Error details"}
+		}
+	}
+}

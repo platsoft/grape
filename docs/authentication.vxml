@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<ps_doc title="PlatSoft Grape Manual" titlepage="no" tocpage="no" description="Developer's guide to using the PlatSoft Grape Framework">
+<h1 id="sec-grape-auth">Authentication</h1>
+<p>
+	Before some resources in the system can be used, a session ID needs to be generated and sent with HTTP requests. The following steps are used to obtain a session ID for a user. This login procedure was designed to prevent any passwords from being sent over the network. 
+	<ol>
+		<li>Firstly, the client (browser) retrieves the service name of the server we are trying to log into. [GET /grape/setting/service_name]</li>
+		<li>It then sends a <link id="auth-tgtrequest">TGT (Ticket Granting Ticket) Request</link></li>
+		<li>If the reply is an ERROR with code -400, the user is prompted for a TOTP (One time pin). The TGT Request is resent with the field totp_status set to 'y'</li>
+		<li>A decryption key is generated from the user's password, and the parameters received in the TGT Reply (See <link id="auth-genkeys">Generating encryption and decryption key</link>)</li>
+		<li>The message is then decrypted, and the TGT extracted</li>
+		<li>A service ticket is requested, using the TGT, service name and username (<b>POST /grape/auth/service_request</b>)</li>
+		<li>The session ID is obtained by sending the service ticket to <b>POST /grape/login_with_ticket</b></li>
+	</ol>
+</p>
+
+<h2 id="auth-genkeys">Generating user's encryption and decryption key from password</h2>
+<p>
+The format of the field <tname>grape.user.password</tname> is built up as follows:
+<i>ALGO-ROUNDS:SALT:KEY</i>
+
+<ul>
+	<li><b>ALGO</b> defaults to <b>sha256</b>. This is controlled by the grape setting <link id="settings-password_hashing_rounds">password_hashing_rounds</link></li>
+	<li><b>ROUNDS</b> defaults to <b>1000</b></li>
+	<li><b>SALT</b> is a randomly generated character string (20 characters)</li>
+</ul>
+
+
+The key is calculated by repeating the following process <b>ROUNDS</b> times:
+<ol>
+	<li>Concatenate the result of the previous run (use an empty string on the first iteration), with the salt and user's real password</li>
+	<li>Calculate the SHA-256 (or <b>ALGO</b>) digest for the answer of (1)</li>
+	<li>Hex-encode the result from (2)</li>
+</ol>
+
+If a TOTP is used, the key hex-encoded SHA256 digest of the previously calculated key concatenated with the TOTP is used (<icode>HEX(SHA256(KEY + OTP))</icode>).
+
+Messages are then encrypted and decrypted using AES-CBC with PKCS padding.
+</p>
+
+<h2 id="auth-tgtrequest">TGT Request</h2>
+<p>This call is used to request a TGT (Ticket-granting ticket) for a user. The Encrypted TGT are extracted from the reply of this call, to be used in the issuing of service tickets</p>
+URL: <b>/grape/auth/tgt</b><br />
+Method: <b>POST</b><br />
+Fields: <ul>
+	<li><b>username</b></li>
+	<li><b>email</b></li>
+	<li><b>totp</b> If the user was asked for an OTP, this field should be set to 'y'. If it is not, and the account requires a TOTP, the server will respond with error code -400</li>
+</ul>
+<note color="red">Never send the actual OTP or password in any request!</note>
+Error codes: <ul>
+	<li><b>-2</b> NO SUCH USER</li>
+	<li><b>-3</b> USER IS CURRENTLY DISABLED</li>
+	<li><b>-4</b> PASSWORD IS NOT IN VALID FORMAT</li>
+	<li><b>-98</b> USER DOES NOT HAVE VALID GUID</li>
+	<li><b>-400</b> USER HAS TOTP ON ACCOUNT BUT TOTP INDICATOR IS NOT SET</li>
+	<li><b>-500</b> USER EXISTS ON ANOTHER SERVER</li>
+</ul>
+The TGT is encrypted using the server's own private key and can never be read by the user. The Encrypted TGT is added to the reply message, but the message itself (contained in the "data" field) is encrypted using the key generated from the password entered by the user, and the parameters received as part of the reply of this request (SALT, ROUNDS, ALGO).
+<img src="authorization.jpg" width="200" title="Reply from POST /grape/auth/tgt" />
+
+	<h2>User auth_info field</h2>
+	Fields used:
+	<ul>
+		<li>totp_status: "pending verification", "ok", </li>
+		<li>totp_key</li>
+		<li>password_reset_code</li>
+	</ul>
+
+
+</ps_doc>

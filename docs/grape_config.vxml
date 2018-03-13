@@ -1,38 +1,42 @@
 <?xml version="1.0"?>
 <ps_doc title="Grape config file" titlepage="no">
-<h1 id="grape_config_file">Grape config file</h1>
-The following options are recognized in the config passed to Grape:
+<h1 id="grape_config_file">Grape configuration files</h1>
+<p>
+	The Grape constructor accepts a list of filenames and objects.  When the Grape object is instantiated, all of these files and objects are parsed and merged into a configuration object. This config object is then passed on to the rest of the application. 
+</p>
+<p>
+	Typically, a project will have two configuration files: <ol>
+		<li>A file for local configuration (options that is specific to a site/installation), usually named "config.json"</li>
+		<li>A file for project configuration. This file might also include references to other config files, for example when Grape modules are loaded. We usually call this file "defaults.json".</li>
+	</ol>
+</p>
 
-<table>
-	<thead>
-		<th width="25%">Name</th><th width="40%">Description</th><th width="35%">Default value</th>
-	</thead>
-	<tr><td>dburi</td><td>DB connection settings</td><td></td></tr>
-	<tr><td>guest_dburi</td><td>DB connection settings for guest users</td><td></td></tr>
-	<tr><td id="conf-api_directory">api_directory</td><td>Directory (or array of directories) containing API files</td><td></td></tr>
-	<tr><td id="conf-db_definition">db_definition</td><td>Array containing directories with DB definitions. Subdirectories schema, function, view and data will be traversed when recreating a database using the setup_database tool</td><td></td></tr>
-	<tr><td>sql_dirs</td><td>Array containing directories with DB definitions. All subdirectories will be recursively read</td><td></td></tr>
-	<tr><td>pg_temp_directory</td><td>Path to a directory to which both PostgreSQL and the running node process has write access</td><td></td></tr>
-	<tr><td>port</td><td>Port on which the UI will be available</td><td></td></tr>
-	<tr><td>http_port</td><td>If this is set, and HTTPS is enabled (use_https), then a normal HTTP server wil listen on this port</td><td></td></tr>
-	<tr><td>public_directory</td><td>Directory containing public files</td><td></td></tr>
-	<tr><td id="conf-public_directories">public_directories</td><td>List of directories containing public files</td><td></td></tr>
-	<tr><td>debug</td><td></td><td>true</td></tr>
-	<tr><td>maxsockets</td><td>Controls the maximum number of sockets supported</td><td>500</td></tr>
-	<tr><td>bordeaux_config_file</td><td>Path to Bordeaux config file</td><td>__dirname + '/bordeaux_config.json'</td></tr>
-	<tr><td>document_store</td><td>Path to document store</td><td></td></tr>
-	<tr><td>use_https</td><td>Enable or disable HTTPS. sslkey and sslcert need to be set up correctly</td><td>false</td></tr>
-	<tr><td>session_management</td><td>Enable or disable session management</td><td>true</td></tr>
-	<tr><td>smtp</td><td>SMTP settings for GrapeMailer</td><td></td></tr>
-	<tr><td>server_timeout</td><td>The number of milliseconds of inactivity before a socket is presumed to have timed out</td><td>50000</td></tr>
-	<tr><td>sslkey</td><td>Path to private SSL key file</td><td>__dirname + '/cert/private.pem'</td></tr>
-	<tr><td>sslcert</td><td>Path to private SSL public certificate</td><td>__dirname + '/cert/public_nopass.pem'</td></tr>
-	<tr><td>hr_system</td><td>URL to get access to the Bordeaux system running on Savanna HR system</td><td>https://192.168.50.86:3999/</td></tr>
-	<tr><td>email_template_directory</td><td>Path to email templates (See GrapeMailer for more information)</td><td>__dirname + '/email_templates'</td></tr>
-	<tr><td>compile_js_dirs</td><td>List of directory names that will be recursed when all JS is being compiled</td><td>['pages']</td></tr>
-	<tr><td id="conf-site_name">site_name</td><td>If multiple sites are used (for example different XSL files for documents), specify the site</td><td></td></tr>
-	<tr><td id="conf-xsl_directory">xsl_directory</td><td>Directory containing XSL files for PDF generation</td><td></td></tr>
-	<tr><td id="conf-fop">fop</td><td>Path to the Apache FOP binary (for generation of PDF files)</td><td></td></tr>
-	<tr><td id="conf-ps_bgworker">ps_bgworker</td><td>Path to ps_bgworker binary</td><td></td></tr>
-</table>
+
+<p>
+	JSON config files can also have the special option "includes", an array containing paths to other config files to include. This is useful when using Grape modules.
+	An application that creates Grape like this:
+<code><green>var</green> Grape = require('<red>ps-grape</red>');
+<green>var</green> app = <green>new</green> Grape.grape( '<red>config/system.json</red>', '<red>config/locals.json</red>' );
+app.start();</code>
+will cause the application to attempt to read the files <b>config/system.json</b> and <b>config/locals.json</b>, in that order. 
+One of the files might include all the system-specific settings, for example:
+<code>{
+	"process_name": "demo",
+	"port": 9000
+}</code>
+and another, some local settings:
+<code>{
+	"dburi": "pg://user@localhost/demo",
+	"superdburi": "pg://user@localhost/postgres"
+}</code>
+While merging the fields, the config reader performs a few special tasks:
+<ol>
+	<li>If a previous field of the same name exists and is an array, the new value will be added to the array</li>
+	<li>Fields named in "directory_fields" are interpreted as paths, and any relative paths are converted to absolute paths. The directory of the current file is used as the base directory when doing this conversion</li>
+</ol>
+
+<note color="red">Configuration files with sensitive or machine-specific information should never be checked into repositories!</note>
+For a reference of commonly-used configuration settings, see <link id="grape_config_reference">Grape configuration reference</link>
+</p>
+
 </ps_doc>

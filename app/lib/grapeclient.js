@@ -2,11 +2,14 @@
 
 var events = require('events');
 var http = require('http');
+var https = require('https');
 var url = require('url');
 var util = require('util');
 var fs = require('fs');
 var querystring = require('querystring');
 var _path = require('path');
+
+var use_http = null;
 
 /**
  * @event login Emitted after successful login attempt
@@ -16,12 +19,16 @@ var _path = require('path');
 var GrapeClient = function(_o) {
 	events.EventEmitter.call(this);
 
+	this.protocol = 'http:';
 	this.session = null;
 	this.url = '';
 	this.hostname = 'localhost';
 	this.port = 3001;
 	this.username = null;
 	this.password = null;
+	this.auth = null;
+	this.default_path = null;
+	this.get_notifications = false;
 	var self = this;
 	this.self = self;
 
@@ -43,6 +50,21 @@ var GrapeClient = function(_o) {
 		}
 
 		this.parsedURL = urlObj;
+
+		if (urlObj.auth)
+			this.auth = urlObj.auth;
+		if (urlObj.path)
+			this.default_path = urlObj.path;
+		this.protocol = urlObj.protocol;
+
+		if (this.protocol == 'http:')
+			use_http = http;
+		else if (this.protocol == 'https:')
+		{
+			process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+			use_http = https;
+		}
+
 	}
 
 
@@ -50,8 +72,11 @@ var GrapeClient = function(_o) {
 		this.username = _o.username;
 	if (_o.password)
 		this.password = _o.password;
-	
+
 	this.postJSON = function(path, obj, cb) {
+		if (path == null)
+			var path = this.default_path;
+
 		var data = JSON.stringify(obj);
 
 		if (this.session)
@@ -67,10 +92,18 @@ var GrapeClient = function(_o) {
 			headers: {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json',
-				'Content-Length': Buffer.byteLength(data),
-				'X-SessionID': session_id
+				'Content-Length': Buffer.byteLength(data)
 			}
 		};
+
+		if (this.auth)
+		{
+			options.headers['Authorization'] = 'Basic ' + (new Buffer(this.auth).toString('base64'));
+		}
+		else
+		{
+			options.headers['X-SessionID'] = session_id;
+		}
 
 		var callback = function(res) {
 			res.setEncoding('utf8');
@@ -81,11 +114,11 @@ var GrapeClient = function(_o) {
 
 			res.on('end', function() {
 				var obj = JSON.parse(chunks.join(''));
-				cb(obj);
+				cb(obj, res);
 			});
 		};
 
-		var req = http.request(options, callback);
+		var req = use_http.request(options, callback);
 		req.write(data);
 		req.end();
 
@@ -93,6 +126,8 @@ var GrapeClient = function(_o) {
 	};
 
 	this.getJSON = function(path, obj, cb) {
+		if (path == null)
+			var path = this.default_path;
 		var data = querystring.stringify(obj);
 
 		if (this.session)
@@ -106,10 +141,16 @@ var GrapeClient = function(_o) {
 			method: 'GET',
 			path: path + '?' + data,
 			headers: {
-				'Accept': 'application/json',
-				'X-SessionID': session_id
+				'Accept': 'application/json'
 			}
 		};
+
+		if (this.auth)
+			options.headers['Authorization'] = 'Basic ' + (new Buffer(this.auth).toString('base64'));
+		else
+			options.headers['X-SessionID'] = session_id;
+
+		options.headers['X-Notifications'] = 1;
 
 		var callback = function(res) {
 			res.setEncoding('utf8');
@@ -120,11 +161,11 @@ var GrapeClient = function(_o) {
 
 			res.on('end', function() {
 				var obj = JSON.parse(chunks.join(''));
-				cb(obj);
+				cb(obj, res);
 			});
 		};
 
-		var req = http.request(options, callback);
+		var req = use_http.request(options, callback);
 		req.end();
 
 		return req;
@@ -153,7 +194,7 @@ var GrapeClient = function(_o) {
 		}).on('error', function(err) {
 			self.emit('error', err);
 		});
-		
+
 	};
 
 	this.logout = function() {
@@ -166,7 +207,7 @@ var GrapeClient = function(_o) {
 	/**
 	 * path is the API call url
 	 * fields is an object containing key/value pairs of field names to send through
-	 * files is an object or array of objects with the following fields: 
+	 * files is an object or array of objects with the following fields:
 	 * 	file (the path to the file)
 	 * 	fieldname (field name)
 	 *
@@ -177,8 +218,8 @@ var GrapeClient = function(_o) {
 
 		var boundary_string = Math.random().toString(36).substring(10);
 		var boundary = '--' + boundary_string;
-		
-		
+
+
 		var total_size = 0;
 
 
@@ -187,7 +228,7 @@ var GrapeClient = function(_o) {
 		{
 			var contenttype = file.contenttype || 'application/octet-stream';
 			var fieldname = file.fieldname || 'file_name';
-			var filename = _path.basename(file.file);
+			var filename = _path.basename(file.filename || file.file);
 
 			var f = {
 				path: file.file,
@@ -292,10 +333,10 @@ var GrapeClient = function(_o) {
 			});
 		};
 
-		var req = http.request(options, callback);
+		var req = use_http.request(options, callback);
 
 
-		
+
 		var pipe_count = 0;
 
 		_files.forEach(function(file) {
@@ -306,7 +347,7 @@ var GrapeClient = function(_o) {
 
 			pipe_count++;
 
-			readstream.on('end', function() { 
+			readstream.on('end', function() {
 				req.write("\r\n");
 				pipe_count--;
 				if (pipe_count <= 0)
@@ -326,4 +367,3 @@ var GrapeClient = function(_o) {
 GrapeClient.prototype.__proto__ = events.EventEmitter.prototype;
 
 exports = module.exports = GrapeClient;
-

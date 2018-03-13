@@ -1,16 +1,101 @@
 
-- email queuer
-- check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
-- static data loader keeping cache of users and sessions
+Worker Mgmt:
+	- Add ability to specify PID file path in config [E]
+	- Better/easier comms between worker processes (and perhaps remotes?)
 
-- run a grape app without a database
-- create an authentication provider
-- compiled javascript needs to be cached
+DB Management:
+	- Patch tables
+	- Run a grape app without a database
 
-- accept HTTP authentication instead of X-SessionID (look at Authorization header)
+User Management:
+	- Add functionality for managing user preferences
+	- Use user preferences to save landing page, theme?
 
-- pdf generator: pass xsl parameters to the pdfgenerator
+HTTP:
+	- Implement ETag
+	- Properly implement the HEAD method https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
+	- Implement pre-flight requests (OPTIONS) properly
+
+Authentication:
+	- SAML Integration
+	- HTTP DIGEST authentication
+
+Security:
+	- Implement HTTP Strict Transport Security (https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet)
+	- Limit HTTP Authorization to certain users only (new role basic_auth) [E]
+	- DDOS protection (rate limiter)
+	- Create a unique LDAP bind pw per incoming IP (add new service type "LDAP_CLIENT"), it must filter based on IP address
+	- Random IV should always be used. IV does not need to be secret
+
+API calls:
+	- Create API calls for stuff that is not JS files or DB functions (like PHP or python) (Implemented API calls in PHP/Python )
+	- Expose API calls in SOAP 
+
+Settings management:
+	- Make settings a tree
+	- New role 'sysadmin' used for configuration of system settings
+	- Store all settings in DB
+	- Add setting access roles
+	- Add setting categories
+	- Consolidate DB settings and Config file settings
+	- Validation settings
+	- Create a function to import/export settings from JSON
+
+Emails:
+	- Split email worker into its own grape module
+	- Add support to Email attachments
+	- Email queuer
+
+Logger:
+	- API logger (partitioned tables monthly? or write session logs to a file)
+		- settings: logging.log_api_calls_to_db
+
+Functionality to be split out into different modules:
+	- Emails
+	- PDF Generator
+
+- Theme manager
+- Create an authentication provider
+- API call to get table information (part of table_operations.sql)
+- Socket.IO integration
+- Enterprise mobility management (EMM)
+- Cache the resolving of public resources
+
+- Flow when receiving an HTTP Request:
+	1. Log it
+	2. Resolve it (see if it is API call or public file). If not found, 404 is returned. 
+	3. Perform pre-flight check to see if the action is allowed. If not, and session is invalid, send 302 and navigate to login
+	4. 
+
+Modules to write:
+- Shopping cart module
+- WebDAV
+	- Document store to Integrate with WebDAV
+- SSDP module (Broadcast/discover other grape services (using SSDP))
+- GrapeShell - provides interaction with DB from CMD for power-users
+
+WIP:
+- Make /download_public_js_files call only get files for the users role
+- Make DB available in node upon startup
 
 Done:
+- Make the resolving of resources modular (API calls and public dirs)
+- Check permissions in javascript (keep a synced permissions list from DB to check against) notifications are done here
+- Check DB connection before spawning workers
+- Change to IPC Connectivity between workers, instead of using a FIFO
 - create API calls from JSON schema
 - send email via API call
+- pdf generator: pass xsl parameters to the pdfgenerator
+- accept HTTP authentication instead of X-SessionID (look at Authorization header)
+- Loading roles from schema
+- System/Frontend integrator - HTTP server that relays api calls to connected systems. HTTP requests (API calls and HTML downloads etc) can be rewritten on the fly. /cabsav/...
+- compiled javascript needs to be cached
+- Send system notifications through HTTP headers
+- Send SMSes
+- Two-factor authentication
+- Define all API calls in JSON schema - call JS file from it
+- Static data loader keeping cache of users and sessions
+- Each process should have its own logfile
+- Make roles be able to belong to roles
+
+

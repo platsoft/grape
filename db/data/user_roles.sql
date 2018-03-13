@@ -1,17 +1,18 @@
-INSERT INTO grape.access_role (role_name) VALUES ('guest');
-INSERT INTO grape.access_path (role_name, regex_path) VALUES ('guest', '/session/new');
-INSERT INTO grape.access_path (role_name, regex_path) VALUES ('guest', '/grape/login');
-INSERT INTO grape.access_path (role_name, regex_path) VALUES ('guest', '/grape/session_ping');
-INSERT INTO grape.access_path (role_name, regex_path) VALUES ('guest', '/grape/forgot_password');
-
-INSERT INTO grape.access_role (role_name) VALUES ('all');
-INSERT INTO grape.access_path (role_name, regex_path) VALUES ('all', '/lookup/.*');
-INSERT INTO grape.access_path (role_name, regex_path) VALUES ('all', '/grape/list');
-INSERT INTO grape.access_path (role_name, regex_path) VALUES ('all', '/grape/api_list');
-INSERT INTO grape.access_path (role_name, regex_path) VALUES ('all', '/grape/logout');
+INSERT INTO grape.access_role (role_name) 
+VALUES 
+	('guest'),
+	('all'),
+	('admin'),
+	('pg_stat'), -- role that can view pg stats
+	('switch_user') -- role that can switch to another user
+ON CONFLICT (role_name) DO NOTHING;
 
 
-INSERT INTO grape.access_role (role_name) VALUES ('admin');
-INSERT INTO grape.access_path (role_name, regex_path) VALUES ('admin', '.*');
+INSERT INTO grape.access_path (role_name, regex_path, method) 
+VALUES 
+	('guest', '/download_public_js_files', '{GET}'),
+	('all', '/grape/api_list', '{GET}'),
+	('all', '/grape/logout', '{POST}'),
+	('all', '/download_public_js_files', '{GET}')
+ON CONFLICT (role_name, regex_path, method) DO NOTHING;
 
-INSERT INTO grape.user_role VALUES (grape.user_id_from_name('System'), 'admin');

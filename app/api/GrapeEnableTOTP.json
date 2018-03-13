@@ -1,0 +1,14 @@
+{
+	"description": "Enable TOTP authentication for user",
+	"url": "/grape/enable_totp",
+	"name": "GrapeEnableTOTP",
+	"jsfile": "enable_totp.js",
+	"method": "GET",
+	"roles": ["all"],
+	"return": {
+		"type": "object",
+		"properties": {
+			"qrcode": {"type": "string", "description": "Image tag containing the user's QRCode"}
+		}
+	}
+}

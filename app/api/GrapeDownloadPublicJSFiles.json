@@ -1,0 +1,8 @@
+{
+	"url": "/download_public_js_files",
+	"method": "GET",
+	"description": "Download and compile JS files from public directories",
+	"jsfile": "download_public_js_files.js",
+	"name": "GrapeDownloadPublicJSFiles",
+	"roles": ["all", "guest"]
+}

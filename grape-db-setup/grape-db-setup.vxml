@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape DB Setup" titlepage="no">
+<h1 id="sec-grape-db-setup">grape-db-setup</h1>
+<p>
+	<i>grape-db-setup</i> is a tool used to load SQL files (from other SQL files, or from manifest files) into a database. This is typically used during initial creation of a database, or when applying patches to a database. 
+</p>
+<h2>Installation</h2>
+<p>
+	This tool will be install when grape is installed globally <icode>npm install -g ps-grape</icode>
+</p>
+
+<h2>Usage</h2>
+<p>
+	<i>grape-db-setup</i> accepts the following options:
+	<ul>
+		<li>
+			<i><b>-d, --dburi [dburi]</b></i> Connection parameters for the target database. If dburi is not specified, the generated SQL will be printed to stdout.
+		</li>
+		<li>
+			<i><b>-s, --superdburi [superdburi]</b></i> Connection parameters that will be used when creating and dropping the database.
+		</li>
+		<li>
+			<i><b>-r, --drop</b></i> Drop and recreate the database before attempting to create objects.
+		</li>
+		<li>
+			<i><b>-i, --continue</b></i> Continue processing when an error occurs (by default, processing will stop).
+		</li>
+		<li>
+			<i><b>-e, --schema</b></i> The default schema to use when creating objects (defaults to "public"). If "none" is specified, search_path will not be set.
+		</li>
+		<li>
+			<i><b>-a, --readconfig [config.json]</b></i> Reads the DBURI from the file provided (the file should have the "dburi" and "superdburi" fields).
+		</li>
+	</ul>
+
+	In addition to the above mentioned options, one or more files/directories should be provided. Each of these additional arguments will be processed:
+	<ul>
+		<li>If the entry is a directory, the files in this directory will be recursively processed and <b>.sql</b> files be included in the output.</li>
+		<li>If the entry is a <b>.sql</b> file, the file will be included in the output.</li>
+		<li>If the entry is a <b>.manifest</b> file, the file will be read and lines will be processed accordingly.</li>
+	</ul>
+
+	If no database connection is defined (through --dburi or --readconfig), the output will be printed to stdout.
+</p>
+
+<h2>File order</h2>
+<p>
+When loading files from directories, <i>grape-db-setup</i> loads SQL files alphabetically. Sometimes it might be necessary to explicitly change this load order. This can be done by adding a <i>-- Require: </i> pre-processing instruction in the SQL file. The file that is required, will be loaded before the file containing the instruction. For example, having the following in an SQL file called <fname>file.sql</fname>, will force the loading of <fname>other_file.sql</fname> before <fname>file.sql</fname>.
+
+	<code>-- Require: other_file.sql</code>
+</p>
+
+<h2>Manifest files</h2>
+Manifest files contains a list of files (sql and other manifest files) and directories. If a manifest file is provided to <i>grape-db-setup</i>, each line will be processed. Manifest files can contain comments using the # character.
+
+<code><blue># Load grape files</blue>
+../node_modules/ps-grape/db/initial.manifest
+
+db/function/
+</code>
+<p>
+	Manifest files can also be used to call a function with the contents of a JSON file from disk as input.
+	<code><b>@calljson[b]</b> <red>[Function name]</red> <red>[Filename]</red></code>
+	For example:
+	<code>@calljson grape.user_save user.json</code>
+</p>
+
+Most projects will include 2 manifest files usually:
+<ul>
+	<li><i>initial.manifest</i> - To be used during initial creation of database. This file will create the database schema and tables (as exported from pgModeler).</li>
+	<li><i>functions.manifest</i> - To be used when recreating functions. This file will load all PL/pgSQL functions and views.</li>
+</ul>
+Additionally, deployments can include manifest files in order to apply changes to target live databases.
+
+</ps_doc>

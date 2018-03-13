@@ -27,6 +27,9 @@ CREATE OR REPLACE FUNCTION grape.check_process_view_permission(_process_id INTEG
 DECLARE
 	_process_role_id INTEGER;
 BEGIN
+	IF (grape.get_value('filter_processes', 'false'))::BOOLEAN = FALSE THEN
+		RETURN TRUE;
+	END IF;
 	SELECT process_role_id INTO _process_role_id 
 		FROM grape.process_role 
 		WHERE 
@@ -47,6 +50,10 @@ CREATE OR REPLACE FUNCTION grape.check_process_execute_permission(_process_id IN
 DECLARE
 	_process_role_id INTEGER;
 BEGIN
+	IF (grape.get_value('filter_processes', 'false'))::BOOLEAN = FALSE THEN
+		RETURN TRUE;
+	END IF;
+
 	SELECT process_role_id INTO _process_role_id 
 		FROM grape.process_role 
 		WHERE 
@@ -67,6 +74,9 @@ CREATE OR REPLACE FUNCTION grape.check_process_edit_permission(_process_id INTEG
 DECLARE
 	_process_role_id INTEGER;
 BEGIN
+	IF (grape.get_value('filter_processes', 'false'))::BOOLEAN = FALSE THEN
+		RETURN TRUE;
+	END IF;
 	SELECT process_role_id INTO _process_role_id 
 		FROM grape.process_role 
 		WHERE 

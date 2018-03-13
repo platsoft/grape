@@ -1,0 +1,14 @@
+{
+	"description": "Add a process to the background process queue",
+	"method": "POST",
+	"url": "/grape/process/start",
+	"name": "GrapeProcessStart",
+	"sqlfunc": "grape.start_process",
+	"roles": ["admin", "process_operator"],
+	"properties": {
+		"process_id": {"description": "ID of process to start. "},
+		"process_name": {"description": "ID of process to start. "},
+		"param": {"type": "JSON", "description": "ID of process to start. "},
+		"time_sched": {"type": "TIMESTAMPTZ", "description": "When to start the process. Defaults to NOW."}
+	}
+}

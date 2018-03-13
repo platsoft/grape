@@ -1,0 +1,7 @@
+{
+	"name": "GrapeBGWorkerStop",
+	"url": "/grape/bgworker/stop",
+	"method": "POST",
+	"jsfile": "bgworker_stop.js",
+	"roles": ["admin"]
+}

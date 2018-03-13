@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<ps_doc title="Grape User IP Filter">
+<h1 id="grape_user_ip_filter">User IP Filter</h1>
+<note>This feature was added in Grape 1.0.7</note>
+It is possible to prevent users from logging in unless the connection is made from a whitelisted IP address or network. For this to work, the Grape setting <link id="setting-user_ip_filter">user_ip_filter</link> needs to be set to <i>true</i>, and the user be added to a IP network. The tables <tname>grape.network</tname> and <tname>grape.user_network</tname> is used to define IP networks, and link users to it. The GrapeUI component <link id="grapeui">User Network Management</link> [TODO] contains pages to administrate these tables.
+</ps_doc>

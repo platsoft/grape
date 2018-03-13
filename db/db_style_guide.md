@@ -1,1 +1,0 @@
-- table names must be singular words, lowercase and  separated by underscores

@@ -6,15 +6,15 @@
 	"roles": ["admin"],
 	"type": "object",
 	"properties": {
-		"user_id": {"type": "number", "description": "User ID to update"},
-		"username": {"type": "string", "description": "Username"},
-		"fullnames": {"type": "string", "description": "Full names"},
-		"email": {"type": "string", "description": "Email address of user"},
-		"password": {"type": "string", "description": "Password"},
-		"active": {"type": "boolean", "description": "Indicate if user is active (can login)"},
+		"user_id": {"type": ["number", "null"], "description": "User ID to update"},
+		"username": {"type": ["string", "null"], "description": "Username"},
+		"fullnames": {"type": ["string", "null"], "description": "Full names"},
+		"email": {"type": ["string", "null"], "description": "Email address of user"},
+		"password": {"type": ["string", "null"], "description": "Password"},
+		"active": {"type": ["boolean", "null"], "description": "Indicate if user is active (can login)"},
 		"role_names": {"type": ["array", "string"], "items": { "type": "string" }, "description": "A list of role_names for this user" },
 		"employee_guid": {"type": ["string", "null"], "description": "Employee GUID"},
-		"employee_info": {"type": "object"}
+		"employee_info": {"type": ["object", "null"]}
 	},
 	"return": {
 		"type": "object",

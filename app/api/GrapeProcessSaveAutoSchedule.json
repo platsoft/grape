@@ -1,0 +1,12 @@
+{
+	"name": "GrapeProcessSaveAutoSchedule",
+	"description": "Adds an auto schedule to a process",
+	"url": "/grape/process/autoschedule",
+	"method": "POST",
+	"sqlfunc": "grape.save_process_auto_scheduler",
+	"validate": "(process_id:i)",
+	"roles": ["admin", "process"],
+	"properties": {
+		"process_id": {"type": "integer", "description": "Process ID to set autoscheduler for"}
+	}
+}

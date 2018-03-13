@@ -22,9 +22,8 @@ function db (_o) {
 		dburi: 'postgres@localhost:postgres', 
 		debug: false, 
 		session_id: null,
-		user_id: null,
 		username: null,
-		timeout: null
+		db_idle_timeout: null
 	};
 	if (typeof _o == 'string')
 	{
@@ -47,6 +46,12 @@ function db (_o) {
 	this.pending_channels = [];
 
 	this.connect = function() {
+
+		if (self.no_reconnect)
+		{
+			// refusing to connect if no_reconnect is set
+			return;
+		}
 		
 		if (self.state == "connecting" || self.state == "open")
 		{
@@ -68,9 +73,9 @@ function db (_o) {
 				process.exit(5);
 			}
 
-			if (self.options.user_id != null)
+			if (self.options.session_id != null)
 			{
-				self.json_call('grape.set_session_user_id', {user_id: self.options.user_id}, function(err, d) { 
+				self.json_call('grape.set_session', {session_id: self.options.session_id}, function(err, d) { 
 					self.state = 'open';
 					self.emit('connected');
 				});
@@ -91,7 +96,7 @@ function db (_o) {
 			if (msg.where && msg.where != '')
 				msg.where = ' at ' + msg.where;
 
-			var str = ['Notice ', msg.severity, ':', msg.message, msg.where].join(' ');
+			var str = ['Notice ', msg.severity, ':', msg.message].join(' ');
 			if (self.options.debug)
 				self.emit('debug', str); 
 		});
@@ -121,8 +126,7 @@ function db (_o) {
 		self.client.on('end', function() {
 			self.state = 'close';
 			self.emit('end', {
-				session_id: self.options.session_id, 
-				user_id: self.options.user_id
+				session_id: self.options.session_id
 			});
 
 			if (self.options.debug)
@@ -136,6 +140,12 @@ function db (_o) {
 
 	this.connect();
 
+	this.disconnect = function(no_reconnect) {
+		if (no_reconnect)
+			self.no_reconnect = no_reconnect;
+		self.client.end();
+	};
+
 	/*
 	 * Checks if connection can be closed.
 	 *
@@ -144,7 +154,7 @@ function db (_o) {
 	 * 	- last_query_time is more than timeout milliseconds ago
 	 */
 	this.checkTimeout = function() {
-		if (!self.options.timeout)
+		if (!self.options.db_idle_timeout)
 			return false;
 		if (!self.last_query_time)
 			return false;
@@ -158,19 +168,19 @@ function db (_o) {
 			else
 				return true; // 5 minutes has passed - kill it
 
-		if (time_since_last_query > self.options.timeout)
+		if (time_since_last_query > self.options.db_idle_timeout)
 			return true;
 
 		return false;
 	};
 
-	if (this.options.timeout)
+	if (this.options.db_idle_timeout)
 	{
 		this.timeoutTimer = setInterval(function() { 
 			if (self.checkTimeout() === true)
 			{
 				if (self.options.debug)
-					self.emit('debug', "Idle timeout on session [" + self.options.session_id + "]");
+					self.emit('debug', "Idle timeout on session [" + self.options.username + "][" + self.options.session_id + "]");
 
 				clearInterval(self.timeoutTimer);
 				self.client.end();
@@ -181,19 +191,27 @@ function db (_o) {
 	/**
 	 * Short hand function for client.query which also logs query information
 	 */
-	this.query = function(_qry_config, values, callback) {
-		if (self.options.debug)
-			self.emit('debug', 'Query ' + _qry_config + ' ' + values.join(', '));
+	this.query = function(qry_text, values, callback, qry_options) {
+		if (!values)
+			var values = [];
+		if (!qry_options)
+			var qry_options = {log: true};
 
 		self.query_counter++;
-		if (self.options.debug)
-			self.emit('debug', "Query counter QS [" + self.options.session_id + "]: " + self.query_counter);
+		if (self.options.debug && qry_options.log === true)
+		{
+			self.emit('debug', 'New query for [' + (self.options.username || '') + ':' + self.options.session_id + '] ' + qry_text + '; ' + values.join(', '));
+			if (self.query_counter > 3)
+			{
+				self.emit('debug', 'This database connection currently has ' + self.query_counter + ' pending database queries');
+			}
+		}
 
 		self.last_query_time = new Date();
 
-		var qry = self.client.query(_qry_config, values);
+		var qry = self.client.query(new pg.Query(qry_text, values));
 
-		if (callback)
+		if (callback && typeof callback == 'function')
 		{
 			qry.on('row', function(row, result) {
 				result.addRow(row);
@@ -202,16 +220,16 @@ function db (_o) {
 			qry.on('error', function(err) { 
 				self.emit('error', err);
 				self.query_counter--;
-				if (self.options.debug)
-					self.emit('debug', "Query counter QERR [" + self.options.session_id + "]: " + self.query_counter);
+				if (self.options.debug && self.query_counter > 0)
+					self.emit('debug', "Number of outstanding DB queries for [" + self.options.session_id + "]: " + self.query_counter);
 
 				callback(err, null);
 			});
 
 			qry.on('end', function(result) {
 				self.query_counter--;
-				if (self.options.debug)
-					self.emit('debug', "Query counter QEND [" + self.options.session_id + "]: " + self.query_counter);
+				if (self.options.debug && self.query_counter > 0)
+					self.emit('debug', "Number of outstanding DB queries for [" + self.options.session_id + "]: " + self.query_counter);
 				
 				callback(null, result);
 			});
@@ -232,11 +250,20 @@ function db (_o) {
 	 *
 	 */ 
 	this.json_call =  function(name, input, _callback, qry_options) {
-		qry_options = qry_options || { rows: false, single: false, jsonb: false };
-		var alias = name;
-		alias = alias.replace(/\./g, '');
-
 		var callback = _callback;
+		qry_options = qry_options || { rows: false, single: false, jsonb: false };
+		
+		if (_callback && typeof _callback == 'object')
+		{
+			_.extend(qry_options, _callback);
+			callback = null;
+		}
+
+		var alias = name;
+		if (qry_options.alias)
+			alias = qry_options.alias;
+		
+		alias = alias.replace(/\./g, '');
 
 		// response is the express response object to return the result to
 		if (!callback && qry_options.response)
@@ -258,12 +285,16 @@ function db (_o) {
 					return;
 				};
 				res.jsonp(result.rows[0][alias]);
+				if (self.options.debug)
+					self.emit('debug', 'Database response: ' + JSON.stringify(result.rows[0][alias]));
 				return;
 			}
 		}
 
 		if (self.options.debug)
-			self.emit('debug', 'DB SELECT ' + name + " ('" + JSON.stringify(input) + "'::JSON) AS " + alias);
+		{
+			self.emit('debug', '[' + self.options.username + '][' + self.options.session_id + ']' + ' SELECT ' + name + " ('" + JSON.stringify(input) + "'::JSON) AS " + alias);
+		}
 
 		var _type = 'JSON';
 		if (qry_options.jsonb && qry_options.jsonb === true)
@@ -272,15 +303,15 @@ function db (_o) {
 
 		var qry;
 		if (qry_options.rows)
-			qry = self.query(["SELECT * FROM ", name, "($1::", _type, ") AS ", alias].join(''), [JSON.stringify(input)], callback);
+			qry = self.query(["SELECT * FROM ", name, "($1::", _type, ") AS ", alias].join(''), [JSON.stringify(input)], callback, {log:false});
 		else
-			qry = self.query(["SELECT ", name, "($1::", _type, ") AS ", alias].join(''), [JSON.stringify(input)], callback);
+			qry = self.query(["SELECT ", name, "($1::", _type, ") AS ", alias].join(''), [JSON.stringify(input)], callback, {log:false});
 
 		return qry;
 	};
 	
 	this.jsonb_call =  function(name, input, _callback, qry_options) {
-		return self.json_call(name, input, _callback, _.extend(qry_options, {jsonb: true}));
+		return self.json_call(name, input, _callback, _.extend(qry_options || {}, {jsonb: true}));
 	};
 
 	this.setup_notification_listener = function() {

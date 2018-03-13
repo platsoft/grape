@@ -12,6 +12,8 @@ BEGIN
 
 	INSERT INTO grape.setting_history (setting_name, value, json_value, date_inserted, user_id) 
 		VALUES (_name, _value, NULL, NOW(), current_user_id());
+	
+	PERFORM pg_notify('reload_settings', '');
 
 	RETURN _value;
 END; $$ LANGUAGE plpgsql;
@@ -25,6 +27,19 @@ BEGIN
 		RETURN _default_value;
 	END IF;
 	RETURN _val;
+END; $$ LANGUAGE plpgsql;
+
+/**
+ * @api_usage GrapeGetSetting
+ * @api_url
+ */
+CREATE OR REPLACE FUNCTION grape.get_value(JSON) RETURNS JSON AS $$
+DECLARE
+	_val TEXT;
+BEGIN
+	SELECT value INTO _val FROM grape.setting WHERE name=($1->>'name')::TEXT AND hidden=false;
+	
+	RETURN grape.api_success(jsonb_build_object('value', _val)::JSON);
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION grape.setting(_name TEXT, _default_value TEXT) RETURNS TEXT AS $$
@@ -47,12 +62,14 @@ BEGIN
 	ELSE
 		INSERT INTO grape.setting (name, value, hidden, description, data_type)
 			VALUES (_name, _initial_value, _hidden, _description, _data_type);
+	
+		PERFORM pg_notify('reload_settings', _name);
 	END IF;
 	RETURN _initial_value;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION grape.list_settings(JSON) RETURNS JSON AS $$
-	SELECT grape.api_success('settings', json_agg(setting)) FROM grape.setting;
+	SELECT grape.api_success('settings', json_agg(setting)) FROM (SELECT * FROM grape.setting ORDER BY name) setting;
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION grape.save_setting(JSON) RETURNS JSON AS $$

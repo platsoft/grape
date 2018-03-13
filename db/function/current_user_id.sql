@@ -13,4 +13,19 @@ EXCEPTION WHEN OTHERS THEN
 	RETURN NULL; 
 END; $$ LANGUAGE plpgsql VOLATILE;
 
+CREATE OR REPLACE FUNCTION grape.current_username() RETURNS TEXT AS $$ 
+BEGIN 
+	RETURN current_setting('grape.username')::TEXT; 
+EXCEPTION WHEN OTHERS THEN 
+	RETURN NULL; 
+END; $$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION grape.current_session_id() RETURNS TEXT AS $$ 
+BEGIN 
+	RETURN current_setting('grape.session_id')::TEXT; 
+EXCEPTION WHEN OTHERS THEN 
+	RETURN NULL; 
+END; $$ LANGUAGE plpgsql VOLATILE;
+
+
 

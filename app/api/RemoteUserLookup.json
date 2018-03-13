@@ -1,0 +1,8 @@
+{
+	"name": "RemoteUserLookup",
+	"jsfile": "remote_users.js",
+	"url": "/grape/remote_user_lookup",
+	"method": "POST",
+	"roles": ["admin"],
+	"validate": "(auth_server:s,shared_key:s,search_base:s,search_text:s)"
+}

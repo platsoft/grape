@@ -1,619 +1,1031 @@
 <?xml version="1.0"?>
 <ps_doc title="Grape SQL Function Reference" titlepage="yes" tocpage="yes">
 
-<h1>Grape SQL Functions</h1>
-<h2>API result functions</h2>
-This functions deal with the creation of standardized API results (in JSON format) to be sent back to the API call. They can be found in <fname>api_result_json.sql</fname>
+	<h1>Grape SQL Functions</h1>
 
-<table style="compact">
-	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
-	<tr>
-		<td>api_result_error</td>
-		<td align="left">
-			<i>message</i> TEXT<br />
-			<i>code</i> INTEGER<br />
-			<i>info</i> JSON<br />
-		</td>
-		<td align="left">Returns a standardized JSON error object with stats as "ERROR" and the other fields populated. 
-			Example: <br /><icode font-size="8pt">{"status":"ERROR", "message":"Message", "code": -2, "error": {} }</icode>
-		</td>
-	</tr>
-	<tr>
-		<td>api_error</td>
-		<td align="left">
-			<i>message</i> TEXT<br />
-			<i>code</i> INTEGER<br />
-			<i>info</i> JSON<br />
-		</td>
-		<td align="left">Overload for api_result_error</td>
-	</tr>
-	<tr>
-		<td>api_error</td>
-		<td align="left"></td>
-		<td align="left">With no arguments, an "Unknown error" message will be generated</td>
-	</tr>
-	<tr>
-		<td>api_error_invalid_input</td>
-		<td align="left"></td>
-		<td align="left">Similar to calling <icode>api_result_error("Invalid input", -2)</icode></td>
-	</tr>
+	<!-- API RESULT FUNCTIONS -->
+	<!-- ==================== -->
+	<h2>API result functions</h2>
+	These functions deals with the creation of standardized API results (in JSON format) to be sent back to the API call. They can be found in <fname>api_result_json.sql</fname>
 
-	<tr>
-		<td>api_success</td>
-		<td align="left">
-			<i>keys</i> TEXT[]<br />
-			<i>values</i> TEXT[]<br />
-			<i>types</i> TEXT[]<br />
-		</td>
-		<td align="left">This function will construct a JSON object containing at least one field, "status" with the value "OK". The 3 input parameters should be arrays containing additional keys, values and the associated types (n/i/number/integer, j/json or nothing for text).</td>
-	</tr>
-	<tr>
-		<td>api_success</td>
-		<td align="left">
-			<i>keys</i> TEXT[]<br />
-			<i>values</i> TEXT[]<br />
-		</td>
-		<td align="left"></td>
-	</tr>
-	<tr>
-		<td>api_success</td>
-		<td align="left">
-			<i>key</i> TEXT<br />
-			<i>value</i> INTEGER<br />
-		</td>
-		<td align="left"></td>
-	</tr>
-	<tr>
-		<td>api_success</td>
-		<td align="left">
-			<i>key1</i> TEXT<br />
-			<i>value1</i> INTEGER<br />
-			<i>key2</i> TEXT<br />
-			<i>value2</i> INTEGER<br />
-		</td>
-		<td align="left">Create an API result success JSON object with two integer fields added.</td>
-	</tr>
-	<tr>
-		<td>api_success</td>
-		<td align="left">
-			<i>key</i> TEXT<br />
-			<i>value</i> JSON<br />
-		</td>
-		<td align="left">Create an API result success JSON object with a JSON field merged into the result.</td>
-	</tr>
-	<tr>
-		<td>api_success</td>
-		<td align="left">
-		</td>
-		<td align="left">Returns a API result object with a status field set to "OK".</td>
-	</tr>
+	<table style="compact">
+		<thead>
+			<th width="30%">Name</th>
+			<th width="30%">Parameters</th>
+			<th width="40%">Description</th>
+		</thead>
+		<tr>
+			<td>grape_result_type</td>
+			<td align="left">
+				<i>success</i> BOOLEAN<br />
+				<i>reason</i> TEXT<br />
+				<i>data</i> JSON<br />
+			</td>
+			<td align="left">
+				Grape result types.
+			</td>
+		</tr>
+		<tr>
+			<td>api_result_error</td>
+			<td align="left">
+				<i>message</i> TEXT<br />
+				<i>code</i> INTEGER<br />
+				<i>error</i> JSON<br />
+			</td>
+			<td align="left">Returns a standardized JSON error object with status as "ERROR" and the other fields populated. 
+				Example: <br /><icode>{"status": "ERROR", "message": "Message", "code": -2, "error": {} }</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>api_error</td>
+			<td align="left">
+				<i>message</i> TEXT<br />
+				<i>code</i> INTEGER<br />
+				<i>error</i> JSON<br />
+			</td>
+			<td align="left">Overload for <i>api_result_error</i>.</td>
+		</tr>
+		<tr>
+			<td>api_error</td>
+			<td align="left"></td>
+			<td align="left">
+				With no arguments, an "Unknown error" message will be generated.
+				Example: <br /><icode>{"Unknown error", -1}</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>api_error_invalid_input</td>
+			<td align="left">
+				<i>info</i> JSON
+			</td>
+			<td align="left">
+				Similar to calling <icode>api_result_error("Invalid input", -3)</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>api_error_invalid_field</td>
+			<td align="left">
+				<i>name</i> TEXT
+			</td>
+			<td align="left">
+				Similar to calling <icode>api_result_error("Missing or invalid field: ", -3)</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>api_error_permission_denied</td>
+			<td align="left">
+				<i>info</i> JSON
+			</td>
+			<td align="left">
+				Similar to calling <icode>api_result_error("Permission denied", -2)</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>api_error_data_not_found</td>
+			<td align="left">
+				<i>info</i> JSON
+			</td>
+			<td align="left">
+				Similar to calling <icode>api_result_error("Data not found", -5)</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>api_error_invalid_data_state</td>
+			<td align="left">
+				<i>info</i> JSON
+			</td>
+			<td align="left">
+				Similar to calling <icode>api_result_error("The operation requested could not be performed on the data because the data is not in a valid state", -6)</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>api_success</td>
+			<td align="left">
+				<i>keys</i> TEXT[]<br />
+				<i>values</i> TEXT[]<br />
+				<i>types</i> TEXT[]<br />
+			</td>
+			<td align="left">
+				This function will construct a JSON object containing at least one field, "status" with the value "OK". The 3 input parameters should be arrays containing additional keys, values and the associated types <i>(n/i/number/integer, j/json or nothing for text)</i>.
+			</td>
+		</tr>
+		<tr>
+			<td>api_success</td>
+			<td align="left">
+				<i>keys</i> TEXT<br />
+				<i>values</i> INTEGER<br />
+			</td>
+			<td align="left"></td>
+		</tr>
+		<tr>
+			<td>api_success</td>
+			<td align="left">
+				<i>key1</i> TEXT<br />
+				<i>val1</i> INTEGER<br />
+			</td>
+			<td align="left">
+				Create an API result success JSON object with one integer field added.
+			</td>
+		</tr>
+		<tr>
+			<td>api_success</td>
+			<td align="left">
+				<i>key1</i> TEXT<br />
+				<i>val1</i> INTEGER<br />
+				<i>key2</i> TEXT<br />
+				<i>val2</i> INTEGER<br />
+			</td>
+			<td align="left">
+				Create an API result success JSON object with two integer fields added.
+			</td>
+		</tr>
+		<tr>
+			<td>api_success</td>
+			<td align="left">
+				<i>key1</i> TEXT<br />
+				<i>val1</i> JSON<br />
+			</td>
+			<td align="left">
+				Create an API result success JSON object with a JSON field merged into the result.
+			</td>
+		</tr>
+		<tr>
+			<td>api_success</td>
+			<td align="left"></td>
+			<td align="left">
+				Returns a API result object with a "status" field set to "OK".
+			</td>
+		</tr>
+		<tr>
+			<td>api_success_if_not_null</td>
+			<td align="left">
+				<i>fieldname</i> TEXT<br />
+				<i>data</i> JSON<br />
+			</td>
+			<td align="left">
+				Returns success message when data is <i>NOT NULL</i>, otherwise it returns <icode>grape.api_error_data_not_found()</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>api_result</td>
+			<td align="left">
+				<i>res</i><red> grape_result_type</red><br />
+			</td>
+			<td align="left">
+				Returns error message similar to calling <icode>api_error(res.reason, -1)</icode> if false, otherwise returns success message similar to calling <icode>api_success("data", res.data)</icode>
+			</td>
+		</tr>
+
+		<!--
+		<tr>
+			<td>array_lowercase</td>
+			<td align="left"><i></i> <br /></td>
+			<td align="left"></td>
+		</tr>
+		-->
+
+	</table>
 
 
+	<!-- DATA IMPORTING FUNCTIONS -->
+	<!-- ======================== -->
+	<h2>Data importing functions</h2>
+	These functions deals with how data importing is handled. They can be found in <fname>data_import.sql</fname>
+
+	<table style="compact">
+		<thead>
+			<th width="30%">Name</th>
+			<th width="30%">Parameters</th>
+			<th width="40%">Description</th>
+		</thead>
+		<tr>
+			<td>upsert_data_import_type</td>
+			<td align="left">
+				<i>processing_function</i> TEXT<br />
+				<i>short_description</i> TEXT<br />
+				<i>file_format_info</i> TEXT<br />
+				<i>function_schema</i> TEXT<br />
+				<i>param_definition</i> JSON<br />
+			</td>
+			<td align="left">
+				Upsert data import types. If processing_function name is the same, all other values are updated.
+			</td>
+		</tr>
+		<tr>
+			<td>estimate_datatype</td>
+			<td align="left"></td>
+			<td align="left">
+				Overloaded function to estimate the potential datatype of a text value. Function returns the data_type. Example:<br />
+				<icode>{"NULL", "INTEGER", "NUMERIC", "DATE", "TIMESTAMP", "TIMESTAMPTZ"}</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_insert</td>
+			<td align="left"></td>
+			<td align="left">
+				API function to insert a data_import entry. Returns success message similiar to calling <icode>api_success("data_import_id")</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_delete</td>
+			<td align="left"></td>
+			<td align="left">
+				API function to delete a data_import entry. Returns success message similiar to calling <icode>api_success()</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_row_insert</td>
+			<td align="left"></td>
+			<td align="left">
+				API function to insert a row of JSON into data_import_row. Required field data_import_id must be in the JSON data.
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_done</td>
+			<td align="left"></td>
+			<td align="left">
+				API function to notify server that insertion of all the rows has been completed and timestamp this completion. Returns message similiar to calling <icode>api_success("data_import_id")</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_process</td>
+			<td align="left">
+				<i>data_import_id</i> INTEGER<br />
+			</td>
+			<td align="left">
+				Internal function to process data_import data. Returns message based on the following data import status:<br />
+				<icode>
+					0 - Empty<br />
+					1 - Populated<br />
+					2 - Process started<br />
+					3 - Some not processed<br />
+					4 - Processed<br />
+				</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_process</td>
+			<td align="left"></td>
+			<td align="left">
+				API function to process data_import data. Calls internal process function. Returns error message similar to calling <icode>api_error("data_import_process failed", -1)</icode> if false, otherwise returns success message similar to calling <icode>api_success()</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_test_table_insert</td>
+			<td align="left"></td>
+			<td align="left">
+				API function to create a test table from data_imports data.
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_test_table_drop</td>
+			<td align="left"></td>
+			<td align="left">
+				API function to drop a test table from data_imports data.
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_build_result</td>
+			<td align="left">
+				<i>status</i> TEXT
+			</td>
+			<td align="left">
+				Builds an object in the form of <icode>{"result": {"status": "OK"}</icode> for returning from data import functions.
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_build_result</td>
+			<td align="left">
+				<i>status</i> TEXT<br />
+				<i>shared_data</i> JSON<br />
+			</td>
+			<td align="left">
+				Builds a object in the form of <icode>{"result": {"status": "OK"}, "shared_data": {}}</icode> for returning from data import functions.
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_build_result</td>
+			<td align="left">
+				<i>status</i> TEXT<br />
+				<i>shared_data</i> JSONB<br />
+			</td>
+			<td align="left">
+				Builds a object in the form of <icode>{"result": {"status": "OK"}, "shared_data": {}}</icode> for returning from data import functions.
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_reset</td>
+			<td align="left">
+				<i>data_import_id</i> INTEGER<br />
+			</td>
+			<td align="left">
+				Resets data_import_id's data import status to 1, if populated.
+			</td>
+		</tr>
+		<tr>
+			<td>data_import_test_table_alter</td>
+			<td align="left"></td>
+			<td align="left">
+				API function that returns message similiar to calling <icode>api_success()</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>dimport_generic</td>
+			<td align="left">
+				<i>data_import</i><red> grape.data_import</red><br />
+				<i>args</i> JSONB<br />
+			</td>
+			<td align="left">
+				Example dimport function that does not process the data in any way and allows for a way to create a test table with data that does not need to be processed. Returns message similiar to calling <icode>data_import_build_result("OK")</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>upsert_data_import_type</td>
+			<td align="left"></td>
+			<td align="left">
+				This function does not actually process the data in any way, but is a way to allow you to import data with which you may create test tables in grape.
+			</td>
+		</tr>
+		<tr>
+			<td>proc_process_data_import</td>
+			<td align="left"></td>
+			<td align="left">
+				Process to process data import files in the background via ps_bgworker.
+			</td>
+		</tr>
+
+		<!--
+		<tr>
+			<td>data_upload_done</td>
+			<td align="left">
+			</td>
+			<td align="left">
+			</td>
+		</tr>
+		-->
+
+		<!--
+		<tr>
+			<td>array_lowercase</td>
+			<td align="left"><i></i> <br /></td>
+			<td align="left"></td>
+		</tr>
+		-->
+
+	</table>
 
 
+	<!-- JSON HELPERS -->
+	<!-- ============ -->
+	<h2>JSON helpers</h2>
+	These functions are JSON helpers and can be found in several files:
+	<fname>
+		json2xml.sql, json_diff.sql, json_to_composite_type_text.sql, cast_json_array_to_int_array.sql, cast_json_array_to_text_array.sql
+	</fname>
 
-
-
-	<!--
-	<tr>
-		<td>array_lowercase</td>
-		<td align="left"><i></i> <br /></td>
-		<td align="left"></td>
-	</tr>
-	-->
-
-
-</table>
-
-
-
-
-<h2>Data importing functions</h2>
-<table style="compact">
-	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
-	<tr>
-		<td>data_import_insert</td>
-		<td align="left">
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-	<tr>
-		<td>data_upload_done</td>
-		<td align="left">
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-	<tr>
-		<td>data_import_row_insert</td>
-		<td align="left">
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-
-
-
-	<!--
-	<tr>
-		<td>array_lowercase</td>
-		<td align="left"><i></i> <br /></td>
-		<td align="left"></td>
-	</tr>
-	-->
-
-
-</table>
-
-<h2>JSON helpers</h2>
-
-<table style="compact">
-	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
-	<tr>
-		<td>json2xml</td>
-		<td align="left">
-			<i>data</i> JSON<br />
-			<i>root</i> TEXT<br />
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-
-	<tr>
-		<td>json_diff</td>
-		<td align="left">
-			<i>old</i> JSONB<br />
-			<i>new</i> JSONB<br />
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-
-	<tr>
-		<td>json_diff </td>
-		<td align="left">
-			<i>old</i> JSON<br />
-			<i>new</i> JSON<br />
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-
-	<tr>
-		<td>json_object_diff</td>
-		<td align="left">
-			<i>old</i> JSONB<br />
-			<i>new</i> JSONB<br />
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-
-	<tr>
-		<td>json_array_diff</td>
-		<td align="left">
-			<i>old</i> JSONB<br />
-			<i>new</i> JSONB<br />
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-
-	<tr>
-		<td>json_to_composite_type_text</td>
-		<td align="left">
-			<i>target_schema</i> TEXT<br />
-			<i>target_type</i> TEXT<br />
-			<i>data</i> JSON<br />
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-	<tr>
-		<td>json_to_composite_type</td>
-		<td align="left">
-			<i>target_schema</i> TEXT<br />
-			<i>target_type</i> TEXT<br />
-			<i>data</i> JSON<br />
-		</td>
-		<td align="left">
-			This function will populate a custom type from a JSON object. Multi-level nested objects are supported.
-		</td>
-	</tr>
-	<tr>
-		<td>cast_json_array_to_int_array</td>
-		<td align="left">
-			<i>JSON</i> data<br />
-		</td>
-		<td align="left">
-			Provides an implicit cast from JSON to INT[] (<fname>cast_json_array_to_int_array.sql</fname>).
-			<code lang="sql">
-# select cast_json_array_to_int_array('[1,2,3]'::JSON);
+	<table style="compact">
+		<thead>
+			<th width="20%">Name</th>
+			<th width="20%">Parameters</th>
+			<th width="60%">Description</th>
+		</thead>
+		<tr>
+			<td>json2xml</td>
+			<td align="left">
+				<i>data</i> JSON<br />
+				<i>root</i> TEXT<br />
+			</td>
+			<td align="left">
+				Converts JSON object to xml.
+			</td>
+		</tr>
+		<tr>
+			<td>json_diff</td>
+			<td align="left">
+				<i>old</i> JSONB<br />
+				<i>new</i> JSONB<br />
+			</td>
+			<td align="left">
+				Compares two JSON objects and returns an object containing fields that are different between the two objects. If a field exists in <b>j_old</b>, but not in <b>j_new</b>, it is not included in the results. If a field exists in <b>j_new</b>, but not in <b>j_old</b>, it is included in the results. If a field is different, <b>j_new</b> is chosen.
+			</td>
+		</tr>
+		<tr>
+			<td>json_diff </td>
+			<td align="left">
+				<i>old</i> JSON<br />
+				<i>new</i> JSON<br />
+			</td>
+			<td align="left">
+			</td>
+		</tr>
+		<tr>
+			<td>json_object_diff</td>
+			<td align="left">
+				<i>old</i> JSONB<br />
+				<i>new</i> JSONB<br />
+			</td>
+			<td align="left">
+				Compares two JSON objects and return any values that exists in <b>_new</b> but not in <b>_old</b>.
+			</td>
+		</tr>
+		<tr>
+			<td>json_array_diff</td>
+			<td align="left">
+				<i>old</i> JSONB<br />
+				<i>new</i> JSONB<br />
+			</td>
+			<td align="left">
+				Compare two JSON arrays and return any values that exists in <b>_new</b> but not in <b>_old</b>.
+			</td>
+		</tr>
+		<tr>
+			<td>json_to_composite_type_text</td>
+			<td align="left">
+				<i>target_schema</i> TEXT<br />
+				<i>target_type</i> TEXT<br />
+				<i>data</i> JSON<br />
+			</td>
+			<td align="left">
+				Converts JSON object to composite type text.
+			</td>
+		</tr>
+		<tr>
+			<td>json_to_composite_type</td>
+			<td align="left">
+				<i>target_schema</i> TEXT<br />
+				<i>target_type</i> TEXT<br />
+				<i>data</i> JSON<br />
+			</td>
+			<td align="left">
+				This function will populate a custom type from a JSON object. Multi-level nested objects are supported.
+			</td>
+		</tr>
+		<tr>
+			<td>cast_json_array_to_int_array</td>
+			<td align="left">
+				<i>JSON</i> data<br />
+			</td>
+			<td align="left">
+				Provides an implicit cast from JSON to <i>INT[]</i> (<fname>cast_json_array_to_int_array.sql</fname>).
+				<code lang="sql">
+#select cast_json_array_to_int_array('[1,2,3]'::JSON);
 cast_json_array_to_int_array 
 ------------------------------
-{1,2,3}
-
-</code>
-
-		</td>
-	</tr>
-	<tr>
-		<td>cast_json_array_to_text_array</td>
-		<td align="left">
-			<i>JSON</i> data<br />
-		</td>
-		<td align="left">
-			Provides an implicit cast from JSON to TEXT[] (<fname>cast_json_array_to_text_array.sql</fname>).
-		</td>
-	</tr>
-
-</table>
-
-<h2 id="sql-grape.list_query">List query</h2>
-<p>
-Grape's list_query call provides an easy way to retrieve rows from a table. Before the contents of a table can be retrieved this way it needs to be added to a whitelist. This functions can be found in <fname>list_query.sql</fname>. The built-in API call to access this function is <b>/grape/list</b>. Access control is enforced on tables retrieved.
-</p>
-<p>
-	The <b>grape.list_query</b> function returns rows from a database table. The following input fields are recognized:
-<ul>
-	<li>tablename</li>
-	<li>schema (optional) TEXT</li>
-	<li>sortfield (optional) TEXT</li>
-	<li>sortorder (optional) TEXT DESC</li>
-	<li>limit (optional) INTEGER default 50</li>
-	<li>offset (optional) INTEGER default 0</li>
-	<li>filter (optional) array of fields:</li>
-	<li>field TEXT</li>
-	<li>operand TEXT of '=', '#x003E;', '#x003C;', '#x003E;=', '#x003C;=', 'LIKE', 'ILIKE', 'IS_NULL', 'IS_NOT_NULL', 'IN'</li>
-	<li>value text</li>
-</ul>
-</p>
-
-The following functions deals with the access control:
-<table style="compact">
-	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
-	<tr>
-		<td>grape.list_query_whitelist_add</td>
-		<td align="left">
-			<i>schema</i> TEXT<br />
-			<i>tables</i> TEXT[] - A list of table names to allow<br />
-			<i>roles</i> TEXT[] - A list of roles to allow<br />
-		</td>
-		<td align="left">
-			Adds tables to the whitelist for use in grape list_query. Users must be in _roles to be able to access the data in the table.
-		</td>
-	</tr>
-	<tr>
-		<td>grape.list_query_whitelist_delete</td>
-		<td align="left">
-			<i>schema</i> TEXT<br />
-			<i>tablename</i> TEXT - A table to remove from allow<br />
-		</td>
-		<td align="left">
-			Removes a table from the whitelist.
-		</td>
-	</tr>
-
-</table>
-
-<h2 id="grape_table_operations">Table Operations</h2>
-<p>
-Grape provides 3 API calls to perform generic DML (INSERT, UPDATE and DELETE) on whitelisted tables.
-</p>
-<p>
-The API calls are:
-<ul>
-	<li><link id="api-GrapeInsertRecord">GrapeInsertRecord</link></li>
-	<li><link id="api-GrapeUpdateRecord">GrapeUpdateRecord</link></li>
-	<li><link id="api-GrapeDeleteRecord">GrapeDeleteRecord</link></li>
-</ul>
-</p>
-<p>
-	The SQL function used to whitelist tables, are <i>grape.table_operation_whitelist_add(schema TEXT, tables TEXT[], roles TEXT[], allowed_operation TEXT)</i>.
-	<ul>
-		<li><i>schema</i> - The schema of the table</li>
-		<li><i>tables</i> - An array of table names to add</li>
-		<li><i>roles</i> - An array of role names to allow</li>
-		<li><i>allowed_operation</i> - The operation to allow (INSERT, UPDATE or DELETE)</li>
-	</ul>
-</p>
-
-<h2>Reports</h2>
-This functions can be found in <fname>reports.sql</fname>.
-
-<table style="compact">
-	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
-	<tr>
-		<td>save_report</td>
-		<td align="left">
-			<i>settings</i> JSON<br />
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-
-	<tr>
-		<td>execute_report</td>
-		<td align="left">
-			<i>report_id</i> INTEGER<br />
-			<i>parameters</i> JSON<br />
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-
-	<tr>
-		<td>execute_report</td>
-		<td align="left">
-			<i>parameters</i> JSON<br />
-		</td>
-		<td align="left">
-		</td>
-	</tr>
-
-	
-</table>
+{1,2,3}</code>
+			</td>
+		</tr>
+		<tr>
+			<td>cast_json_array_to_text_array</td>
+			<td align="left">
+				<i>JSON</i> data<br />
+			</td>
+			<td align="left">
+				Provides an implicit cast from JSON to <i>TEXT[]</i> (<fname>cast_json_array_to_text_array.sql</fname>).
+				<code lang="sql">
+#select cast_json_array_to_text_array('[aa,bb,cc]'::JSON);
+cast_json_array_to_text_array
+------------------------------
+{"aa","bb","cc"}</code>
+			</td>
+		</tr>
+	</table>
 
 
+	<!-- LIST QUERY -->
+	<!-- ========== -->
+	<h2 id="sql-grape.list_query">List query</h2>
 
-<h2>User related functions</h2>
-
-<table style="compact">
-	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
-	<tr>
-		<td id="sql-grape.user_save">grape.user_save</td>
-		<td align="left">
-			JSON containing: <br />
-			<i>user_id INTEGER</i> <br />
-			<i>username TEXT</i><br />
-			<i>password TEXT</i><br />
-			<i>email TEXT</i><br />
-			<i>fullnames TEXT</i><br />
-			<i>active BOOLEAN optional</i><br />
-			<i>role_names TEXT[]</i><br />
-			<i>employee_guid</i> GUID<br />
-		</td>
-		<td align="left">
-			Save a user field, or create a new user. <b>API call: <i>POST /grape/user/save</i></b>
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.username</td>
-		<td align="left">
-			<i>user_id</i> INTEGER<br />
-		</td>
-		<td align="left">
-			Returns the username for a user ID, or NULL if it does not exist.
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.user_id_from_name</td>
-		<td align="left">
-			<i>username</i> TEXT<br />
-		</td>
-		<td align="left">
-			Returns the user ID for a username, or NULL if it does not exist.
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.user_id_from_fullnames</td>
-		<td align="left">
-			<i>fullnames</i> TEXT<br />
-		</td>
-		<td align="left">
-			Returns the user ID for a user found by fullnames, or NULL if it does not exist.
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.username_from_fullnames</td>
-		<td align="left">
-			<i>fullnames</i> TEXT<br />
-		</td>
-		<td align="left">
-			Returns the username for a user found by fullnames, or NULL if it does not exist.
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.hash_user_password</td>
-		<td align="left">
-			<i>user_id</i> INTEGER<br />
-		</td>
-		<td align="left">
-			Hashes a password for user and updates the user table afterwards.
-			<ul>
-				<li>If the hash length is the same as the password length and the password starts with a '$' sign, it is assumed that the password is already hashed and the update is ignored (return -1)</li>
-				<li>If grape.setting  passwords_hashed isn't true, nothing is done (return -2)</li>
-				<li>On success 0 is returned</li>
-			</ul>
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.hash_user_password</td>
-		<td align="left">
-			<i>username</i> TEXT<br />
-		</td>
-		<td align="left">
-			Overload for <i>grape.hash_user_password (user_id INTEGER)</i>
-		</td>
-	</tr>
-</table>
-
-<h2>Session related functions</h2>
-
-<table style="compact">
-	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
-	<tr>
-		<td>grape.current_user_roles</td>
-		<td align="left">
-		</td>
-		<td align="left">
-			Returns a list of all roles the current user belongs to.
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.current_user_id</td>
-		<td align="left">
-		</td>
-		<td align="left">
-			Returns the integer value of the current session's "grape.user_id" setting. This is typically set with grape before any API call is called
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.check_session_access</td>
-		<td align="left">
-			<i>session_id</i> TEXT - Session ID to check for<br />
-			<i>check_path</i> TEXT - Access path to check<br />
-			<i>check_method</i> TEXT - HTTP method to check (GET/POST)<br />
-		</td>
-		<td align="left">
-			This function performs access control on an API call (based on the path and session ID). It is automatically called by the express
-			app before any API call is performed:
-			<ol>
-				<li>Check that the path has access control on it. If it cannot be found, the grape setting default_access_allowed is checked, and if
-					true, access will be granted. If not, it will be denied and code 9 will be returned</li>
-			<li>
-			If the path has a role 'guest' granted access to it, everyone will be allowed (even if the session is invalid)
+	<p>
+		Grape's list_query call provides an easy way to retrieve rows from a table. Before the contents of a table can be retrieved this way it needs to be added to a whitelist. This functions can be found in <fname>list_query.sql</fname>. The built-in API call to access this function is <b>/grape/list</b>. Access control is enforced on tables retrieved.
+	</p>
+	<p>
+		The <b>grape.list_query</b> function returns rows from a database table. The following input fields are recognized:
+		<ul>
+			<li>tablename TEXT</li>
+			<li>schema (optional) TEXT</li>
+			<li>sortfield (optional) TEXT</li>
+			<li>sortorder (optional) TEXT DESC</li>
+			<li>limit (optional) INTEGER (DEFAULT 50)</li>
+			<li>offset (optional) INTEGER (DEFAULT 0)</li>
+			<li>filter (optional) array of fields:
+				<ul>
+					<li>field TEXT</li>
+					<li>operand TEXT of '=', '>', '&amp;lt;', '>=', '&amp;lt;=', 'LIKE', 'ILIKE', 'IS_NULL', 'IS_NOT_NULL', 'IN'</li>
+					<li>value TEXT</li>
+				</ul>
 			</li>
-			<li>
-			If the session is invalid, access will be denied and code 1 returned
-			</li>
-			<li>
-			If the path has a role 'all', only, and all, valid sessions will be granted access
-			</li>
-			<li>
-			If the user has access granted to the access path's role, access is granted
-			</li>
-			<li>
-			If all the above fails, access is denied with code 2
-			</li>
-		</ol>
-		</td>
-	</tr>
+		</ul>
+	</p>
 
-	<tr>
-		<td>grape.session_insert</td>
-		<td align="left">
-			<i></i> <br />
-		</td>
-		<td align="left">
-			
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.logout</td>
-		<td align="left">
-			<i>JSON</i> JSON containing session_id<br />
-		</td>
-		<td align="left">
-			
-			<b>API call <i>/grape/logout</i></b>
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.session_ping</td>
-		<td align="left">
-			<i>JSON</i> JSON containing session_id<br />
-		</td>
-		<td align="left">
-			Checks validity of a session and returns a JSON object containing the session's username, user_id, fullnames, email, GUID and user_roles. <b>API Call <i>/grape/session_ping</i></b>
-		</td>
-	</tr>
-	<tr>
-		<td>grape.session_insert</td>
-		<td align="left">
-			<i>username</i> TEXT<br />
-			<i>password</i> TEXT<br />
-		</td>
-		<td align="left">
-			This function inserts a new session for a valid username and password provided.
-			<b>API call <i>/grape/logout</i></b>
-		</td>
-	</tr>
-	<tr>
-		<td>grape.</td>
-		<td align="left">
-			<i></i> <br />
-		</td>
-		<td align="left">
-			
-		</td>
-	</tr>
-
-	<tr>
-		<td>grape.</td>
-		<td align="left">
-			<i></i> <br />
-		</td>
-		<td align="left">
-			
-		</td>
-	</tr>
+	The following functions deals with the access control:
+	<table style="compact">
+		<thead>
+			<th width="30%">Name</th>
+			<th width="30%">Parameters</th>
+			<th width="40%">Description</th>
+		</thead>
+		<tr>
+			<td>grape.list_query_whitelist_add</td>
+			<td align="left">
+				<i>schema</i> TEXT<br />
+				<i>tables</i> TEXT[] - A list of table names to allow<br />
+				<i>roles</i> TEXT[] - A list of roles to allow<br />
+			</td>
+			<td align="left">
+				Adds tables to the whitelist for use in grape list_query. Users must be in _roles to be able to access the data in the table.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.list_query_whitelist_delete</td>
+			<td align="left">
+				<i>schema</i> TEXT<br />
+				<i>tablename</i> TEXT - A table to remove from allow<br />
+			</td>
+			<td align="left">
+				Removes a table from the whitelist.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.list_query_check_permission</td>
+			<td align="left">
+				<i>schema</i> TEXT<br />
+				<i>tablename</i> TEXT<br />
+			</td>
+			<td align="left">
+				Check permission on a table for current user.
+			</td>
+		</tr>
+	</table>
 
 
-</table>
+	<!-- TABLE OPERATIONS -->
+	<!-- ================ -->
+	<h2 id="grape_table_operations">Table Operations</h2>
+
+	<p>
+		Grape provides three API calls to perform generic DML (INSERT, UPDATE and DELETE) on whitelisted tables.
+	</p>
+	<p>
+		The API calls are:
+		<ul>
+			<li><link id="api-GrapeInsertRecord">GrapeInsertRecord</link></li>
+			<li><link id="api-GrapeUpdateRecord">GrapeUpdateRecord</link></li>
+			<li><link id="api-GrapeDeleteRecord">GrapeDeleteRecord</link></li>
+		</ul>
+	</p>
+	<p>
+		The SQL function used to whitelist tables, is:<br />
+		<icode>
+			grape.table_operation_whitelist_add(schema TEXT, tables TEXT[], roles TEXT[], allowed_operation TEXT)
+		</icode>.
+		<ul>
+			<li><i>schema</i> - The schema of the table</li>
+			<li><i>tables</i> - An array of table names to add</li>
+			<li><i>roles</i> - An array of role names to allow</li>
+			<li><i>allowed_operation</i> - The operation to allow (INSERT, UPDATE or DELETE)</li>
+		</ul>
+	</p>
 
 
+	<!-- REPORTS -->
+	<!-- ======= -->
+	<h2>Reports</h2>
+	These functions can be found in <fname>reports.sql</fname>
 
-<h2>Other utility functions</h2>
-<table style="compact">
-	<thead><th width="20%">Name</th><th width="20%">Parameters</th><th width="60%">Description</th></thead>
-	<tr>
-		<td>month_diff</td>
-		<td align="left"><i>_d1</i> DATE<br /><i>_d2</i> DATE</td>
-		<td align="left">Returns an integer containing the number of months between the two dates provided. If the first parameter is after the second (higher date), the return value will be negative.</td>
-	</tr>
-	<tr>
-		<td>set_value</td>
-		<td align="left"><i>_name</i> TEXT<br /><i>_value</i> TEXT</td>
-		<td align="left">Sets the value (insert if new, replace if exist) in the key-value pair table <tname>grape.setting</tname> returning _value.</td>
-	</tr>
-	<tr>
-		<td>get_value</td>
-		<td align="left"><i>_name</i> TEXT<br /><i>_default_value</i> TEXT</td>
-		<td align="left">Gets the value for setting <i>_name</i>, and if not found it will return <i>_default_value</i>. Defined in <fname>setting.sql</fname></td>
-	</tr>
-	<tr>
-		<td>generate_uuid</td>
-		<td align="left"></td>
-		<td align="left">Generates a unique UUID (for example b1086d35-e973-4356-3adc-2eeb6f4963e2). Defined in <fname>uuid.sql</fname></td>
-	</tr>
-	<tr>
-		<td>array_lowercase</td>
-		<td align="left">TEXT[]</td>
-		<td align="left"></td>
-	</tr>
-	<tr>
-		<td>clean_telephone_number</td>
-		<td align="left"><i>_tel</i> TEXT<br /></td>
-		<td align="left"></td>
-	</tr>
-	<tr>
-		<td>random_string</td>
-		<td align="left"><i>length</i> INTEGER<br /></td>
-		<td align="left">Generates a random string of <i>length</i> length. Defined in <fname>random_string.sql</fname></td>
-	</tr>
+	<table style="compact">
+		<thead>
+			<th width="30%">Name</th>
+			<th width="30%">Parameters</th>
+			<th width="40%">Description</th>
+		</thead>
+		<tr>
+			<td>save_report</td>
+			<td align="left">
+				<i>report_id</i> INTEGER<br />
+				<i>name</i> TEXT<br />
+				<i>description</i> TEXT<br />
+				<i>function_schema</i> TEXT<br />
+				<i>function_name</i> TEXT<br />
+				<i>input_fields</i> JSON<br />
+			</td>
+			<td align="left">
+			</td>
+		</tr>
+		<tr>
+			<td>save_report</td>
+			<td align="left">
+				<i>name</i> TEXT<br />
+				<i>function_name</i> TEXT<br />
+				<i>description</i> TEXT<br />
+				<i>input_fields</i> JSON<br />
+			</td>
+			<td align="left">
+			</td>
+		</tr>
+		<tr>
+			<td>save_report</td>
+			<td align="left">
+				<i>settings</i> JSON<br />
+			</td>
+			<td align="left">
+			</td>
+		</tr>
+		<tr>
+			<td>execute_report</td>
+			<td align="left">
+				<i>report_id</i> INTEGER<br />
+				<i>parameters</i> JSON<br />
+			</td>
+			<td align="left">
+			</td>
+		</tr>
+		<tr>
+			<td>execute_report</td>
+			<td align="left">
+				<i>parameters</i> JSON<br />
+			</td>
+			<td align="left">
+				JSON object needs name field (with report name) and optional JSON parameters.
+			</td>
+		</tr>
+		<tr>
+			<td>execute_report_to_file</td>
+			<td align="left">
+				<i>report_id</i> INTEGER<br />
+				<i>reports_executed_id</i> INTEGER<br />
+				<i>parameters</i> JSON<br />
+			</td>
+			<td align="left">
+				Function to convert a report to a file.
+			</td>
+		</tr>
+	</table>
 
-	<!--
-	<tr>
-		<td>array_lowercase</td>
-		<td align="left"><i></i> <br /></td>
-		<td align="left">Defined in <fname></fname></td>
-	</tr>
-	-->
+
+	<!-- USER RELATED FUNCTIONS -->
+	<!-- ====================== -->
+	<h2 id="sec-grape-user-functions">User related functions</h2>
+
+	<table style="compact">
+		<thead>
+			<th width="30%">Name</th>
+			<th width="30%">Parameters</th>
+			<th width="40%">Description</th>
+		</thead>
+		<tr>
+			<td id="sql-grape.user_save">grape.user_save</td>
+			<td align="left">
+				JSON containing: <br />
+				<i>user_id INTEGER</i> <br />
+				<i>username TEXT</i><br />
+				<i>password TEXT</i><br />
+				<i>email TEXT</i><br />
+				<i>fullnames TEXT</i><br />
+				<i>active BOOLEAN (optional)</i><br />
+				<i>role_names TEXT[]</i><br />
+				<i>employee_guid</i> UUID<br />
+			</td>
+			<td align="left">
+				Save a user field, or create a new user. API call:<br />
+				<icode>POST /grape/user/save</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>grape.new_user</td>
+			<td align="left">
+				<i>user_id</i> INTEGER<br />
+				<i>rec</i> RECORD<br />
+				<i>role_name</i> TEXT<br />
+			</td>
+			<td align="left">
+				Creates a new user. Returns the user ID, or error code -1 if it does not exist.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.username</td>
+			<td align="left">
+				<i>user_id</i> INTEGER<br />
+			</td>
+			<td align="left">
+				Returns the username for a user ID, or <i>NULL</i> if it does not exist.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.user_id_from_name</td>
+			<td align="left">
+				<i>username</i> TEXT<br />
+			</td>
+			<td align="left">
+				Returns the user ID for a username, or <i>NULL</i> if it does not exist.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.user_id_from_fullnames</td>
+			<td align="left">
+				<i>fullnames</i> TEXT<br />
+			</td>
+			<td align="left">
+				Returns the user ID for a user found by fullnames, or <i>NULL</i> if it does not exist.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.username_from_fullnames</td>
+			<td align="left">
+				<i>fullnames</i> TEXT<br />
+			</td>
+			<td align="left">
+				Returns the username for a user found by fullnames, or <i>NULL</i> if it does not exist.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.hash_user_password</td>
+			<td align="left">
+				<i>user_id</i> INTEGER<br />
+			</td>
+			<td align="left">
+				Hashes a password for user and updates the user table afterwards.
+				<ol>
+					<li>If the hash length is the same as the password length and the password starts with a '$' sign, it is assumed that the password is already hashed and the update is ignored (return -1)</li>
+					<li>If grape.setting  passwords_hashed isn't true, nothing is done (return -2)</li>
+					<li>On success 0 is returned</li>
+				</ol>
+			</td>
+		</tr>
+		<tr>
+			<td>grape.hash_user_password</td>
+			<td align="left">
+				<i>username</i> TEXT<br />
+			</td>
+			<td align="left">
+				Overload for <i>grape.hash_user_password (user_id INTEGER)</i>
+			</td>
+		</tr>
+		<tr>
+			<td>grape.set_user_password</td>
+			<td align="left">
+				<i>user_id</i> INTEGER<br />
+				<i>password</i> TEXT<br />
+				<i>is_hashed</i> BOOLEAN<br />
+			</td>
+			<td align="left">
+				Set user password. If the password given to this function is already hashed then <i>is_hashed</i> should be <i>TRUE</i>.
+			</td>
+		</tr>
+	</table>
 
 
-</table>
+	<!-- SESSION RELATED FUNCTIONS -->
+	<!-- ========================= -->
+	<h2>Session related functions</h2>
 
+	<table style="compact">
+		<thead>
+			<th width="30%">Name</th>
+			<th width="30%">Parameters</th>
+			<th width="40%">Description</th>
+		</thead>
+		<tr>
+			<td>grape.current_user_roles</td>
+			<td align="left">
+			</td>
+			<td align="left">
+				Returns a list of all roles the current user belongs to.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.current_user_in_role</td>
+			<td align="left">
+				<i>role</i> TEXT<br />
+			</td>
+			<td align="left">
+				Returns <i>TRUE</i> if the current user belongs to <i>_role</i>.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.current_user_in_role</td>
+			<td align="left">
+				<i>roles</i> TEXT[]<br />
+			</td>
+			<td align="left">
+				Returns <i>TRUE</i> if the current user belongs to any of <i>_roles</i>.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.current_user_id</td>
+			<td align="left"></td>
+			<td align="left">
+				Returns the integer value of the current session's <i>"grape.user_id"</i> setting. This is typically set with grape before any API call is called.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.check_session_access</td>
+			<td align="left">
+				<i>session_id</i> TEXT - Session ID to check for<br />
+				<i>check_path</i> TEXT - Access path to check<br />
+				<i>check_method</i> TEXT - HTTP method to check (GET/POST)<br />
+			</td>
+			<td align="left">
+				This function performs access control on an API call (based on the path and session ID). It is automatically called by the express
+				app before any API call is performed:
+				<ol>
+					<li>Check that the path has access control on it. If it cannot be found, the grape setting default_access_allowed is checked, and if
+						true, access will be granted. If not, it will be denied and code 9 will be returned.</li>
+					<li>
+					If the path has a role 'guest' granted access to it, everyone will be allowed (even if the session is invalid).
+					</li>
+					<li>
+					If the session is invalid, access will be denied and code 1 returned.
+					</li>
+					<li>
+					If the path has a role 'all', only, and all, valid sessions will be granted access.
+					</li>
+					<li>
+					If the user has access granted to the access path's role, access is granted.
+					</li>
+					<li>
+					If all the above fails, access is denied with code 2.
+					</li>
+				</ol>
+			</td>
+		</tr>
+		<tr>
+			<td>grape.session_insert</td>
+			<td align="left">
+				<i>user_id</i> INTEGER<br />
+				<i>ip_address</i> TEXT<br />
+			</td>
+			<td align="left">
+				This function requires <fname>user.sql</fname>. 
+				<ol>
+					<li>Input:
+						<ul>
+							<li>username or email</li>
+							<li>password</li>
+							<li>ip_address</li>
+							<li>persistant TRUE/FALSE (optional)</li>
+						</ul>
+					</li>
+					<li>Status:
+						<ul>
+							<li>status = ERROR</li>
+							<li>code 1 = No such user</li>
+							<li>code 2 = Wrong password</li>
+							<li>code 3 = User is inactice</li>
+							<li>code 4 = IP not allowed</li>
+						</ul>
+					</li>
+					<li>
+						On success, status = OK and following fields returend: <i>session_id, user_id, username</i> and <i>user_roles</i>.
+					</li>
+					<li>
+					Setting <i>hash_passwords</i> is used to decide if passwords are hashed or not.
+					</li>
+				</ol>
+			</td>
+		</tr>
+		<tr>
+			<td>grape.logout</td>
+			<td align="left">
+				<i>JSON</i> JSON containing session_id<br />
+			</td>
+			<td align="left">
+				API call:<br /><icode>/grape/logout</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>grape.session_ping</td>
+			<td align="left">
+				<i>JSON</i> JSON containing session_id<br />
+			</td>
+			<td align="left">
+				Checks validity of a session and returns a JSON object containing the session's username, user_id, fullnames, email, GUID and user_roles.<br />API call:<br /><icode>/grape/session_ping</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>grape.session_insert</td>
+			<td align="left">
+				<i>username</i> TEXT<br />
+				<i>password</i> TEXT<br />
+			</td>
+			<td align="left">
+				This function inserts a new session for a valid username and password provided.<br />
+				API call:<br /><icode>/grape/logout</icode>
+			</td>
+		</tr>
+		<tr>
+			<td>grape.create_session_from_service_ticket</td>
+			<td align="left">
+				<i></i> <br />
+			</td>
+			<td align="left">
+				Function which creates a session from the service ticket.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.set_password_with_service_ticket</td>
+			<td align="left">
+				<i></i> <br />
+			</td>
+			<td align="left">
+				Function which sets the password with the service ticket.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.logout</td>
+			<td align="left">
+				<i></i> <br />
+			</td>
+			<td align="left">
+				Function used to logout user from current session.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.pint</td>
+			<td align="left">
+				<i></i> <br />
+			</td>
+			<td align="left">
+				Function used to ping current session.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.set_session_user_id</td>
+			<td align="left">
+				<i>user_id</i> INTEGER<br />
+			</td>
+			<td align="left">
+				Function which sets the <i>user_id</i> for the current session.
+			</td>
+		</tr>
+		<tr>
+			<td>grape.set_session_username</td>
+			<td align="left">
+				<i>username</i> TEXT<br />
+			</td>
+			<td align="left">
+				Function which sets the <i>user_name</i> for the current session.
+			</td>
+		</tr>
+	</table>
+
+
+	<!-- OTHER UTILITY FUNCTIONS -->
+	<!-- ======================= -->
+	<h2>Other utility functions</h2>
+
+	<table style="compact">
+		<thead>
+			<th width="30%">Name</th>
+			<th width="30%">Parameters</th>
+			<th width="40%">Description</th>
+		</thead>
+		<tr>
+			<td>month_diff</td>
+			<td align="left"><i>_d1</i> DATE<br /><i>_d2</i> DATE</td>
+			<td align="left">Returns an integer containing the number of months between the two dates provided. If the first parameter is after the second (higher date), the return value will be negative.</td>
+		</tr>
+		<tr>
+			<td>set_value</td>
+			<td align="left"><i>_name</i> TEXT<br /><i>_value</i> TEXT</td>
+			<td align="left">Sets the value (insert if new, replace if exist) in the key-value pair table <tname>grape.setting</tname> returning _value.</td>
+		</tr>
+		<tr>
+			<td>get_value</td>
+			<td align="left"><i>_name</i> TEXT<br /><i>_default_value</i> TEXT</td>
+			<td align="left">Gets the value for setting <i>_name</i>, and if not found it will return <i>_default_value</i>. Defined in <fname>setting.sql</fname></td>
+		</tr>
+		<tr>
+			<td>generate_uuid</td>
+			<td align="left"></td>
+			<td align="left">Generates a unique UUID (for example b1086d35-e973-4356-3adc-2eeb6f4963e2). Defined in <fname>uuid.sql</fname></td>
+		</tr>
+		<tr>
+			<td>array_lowercase</td>
+			<td align="left">TEXT[]</td>
+			<td align="left"></td>
+		</tr>
+		<tr>
+			<td>clean_telephone_number</td>
+			<td align="left"><i>_tel</i> TEXT<br /></td>
+			<td align="left">
+				Returns a text containing only numbers.
+			</td>
+		</tr>
+		<tr>
+			<td>random_string</td>
+			<td align="left"><i>length</i> INTEGER<br /></td>
+			<td align="left">
+				Generates a random string of <i>length</i> length. Defined in <fname>random_string.sql</fname>
+			</td>
+		</tr>
+
+		<!--
+		<tr>
+			<td>array_lowercase</td>
+			<td align="left"><i></i> <br /></td>
+			<td align="left">Defined in <fname></fname></td>
+		</tr>
+		-->
+
+	</table>
 </ps_doc>
-

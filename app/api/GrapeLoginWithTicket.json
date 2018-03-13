@@ -1,0 +1,22 @@
+{
+	"url": "/grape/login_with_ticket",
+	"method": "POST",
+	"description": "Login with ticket",
+	"name": "GrapeLoginWithTicket",
+	"roles": ["guest"],
+	"jsfile": "login_with_ticket.js",
+	"validate": "(service_ticket:s,issued_by:s)",
+	"properties": {
+		"service_ticket": {"type": "string", "description": "Service Ticket"},
+		"issued_by": {"type": "string", "description": "Service Ticket Issuer"}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"]},
+			"message": {"type": "string"},
+			"code": {"type": "number"},
+			"error": {"type": "object"}
+		}
+	}
+}

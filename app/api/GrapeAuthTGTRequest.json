@@ -1,0 +1,27 @@
+{
+	"id": "/grape/auth/tgt",
+	"description": "Request TGT for a user",
+	"name": "GrapeAuthTGTRequest",
+	"jsfile": "grape_auth_tgt_request.js",
+	"roles": ["guest"],
+	"type": "object",
+	"properties": {
+		"email": {"type": ["string", "null"], "description": "E-mail for the user requesting a TGT"},
+		"username": {"type": ["string", "null"], "description": "Username for the user requesting a TGT"}
+	},
+	"example": {"email": "piet@platsoft.net"},
+	"return": {
+		"type": "object",
+		"properties": {
+			"data": {"type": "string", "description": "Encrypted data (in hex format)"},
+			"salt": {"type": "string", "description": "Salt value"},
+			"iv": {"type": "string", "description": "Initialization vector"},
+			"rounds": {"type": "string", "description": "Number of rounds to run the hash"},
+			"algo": {"type": "string", "description": "Hashing algorithm used (usually SHA256)"},
+			"status": {"enum": ["ERROR", "OK"], "description": "Return status"},
+			"message": {"type": "string", "description": "If an error occurred, a message will be provided"},
+			"code": {"type": "number", "description": "Return code (0 = success)"},
+			"error": {"type": "object", "description": "If an error occurred, this field will contain the error object"}
+		}
+	}
+}
