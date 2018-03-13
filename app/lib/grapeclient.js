@@ -25,13 +25,26 @@ var GrapeClient = function(_o) {
 	var self = this;
 	this.self = self;
 
+	this.parsedURL = {};
+
 	if (_o.url)
 	{
 		this.url = _o.url;
 		var urlObj = url.parse(this.url);
 		this.hostname = urlObj.hostname;
 		this.port = urlObj.port;
+	
+		if (urlObj.auth)
+		{
+			var ar = urlObj.auth.split(':');
+			this.username = ar[0];
+			if (ar.length > 1)
+				this.password = ar[1];
+		}
+
+		this.parsedURL = urlObj;
 	}
+
 
 	if (_o.username)
 		this.username = _o.username;
