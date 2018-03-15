@@ -41,6 +41,7 @@ CREATE TABLE grape.access_role(
 CREATE TABLE grape.user_role(
 	user_id integer NOT NULL,
 	role_name text NOT NULL,
+	date_inserted timestamptz DEFAULT NOW(),
 	CONSTRAINT user_role_pk PRIMARY KEY (user_id,role_name)
 
 );
@@ -1000,11 +1001,11 @@ CREATE TABLE grape.patch(
 -- -- object: grape.process_hook | type: TABLE --
 -- -- DROP TABLE IF EXISTS grape.process_hook CASCADE;
 -- CREATE TABLE grape.process_hook(
+-- 	process_hook_id serial,
 -- 	process_id integer,
 -- 	event text,
 -- 	function_name text,
--- 	function_schema text,
--- 	process_hook_id serial
+-- 	function_schema text
 -- );
 -- -- ddl-end --
 -- COMMENT ON COLUMN grape.process_hook.event IS 'START, END, ERROR';
@@ -1036,6 +1037,18 @@ CREATE TABLE grape.access_role_role(
 COMMENT ON TABLE grape.access_role_role IS 'Table for access roles that belongs to other access roles';
 -- ddl-end --
 
+-- -- object: grape.setting_role | type: TABLE --
+-- -- DROP TABLE IF EXISTS grape.setting_role CASCADE;
+-- CREATE TABLE grape.setting_role(
+-- 	setting_name text NOT NULL,
+-- 	role_name text NOT NULL,
+-- 	can_read boolean,
+-- 	can_edit boolean,
+-- 	CONSTRAINT setting_role_pk PRIMARY KEY (setting_name,role_name)
+-- 
+-- );
+-- -- ddl-end --
+-- 
 -- object: user_id_rel | type: CONSTRAINT --
 -- ALTER TABLE grape.user_role DROP CONSTRAINT IF EXISTS user_id_rel CASCADE;
 ALTER TABLE grape.user_role ADD CONSTRAINT user_id_rel FOREIGN KEY (user_id)

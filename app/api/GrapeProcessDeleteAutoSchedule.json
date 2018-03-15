@@ -1,0 +1,13 @@
+{
+	"name": "GrapeProcessDeleteAutoSchedule",
+	"description": "Delete an auto schedule from a process",
+	"url": "/grape/process/delete_autoschedule",
+	"method": "POST",
+	"sqlfunc": "grape.api_delete_process_autoschedule",
+	"sqlfunctype": "jsonb",
+	"validate": "(process_id:i,auto_scheduler_id:i)",
+	"roles": ["admin", "process"],
+	"properties": {
+		"process_id": {"type": "integer", "description": "Process ID to set autoscheduler for"}
+	}
+}

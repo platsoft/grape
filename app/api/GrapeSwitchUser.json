@@ -1,0 +1,8 @@
+{
+	"description": "Allows an admin user to switch to a non-admin user",
+	"url": "/grape/switch_user",
+	"method": "POST",
+	"jsfile": "switch_user.js",
+	"validate": "(guid:s,user_id:i,username:s)",
+	"roles": ["switch_user"]
+}

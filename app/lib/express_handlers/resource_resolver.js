@@ -40,7 +40,7 @@ module.exports = function() {
 			}
 		}
 
-		app.get('logger').log('app', 'error', 'Resource not found: ', pathname);
+		app.get('logger').log('app', 'error', 'Resource not found: ', req.path);
 		
 		send_404(req, res);
 	};

@@ -299,9 +299,11 @@ BEGIN
 		_user_id := ($1->>'user_id')::INTEGER;
 	END IF;
 
-	-- TODO check that user is admin or _user_id matchs grape.current_user_id()
-
-	_ret := grape.set_user_password(_user_id, _password, _is_hashed);
+	IF _user_id = grape.current_user_id() OR grape.current_user_in_role('admin') THEN
+		_ret := grape.set_user_password(_user_id, _password, _is_hashed);
+	ELSE
+		_ret := FALSE;
+	END IF;
 
 	IF _ret = FALSE THEN
 		RETURN grape.api_error('Could not save password', -1);

@@ -182,7 +182,7 @@ function validate_field(field, str_value)
 		}
 		catch (e) {
 			field.valid = false;
-			p['error'] = field.name + ' must be valid json';
+			field['error'] = field.name + ' must be valid json';
 		}
 	}
 	else if (field.data_type == 'i') // integer
@@ -462,10 +462,12 @@ function auto_validate(obj, validate_string)
 {
 	var dec_result = decode_validation_string (validate_string);
 	if (dec_result.error)
-		return {obj: null, errors: [dec_result.error]};
+		return {obj: null, errors: ['Decoding error', dec_result.error]};
 	var validate_res = validate_object(obj, dec_result.fields);
 
 	return {obj: validate_res.fields, errors: validate_res.errors};
 }
 
 module.exports.validate = auto_validate;
+
+

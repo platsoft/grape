@@ -173,7 +173,10 @@ function APIHandler(app)
 	{
 		//console.log("EXECUTE");
 		
-		req.app.get('logger').info('session', 'Executing API call ', req.handler.matched_path, 'for user', res.locals.session.username);
+		if (!res.locals.session.username)
+			req.app.get('logger').info('session', 'Executing API call', req.handler.matched_path, 'for non-authenticated user');
+		else
+			req.app.get('logger').info('session', 'Executing API call', req.handler.matched_path, 'for user', res.locals.session.username);
 
 		// Assign a database connection for the request before jumping into the call
 		assign_db_handler(req, res, next);

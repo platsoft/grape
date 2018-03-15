@@ -255,7 +255,8 @@ CREATE OR REPLACE FUNCTION grape.build_session_information(_session_id TEXT) RET
 		'employee_guid', u.employee_guid,
 		'guid', u.employee_guid,
 		'employee_info', u.employee_info,
-		'user_preferences', u.preferences
+		'user_preferences', u.preferences,
+		'auth_info', to_jsonb(grape.get_user_auth_info(user_id))
 	) FROM grape.session s 
 	JOIN grape."user" u  USING (user_id)
 	WHERE session_id=_session_id::TEXT;
@@ -267,7 +268,11 @@ DECLARE
 	_session_id TEXT;
 	_rec RECORD;
 BEGIN
-	_session_id := $1->>'session_id';
+	IF $1 IS NULL THEN
+		_session_id := grape.current_session_id();
+	ELSE
+		_session_id := $1->>'session_id';
+	END IF;
 
 	SELECT * INTO _rec FROM grape."session" WHERE session_id=_session_id::TEXT;
 

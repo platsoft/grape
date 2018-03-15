@@ -1,0 +1,8 @@
+{
+	"name": "GrapeEnableUserSwitching",
+	"description": "Enables the switch_user option on the current user account - which will allow administrators to log into that account",
+	"sqlfunc": "grape.enable_no_switching",
+	"sqlfunctype": "jsonb",
+	"roles": ["all"],
+	"url": "/grape/enable_user_switching"
+}
