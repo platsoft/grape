@@ -161,9 +161,7 @@ function decode_validation_string (validate_string)
 						}
 						continue;
 					default:
-						console.log("SYNTAX ERROR AT POSITION ", i);
-						console.log(validate_string.substring(i));
-						continue;
+						return {error: 'Syntax error at position ' + i};
 				}
 		}
 	}

@@ -75,7 +75,7 @@ function APIHandler(app)
 		var settings = self.app.get('grape_settings');
 		if (req.session_id) // session is fine but permission was denied
 		{
-			res.status(403);
+			res.status(403).json({status: 'ERROR', message: 'You do not have the necessary access roles to perform this action', code: -2}).end();
 		}
 		else
 		{
@@ -145,7 +145,14 @@ function APIHandler(app)
 				}
 				else
 				{
-					permission_denied(req, res, {message: 'Permission denied', code: 2});
+					var msg = [
+						'Permission denied for user ', res.locals.session.username || 'guest', 
+						' trying to access ', req.method, ':', path, 
+						'. User has the following roles: ', user_roles.join(','), 
+						' and allowed roles are: ', allowed_roles.join(',')
+					].join('');
+
+					permission_denied(req, res, {message: msg, code: 2});
 				}
 			}
 			else

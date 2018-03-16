@@ -32,10 +32,17 @@ module.exports = function() {
 			for (var col = 0; col <= max_col; col++)
 			{
 				var address = XLSX.utils.encode_cell({r: 0, c: col});
-				if (worksheet[address])
-					headers.push(worksheet[address].v.replace(/[^A-Z]/gi, '').toLowerCase());
+				if (worksheet[address] && worksheet[address].v)
+				{
+					if (typeof worksheet[address].v == 'string')
+						headers.push(worksheet[address].v.replace(/[^A-Z]/gi, '').toLowerCase());
+					else
+						headers.push(worksheet[address].v);
+				}
 				else
+				{
 					headers.push(address.toLowerCase());
+				}
 			}
 
 			for (var row = 1; row <= max_row; row++)

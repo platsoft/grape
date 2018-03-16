@@ -46,7 +46,7 @@ exports = module.exports = function(_app) {
  * @example {}
  * @return JSON object {status:'OK'} or {status: 'ERROR', message:'error message'}
  **/
-	app.post("/grape/data_import/test_table/create", api_data_import_test_table_create);
+//	app.post("/grape/data_import/test_table/create", api_data_import_test_table_create);
 
 /**
  * @desc append data from a data import to an existing compatable test_table
@@ -99,16 +99,12 @@ function api_data_import_test_table_drop(req, res)
 	res.locals.db.json_call('grape.data_import_test_table_drop', req.body, null, {response: res});
 }
 
-function api_data_import_test_table_append(req, res)
-{
-	req.body.append = true;
-	res.locals.db.json_call('grape.data_import_test_table_insert', req.body, null, {response: res});
-}
+//function api_data_import_test_table_append(req, res)
+//{
+//	req.body.append = true;
+//	res.locals.db.json_call('grape.data_import_test_table_insert', req.body, null, {response: res});
+//}
 
-function api_data_import_test_table_create(req, res)
-{
-	res.locals.db.json_call('grape.data_import_test_table_insert', req.body, null, {response: res});
-}
 
 function api_data_import_delete(req, res)
 {
