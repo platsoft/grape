@@ -23,3 +23,5 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 SELECT grape.table_permissions_add('grape', '{v_access_roles}'::TEXT[], 'admin', 'SELECT');
 
+ALTER TABLE grape.patch ADD COLUMN note TEXT DEFAULT '';
+

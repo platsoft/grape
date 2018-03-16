@@ -1,4 +1,5 @@
 
+
 -- returns true if the grape version in the database is at least _check_version
 CREATE OR REPLACE FUNCTION grape.grape_version_check (_check_version TEXT) RETURNS BOOLEAN AS $$
 DECLARE

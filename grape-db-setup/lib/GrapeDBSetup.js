@@ -191,6 +191,32 @@ function GrapeDBSetup(options)
 					if (!check)
 						return false;
 				}
+				else if (line.startsWith('@patch')) // @patch grape:113 notes
+				{
+					var args = line.split(/\s/).filter(function(p){ return p != ''; });
+					var ar = args[1].split(':');
+					if (ar.length != 2 || args.length < 2)
+					{
+						pc.print_err('Invalid syntax for @patch. Format is @patch system:version notes');
+					}
+					else
+					{
+						var system = ar[0];
+						var version = ar[1];
+						var note = args.slice(2).join(' ');
+						var log_file = '';
+
+						sql_list.push({
+							data: 'SELECT grape.patch_start ($1, $2, $3, $4)',
+							filename: filename,
+							params: [system, parseInt(version), note, log_file]
+						});
+					}
+				}
+				else if (line.startsWith('@endpatch'))
+				{
+					
+				}
 				else
 				{
 					var mfilename = path.resolve(parent_directory, line);
@@ -220,6 +246,23 @@ function GrapeDBSetup(options)
 			params: [data]
 		});
 		return true;
+	};
+
+	this.start_patch = function(system, version, note, log_file) {
+		var sql = 'SELECT grape.patch_start($1,$2,$3,$4);';
+		var log_file = '';
+		var params = [system, version, note, log_file];
+		
+		sql_list.push({
+			data: sql,
+			filename: log_file,
+			params: params
+		});
+		return true;
+	};
+
+	this.end_patch = function(system, version) {
+
 	};
 
 	/**

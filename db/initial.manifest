@@ -1,4 +1,6 @@
 schema/
 function/
+@patch grape:113 Installed version
 view/
 data/
+@endpatch
