@@ -121,7 +121,20 @@ function process_options(_o, included_from_path)
 			options.public_directories = [options.public_directory];
 		}
 
-		delete options.public_directory;
+		options.public_directory = null;
+	}
+	
+	// backwards compatibility
+	if (options.email_template_directory)
+	{
+		if (_.isArray(options.email_template_directory))
+			options.email_template_directories = options.email_template_directory;
+		else if (_.isArray(options.email_template_directories))
+			options.email_template_directories.push(options.email_template_directory);
+		else
+			options.email_template_directories = [options.email_template_directory];
+
+		options.email_template_directory = null;
 	}
 
 
@@ -129,7 +142,7 @@ function process_options(_o, included_from_path)
 	var path_options = [
 		'api_directories',
 		'public_directories',
-		'email_template_directory', 
+		'email_template_directories', 
 		'document_store', 
 		'xsl_directory', 
 		'ps_bgworker', 
@@ -143,7 +156,7 @@ function process_options(_o, included_from_path)
 	if (options['path_options'] && _.isArray(options['path_options']))
 	{
 		path_options = path_options.concat(options['path_options']);
-		delete options['path_options'];
+		options['path_options'] = null;
 	}
 
 	path_options.forEach(function(p) {

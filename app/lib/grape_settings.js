@@ -47,6 +47,15 @@ var GrapeSettings = function(grape_app) {
 
 		return self.settings[name].value || default_value;
 	};
+
+	this.get_values = function(names) {
+		var ret = {};
+		names.forEach(function(name) {
+			ret[name] = self.get_value(name, null);
+		});
+		return ret;
+	};
+
 };
 
 module.exports = GrapeSettings;
