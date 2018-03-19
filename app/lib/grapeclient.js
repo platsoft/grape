@@ -172,10 +172,10 @@ var GrapeClient = function(_o) {
 	};
 
 
-	this.login = function(username, password) {
-		if (username && !self.username)
+	this.login = function(username, password, cb) {
+		if (username)
 			self.username = username;
-		if (password && !self.password)
+		if (password)
 			self.password = password;
 
 		this.postJSON('/grape/login', {'username': self.username, 'password': self.password}, function(data) {
@@ -184,15 +184,27 @@ var GrapeClient = function(_o) {
 				self.session = {
 					session_id: data.session_id
 				};
-				self.emit('login', data);
+
+			}
+			
+			if (cb)
+			{
+				cb(null, data);
 			}
 			else
 			{
-				self.emit('error', data);
+				if (data.status == 'OK')
+					self.emit('login', data);
+				else
+					self.emit('error', data);
+
 			}
 
 		}).on('error', function(err) {
-			self.emit('error', err);
+			if (cb)
+				cb(err, null);
+			else
+				self.emit('error', err);
 		});
 
 	};

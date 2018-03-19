@@ -19,12 +19,12 @@ module.exports = function() {
 		if (req.body.email)
 		{
 			obj.email = req.body.email;
-			req.app.get('logger').session('info', 'login attempt from [', obj.email, ']@', ip_address);
+			req.app.get('logger').session('info', 'Login attempt from [', obj.email, ']@', ip_address);
 		}
 		else
 		{
 			obj.username = req.body.username;
-			req.app.get('logger').session('info', 'login attempt from ', obj.username, '@', ip_address);
+			req.app.get('logger').session('info', 'Login attempt from', obj.username, '@', ip_address);
 		}
 
 		res.locals.db.json_call('grape.create_session_from_password', obj, function(err, result) {
@@ -37,11 +37,15 @@ module.exports = function() {
 			result = result.rows[0].grapecreate_session_from_password;
 			if (result.status == 'OK')
 			{
+				req.app.get('logger').session('info', 'Login attempt from', obj.username, '@', ip_address, 'was successful');
+
 				res.set('Set-Cookie', 'session_id=' + result.session_id + '; path=/; HttpOnly');
 				res.json(result);
 			}
 			else
 			{
+				req.app.get('logger').session('warn', 'Login attempt from', obj.username, '@', ip_address, 'failed');
+
 				res.json(result);
 			}
 		});
