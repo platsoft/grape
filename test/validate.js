@@ -4,7 +4,7 @@ var auto_validate = require('../app/lib/auto_validate.js');
 
 
 
-describe('validate', function() {
+describe('Testing auto validate', function() {
 	it('Testing valid integers', function(done) {
 
 		var ret = auto_validate.validate(

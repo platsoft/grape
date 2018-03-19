@@ -1,0 +1,12 @@
+{
+	"name": "GrapeTestTableDrop",
+	"roles": ["data_import","admin"],
+	"method": "POST",
+	"url": "/grape/data_import/test_table/delete",
+	"description": "Delete a test table",
+	"sqlfunc": "grape.data_import_test_table_drop",
+	"validate": "(test_table_id:i)",
+	"properties": {
+		"test_table_id": {"type": "integer", "description": "Test table ID to delete"}
+	}
+}

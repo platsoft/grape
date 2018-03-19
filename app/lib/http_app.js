@@ -3,16 +3,19 @@
  * This module is started as a worker app by grape.js
  *
  */
-var express = require('express');
-var bodyParser = require('body-parser');
-var multipartParser = require('connect-multiparty');
-var xmlParser = require(__dirname + '/xml_body_parser.js');
-var _ = require('underscore');
-var fs = require('fs');
-var util = require('util');
-var path = require('path');
-var events = require('events');
-var grapelib = require(__dirname + '/../index.js');
+const express = require('express');
+const bodyParser = require('body-parser');
+const multipartParser = require('connect-multiparty');
+const xmlParser = require(__dirname + '/xml_body_parser.js');
+const _ = require('underscore');
+const fs = require('fs');
+const util = require('util');
+const path = require('path');
+const events = require('events');
+const grapelib = require(__dirname + '/../index.js');
+const async = require('async');
+const https = require('https');
+const http = require('http');
 
 const dblib = require(__dirname + '/db.js');
 	
@@ -226,97 +229,132 @@ var grape_express_app = function(options, grape_obj) {
 
 
 
-	this.start = function ()
+	this.start = function (done)
 	{
 		var options = app.get('config');
-
 		var http_port = false;
+		var https_port = false;
 
 		if (options.use_https && options.use_https === true)
 		{
-			var https = require('https');
-			https.globalAgent.maxSockets = options.maxsockets || DEFAULT_MAXSOCKETS;
-
-			var privateKey = fs.readFileSync(options.sslkey);
-			var certificate = fs.readFileSync(options.sslcert);
-
-			var server = https.createServer({key: privateKey, cert: certificate}, app);
-			if (options.port)
+			if (!options.sslkey || !options.sslcert)
 			{
-				server.listen(options.port);
-				logger.info('SSL listening on ' + options.port);
+				self.logger.app('crit', 'Missing sslkey and sslcert options in configuration');
+				https_port = false;
 			}
-			else if (options.listen)
+			else
 			{
-				options.listen.forEach(function(l) {
-					var obj;
-					if (typeof l == 'string')
-					{
-						var ar = l.split(':');
-						if (ar.length == 2)
+				if (options.port)
+				{
+					https_port = options.port;
+				}
+				else if (options.listen)
+				{
+					options.listen.forEach(function(l) {
+						var obj;
+						if (typeof l == 'string')
 						{
-							obj = {host: ar[0], port: ar[1]};
+							var ar = l.split(':');
+							if (ar.length == 2)
+								obj = {host: ar[0], port: ar[1]};
+							else
+								obj = l; // TODO ipv6 addresses
 						}
 						else
 						{
-							obj = l; // TODO ipv6 addresses
+							obj = l;
 						}
-					}
-					else
-					{
-						obj = l;
-					}
-						
-					if (!obj.host)
-						obj.host = null;
-					server.listen(obj);
-					logger.info('SSL listening on ' + obj.host + ':' + obj.port);
-				});
-			}
-
-			server.on('error', function(err) {
-				if (err.code == 'EADDRINUSE')
-				{
-					logger.error('app', 'Port ', options.port, ' is already in use');
-					process.exit(9);
+							
+						if (!obj.host)
+							obj.host = null;
+						https_port = obj; // Only one supported at this time!
+					});
 				}
-			});
-
-			self.https_server = server;
-
-
-			if (options.http_port)
-				http_port = options.http_port;
+				if (options.http_port)
+					http_port = options.http_port;
+			}
 		}
 		else
-		{
+		{ 	// TODO add listen here
 			http_port = options.port;
 		}
 
-		if (http_port)
+		function start_http(cb)
 		{
-			var http = require('http');
+			if (http_port === false)
+			{
+				cb();
+				return;
+			}
+
 			http.globalAgent.maxSockets = options.maxsockets || DEFAULT_MAXSOCKETS;
-			var server = app.listen(http_port);
+
+			var server = http.createServer(app);
+
+			self.http_server = server;
+
 			server.timeout = options.server_timeout;
 
 			server.on('error', function(err) {
 				if (err.code == 'EADDRINUSE')
 				{
-					logger.error('app', 'Port ', http_port, ' is already in use');
+					logger.error('app', 'Port', http_port, 'is already in use');
 					process.exit(9);
 				}
 			});
 			
 			self.http_server = server;
 
-			logger.info('HTTP listening on ' + http_port);
+			server.listen(http_port, function() { 
+				logger.info('HTTP server listening on', http_port);
+				cb();
+			});
 		}
-		
-		self.emit('listening');
+
+		function start_https(cb)
+		{
+			if (https_port === false)
+			{
+				cb();
+				return;
+			}
+			
+			https.globalAgent.maxSockets = options.maxsockets || DEFAULT_MAXSOCKETS;
+
+			var privateKey = fs.readFileSync(options.sslkey);
+			var certificate = fs.readFileSync(options.sslcert);
+
+			var server = https.createServer({key: privateKey, cert: certificate}, app);
+			
+			self.https_server = server;
+
+			server.on('error', function(err) {
+				if (err.code == 'EADDRINUSE')
+				{
+					logger.error('app', 'Port ', https_port, ' is already in use');
+					process.exit(9);
+				}
+			});
+
+			server.listen(https_port, function() { 
+				logger.info('SSL server listening on', https_port);
+				cb();
+			});
+		}
+
+
+
+		function _done()
+		{
+			self.emit('listening');
+			done();
+		}
+
+		async.series([start_http, start_https, _done]);
 	}
 
 };
 
 grape_express_app.prototype.__proto__ = events.EventEmitter.prototype;
 exports = module.exports = grape_express_app;
+

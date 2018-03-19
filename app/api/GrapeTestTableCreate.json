@@ -1,0 +1,14 @@
+{
+	"name": "GrapeCreateTestTable",
+	"method": "POST",
+	"url": "/grape/data_import/test_table/create",
+	"description": "create a test table from data_import data",
+	"sqlfunc": "grape.data_import_test_table_insert",
+	"validate": "(data_import_id:i,table_name:s,append:b*)",
+	"roles": ["admin"],
+	"properties": {
+		"data_import_id": {"type": "integer"},
+		"table_name": {"type": "text"},
+		"append": {"type": "boolean"}
+	}
+}

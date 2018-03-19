@@ -24,10 +24,10 @@ module.exports = function(req, res, next) {
 
 	app.get('logger').session('debug', 'Using HTTP Authorization to acquire a Session ID');
 
-	db.json_call('grape.session_insert', obj, function(err, result) {
+	db.json_call('grape.create_session_from_password', obj, function(err, result) {
 		if (!err)
 		{
-			var obj = result.rows[0]['grapesession_insert'];
+			var obj = result.rows[0]['grapecreate_session_from_password'];
 			if (obj.status == 'ERROR')
 			{
 				app.get('logger').warn('session', 'Authentication failed (' + obj.message + ')');

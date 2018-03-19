@@ -171,7 +171,7 @@ function grape() {
 		// Check options
 		if (!this.options.base_directory)
 		{
-			self.logger.error('app', 'Missing base_directory ', obj.name); // TODO add some more info?
+			self.logger.fatal('app', 'Missing base_directory in configuration'); // TODO add some more info?
 			console.log("Error: I could not find a base directory. Specify it with the 'base_directory' option in your configuration");
 			process.exit(1);
 		}
@@ -254,17 +254,23 @@ function grape() {
 				next();
 			};
 
+			var done = function(next) {
+				self.emit('master-after-start');
+				next();
+			};
+
 			async.series([
 				create_pidfile, 
 				self.setup_comms, 
 				self.setup_database, 
 				self.check_grape_version,
-				start_workers
+				start_workers,
+				done
 			]);
 		}
 		else  // we are the child/worker process
 		{
-			function run_start_function() {
+			function run_start_function(done) {
 				if (process.env.state)
 				{
 					var instance_count = process.env.instance_count || '0';
@@ -275,29 +281,38 @@ function grape() {
 					var found = false;
 					for (var i = 0; i < self.workers.length && !found; i++)
 					{
-						if (self.workers[i].name == process.env.state)
+						var worker = self.workers[i];
+
+						if (worker.name == process.env.state)
 						{
-
 							found = true;
-							process.title = [process_name, '-', self.workers[i].name, '[', instance_count , ']'].join('');
+							process.title = [process_name, '-', worker.name, '[', instance_count , ']'].join('');
 							try {
-								var obj = new (self.workers[i].func)(self.options, self);
+								var obj = new (worker.func)(self.options, self);
 
-								self.emit([self.workers[i].name, 'beforestart'].join('-'), self.workers[i], obj);
+								self.emit([worker.name, 'beforestart'].join('-'), worker, obj);
 							
 								if (obj.start)
-									obj.start.call(obj);
+								{
+									obj.start.call(obj, function() { 
+										self.emit([worker.name, 'afterstart'].join('-'), worker, obj);
+										self.emit('worker', worker, obj);
+										done();
+									});
+								}
+								else
+								{
+									self.logger.warn('app', 'No start() function for worker', worker.name, 'defined');
+									self.emit([worker.name, 'afterstart'].join('-'), worker, obj);
+									self.emit('worker', worker, obj);
+									done();
+								}
+
 							} catch (e) {
 								self.logger.crit('app', 'Unhandled exception in worker during startup', e);
 								//setTimeout(function() { process.exit(8); }, 1);
 							}
 							
-							self.emit([self.workers[i].name, 'afterstart'].join('-'), self.workers[i], obj);
-
-							self.emit('worker', self.workers[i], obj);
-
-							// deprecated
-							self.emit(['worker-', self.workers[i].name].join(''), self.workers[i], obj);
 						}
 					}
 
@@ -308,7 +323,12 @@ function grape() {
 				}
 			}
 
-			async.series([self.setup_comms, self.setup_database, run_start_function]);
+			function done(next) {
+				self.emit('worker-after-start');
+				next();
+			};
+
+			async.series([self.setup_comms, self.setup_database, run_start_function, done]);
 		}
 	};
 
@@ -347,7 +367,7 @@ function grape() {
 				setTimeout(function() { 
 					self.forkWorker(worker, instance_idx); 
 				}, 2000);
-			}
+				}
 		});
 		new_process.on('death', function() {
 			self.logger.error('app', "Worker died"); // TODO add some more info?

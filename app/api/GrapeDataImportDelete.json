@@ -1,13 +1,12 @@
 {
-	"id": "/grape/data_import/process",
+	"id": "/grape/data_import/delete",
 	"method": "POST",
-	"accept": "xls,q=1;ods,q=1",
-	"description": "Upload file/files",
-	"sqlfunc": "grape.data_import_process",
-	"name": "GrapeDataImportProcess",
+	"description": "Delete given data_import_id entries if not processed",
+	"sqlfunc": "grape.data_import_delete",
+	"name": "GrapeDataImportDelete",
 	"roles": ["data_import","admin"],
 	"properties": {
-		"data_import_id": {"type": "number"}
+		"data_import_id": {"type": "integer", "description": "Data import id to delete"}
 	},
 	"return": {
 		"type": "object",

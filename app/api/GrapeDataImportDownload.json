@@ -1,0 +1,21 @@
+{
+	"url": "/download/data_import/:data_import_id/:filename",
+	"method": "GET",
+	"description": "Download previously uploaded data import file",
+	"jsfile": "data_import_download.js",
+	"name": "GrapeDataImportDownload",
+	"roles": ["data_import","admin"],
+	"properties": {
+		"data_import_id": {"type": "integer"},
+		"filename": {"type": "string"}
+	},
+	"return": {
+		"type": "object",
+		"properties": {
+			"status": {"enum": ["ERROR", "OK"]},
+			"message": {"type": "string"},
+			"code": {"type": "number"},
+			"error": {"type": "object"}
+		}
+	}
+}

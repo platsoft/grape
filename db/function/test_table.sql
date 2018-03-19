@@ -106,6 +106,9 @@ END; $$ LANGUAGE plpgsql;
  * api function alter the datatypes for specified test table 
  * 
  */
+/*
+	Removed by Hans
+
 CREATE OR REPLACE FUNCTION grape.test_table_alter(JSON) RETURNS JSON AS $$
 DECLARE
 	_test_table_id TEXT;
@@ -121,3 +124,6 @@ BEGIN
 
 	RETURN grape.api_success;
 END; $$ LANGUAGE plpgsql;
+*/
+
+

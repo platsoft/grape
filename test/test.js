@@ -1,9 +1,8 @@
 
 var assert = require('assert');
-var auto_validate = require('../app/lib/auto_validate.js');
 
 
-
+/*
 describe('validate', function() {
 	it('Testing valid integers', function(done) {
 
@@ -16,7 +15,7 @@ describe('validate', function() {
 		done();
 	})
 });
-
+*/
 /*
 }, "(product_id:i)", check_errors_0);
 test('Testing invalid integers', {
