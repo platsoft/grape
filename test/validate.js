@@ -113,6 +113,12 @@ describe('validate', function() {
 		assert.equal(ret.errors.length, 0);
 		done();
 	});
+	it('Testing empty becomes null on null', function(done) {
+		var ret = auto_validate.validate({product:null}, "(product:E0)");
+		assert.equal(ret.errors.length, 0);
+		done();
+	});
+
 	it('Testing validation string without valid data type', function(done) {
 		var ret = auto_validate.validate({product:'s'}, "(product:x)");
 		assert.equal(ret.errors.length, 0);
@@ -163,16 +169,57 @@ describe('validate', function() {
 		assert.equal(ret.errors.length, 0);
 		done();
 	});
+	it('Testing invalid boolean', function(done) {
+		var ret = auto_validate.validate({product:'flse'}, "(product:b)");
+		assert.equal(ret.errors.length, 1);
+		done();
+	});
+	it('Testing valid string', function(done) {
+		var ret = auto_validate.validate({product:'true'}, "(product:s)");
+		assert.equal(ret.errors.length, 0);
+		done();
+	});
+	it('Testing invalid json', function(done) {
+		var ret = auto_validate.validate({product:'{"a":ss}'}, "(product:j)");
+		assert.equal(ret.errors.length, 1);
+		done();
+	});
+	it('Testing valid json', function(done) {
+		var ret = auto_validate.validate({product:'{"a":"ss"}'}, "(product:j)");
+		assert.equal(ret.errors.length, 0);
+		done();
+	});
+	it('Testing missing closing bracket', function(done) {
+		var ret = auto_validate.validate({product:'{"a":"ss"}'}, "(product:j");
+		assert.equal(ret.errors.length, 1);
+		done();
+	});
+	it('Testing type set twice', function(done) {
+		var ret = auto_validate.validate({product:'ss'}, "(product:is)");
+		assert.equal(ret.errors.length, 1);
+		done();
+	});
+	it('Testing whitespace in varname', function(done) {
+		var ret = auto_validate.validate({product:'{"a":"ss"}'}, "(product :s)");
+		assert.equal(ret.errors.length, 0);
+		done();
+	});
+	it('Testing missing datatype indicator in array def', function(done) {
+		var ret = auto_validate.validate({product:'{"a":"ss"}'}, "(product :[l])");
+		assert.equal(ret.errors.length, 1);
+		done();
+	});
+	it('Testing two different variables', function(done) {
+		var ret = auto_validate.validate({product:'aa',product2:2}, "(product :s,product2:i)");
+		assert.equal(ret.errors.length, 0);
+		done();
+	});
 
-
-
-
-
-
-
-
-
-
+	it('Testing array with objects', function(done) {
+		var ret = auto_validate.validate({products:[{product:'aa'}]}, "(products:[(product:s)])");
+		assert.equal(ret.errors.length, 0);
+		done();
+	});
 
 
 

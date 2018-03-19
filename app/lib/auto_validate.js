@@ -107,8 +107,8 @@ function decode_validation_string (validate_string)
 				continue;
 			case ')':
 				save();
-				if (DEBUG)
-					console.log("Decoding ", validate_string, " Result: ", JSON.stringify(fields, null, '   '));
+				//if (DEBUG)
+				//	console.log("Decoding ", validate_string, " Result: ", JSON.stringify(fields, null, '   '));
 				return {fields: fields, pos: i};
 			case '[':
 				state = 'array_def';
@@ -155,7 +155,7 @@ function decode_validation_string (validate_string)
 						{
 							if (current_object.data_type)
 							{
-								console.log("WARNING: DATA TYPE IS ALREADY SET FOR VARIABLE " + var_name);
+								return {error: 'Syntax error at position ' + i + ': Data type of variable ' + var_name + ' set twice'};
 							}
 							current_object.data_type = c;
 						}
@@ -203,7 +203,7 @@ function validate_field(field, str_value)
 	}
 	else if (field.data_type == 'b') // boolean
 	{
-		if (str_value.match (/true|false|t|f/i) == null)
+		if (str_value.match (/^true|false|t|f$/i) == null)
 		{
 			field.valid = false;
 			field['error'] = field.name + ' must be a valid boolean (false, f, true or t)';
@@ -233,12 +233,13 @@ function validate_field(field, str_value)
 	}
 	else if (field.data_type == 'd' || field.data_type == 't') //date time
 	{
-		if (field.data_type == 'd')
-		{
+		//if (field.data_type == 'd')
+		//{
 			// Non timezone-safe hack to avoid - vs / date parsing issues
-			if (!str_value.endsWith('Z'))
-				{ str_value = str_value + 'Z'; }
-		}
+		//	if (!str_value.endsWith('Z'))
+		//		{ str_value = str_value + 'Z'; }
+		//}
+		//console.log(str_value);
 
 		if (str_value.match (/^[0-9]{1,2}(\/|-)[0-9]{1,2}(\/|-)[0-9]{4}/) != null)
 		{
@@ -253,6 +254,7 @@ function validate_field(field, str_value)
 		else
 		{
 			field.valid = false;
+			field['error'] = field.name + ' must be a valid date/datetime';
 		}
 	}
 	else if (field.data_type == 'a')
@@ -435,8 +437,9 @@ function validate_object (obj, params)
 					p.valid = true;
 					p.value = null;
 
-					if (p.empty_becomes_null)
+					if (p.empty_becomes_null == true)
 						obj[p.name] = null;
+
 					continue;
 				}
 			}
@@ -460,7 +463,7 @@ function auto_validate(obj, validate_string)
 {
 	var dec_result = decode_validation_string (validate_string);
 	if (dec_result.error)
-		return {obj: null, errors: ['Decoding error', dec_result.error]};
+		return {obj: null, errors: ['Decoding error: ' + dec_result.error]};
 	var validate_res = validate_object(obj, dec_result.fields);
 
 	return {obj: validate_res.fields, errors: validate_res.errors};
