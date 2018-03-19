@@ -1,13 +1,9 @@
-
-
-
-
 0.0.4
 
 
 0.0.5
 - Fixed bug in grape.json_to_composite_type related to using non-public schemas
-- New database functions: 
+- New database functions:
 	* grape.list_query_whitelist_delete
 	* grape.user_id_from_fullnames
 	* grape.username_from_fullnames
@@ -40,7 +36,7 @@
 - Caching comms: Only connect to messagesocket once socket create were successful
 
 0.0.9:
-- Read default_config.js if it exists 
+- Read default_config.js if it exists
 - Hidden grape settings
 - Fix deprecation warnings
 - Store grape_version in settings
@@ -57,7 +53,7 @@
 0.1.1:
 - Added DB function set_user_password with JSON access
 - Session specific database connections will now close after inactivity
-- Added column user.local_only BOOL to indicate if a user should be linked up to Savanna 
+- Added column user.local_only BOOL to indicate if a user should be linked up to Savanna
 - Added column user.pg_role TEXT for future use
 - New config setting guest_dburi to allow for a seperate guest DB connection
 - Grape now supports multiple public directories through config.public_directories
@@ -212,7 +208,7 @@ Minor changes:
 - Use req.ip when logging in (instead of remoteConnection IP) in order to ensure the correct client IP when connecting through proxies
 - PDF generator should catch DB errors
 - New column notification_function.emitted_event_name
-- Switch over to storing salted SHA256 (using 1000 rounds) passwords 
+- Switch over to storing salted SHA256 (using 1000 rounds) passwords
 - Automatically add access roles and access paths from schema apis to DB upon startup
 - New grape-manage command: reset_password used to reset a users password
 - When debugging is enabled, the DB response from JSON calls will now be logged
@@ -265,7 +261,7 @@ New features:
 - New function grape.user_id_from_email
 - Correctly store headers
 - Fixed issues regarding paths when loading of config files
-- Fix bug relating to validation on GET 
+- Fix bug relating to validation on GET
 - Grape can n
 
 1.1.3
@@ -307,4 +303,6 @@ Removed features:
 - Removed /api_list
 - Adding API calls to grape.access_path is not necessary with JSON schema API calls anymore, as the roles should be defined in the .json file
 
-
+1.1.4
+New features:
+- Functions to keep sequences in check: grape.check_sequence, grape.fix_sequence, grape.fix_all_sequences
