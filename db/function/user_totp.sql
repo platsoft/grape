@@ -59,6 +59,27 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION grape.generate_totp_for_user(_user_id INTEGER) RETURNS TEXT AS $$
+DECLARE
+	_totp TEXT;
+	_auth_info JSONB;
+BEGIN
+	SELECT auth_info INTO _auth_info FROM grape."user" WHERE user_id=_user_id::INTEGER;
+	IF NOT FOUND THEN
+		RETURN NULL;
+	END IF;
+
+	IF _auth_info IS NULL OR _auth_info->>'totp_status' != 'ok' THEN
+		RETURN NULL;
+	END IF;
+
+	_totp := grape.generate_totp(_auth_info->>'totp_key');
+
+	RETURN _totp;
+END; $$ LANGUAGE plpgsql;
+
+
+
 -- confirm TOTP on user's account
 CREATE OR REPLACE FUNCTION grape.confirm_totp(JSONB) RETURNS JSONB AS $$
 DECLARE
@@ -99,7 +120,7 @@ END; $$ LANGUAGE plpgsql;
  * possible results are: 
  *	'' (empty string) - 2FA not enabled
  *	'pending verification'
- *	'ok'
+ *	'ok' - 2FA enabled
  */
 CREATE OR REPLACE FUNCTION grape.get_user_totp_status (_user_id INTEGER) RETURNS TEXT AS $$
 	SELECT COALESCE(u.auth_info->>'totp_status', '') FROM grape."user" u WHERE user_id=_user_id::INTEGER;

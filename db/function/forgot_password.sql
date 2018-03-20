@@ -10,8 +10,11 @@ DECLARE
 	_sysname TEXT;
 
 	_reset_code TEXT;
+	_reset_identifier TEXT;
 	_firstname TEXT;
 	_template_data JSONB;
+
+	_otp TEXT;
 BEGIN
 
 	IF NOT $1 ? 'email' THEN
@@ -23,6 +26,17 @@ BEGIN
 		RETURN grape.api_error_data_not_found();
 	END IF;
 
+	IF grape.get_user_totp_status(_user.user_id) = 'ok' THEN
+		IF $1 ? 'otp' THEN
+			_otp := $1->>'otp';
+			IF _otp != grape.generate_totp_for_user(_user.user_id) THEN
+				RETURN grape.api_error('OTP does not match', -400);
+			END IF;
+		ELSE
+			RETURN grape.api_result_error('Missing OTP', -500);
+		END IF;
+	END IF;
+
 	IF _user.employee_info IS NOT NULL AND _user.employee_info ? 'firstname' THEN
 		_firstname := u.employee_info->>'firstname';
 	ELSIF _user.fullnames IS NOT NULL THEN
@@ -32,11 +46,13 @@ BEGIN
 	END IF;
 
 	_sysname := grape.get_value('product_name', 'Unknown');
-	_reset_code := grape.random_string(10);
+	_reset_code := grape.random_string(30);
+	_reset_identifier := grape.random_string(30);
 	
 	SELECT u.email, 
 		_sysname AS product_name, 
 		_reset_code AS reset_code,
+		_reset_identifier AS reset_identifier,
 		grape.get_value('system_url', 'missing setting system_url') AS system_url,
 		_firstname AS firstname
 	INTO _rec
@@ -47,7 +63,12 @@ BEGIN
 
 	PERFORM grape.send_email(_user.email::TEXT, 'reset_password_link', _template_data::JSON);
 
-	UPDATE grape."user" SET auth_info = auth_info || jsonb_build_object('password_reset_code', _reset_code);
+	UPDATE grape."user" SET auth_info = auth_info 
+		|| jsonb_build_object(
+			'password_reset_code', _reset_code, 
+			'password_reset_identifier', _reset_identifier
+		)
+		WHERE user_id=_user.user_id::INTEGER;
 
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;
@@ -56,14 +77,18 @@ CREATE OR REPLACE FUNCTION grape.create_new_password(JSONB) RETURNS JSONB AS $$
 DECLARE
 	_encrypted_pw TEXT;
 	_iv TEXT;
-	_email TEXT;
+	_salt TEXT;
+	_rounds INTEGER;
+	_dklen INTEGER;
+	_ri TEXT;
 	_user RECORD;
 	_reset_code TEXT;
 	_decoded_pw TEXT;
 BEGIN
 	_encrypted_pw := ($1->>'new_password');
+	_ri := ($1->>'ri');
 
-	SELECT * INTO _user FROM grape."user" WHERE email=($1->>'email');
+	SELECT * INTO _user FROM grape."user" WHERE auth_info->>'password_reset_identifier'=_ri;
 	IF NOT FOUND THEN
 		RETURN grape.api_error_data_not_found();
 	END IF;
@@ -75,8 +100,11 @@ BEGIN
 	_reset_code := (_user.auth_info)->>'password_reset_code';
 
 	_iv := ($1->>'iv');
+	_salt := ($1->>'salt');
+	_rounds := ($1->>'rounds')::INTEGER;
+	_dklen := ($1->>'dklen')::INTEGER;
 
-	_reset_code := ENCODE(DIGEST(_reset_code, 'sha256'), 'hex');
+	_reset_code := ENCODE(pbkdf2.pbkdf2('sha256', _reset_code, encode(_salt::BYTEA, 'base64'), _rounds, _dklen), 'hex');
 
 	BEGIN
 		_decoded_pw := grape.decrypt_message(_encrypted_pw, _reset_code, _iv);
@@ -87,7 +115,7 @@ BEGIN
 
 	PERFORM grape.set_user_password(_user.user_id, _decoded_pw, FALSE);
 
-	UPDATE grape."user" SET auth_info = auth_info - 'password_reset_code' WHERE user_id=_user.user_id::INTEGER;
+	UPDATE grape."user" SET auth_info = (auth_info - 'password_reset_code') - 'password_reset_identifier' WHERE user_id=_user.user_id::INTEGER;
 
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;

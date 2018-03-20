@@ -25,3 +25,7 @@ SELECT grape.table_permissions_add('grape', '{v_access_roles}'::TEXT[], 'admin',
 
 ALTER TABLE grape.patch ADD COLUMN note TEXT DEFAULT '';
 
+DROP VIEW grape.user_access_role IF EXISTS;
+
+ALTER TABLE grape.schedule ADD COLUMN logfile TEXT;
+

@@ -25,6 +25,7 @@ DECLARE
 	_password TEXT;
 	_email TEXT;
 	_user RECORD;
+	_otp TEXT;
 BEGIN
 
 	IF json_extract_path($1, 'username') IS NOT NULL THEN
@@ -49,7 +50,14 @@ BEGIN
 	END IF;
 
 	IF grape.get_user_totp_status(_user.user_id) = 'ok' THEN
-		-- TODO stuff
+		IF json_extract_path($1, 'otp') IS NOT NULL THEN
+			_otp := $1->>'otp';
+			IF _otp != grape.generate_totp_for_user(_user.user_id) THEN
+				RETURN grape.api_error('OTP does not match', -500);
+			END IF;
+		ELSE
+			RETURN grape.api_result_error('Missing OTP', -400);
+		END IF;
 	END IF;
 
 	IF grape.get_value('disable_passwords', 'false') = 'false' THEN
@@ -177,6 +185,7 @@ DECLARE
 	_ip_address TEXT;
 	_ret JSONB;
 	_headers JSONB;
+	_otp TEXT;
 BEGIN
 	_service_ticket_encrypted := ($1->>'service_ticket');
 	_issued_by := ($1->>'issued_by');
@@ -197,10 +206,26 @@ BEGIN
 		RETURN _service_ticket;
 	END IF;
 
-	SELECT * INTO _user FROM grape."user" WHERE username=_service_ticket->>'username' AND employee_guid=(_service_ticket->>'employee_guid')::UUID;
+	SELECT * INTO _user FROM grape."user" 
+		WHERE 
+			username=_service_ticket->>'username' 
+			AND employee_guid=(_service_ticket->>'employee_guid')::UUID;
+
 	IF NOT FOUND THEN
 		RETURN grape.api_error('No such user', -3);
 	END IF;
+
+	IF grape.get_user_totp_status(_user.user_id) = 'ok' THEN
+		IF json_extract_path($1, 'otp') IS NOT NULL THEN
+			_otp := $1->>'otp';
+			IF _otp != grape.generate_totp_for_user(_user.user_id) THEN
+				RETURN grape.api_error('OTP does not match', -500);
+			END IF;
+		ELSE
+			RETURN grape.api_result_error('Missing OTP', -400);
+		END IF;
+	END IF;
+
 
 	_ip_address := $1->>'ip_address';
 	_persistant := FALSE;

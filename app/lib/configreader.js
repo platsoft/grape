@@ -74,7 +74,7 @@ function read_file(configfile)
 // process a new config file (string containing path to js or json file), or object with options
 function process_options(_o, included_from_path)
 {
-	var base_directory = null;
+	var current_directory = null; // paths will be made absolute based on this directory
 	var options;
 
 	if (_.isString(_o) && 
@@ -87,43 +87,27 @@ function process_options(_o, included_from_path)
 		
 		options = read_file(_o);
 
-		base_directory = path.dirname(_o);
+		current_directory = path.dirname(_o);
 	}
 	else
 	{
 		options = _o;
 
-		base_directory = options.base_directory || null;
+		current_directory = included_from_path;
 	}
 
 	if (options.include && _.isArray(options.include))
 	{
 		options.include.forEach(function(file) {
-			var included_options = process_options(path.join(base_directory, file), base_directory);
-			options = merge_objects(included_options, options); //the previously set options must get priority
+			if (!path.isAbsolute(file))
+				file = path.join(current_directory, file);
+
+			var included_options = process_options(file, current_directory);
+			options = merge_objects(included_options, options); //later will override older
 		});
 		delete options.include;
 	}
 
-	// backwards compatibility: get rid of the public_directory
-	if (options.public_directory)
-	{
-		if (_.isArray(options.public_directory))
-		{
-			options.public_directories = options.public_directory;
-		}
-		else if (_.isArray(options.public_directories))
-		{
-			options.public_directories.push(options.public_directory);
-		}
-		else
-		{
-			options.public_directories = [options.public_directory];
-		}
-
-		options.public_directory = null;
-	}
-	
 	// backwards compatibility
 	if (options.email_template_directory)
 	{
@@ -140,6 +124,7 @@ function process_options(_o, included_from_path)
 
 	//paths
 	var path_options = [
+		'base_directory',
 		'api_directories',
 		'public_directories',
 		'email_template_directories', 
@@ -165,7 +150,7 @@ function process_options(_o, included_from_path)
 			var new_arr = [];
 			options[p].forEach(function(pc) {
 				if (!path.isAbsolute(pc))
-					new_arr.push(path.join(base_directory, pc));
+					new_arr.push(path.join(current_directory, pc));
 				else
 					new_arr.push(pc);
 			});
@@ -173,7 +158,7 @@ function process_options(_o, included_from_path)
 		}
 		else if (options[p] && !path.isAbsolute(options[p]))
 		{
-			options[p] = path.join(base_directory, options[p]);
+			options[p] = path.join(current_directory, options[p]);
 		}
 	});
 

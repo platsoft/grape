@@ -21,6 +21,7 @@ const IPCSessionCache = require(__dirname + '/ipc_sessioncache.js');
 const CommsChannel = require(__dirname + '/comms.js');
 const GrapeSettings = require(path.join(__dirname, 'grape_settings.js'));
 const dblib = require(path.join(__dirname, 'db.js'));
+const verify_grape_setup = require(path.join(__dirname, 'verify_setup.js'));
 
 //var email_notification_worker = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
 
@@ -127,26 +128,6 @@ function grape() {
 
 	};
 
-	this.check_grape_version = function(next) {
-		try {
-			var pkg = JSON.parse(fs.readFileSync(__dirname + '/../../package.json', 'utf8'));
-		} catch (e) {
-			self.logger.error('app', 'Error when loading package.json');
-			next();
-			return;
-		}
-
-		var db_grape_version = self.grape_settings.get_value('grape_version', '0');
-		if (db_grape_version != pkg.version)
-		{
-			self.logger.crit('app', 'The grape version in your database (', db_grape_version, ') does not match the one that is currently running (', pkg.version, '). Please apply the necessary patches to get your database up too date');
-			self.db.disconnect(true); // going to quit
-		}
-		else
-		{
-			next();
-		}
-	};
 
 	this.addWorker = function(obj) {
 		if (cluster.isMaster || process.env.state == obj.name)
@@ -263,7 +244,7 @@ function grape() {
 				create_pidfile, 
 				self.setup_comms, 
 				self.setup_database, 
-				self.check_grape_version,
+				verify_grape_setup(self),
 				start_workers,
 				done
 			]);
