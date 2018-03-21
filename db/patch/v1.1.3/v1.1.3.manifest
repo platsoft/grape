@@ -1,4 +1,7 @@
 v1.1.3.sql
 ../../functions.manifest
-@patch grape:113 
-@endpatch grape:113
+#@patch grape:113 
+#@endpatch grape:113
+
+../../data/settings.sql
+

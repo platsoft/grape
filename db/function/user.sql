@@ -43,6 +43,10 @@ BEGIN
 		_user_id := grape.current_user_id();
 	END IF;
 
+	IF _user_id != grape.current_user_id() AND grape.current_user_in_role('admin') = FALSE THEN
+		RETURN grape.api_error_permission_denied();
+	END IF;
+
 	IF _user_id IS NULL THEN
 		_username := $1->>'username';
 		IF _username IS NULL THEN
@@ -120,6 +124,12 @@ BEGIN
 	IF _in ? 'auth_server_search_base' THEN
 		PERFORM grape.user_update_auth_info(_user_id, 'auth_server_search_base', _in->>'auth_server_search_base');
 	END IF;
+
+	IF _in ? 'mobile' THEN
+		PERFORM grape.user_update_auth_info(_user_id, 'mobile', _in->>'mobile');
+		PERFORM grape.user_update_auth_info(_user_id, 'mobile_status', 'unverified');
+	END IF;
+
 	
 	RETURN grape.api_success(json_build_object('user_id', _user_id));
 END; $$ LANGUAGE plpgsql;
@@ -392,11 +402,13 @@ BEGIN
 			email, 
 			fullnames, 
 			active, 
-			employee_guid, 
+			employee_guid AS guid,
 			employee_info, 
 			COALESCE(auth_info->>'totp_status', '') AS totp_status,
 			COALESCE(auth_info->>'mobile', '') AS mobile,
-			COALESCE(auth_info->>'mobile_status', '') AS mobile_status
+			COALESCE(auth_info->>'mobile_status', '') AS mobile_status,
+			COALESCE(auth_info->>'email_status', '') AS email_status,
+			COALESCE(auth_info->>'auth_server', '') AS auth_server
 		FROM grape."user" WHERE user_id=_user_id::INTEGER
 	) a;
 
@@ -404,7 +416,7 @@ BEGIN
 		RETURN grape.api_error_data_not_found();
 	END IF;
 	
-	SELECT array_agg(role_name) INTO _user_roles FROM grape."user_role" WHERE user_id=_user_id::INTEGER;
+	SELECT array_agg(g) INTO _user_roles FROM grape.get_user_roles(_user_id::INTEGER) g;
 
 	_ret := _ret || jsonb_build_object('user_roles', _user_roles);
 	

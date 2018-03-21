@@ -1,10 +1,10 @@
 {
 	"description": "Get information for a user",
-	"id": "/grape/user/:user_id",
+	"url": "/grape/user/:user_id",
 	"name": "GrapeSelectUser",
 	"sqlfunc": "grape.select_user",
 	"sqlfunctype": "jsonb",
-	"type": "query",
+	"method": "GET",
 	"roles": ["all"],
 	"return": {
 		"type": "object",

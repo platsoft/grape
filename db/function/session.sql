@@ -1,5 +1,6 @@
 -- Require: user.sql
 -- Require: user_access_role.sql
+-- Require: user_auth_info.sql
 
 /**
  * Input:
@@ -142,7 +143,7 @@ BEGIN
 		_persistant := ($1->>'persistant')::BOOLEAN;
 	END IF;
 
-	IF grape.get_value('user_ip_filter', 'false') = 'true' THEN
+	IF grape.get_value('auth.user_ip_filter', 'false') = 'true' THEN
 		IF grape.check_user_ip (_user.user_id::INTEGER, _ip_address::INET) = 2 THEN
 			RAISE NOTICE 'IP filter check failed for user % (IP %)', _username, _ip_address;
 			RETURN grape.api_result_error('IP not allowed', 4);
@@ -234,7 +235,7 @@ BEGIN
 		_persistant := ($1->>'persistant')::BOOLEAN;
 	END IF;
 
-	IF grape.get_value('user_ip_filter', 'false') = 'true' THEN
+	IF grape.get_value('auth.user_ip_filter', 'false') = 'true' THEN
 		IF grape.check_user_ip (_user.user_id::INTEGER, _ip_address::INET) = 2 THEN
 			RAISE NOTICE 'IP filter check failed for user % (IP %)', _user.username, _ip_address;
 			RETURN grape.api_result_error('IP not allowed', 4);

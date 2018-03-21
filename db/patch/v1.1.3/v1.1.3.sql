@@ -4,6 +4,16 @@ SELECT grape.set_value('grape_version', '1.1.3');
 ALTER TABLE grape."user" ADD COLUMN preferences JSONB DEFAULT '{}';
 ALTER TABLE grape."user" DROP COLUMN pg_role;
 
+INSERT INTO grape.access_role (role_name) 
+VALUES 
+	('guest'),
+	('all'),
+	('admin'),
+	('pg_stat'), -- role that can view pg stats
+	('switch_user') -- role that can switch to another user
+ON CONFLICT (role_name) DO NOTHING;
+
+
 DROP FUNCTION IF EXISTS grape.session_insert(JSON);
 
 CREATE TABLE grape.access_role_role(

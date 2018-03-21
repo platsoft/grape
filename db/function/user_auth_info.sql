@@ -38,11 +38,13 @@ END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION grape.get_user_auth_info (_user_id INTEGER) RETURNS TABLE (
 	auth_server TEXT, 
-	totp_status TEXT
+	totp_status TEXT,
+	mobile_status TEXT
 ) AS $$
 	SELECT 
 		COALESCE(auth_info->>'totp_status', ''),
-		COALESCE(auth_info->>'auth_server', '') 
+		COALESCE(auth_info->>'auth_server', ''),
+		COALESCE(auth_info->>'mobile_status', '')
 	FROM 
 		grape."user" u
 		WHERE user_id=_user_id::INTEGER;

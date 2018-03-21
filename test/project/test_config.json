@@ -1,0 +1,6 @@
+{
+	"public_directories": ["public/"],
+	"dburi": "pg://hans:hans123@localhost/test",
+	"superdburi": "pg://hans:hans123@localhost/postgres",
+	"port": 60890
+}

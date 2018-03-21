@@ -3,6 +3,7 @@ const _ = require('underscore');
 const fs = require('fs-extra');
 const util = require('util');
 const path = require('path');
+const net = require('net');
 
 /**
  * levels:
@@ -224,27 +225,45 @@ var logger = function(opts) {
 		return self.local_log_stream;
 	};
 
+	this.get_global_log_stream = function(cb) {
+		if (!self.global_log_stream)
+		{
+			var fullname = path.join(self.options.log_directory, 'global.log');
+			
+			self.global_log_stream = fs.createWriteStream(fullname, { flags: 'a' });
+			cb(self.global_log_stream);
+		}
+		else
+		{
+			cb(self.global_log_stream);
+		}
+	};
+
 	this.log_event = function(level, channel, message) {
+		var s = 'master';
+		if (process.env.state)
+			s = process.env.state;
+
+		var proc_bg_color_code = "\033[47;34m";
+		var reset_color_code = "\033[0m";
+
+		var output = [];
+
+		output.push([proc_bg_color_code, s, ':', process.pid, reset_color_code].join(''));
+
+		output.push([self.channel_tty_colors[channel], channel, reset_color_code].join(''));
+
+		output.push([self.level_tty_colors[level], level, ": ", message, reset_color_code].join(''));
+
 		if (process.stdout.isTTY)
 		{
-			var s = 'master';
-			if (process.env.state)
-				s = process.env.state;
-
-			var proc_bg_color_code = "\033[47;34m";
-			var reset_color_code = "\033[0m";
-
-			var output = [];
-
-			output.push([proc_bg_color_code, s, ':', process.pid, reset_color_code].join(''));
-
-			output.push([self.channel_tty_colors[channel], channel, reset_color_code].join(''));
-
-			output.push([self.level_tty_colors[level], level, ": ", message, reset_color_code].join(''));
-			
-			//output.push([].join(''));
-
 			console.log(output.join(' '));
+		}
+		else
+		{
+			self.get_global_log_stream(function(log_stream) { 
+				log_stream.write(output.join(' ') + "\n");
+			});
 		}
 		
 		var stream = self.get_local_log_file();
@@ -253,11 +272,36 @@ var logger = function(opts) {
 		// TODO use momentjs
 		var d_str = ['[', d.getFullYear(), '/', ('00' + (d.getMonth()+1)).slice(-2), '/', ('00' + d.getDate()).slice(-2), ' ', ('00' + d.getHours()).slice(-2), ':', ('00' + d.getMinutes()).slice(-2), ':', ('00' + d.getSeconds()).slice(-2), ']'].join('');
 
-		stream.write([d_str, channel, level, message].join(' '));
-		stream.write("\n");
+		var write_msg = [d_str, channel, level, message].join(' ');
+
+		stream.write(write_msg + "\n");
 
 	};
 
+	this.shutdown = function() {
+		if (self.local_log_stream)
+		{
+			setTimeout(function() { 
+				if (self.local_log_stream)
+				{
+					self.local_log_stream.end(); 
+					self.local_log_stream=null; 
+				}
+			}, 1000);
+		}
+
+		if (self.global_log_stream)
+		{
+			setTimeout(function() { 
+				if (self.global_log_stream)
+				{
+					self.global_log_stream.end(); 
+					self.global_log_stream=null; 
+				}
+			}, 1000);
+
+		}
+	};
 };
 
 exports = module.exports = logger;

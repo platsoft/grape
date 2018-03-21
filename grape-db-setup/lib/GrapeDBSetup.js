@@ -130,7 +130,7 @@ function GrapeDBSetup(options)
 		var new_data;
 		if (self.options.schema != 'none')
 		{
-			new_data = ["SET search_path TO '", self.options.schema, "';\n", data].join('');
+			new_data = ["\nSET search_path TO '", self.options.schema, "';\n", data].join('');
 		}
 		else
 		{

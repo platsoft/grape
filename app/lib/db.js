@@ -143,6 +143,10 @@ function db (_o) {
 	this.disconnect = function(no_reconnect) {
 		if (no_reconnect)
 			self.no_reconnect = no_reconnect;
+		if (self.state == 'closing' || self.state == 'close')
+			return; //already closed
+		
+		self.state = 'closing';
 		self.client.end();
 	};
 

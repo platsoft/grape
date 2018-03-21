@@ -35,7 +35,7 @@ BEGIN
 	SELECT array_agg(role_name) INTO _path_role FROM grape.access_path WHERE (_check_path ~ regex_path)=TRUE;
 	IF NOT FOUND THEN
 		-- path not found. we should allow it if the grape setting default_access_allowed is true
-		IF grape.get_value('default_access_allowed', 'true') = 'true' THEN
+		IF grape.get_value('auth.default_access_allowed', 'true') = 'true' THEN
 			RETURN (0, _user_id, _session_id, _username)::grape.access_result_type;
 		ELSE
 			RETURN (9, _user_id, _session_id, _username)::grape.access_result_type;

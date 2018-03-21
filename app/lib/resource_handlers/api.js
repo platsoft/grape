@@ -122,7 +122,7 @@ function APIHandler(app)
 
 		var path = req.handler.matched_path;
 
-		var default_access_allowed = settings.get_value('default_access_allowed', 'false');
+		var default_access_allowed = settings.get_value('auth.default_access_allowed', 'false');
 
 		var api_def = self.api_list[path];
 

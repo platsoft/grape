@@ -61,8 +61,15 @@ function init_database(app)
 		});
 
 		guest_db.on('end', function() {
-			app.get('logger').log('db', 'info', 'Guest db conn disconnected. Restarting');
-			guest_db.connect();
+			if (!guest_db.no_reconnect)
+			{
+				app.get('logger').log('db', 'info', 'Guest db conn disconnected. Restarting');
+				guest_db.connect();
+			}
+			else
+			{
+				app.get('logger').log('db', 'info', 'Guest db conn disconnected');
+			}
 		});
 
 		app.set('guest_db', guest_db);
@@ -353,6 +360,23 @@ var grape_express_app = function(options, grape_obj) {
 		async.series([start_http, start_https, _done]);
 	}
 
+	this.shutdown = function(cb) {
+		if (self.https_server)
+			self.https_server.close();
+		if (self.http_server)
+			self.http_server.close();
+
+		if (self.app.get('guest_db'))
+			self.app.get('guest_db').disconnect(true);
+
+		var dbs = self.app.get('dbs');
+		if (dbs)
+		{
+			dbs.forEach(function(db) {
+				db.disconnect(true);
+			});
+		}
+	};
 };
 
 grape_express_app.prototype.__proto__ = events.EventEmitter.prototype;

@@ -19,7 +19,7 @@ DECLARE
 	_current_user_id INTEGER;
 BEGIN
 	_current_user_id := current_user_id();
-	_schema_name := grape.setting('test_table_schema', 'tmp');
+	_schema_name := grape.setting('dataimport.test_table_schema', 'tmp');
 	_table_name := $1->>'test_table_name';
 	_description := $1->>'description';
 	_append := ($1->>'append')::BOOLEAN;

@@ -307,7 +307,7 @@ BEGIN
 		RETURN grape.api_error('Data import is not in correct status to be processed', -2);
 	END IF;
 
-	_dataimport_in_background := (grape.get_value('dataimport_in_background', 'false'))::BOOLEAN;
+	_dataimport_in_background := (grape.get_value('dataimport.process_in_background', 'false'))::BOOLEAN;
 
 	IF _dataimport_in_background = TRUE THEN
 		SELECT grape.start_process('proc_process_data_import', json_build_object('data_import_id', _data_import_id)) INTO _return_code;

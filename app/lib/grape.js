@@ -33,7 +33,7 @@ function grape() {
 
 	var logger = new grapelib.logger(this.options);
 	this.logger = logger;
-		
+	
 	var comms = null;
 	this.comms = comms;
 
@@ -45,20 +45,27 @@ function grape() {
 
 	this.state = 'init';
 
+	// only available in workers
+	this.current_worker_definition = null;
+	this.current_worker = null;
+
 	this.setup = function() {
+
+		if (cluster.isMaster)
+		{
+			try { 
+				fs.unlinkSync(path.join(self.options.log_directory, 'global.log'));
+			} catch(e) { 
+				// do nothing
+			}
+		}
+
 		self.addWorker({
 			name: 'httplistener',
 			instance_count: self.options.http_instance_count || 5,
 			func: g_app
 		});
 
-		/*
-		self.addWorker({
-			name: 'emailer',
-			instance_count: 1,
-			func: email_notification_worker
-		});
-		*/
 	};
 
 	this.setup_comms = function(next) {
@@ -128,6 +135,29 @@ function grape() {
 
 	};
 
+	this.shutdown = function() {
+		self.state = 'shutdown';
+
+		self.db.disconnect(true);
+
+		if (cluster.isMaster)
+		{
+			for (const worker_id in cluster.workers)
+			{
+				cluster.workers[worker_id].kill('SIGINT');
+			}
+			setImmediate(function() { cluster.disconnect(); });
+		}
+		else
+		{
+			if (self.current_worker && self.current_worker.shutdown)
+			{
+				self.current_worker.shutdown();
+			}
+		}
+
+		self.logger.shutdown();
+	};
 
 	this.addWorker = function(obj) {
 		if (cluster.isMaster || process.env.state == obj.name)
@@ -215,12 +245,12 @@ function grape() {
 					fs.unlinkSync(pidfile);
 				});
 				process.on('SIGINT', function(code) {
-					console.log("Caught SIGINT, exiting gracefully");
-					process.exit(1);
+					self.logger.app('info', "Caught SIGINT, exiting gracefully");
+					self.shutdown(); 
 				});
 				process.on('SIGUSR2', function(code) {
 					console.log("Caught SIGUSR2, exiting gracefully");
-					process.exit(1);
+					self.shutdown(); 
 				});
 				
 				for (var i = 0; i < self.workers.length; i++)
@@ -251,6 +281,12 @@ function grape() {
 		}
 		else  // we are the child/worker process
 		{
+			process.on('SIGINT', function(code) {
+				self.logger.app('info', "Caught SIGINT, exiting gracefully");
+				self.shutdown(); 
+			});
+
+
 			function run_start_function(done) {
 				if (process.env.state)
 				{
@@ -266,10 +302,13 @@ function grape() {
 
 						if (worker.name == process.env.state)
 						{
+							self.current_worker_definition = worker;
+
 							found = true;
 							process.title = [process_name, '-', worker.name, '[', instance_count , ']'].join('');
 							try {
 								var obj = new (worker.func)(self.options, self);
+								self.current_worker = obj;
 
 								self.emit([worker.name, 'beforestart'].join('-'), worker, obj);
 							
@@ -324,6 +363,12 @@ function grape() {
 		});
 
 		new_process.on('exit', function() {
+			if (self.state == 'shutdown')
+			{
+				self.logger.info('app', worker.name, "[", instance_idx, "]: Worker process ", new_process.process.pid, " has shut down");
+				return;
+			}
+
 			if (new_process.process.exitCode == 5)
 			{
 				self.logger.error('app', worker.name, "[", instance_idx, "]: Worker process ", new_process.process.pid, " experienced a connectivity issue. Restarting in 5 seconds");
@@ -348,7 +393,7 @@ function grape() {
 				setTimeout(function() { 
 					self.forkWorker(worker, instance_idx); 
 				}, 2000);
-				}
+			}
 		});
 		new_process.on('death', function() {
 			self.logger.error('app', "Worker died"); // TODO add some more info?
