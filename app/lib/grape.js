@@ -144,7 +144,7 @@ function grape() {
 		{
 			for (const worker_id in cluster.workers)
 			{
-				cluster.workers[worker_id].kill('SIGINT');
+				//cluster.workers[worker_id].kill('SIGINT');
 			}
 			setImmediate(function() { cluster.disconnect(); });
 		}

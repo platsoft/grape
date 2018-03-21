@@ -281,25 +281,14 @@ var logger = function(opts) {
 	this.shutdown = function() {
 		if (self.local_log_stream)
 		{
-			setTimeout(function() { 
-				if (self.local_log_stream)
-				{
-					self.local_log_stream.end(); 
-					self.local_log_stream=null; 
-				}
-			}, 1000);
+			self.local_log_stream.end(); 
+			self.local_log_stream=null; 
 		}
 
 		if (self.global_log_stream)
 		{
-			setTimeout(function() { 
-				if (self.global_log_stream)
-				{
-					self.global_log_stream.end(); 
-					self.global_log_stream=null; 
-				}
-			}, 1000);
-
+			self.global_log_stream.end(); 
+			self.global_log_stream=null; 
 		}
 	};
 };
