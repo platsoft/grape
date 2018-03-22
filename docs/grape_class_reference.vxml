@@ -4,8 +4,11 @@
 Below follows a reference for the Grape object (the thing that gets returned from <icode>new Grape.grape()</icode>).
 
 <h2>Methods</h2>
-<h3>constructor (config, config, ...)</h3>
+<h3>new grape.grape(config, config, ...)</h3>
+<p>
 Reads and parses all arguments as configuration objects or files.
+</p>
+
 <h3>addWorker (options)</h3>
 <p>
 	options should include:
@@ -20,11 +23,20 @@ Reads and parses all arguments as configuration objects or files.
 	The start method verifies that all the correct config options are set, and then creates all the worker processes that has been registered. It also checks if the process PID file exists, and it it does, it sends a SIGINT signal to the process ID found in the file.
 </p>
 
+<h3>shutdown()</h3>
+
 <h2>Members</h2>
 <h3>grape_settings</h3>
+<p>Will contain a reference to an instance of <link id="grapesettings-classref">GrapeSettings</link></p>
+
 <h3>logger</h3>
+<p>Will contain a reference to an instance of <link id="logger-classref">GrapeLogger</link></p>
+
 <h3>options</h3>
+<p>Will contain a reference to an instance of <link id="configreader-classref">ConfigReader</link></p>
+
 <h3>comms</h3>
+<p>Will contain a reference to an instance of <link id="commschannel-classref">CommsChannel</link></p>
 
 <h2>Events</h2>
 <h3>*-beforestart</h3>

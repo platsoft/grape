@@ -1,8 +1,36 @@
 <?xml version="1.0"?>
 <ps_doc title="" titlepage="no" tocpage="no">
-<h1 id="commschannel-classref">CommsChannel Class Reference</h1>
+<h1 id="db-classref">grape.dblib Class Reference</h1>
 
 <h2>Methods</h2>
+<h3>new grape.dblib(config:object)</h3>
+<code>config = {
+	dburi: <b>string</b> or <b>object</b>, // will be passed to Node PG when creating client,
+	debug: <b>boolean</b>, // default false
+	session_id: <b>string</b>, // default
+	username: <b>string</b>,
+	db_idle_timeout: <b>integer</b>
+}</code>
+
+<h3>connect()</h3>
+<p>
+	Establish connection to DB. This method will automatically be called when the object is created.
+</p>
+
+<h3>disconnect(no_reconnect:boolean, callback:function)</h3>
+<p></p>
+
+<h3>query(query_text:string, values:array, callback:function, query_options:object)</h3>
+<p></p>
+
+<h3>json_call(function_name:string, data:object, callback:function, query_options:object)</h3>
+<p></p>
+
+<h3>jsonb_call(function_name:string, data:object, callback:function, query_options:object)</h3>
+<p>Similar to json_call, but used for functions that accepts and returns a JSONB parameter</p>
+
+<h3>new_notify_handler(channel:string, handler:function)</h3>
+<p></p>
 
 <h2>Members</h2>
 

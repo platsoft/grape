@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ps_doc title="" titlepage="no" tocpage="no">
+<h1 id="configreader-classref">ConfigReader Class Reference</h1>
+
+<h2>Methods</h2>
+<h3>new grape.configreader(args:string|object, [args:string|object, ...])</h3>
+<p></p>
+
+<h2>Members</h2>
+
+<h2>Events</h2>
+
+</ps_doc>

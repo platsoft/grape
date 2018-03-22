@@ -50,13 +50,21 @@
 
 <h2>Reference</h2>
 
-<include href="grape_class_reference.vxml" parse="vxml" level="1"></include>
+<include href="grape_class_reference.vxml" parse="vxml" level="1" />
+
+<include href="class_ref_commschannel.vxml" parse="vxml" level="1" />
+<include href="class_ref_configreader.vxml" parse="vxml" level="1" />
+<include href="class_ref_dblib.vxml" parse="vxml" level="1" />
+<include href="class_ref_grape_settings.vxml" parse="vxml" level="1" />
+<include href="class_ref_http_app.vxml" parse="vxml" level="1" />
+<include href="class_ref_logger.vxml" parse="vxml" level="1" />
+
 
 <!-- include grape error codes -->
 <include href="grape_error_codes.vxml" parse="vxml" level="1" /> 
 
 <!-- include grape manage -->
-<include href="../grape-manage/grape-manage.vxml" parse="vxml" level="1" /> 
+<!-- <include href="../grape-manage/grape-manage.vxml" parse="vxml" level="1" />  -->
 
 <!-- include grape api calls -->
 <h2 id="grape-builtin-api-calls">Built-in API calls</h2>
