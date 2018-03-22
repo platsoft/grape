@@ -404,7 +404,7 @@ function grape() {
 								else
 								{
 									self.logger.warn('app', 'No start() function for worker', worker.name, 'defined');
-									self.emit([worker.name, 'after-start'].join('-'), worker, obj);
+									self.emit([worker.name, 'afterstart'].join('-'), worker, obj);
 									self.emit('worker', worker, obj);
 									done();
 								}

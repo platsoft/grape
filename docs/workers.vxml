@@ -17,8 +17,15 @@
 </p>
 <h3>Registering a worker</h3>
 <p>
-	Before <link id="sec-grape-class-reference-start">Grape.start()</link> is called, workers should be registered using <link id="sec-grape-class-reference-addWorker">Grape.addWorker(<i>options</i>)</link>. This function accepts an object with the following fields:
-	<code></code>
+	Before <link id="sec-grape-class-reference-start">Grape.start()</link> is called, workers can be registered using <link id="sec-grape-class-reference-addWorker">Grape.addWorker(<i>options</i>)</link>. This function accepts an object with the following fields:
+	<code>app.addWorker({
+  name: <r>'custom-worker'</r>,
+  func: worker_function
+});</code>
+</p>
+<h3>Worker function</h3>
+<p>
+
 </p>
 <h3>Communicating with parent</h3>
 <p>

@@ -30,7 +30,7 @@
 <!-- include grape settings-->
 <include href="grapesettings.vxml" parse="vxml" level="1" /> 
 
-<h2>Additional Functionality</h2>
+<h2>Extending Grape</h2>
 
 
 <!-- include notifications network -->
@@ -54,7 +54,6 @@
 
 <include href="class_ref_commschannel.vxml" parse="vxml" level="1" />
 <include href="class_ref_configreader.vxml" parse="vxml" level="1" />
-<include href="class_ref_dblib.vxml" parse="vxml" level="1" />
 <include href="class_ref_grape_settings.vxml" parse="vxml" level="1" />
 <include href="class_ref_http_app.vxml" parse="vxml" level="1" />
 <include href="class_ref_logger.vxml" parse="vxml" level="1" />

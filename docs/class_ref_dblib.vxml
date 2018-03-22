@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <ps_doc title="" titlepage="no" tocpage="no">
 <h1 id="db-classref">grape.dblib Class Reference</h1>
+<p>
+	Upon startup, Grape automatically create a database connection. This connection is exposed to Workers via the <icode>grape_app.db</icode> field, and <icode>req.app.get('db')</icode> in HTTP handlers. The following methods are available in this object.
+</p>
 
 <h2>Methods</h2>
 <h3>new grape.dblib(config:object)</h3>

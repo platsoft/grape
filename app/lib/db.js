@@ -145,7 +145,8 @@ function db (_o) {
 			self.no_reconnect = no_reconnect;
 		if (self.state == 'closing' || self.state == 'close')
 		{
-			cb();
+			if (cb)
+				cb();
 			return; //already closed
 		}
 		

@@ -41,8 +41,22 @@ Reads and parses all arguments as configuration objects or files.
 <h2>Events</h2>
 <h3>*-beforestart</h3>
 <h3>*-afterstart</h3>
+<h3>master-after-start</h3>
+<p>Emitted by the master process after startup</p>
+
 <h3>worker</h3>
-<h3>worker-*</h3>
+<p>Emitted by worker process after creation and startup</p>
+
+<h3>*-beforestart (worker:object, instance:object)</h3>
+<p>Emitted by worker processes before a worker object's start function is called. <icode>worker</icode> is the worker definition, and <icode>instance</icode> is an instance of the worker's worker.func</p>
+<p>For example, <icode>httplistener-beforestart</icode></p>
+
+<h3>*-afterstart (worker:object, instance:object)</h3>
+<p>Emitted by worker processes before a worker object's start function is called. <icode>worker</icode> is the worker definition, and <icode>instance</icode> is an instance of the worker's worker.func</p>
+<p>For example, <icode>httplistener-beforestart</icode></p>
+
+
+
 <h3>worker-*-created</h3>
 <h3>creating_pidfile</h3>
 <h3>pidfile_created</h3>

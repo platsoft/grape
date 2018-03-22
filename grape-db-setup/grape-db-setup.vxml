@@ -65,7 +65,7 @@ db/function/
 	<code>@calljson grape.user_save user.json</code>
 </p>
 
-Most projects will include 2 manifest files usually:
+Most projects will include 2 manifest files, usually:
 <ul>
 	<li><i>initial.manifest</i> - To be used during initial creation of database. This file will create the database schema and tables (as exported from pgModeler).</li>
 	<li><i>functions.manifest</i> - To be used when recreating functions. This file will load all PL/pgSQL functions and views.</li>

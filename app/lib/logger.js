@@ -229,8 +229,11 @@ var logger = function(opts) {
 		if (!self.global_log_stream)
 		{
 			var fullname = path.join(self.options.log_directory, 'global.log');
+
+			var fd = fs.openSync(fullname, 'a');
 			
-			self.global_log_stream = fs.createWriteStream(fullname, { flags: 'a' });
+			self.global_log_stream = fs.createWriteStream(fullname, { fd: fd });
+			self.global_log_stream.fd = fd;
 			cb(self.global_log_stream);
 		}
 		else
@@ -255,6 +258,11 @@ var logger = function(opts) {
 
 		output.push([self.level_tty_colors[level], level, ": ", message, reset_color_code].join(''));
 
+		var d = new Date();
+		// TODO use momentjs
+		var d_str = ['[', d.getFullYear(), '/', ('00' + (d.getMonth()+1)).slice(-2), '/', ('00' + d.getDate()).slice(-2), ' ', ('00' + d.getHours()).slice(-2), ':', ('00' + d.getMinutes()).slice(-2), ':', ('00' + d.getSeconds()).slice(-2), ']'].join('');
+
+
 		if (process.stdout.isTTY)
 		{
 			console.log(output.join(' '));
@@ -262,16 +270,13 @@ var logger = function(opts) {
 		else
 		{
 			self.get_global_log_stream(function(log_stream) { 
-				log_stream.write(output.join(' ') + "\n");
+				log_stream.write(d_str + ' ' + output.join(' ') + "\n");
+				fs.fdatasyncSync(self.global_log_stream.fd);
 			});
 		}
 		
 		var stream = self.get_local_log_file();
 		
-		var d = new Date();
-		// TODO use momentjs
-		var d_str = ['[', d.getFullYear(), '/', ('00' + (d.getMonth()+1)).slice(-2), '/', ('00' + d.getDate()).slice(-2), ' ', ('00' + d.getHours()).slice(-2), ':', ('00' + d.getMinutes()).slice(-2), ':', ('00' + d.getSeconds()).slice(-2), ']'].join('');
-
 		var write_msg = [d_str, channel, level, message].join(' ');
 
 		stream.write(write_msg + "\n");

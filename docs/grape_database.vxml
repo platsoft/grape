@@ -9,6 +9,7 @@ The following subdirectories can be found in a project's <fname>db/</fname> dire
 		<li><i>function/</i> - Directories and files containing database functions.</li>
 		<li><i>process/</i> - Files containing database functions related to <link id="platsoft-background-worker">background processes</link>.</li>
 		<li><i>data/</i> - Files containing initial data for the system.</li>
+		<li><i>patch/</i> - Files containing patches. Deployments will include patches</li>
 		<li><i>deployments/</i> - Containing subdirectories for specific deployments. See the section Deployments for more information regarding this.</li>
 	</ul>
 
@@ -66,6 +67,8 @@ By default, grape applications will use the following schemas:
 	Grape includes a utility function, <i>new_notify_handler(<b>channel_name</b>, <b>callback</b>)</i>, which will keep track of callbacks for database <u>NOTIFY</u> events. This should be used in a custom background worker.
 	<note color="orange">When multiple instances of workers have registered a LISTENer, all of them will be invoked when a NOTIFY is called. Only add notification listeners in worker processes, not API call handlers</note>
 </p>
+
+<include href="class_ref_dblib.vxml" parse="vxml" level="2" />
 
 <include href="../grape-db-setup/grape-db-setup.vxml" parse="vxml" level="2" />
 

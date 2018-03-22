@@ -15,7 +15,7 @@ Extended functionality is provided as part of Grape modules. A Grape Module can 
 <h2>Available Modules</h2>
 <p>
 <ul>
-	<li><link id="grapemailer">grapemailer</link> Provide email sending functionality</li>
+	<li><link id="grape-email-sender">grape-email-sender</link> Provide email sending functionality</li>
 	<li><link id="grape_data_import">grape_data_import</link> Data import (XLS/CSV), cleanup, validation and processing</li>
 	<li><link id="grape-processes">grape-processesr</link> UI pages for working with background processes</li>
 	<li><link id="grape_pdf">Generating PDF files from XML (using XSL stylesheets and Apache FOP)</link></li>
