@@ -140,14 +140,17 @@ function db (_o) {
 
 	this.connect();
 
-	this.disconnect = function(no_reconnect) {
+	this.disconnect = function(no_reconnect, cb) {
 		if (no_reconnect)
 			self.no_reconnect = no_reconnect;
 		if (self.state == 'closing' || self.state == 'close')
+		{
+			cb();
 			return; //already closed
+		}
 		
 		self.state = 'closing';
-		self.client.end();
+		self.client.end(cb);
 	};
 
 	/*

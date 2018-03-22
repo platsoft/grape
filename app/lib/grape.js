@@ -45,6 +45,8 @@ function grape() {
 
 	this.state = 'init';
 
+	this.shutdown_started = 0;
+
 	// only available in workers
 	this.current_worker_definition = null;
 	this.current_worker = null;
@@ -138,25 +140,44 @@ function grape() {
 	this.shutdown = function() {
 		self.state = 'shutdown';
 
-		self.db.disconnect(true);
 
 		if (cluster.isMaster)
 		{
-			for (const worker_id in cluster.workers)
-			{
-				//cluster.workers[worker_id].kill('SIGINT');
-			}
+			self.logger.app('info', 'Starting shutdown sequence on master...');
+			self.logger.app('info', 'Shutdown: Disconnect cluster...');
 			setImmediate(function() { cluster.disconnect(); });
+			self.db.disconnect(true, function() {
+				self.logger.app('info', 'Shutdown: Master DB connection disconnected...');
+				
+				self.logger.app('info', 'Shutdown: Disconnecting logger...');
+				self.logger.shutdown();
+			});
 		}
 		else
 		{
+			self.logger.app('info', 'Shutdown: Starting shutdown sequence on worker...');
+			
+
 			if (self.current_worker && self.current_worker.shutdown)
 			{
-				self.current_worker.shutdown();
+				self.current_worker.shutdown(function() {
+					self.logger.app('info', 'Shutdown: Disconnecting database...');
+					self.db.disconnect(true, function() {
+						self.logger.app('info', 'Shutdown: Disconnecting logger...');
+						self.logger.shutdown();
+					});
+				});
+			}
+			else
+			{
+				self.logger.app('info', 'Shutdown: Disconnecting database...');
+				self.db.disconnect(true, function() {
+					self.logger.app('info', 'Shutdown: Disconnecting logger...');
+					self.logger.shutdown();
+				});
 			}
 		}
-
-		self.logger.shutdown();
+		
 	};
 
 	this.addWorker = function(obj) {
@@ -241,10 +262,23 @@ function grape() {
 			var start_workers = function(next) {
 
 				process.on('exit', function(code) {
-					console.log("Process exiting ");
 					fs.unlinkSync(pidfile);
+					var diff = (new Date()).getTime() - self.shutdown_started;
+					console.log("Process exit. Shutdown took %s seconds", (diff / 1000));
 				});
 				process.on('SIGINT', function(code) {
+					if (self.shutdown_started > 0)
+					{
+						var diff = (new Date()).getTime() - self.shutdown_started;
+						if (diff < 5000)
+						{
+							console.log("Exiting forcefully!");
+							process.exit(1);
+						}
+					}
+					
+					self.shutdown_started = (new Date()).getTime();
+
 					self.logger.app('info', "Caught SIGINT, exiting gracefully");
 					self.shutdown(); 
 				});
@@ -365,20 +399,20 @@ function grape() {
 		new_process.on('exit', function() {
 			if (self.state == 'shutdown')
 			{
-				self.logger.info('app', worker.name, "[", instance_idx, "]: Worker process ", new_process.process.pid, " has shut down");
+				self.logger.info('app', worker.name, "[" + instance_idx + "]: Worker process", new_process.process.pid, "has shut down");
 				return;
 			}
 
 			if (new_process.process.exitCode == 5)
 			{
-				self.logger.error('app', worker.name, "[", instance_idx, "]: Worker process ", new_process.process.pid, " experienced a connectivity issue. Restarting in 5 seconds");
+				self.logger.error('app', worker.name, "[" + instance_idx + "]: Worker process", new_process.process.pid, "experienced a connectivity issue. Restarting in 5 seconds");
 				setTimeout(function() { 
 					self.forkWorker(worker, instance_idx); 
 				}, 5000);
 			}
 			else if (new_process.process.exitCode == 8) // unhandled exception
 			{
-				self.logger.error('app', worker.name, "[", instance_idx, "]: Worker process ", new_process.process.pid, " experienced an Unhandled Exception. Restarting in 5 seconds");
+				self.logger.error('app', worker.name, "[" + instance_idx + "]: Worker process", new_process.process.pid, "experienced an Unhandled Exception. Restarting in 5 seconds");
 				setTimeout(function() { 
 					self.forkWorker(worker, instance_idx); 
 				}, 5000);

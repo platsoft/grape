@@ -361,21 +361,50 @@ var grape_express_app = function(options, grape_obj) {
 	}
 
 	this.shutdown = function(cb) {
-		if (self.https_server)
-			self.https_server.close();
-		if (self.http_server)
-			self.http_server.close();
-
-		if (self.app.get('guest_db'))
-			self.app.get('guest_db').disconnect(true);
-
-		var dbs = self.app.get('dbs');
-		if (dbs)
+		function shutdown_httpserver(done)
 		{
-			dbs.forEach(function(db) {
-				db.disconnect(true);
-			});
+			if (self.http_server)
+				self.http_server.close(done);
+			else
+				done();
 		}
+
+		function shutdown_httpsserver(done)
+		{
+			if (self.https_server)
+				self.https_server.close(done);
+			else
+				done();
+		}
+
+		function shutdown_db(done)
+		{
+			var q = async.queue(function(db, callback) {
+				db.disconnect(true, function() {
+					callback();
+				});
+			}, 1);
+
+			q.drain = function() {
+				done();
+			};
+
+			if (self.app.get('guest_db'))
+				q.push(self.app.get('guest_db'));
+
+			var dbs = self.app.get('dbs');
+			if (dbs)
+			{
+				dbs.forEach(function(db) {
+					q.push(db);
+				});
+			}
+
+		}
+
+		async.series([shutdown_httpserver, shutdown_httpsserver, shutdown_db], function(err, result) {
+			cb();
+		});
 	};
 };
 

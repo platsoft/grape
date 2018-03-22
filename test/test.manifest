@@ -1,5 +1,0 @@
-
-../db/initial.manifest
-
-@calljson grape.user_save admin.json
-
