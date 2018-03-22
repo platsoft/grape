@@ -1,6 +1,7 @@
 
 module.exports.grape = require('./lib/grape');
 module.exports.db = require('./lib/db');
+module.exports.dblib = require('./lib/db');
 module.exports.app = require('./lib/http_app');
 module.exports.http_app = require('./lib/http_app');
 module.exports.utils = require('./lib/util');

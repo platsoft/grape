@@ -6,15 +6,15 @@
  * 	pidfile_created
  *
  */
-var _ = require('underscore');
-var fs = require('fs');
-var util = require('util');
-var cluster = require('cluster');
-var g_app = require(__dirname + '/http_app.js');
-var async = require('async');
-var events = require('events');
-var configreader = require(__dirname + '/configreader.js');
-var grapelib = require(__dirname + '/../index.js');
+const _ = require('underscore');
+const fs = require('fs');
+const util = require('util');
+const cluster = require('cluster');
+const g_app = require(__dirname + '/http_app.js');
+const async = require('async');
+const events = require('events');
+const configreader = require(__dirname + '/configreader.js');
+const grapelib = require(__dirname + '/../index.js');
 const path = require('path');
 const IPCMemCache = require(__dirname + '/ipc_memcache.js');
 const IPCSessionCache = require(__dirname + '/ipc_sessioncache.js');
@@ -23,12 +23,11 @@ const GrapeSettings = require(path.join(__dirname, 'grape_settings.js'));
 const dblib = require(path.join(__dirname, 'db.js'));
 const verify_grape_setup = require(path.join(__dirname, 'verify_setup.js'));
 
-//var email_notification_worker = require(__dirname + '/email_notification_listener.js').EmailNotificationListener;
-
 
 function grape() {
 	this.self = this;
 	var self  = this;
+	
 	this.options = configreader.apply(null, arguments);
 
 	var logger = new grapelib.logger(this.options);
