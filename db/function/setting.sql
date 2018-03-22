@@ -3,17 +3,23 @@ DROP FUNCTION IF EXISTS grape.set_value(TEXT, TEXT, BOOLEAN);
 DROP FUNCTION IF EXISTS grape.set_value(TEXT, TEXT);
 CREATE OR REPLACE FUNCTION grape.set_value(_name TEXT, _value TEXT) RETURNS TEXT AS $$
 DECLARE
+	_old_value TEXT;
 BEGIN
-	IF EXISTS (SELECT 1 FROM grape.setting WHERE name=_name::TEXT) THEN
-		UPDATE grape.setting SET value=_value WHERE name=_name::TEXT;
+
+	SELECT value INTO _old_value FROM grape.setting WHERE name=_name::TEXT;
+
+	IF _old_value IS NOT NULL THEN
+		IF _old_value != _value THEN
+			UPDATE grape.setting SET value=_value WHERE name=_name::TEXT;
+			PERFORM pg_notify('reload_settings', '');
+		END IF;
 	ELSE
 		INSERT INTO grape.setting (name, value) VALUES (_name, _value);
-	END IF;
-
-	INSERT INTO grape.setting_history (setting_name, value, json_value, date_inserted, user_id) 
-		VALUES (_name, _value, NULL, NOW(), current_user_id());
+		INSERT INTO grape.setting_history (setting_name, value, json_value, date_inserted, user_id) 
+			VALUES (_name, _value, NULL, NOW(), current_user_id());
 	
-	PERFORM pg_notify('reload_settings', '');
+		PERFORM pg_notify('reload_settings', '');
+	END IF;
 
 	RETURN _value;
 END; $$ LANGUAGE plpgsql;
@@ -109,4 +115,54 @@ BEGIN
 
 	RETURN grape.api_success();
 END; $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION grape.load_settings(JSONB) RETURNS JSONB AS $$
+DECLARE
+	_item JSONB;
+	_name TEXT;
+	_value TEXT;
+	_description TEXT;
+	_data_type TEXT;
+	_hidden BOOLEAN;
+	_json_value JSONB;
+BEGIN
+	
+	IF jsonb_typeof($1) != 'array' THEN
+		RAISE NOTICE 'Input is not an array';
+		RETURN grape.api_error();
+	END IF;
+
+	FOR _item IN SELECT * FROM jsonb_array_elements($1) LOOP 
+
+		IF jsonb_extract_path(_item, 'name') IS NOT NULL THEN
+			_name := _item->>'name';
+		END IF;
+		IF jsonb_extract_path(_item, 'value') IS NOT NULL THEN
+			_value := _item->>'value';
+		END IF;
+		IF jsonb_extract_path(_item, 'json_value') IS NOT NULL THEN
+			_json_value := _item->'json_value';
+		END IF;
+		IF jsonb_extract_path(_item, 'description') IS NOT NULL THEN
+			_description := _item->>'description';
+		END IF;
+		IF jsonb_extract_path(_item, 'data_type') IS NOT NULL THEN
+			_data_type := _item->>'data_type';
+		END IF;
+		IF jsonb_extract_path(_item, 'hidden') IS NOT NULL THEN
+			_hidden := (_item->>'hidden')::BOOLEAN;
+		END IF;
+
+		IF _name IS NULL THEN
+			RETURN grape.api_error('Invalid input', -2);
+		END IF;
+
+		PERFORM grape.add_setting(_name, _value, _description, _data_type, _hidden);
+		PERFORM grape.set_value(_name, _value);
+	END LOOP;
+
+	RETURN grape.api_success();
+END; $$ LANGUAGE plpgsql;
+
 

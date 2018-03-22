@@ -1,9 +1,10 @@
 
-var fs = require('fs');
-var pg = require('pg');
-var parse_connection_string = require('pg-connection-string').parse;
-var pc = require(__dirname + '/print_colors.js');
-var path = require('path');
+const fs = require('fs');
+const pg = require('pg');
+const parse_connection_string = require('pg-connection-string').parse;
+const pc = require(__dirname + '/print_colors.js');
+const path = require('path');
+const colors = require('colors');
 
 function normalize_pg_string(o) 
 {
@@ -470,6 +471,10 @@ function GrapeDBSetup(options)
 		{
 			pc.print_info("Connecting to database...");
 			client = new pg.Client(self.options.dburi);
+
+			client.on('notice', function(msg) {
+				console.log(colors.grey('DB message: ' + msg));
+			});
 
 			client.connect(function(err) {
 
