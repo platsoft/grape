@@ -232,7 +232,7 @@ var logger = function(opts) {
 
 			var fd = fs.openSync(fullname, 'a');
 			
-			self.global_log_stream = fs.createWriteStream(fullname, { fd: fd });
+			self.global_log_stream = fs.createWriteStream(null, { fd: fd });
 			self.global_log_stream.fd = fd;
 			cb(self.global_log_stream);
 		}
@@ -283,18 +283,22 @@ var logger = function(opts) {
 
 	};
 
-	this.shutdown = function() {
+	this.shutdown = function(done) {
 		if (self.local_log_stream)
 		{
 			self.local_log_stream.end(); 
-			self.local_log_stream=null; 
+			self.local_log_stream = null; 
 		}
 
 		if (self.global_log_stream)
 		{
+			fs.closeSync(self.global_log_stream.fd);
 			self.global_log_stream.end(); 
-			self.global_log_stream=null; 
+			self.global_log_stream = null; 
 		}
+
+		if (done)
+			done();
 	};
 };
 

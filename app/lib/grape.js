@@ -149,12 +149,15 @@ function grape() {
 		{
 			self.logger.app('info', 'Starting shutdown sequence on master...');
 			self.logger.app('info', 'Shutdown: Disconnect cluster...');
-			setImmediate(function() { cluster.disconnect(); });
-			if (!in_trap)
-			{
+			//setImmediate(function() { cluster.disconnect(); });
+			//if (!in_trap)
+			//{
 				for (var worker_id in cluster.workers)
+				{
+					self.logger.app('info', 'Shutdown: Sending SIGINT to worker ', cluster.workers[worker_id].process.pid);
 					cluster.workers[worker_id].kill('SIGINT');
-			}
+				}
+			//}
 
 			var wait = 5000; // 5 seconds
 			var try_interval = 100; // 100 ms
@@ -166,10 +169,10 @@ function grape() {
 					wait = wait - try_interval;
 					if (wait <= 0 && wait > -5000)
 					{
-						self.logger.app('info', 'Shutdown: Some worker processes are stuck. Sending SIGTERM...');
+						self.logger.app('info', 'Shutdown: Some worker processes seems to be stuck. Sending SIGTERM...');
 						for (var worker_id in cluster.workers)
 						{
-							self.logger.app('info', 'Shutdown: Sending SIGTERM to worker #', worker_id);
+							self.logger.app('info', 'Shutdown: Sending SIGTERM to worker', cluster.workers[worker_id].process.pid);
 							cluster.workers[worker_id].kill('SIGTERM');
 						}
 						setTimeout(all_workers_dead, try_interval);
@@ -179,7 +182,7 @@ function grape() {
 						self.logger.app('info', 'Shutdown: Some worker processes are stuck. Sending SIGKILL...');
 						for (var worker_id in cluster.workers)
 						{
-							self.logger.app('info', 'Shutdown: Sending SIGKILLto worker #', worker_id);
+							self.logger.app('info', 'Shutdown: Sending SIGKILL to worker', cluster.workers[worker_id].process.pid);
 							cluster.workers[worker_id].kill('SIGKILL');
 						}
 					}
@@ -215,7 +218,9 @@ function grape() {
 					self.logger.app('info', 'Shutdown: Disconnecting database...');
 					self.db.disconnect(true, function() {
 						self.logger.app('info', 'Shutdown: Disconnecting logger...');
-						self.logger.shutdown();
+						self.logger.shutdown(function() {
+							cluster.worker.disconnect();
+						});
 					});
 				});
 			}
@@ -224,7 +229,9 @@ function grape() {
 				self.logger.app('info', 'Shutdown: Disconnecting database...');
 				self.db.disconnect(true, function() {
 					self.logger.app('info', 'Shutdown: Disconnecting logger...');
-					self.logger.shutdown();
+					self.logger.shutdown(function() {
+						cluster.worker.disconnect();
+					});
 				});
 			}
 		}
