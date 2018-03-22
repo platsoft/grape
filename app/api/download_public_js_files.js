@@ -25,12 +25,9 @@ module.exports = function() {
 	{
 		var data = '';
 
-		if (!dir_config)
-			var dir_config = {};
+		//if (relativedirname[relativedirname.length - 1] != '/') relativedirname += '/';
 
-		if (relativedirname[relativedirname.length - 1] != '/') relativedirname += '/';
-
-		if (dirname[dirname.length - 1] != '/') dirname += '/';
+		//if (dirname[dirname.length - 1] != '/') dirname += '/';
 
 		try {
 			var files = fs.readdirSync(dirname);
@@ -46,8 +43,7 @@ module.exports = function() {
 			var fstat = fs.statSync(path.join(dirname, file));
 			if (fstat.isFile())
 			{
-				var ar = file.split('.');
-				if (ar[ar.length - 1] == 'js')
+				if (path.extname(file) == '.js')
 				{
 					// loads the api module and execute the export function with the app param.
 					data += '// JAVASCRIPT FILE ' + dirname + file + "\n";
@@ -60,7 +56,7 @@ module.exports = function() {
 					var check_error = syntax_check(file_data, dirname + file);
 					if (check_error)
 					{
-						app.get('logger').error('app', "Syntax error in JS file " + relativedirname + file + " " + check_error);
+						app.get('logger').error('app', "Syntax error in JS file " + path.join(relativedirname, file) + " " + check_error);
 						data += '/* JAVASCRIPT ERROR ' + check_error + ' */';
 					}
 					else
@@ -72,7 +68,7 @@ module.exports = function() {
 			}
 			else if (fstat.isDirectory())
 			{
-				data += loadpublicjsfiles(path.join(dirname, file), relativedirname + file, user_roles, dir_config);
+				data += loadpublicjsfiles(path.join(dirname, file), path.join(relativedirname, file), user_roles, dir_config);
 			}
 		}
 		return data;
@@ -83,15 +79,16 @@ module.exports = function() {
 
 		var user_roles = res.locals.session.user_roles;
 		var str = user_roles.sort().join(',');
+		var jsdata;
 
 		// special API call will look in all public directories's subdir pages and download all .js files from there
 		if (app.get('jsdata-' + str))
 		{
-			var jsdata = app.get('jsdata' + str);
+			jsdata = app.get('jsdata-' + str);
 		}
 		else
 		{
-			var jsdata = [];
+			jsdata = [];
 			var public_directories = app.get('config').public_directories;
 			for (var i = 0; i < public_directories.length; i++)
 			{
@@ -103,12 +100,14 @@ module.exports = function() {
 				});
 			}
 
+			var jsdata = jsdata.join('');
+
 			if (app.get('config').cache_public_js_dirs)
 				app.set('jsdata-' + str, jsdata);
 		}
 
 		res.set('Content-Type', 'application/javascript');
-		res.send(jsdata.join(''));
+		res.send(jsdata);
 	}
 };
 

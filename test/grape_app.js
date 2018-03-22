@@ -14,12 +14,11 @@ function http_request(options, cb) {
 	var req = http.request(options, function(res) {
 		res.setEncoding('utf8');
 		var chunks = [];
-		console.log('aaa');
 		res.on('data', function(chunk) {
 			chunks.push(chunk);
 		});
 		res.on('end', function() {
-			var obj = chunks.join('');
+			var data = chunks.join('');
 			cb(null, data, res);
 		});
 		res.on('error', function(err) {
@@ -31,10 +30,17 @@ function http_request(options, cb) {
 };
 
 describe('Testing Grape App', function() {
+	after(function(d) {
+		console.log("SHUTTING DOWN");
+		grape.shutdown();
+		d();
+	});
+
 	it('Creating grape app', function(done) {
 
 		grape = new grapelib.grape(path.join(__dirname, 'project', 'test_config.json'), {
-			base_directory: __dirname
+			base_directory: __dirname,
+			debug: true
 		});
 
 		if (cluster.isMaster)
@@ -73,23 +79,23 @@ describe('Testing Grape App', function() {
 			port: grape.options.port
 		}, function(err, data, res) {
 			assert.equal(err, null);
-			console.log(data);
+			done();
+		});
+	})
+	it ('Testing download_public_js_files to check cache', function(done) {
+		http_request({
+			hostname: 'localhost',
+			path: '/download_public_js_files',
+			method: 'GET',
+			port: grape.options.port
+		}, function(err, data, res) {
+			assert.equal(err, null);
 			done();
 		});
 
-		//gc.login('admin', 'admin123', function(err, ret) {
-		//	assert.equal(err, null);
-		//	assert.equal(ret.status, 'OK');
-		//	done();
-		//});
 	})
 
-	it ('Shutting down', function(done) {
-		process.kill(process.pid, 'SIGINT');
-		grape.shutdown();
-		done();
-		process.exit(1);
-	});
+
 
 
 	/*

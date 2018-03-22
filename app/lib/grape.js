@@ -137,21 +137,73 @@ function grape() {
 
 	};
 
-	this.shutdown = function() {
+	this.shutdown = function(in_trap) {
+		if (typeof in_trap == 'undefined')
+			var in_trap = false;
+
 		self.state = 'shutdown';
 
+		if (self.shutdown_started == 0)
+			self.shutdown_started = (new Date()).getTime();
 
 		if (cluster.isMaster)
 		{
 			self.logger.app('info', 'Starting shutdown sequence on master...');
 			self.logger.app('info', 'Shutdown: Disconnect cluster...');
 			setImmediate(function() { cluster.disconnect(); });
-			self.db.disconnect(true, function() {
-				self.logger.app('info', 'Shutdown: Master DB connection disconnected...');
-				
-				self.logger.app('info', 'Shutdown: Disconnecting logger...');
-				self.logger.shutdown();
-			});
+			if (!in_trap)
+			{
+				for (var worker_id in cluster.workers)
+					cluster.workers[worker_id].kill('SIGINT');
+			}
+
+			var wait = 5000; // 5 seconds
+			var try_interval = 100; // 100 ms
+
+			function all_workers_dead()
+			{
+				if (Object.keys(cluster.workers).length > 0)
+				{
+					wait = wait - try_interval;
+					if (wait <= 0 && wait > -5000)
+					{
+						self.logger.app('info', 'Shutdown: Some worker processes are stuck. Sending SIGTERM...');
+						for (var worker_id in cluster.workers)
+						{
+							self.logger.app('info', 'Shutdown: Sending SIGTERM to worker #', worker_id);
+							cluster.workers[worker_id].kill('SIGTERM');
+						}
+						setTimeout(all_workers_dead, try_interval);
+					}
+					else if (wait <= -5000)
+					{
+						self.logger.app('info', 'Shutdown: Some worker processes are stuck. Sending SIGKILL...');
+						for (var worker_id in cluster.workers)
+						{
+							self.logger.app('info', 'Shutdown: Sending SIGKILLto worker #', worker_id);
+							cluster.workers[worker_id].kill('SIGKILL');
+						}
+					}
+					else // still giving them some time
+					{
+						setTimeout(all_workers_dead, try_interval);
+					}
+				}
+				else
+				{
+					self.logger.app('info', 'Shutdown: All worker processes are now dead');
+					self.db.disconnect(true, function() {
+						self.logger.app('info', 'Shutdown: Master DB connection disconnected');
+					
+						self.logger.app('info', 'Shutdown: Disconnecting logger...');
+						self.logger.shutdown();
+					});
+				}
+			}
+						
+			setTimeout(all_workers_dead, try_interval);
+
+
 		}
 		else
 		{
@@ -235,7 +287,7 @@ function grape() {
 					}
 					if (proc_running)
 					{
-						console.log("Killing running process " + old_pid + " (found from pidfile)");
+						self.logger.info("app", "Killing existing process ", old_pid, " (found in pidfile)");
 						process.kill(old_pid, 'SIGINT');
 						setTimeout(function() { 
 							fs.writeFileSync(pidfile, process.pid.toString());
@@ -264,7 +316,7 @@ function grape() {
 				process.on('exit', function(code) {
 					fs.unlinkSync(pidfile);
 					var diff = (new Date()).getTime() - self.shutdown_started;
-					console.log("Process exit. Shutdown took %s seconds", (diff / 1000));
+					console.log("Process exit. Shutdown took %s ms", (diff));
 				});
 				process.on('SIGINT', function(code) {
 					if (self.shutdown_started > 0)
@@ -279,12 +331,8 @@ function grape() {
 					
 					self.shutdown_started = (new Date()).getTime();
 
-					self.logger.app('info', "Caught SIGINT, exiting gracefully");
-					self.shutdown(); 
-				});
-				process.on('SIGUSR2', function(code) {
-					console.log("Caught SIGUSR2, exiting gracefully");
-					self.shutdown(); 
+					self.logger.app('info', "Caught SIGINT. Exiting gracefully");
+					self.shutdown(true); 
 				});
 				
 				for (var i = 0; i < self.workers.length; i++)
@@ -317,7 +365,7 @@ function grape() {
 		{
 			process.on('SIGINT', function(code) {
 				self.logger.app('info', "Caught SIGINT, exiting gracefully");
-				self.shutdown(); 
+				self.shutdown(true); 
 			});
 
 

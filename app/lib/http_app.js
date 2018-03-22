@@ -364,7 +364,7 @@ var grape_express_app = function(options, grape_obj) {
 		function shutdown_httpserver(done)
 		{
 			if (self.http_server)
-				self.http_server.close(done);
+				self.http_server.close(function() { done(); });
 			else
 				done();
 		}
@@ -372,7 +372,7 @@ var grape_express_app = function(options, grape_obj) {
 		function shutdown_httpsserver(done)
 		{
 			if (self.https_server)
-				self.https_server.close(done);
+				self.https_server.close(function() { done(); });
 			else
 				done();
 		}
@@ -390,7 +390,9 @@ var grape_express_app = function(options, grape_obj) {
 			};
 
 			if (self.app.get('guest_db'))
+			{
 				q.push(self.app.get('guest_db'));
+			}
 
 			var dbs = self.app.get('dbs');
 			if (dbs)
