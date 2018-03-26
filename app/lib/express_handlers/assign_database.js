@@ -8,11 +8,9 @@ const dblib = require(__dirname + '/../db.js');
 
 module.exports = function (req, res, next) {
 	var app = req.app;
-	if (!app.get('dbs'))
-		app.set('dbs', []);
+	if (!app.dbs)
+		app.dbs = {};
 	
-	var dbs = app.get('dbs'); //DB cache
-
 	// defaults
 	req.db = app.get('guest_db');
 	res.locals.db = req.db;
@@ -37,13 +35,13 @@ module.exports = function (req, res, next) {
 	var username = res.locals.session.username;
 
 	// does one exist in the cache?
-	if (dbs[session_id])
+	if (app.dbs[session_id])
 	{
-		req.db = dbs[session_id];
-		res.locals.db = dbs[session_id];
-		if (dbs[session_id].state == 'connecting')
+		req.db = app.dbs[session_id];
+		res.locals.db = app.dbs[session_id];
+		if (app.dbs[session_id].state == 'connecting')
 		{
-			dbs[session_id].on('connected', function() {
+			app.dbs[session_id].on('connected', function() {
 				next();
 			});
 		}
@@ -62,18 +60,17 @@ module.exports = function (req, res, next) {
 			debug: app.get('config').debug
 		});
 
-		dbs[session_id] = db;
+		app.dbs[session_id] = db;
 		db.on('connected', function() {
-			req.db = dbs[session_id];
-			res.locals.db = dbs[session_id];
+			req.db = app.dbs[session_id];
+			res.locals.db = app.dbs[session_id];
 			next();
 		});
 		db.on('end', function(obj) {
 			if (obj.session_id != null)
 			{
-				var dbs = app.get('dbs');
-				if (dbs[obj.session_id])
-					dbs[obj.session_id] = null;
+				if (app.dbs[obj.session_id])
+					app.dbs[obj.session_id] = null;
 			}
 		});
 		db.on('error', function(err) {

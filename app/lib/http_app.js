@@ -90,6 +90,8 @@ var grape_express_app = function(options, grape_obj) {
 
 	this.express = app;
 
+	app.dbs = {};
+
 	var logger = grape_obj.logger;
 	var cache = grape_obj.comms;
 
@@ -98,6 +100,7 @@ var grape_express_app = function(options, grape_obj) {
 	app.set('logger', logger);
 	app.set('log', logger);
 	app.logger = logger;
+	this.logger = logger;
 
 	app.set('cache', cache);
 	app.set('comms', cache);
@@ -380,6 +383,7 @@ var grape_express_app = function(options, grape_obj) {
 		function shutdown_db(done)
 		{
 			var q = async.queue(function(db, callback) {
+				self.logger.debug('app', 'Disconnecting database for session ' + db.options.session_id);
 				db.disconnect(true, function() {
 					callback();
 				});
@@ -394,10 +398,11 @@ var grape_express_app = function(options, grape_obj) {
 				q.push(self.app.get('guest_db'));
 			}
 
-			var dbs = self.app.get('dbs');
+			var dbs = self.app.dbs;
 			if (dbs)
 			{
-				dbs.forEach(function(db) {
+				Object.keys(dbs).forEach(function(key) {
+					var db = dbs[key];
 					q.push(db);
 				});
 			}

@@ -143,6 +143,11 @@ function db (_o) {
 	this.disconnect = function(no_reconnect, cb) {
 		if (no_reconnect)
 			self.no_reconnect = no_reconnect;
+		if (self.timeoutTimer)
+		{
+			clearInterval(self.timeoutTimer);
+			self.timeoutTimer = null;
+		}
 		if (self.state == 'closing' || self.state == 'close')
 		{
 			if (cb)
@@ -191,6 +196,7 @@ function db (_o) {
 					self.emit('debug', "Idle timeout on session [" + self.options.username + "][" + self.options.session_id + "]");
 
 				clearInterval(self.timeoutTimer);
+				self.timeoutTimer = null;
 				self.client.end();
 			}
 		}, 5000);
