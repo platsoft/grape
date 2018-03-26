@@ -79,11 +79,9 @@ function APIHandler(app)
 		}
 		else
 		{
-			var login_url = settings.get_value('login_url', '#/grape-ui/login');
-
-			console.log(req.headers);
-			
 			var referer = req.header('referer');
+			var login_url = referer + settings.get_value('login_url', '#/grape-ui/login');
+
 			if (referer)
 			{
 				var param = 'redirect_url=' + encodeURIComponent(referer);
@@ -94,17 +92,18 @@ function APIHandler(app)
 					login_url += '&' + param;
 			}
 
-			res.set('Location', login_url);
 			res.status(302); // unauthorized
 
-			if (req.accepts('html') == 'html')
-			{
-				res.send('Redirecting to <a href="' + login_url + '">Login</a> page...');
-			}
-			else if (req.accepts('json') == 'json')
+			if (req.accepts('json') == 'json')
 			{
 				res.send({status: 'ERROR', message: err.message, code: err.code});
 			}
+			else if (req.accepts('html') == 'html')
+			{
+				res.set('Location', login_url);
+				res.send('Redirecting to <a href="' + login_url + '">Login</a> page...');
+			}
+
 
 		}
 

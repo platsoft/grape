@@ -239,27 +239,29 @@ BEGIN
 					WHERE process_id=ap.process_id) a) AS auto_scheduler,
 
 			(SELECT json_agg(process_role) FROM grape.process_role WHERE process_id=ap.process_id) AS process_role,
-			sched.schedule_id,
-			sched.time_sched,
-			sched.time_started,
-			sched.time_ended,
-			sched.pid,
-			sched.param AS sched_param,
-			grape.username(sched.user_id) AS sched_username,
-			sched.logfile,
-			sched.status,
-			sched.progress_completed,
-			sched.progress_total,
-			CASE 
-				WHEN sched.progress_total = 0 THEN 0
-				ELSE ROUND((sched.progress_completed*1.0) / sched.progress_total * 100.0, 2)
-			END AS perc_complete,
-			sched.auto_scheduler_id,
+
+			(SELECT json_agg(a.s) FROM
+				(SELECT (to_jsonb(sched) || jsonb_build_object('run_as_user', grape.username(sched.user_id))) s FROM
+					grape.schedule sched
+					WHERE process_id=ap.process_id
+						AND status IN ('NewTask', 'Running')
+					ORDER BY time_sched ASC
+				) a) AS future_schedules,
+
+			(SELECT json_agg(a.s) FROM
+				(SELECT (to_jsonb(sched) || jsonb_build_object('run_as_user', grape.username(sched.user_id))) s FROM
+					grape.schedule sched
+					WHERE process_id=ap.process_id
+						AND status IN ('Completed', 'Error')
+					ORDER BY time_sched DESC
+					LIMIT 1
+				) a) AS past_schedules,
+
+
 			grape.check_process_execute_permission(ap.process_id) AS can_execute,
 			grape.check_process_edit_permission(ap.process_id) AS can_edit
 
 		FROM grape.process AS ap
-			LEFT JOIN LATERAL (SELECT * FROM grape.schedule WHERE process_id=ap.process_id ORDER BY time_sched DESC LIMIT 1) AS sched USING (process_id)
 			ORDER BY ap.process_id
 	LOOP
 		IF _filter_processes = FALSE

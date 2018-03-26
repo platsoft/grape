@@ -184,9 +184,9 @@ BEGIN
 			SUBSTRING(_rec.dow::TEXT, EXTRACT('dow' FROM _time_sched)::INTEGER + 1, 1) = '0' 
 			OR _time_sched <= _now 
 		LOOP
-			IF _rec.day_time IS NOT NULL THEN -- once a day at time
+			IF _rec.day_time IS NOT NULL THEN -- run once a day at a specified time
 				_time_sched := _time_sched + '1 day'::INTERVAL;
-			ELSIF _rec.scheduled_interval IS NOT NULL THEN 
+			ELSIF _rec.scheduled_interval IS NOT NULL THEN -- run at interval 
 				_time_sched := _time_sched + _rec.scheduled_interval;
 			END IF;
 		END LOOP;
