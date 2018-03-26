@@ -267,6 +267,7 @@ New features:
 1.1.3
 Major changes:
 	General:
+	- grape-manage has been replaced with grape-shell
 	- Change to IPC Connectivity between workers, instead of using a FIFO
 	- Settings from DB is now available in grape app, and in API calls via app.get('grape_settings')
 	- DB connection will be checked before spawning workers
@@ -306,7 +307,7 @@ Minor changes:
 	- Email functionality has been moved to it's own repository, grape-email-sender
 	- Removed /api_list
 	- Adding API calls to grape.access_path is not necessary with JSON schema API calls anymore, as the roles should be defined in the .json file
-	- View "grape.user_access_role" was removed
+	- The view "grape.user_access_role" was removed
 
 1.1.4
 

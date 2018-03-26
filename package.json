@@ -37,7 +37,6 @@
     "nyc": "^11.6.0"
   },
   "bin": {
-    "grape-manage": "./grape-manage/grape-manage.js",
     "grape-query": "./scripts/grape-query.js",
     "grape-db-setup": "./grape-db-setup/grape-db-setup.js"
   }

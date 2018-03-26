@@ -1,0 +1,10 @@
+
+Make sure to edit db/data/settings.sql and update grape_version
+
+git checkout -b v1.1.3
+git push -u origin v1.1.3
+
+npm publish
+
+git checkout master
+
