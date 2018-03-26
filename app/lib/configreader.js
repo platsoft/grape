@@ -171,7 +171,7 @@ exports = module.exports = function() {
 		base_directory: false,
 		cache_public_js_dirs: false,
 		compile_js_dirs: ['pages'],
-		db_idle_timeout: 10000, // 10 seconds
+		db_idle_timeout: 1000, // 1 seconds
 		debug: false,
 		delayed_response: 0,
 		diroption_files: ['directory.json'], // filenames for directory options

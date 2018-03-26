@@ -366,22 +366,26 @@ var grape_express_app = function(options, grape_obj) {
 	this.shutdown = function(cb) {
 		function shutdown_httpserver(done)
 		{
+			self.logger.debug('app', 'Shutting down HTTP server...');
 			if (self.http_server)
-				self.http_server.close(function() { done(); });
+				self.http_server.close(function() { self.http_server = null; done(); });
 			else
 				done();
 		}
 
 		function shutdown_httpsserver(done)
 		{
+			self.logger.debug('app', 'Shutting down HTTPS server...');
 			if (self.https_server)
-				self.https_server.close(function() { done(); });
+				self.https_server.close(function() { self.https_server = null; done(); });
 			else
 				done();
 		}
 
 		function shutdown_db(done)
 		{
+			self.logger.debug('app', 'Shutting down all database connections...');
+
 			var q = async.queue(function(db, callback) {
 				self.logger.debug('app', 'Disconnecting database for session ' + db.options.session_id);
 				db.disconnect(true, function() {
@@ -403,7 +407,8 @@ var grape_express_app = function(options, grape_obj) {
 			{
 				Object.keys(dbs).forEach(function(key) {
 					var db = dbs[key];
-					q.push(db);
+					if (db)
+						q.push(db);
 				});
 			}
 

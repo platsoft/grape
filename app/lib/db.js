@@ -199,7 +199,7 @@ function db (_o) {
 				self.timeoutTimer = null;
 				self.client.end();
 			}
-		}, 5000);
+		}, this.options.db_idle_timeout);
 	}
 
 	/**

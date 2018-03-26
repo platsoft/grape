@@ -29,7 +29,6 @@ module.exports = function (req, res, next) {
 		return;
 	}
 
-	app.get('logger').session('debug', 'Creating a database connection for session', res.locals.session.session_id, 'user', res.locals.session.username);
 
 	var session_id = res.locals.session.session_id;
 	var username = res.locals.session.username;
@@ -37,6 +36,7 @@ module.exports = function (req, res, next) {
 	// does one exist in the cache?
 	if (app.dbs[session_id])
 	{
+		app.get('logger').session('debug', 'Using existing database connection for session', res.locals.session.session_id, 'user', res.locals.session.username);
 		req.db = app.dbs[session_id];
 		res.locals.db = app.dbs[session_id];
 		if (app.dbs[session_id].state == 'connecting')
@@ -52,6 +52,7 @@ module.exports = function (req, res, next) {
 	}
 	else
 	{
+		app.get('logger').session('debug', 'Creating a database connection for session', res.locals.session.session_id, 'user', res.locals.session.username);
 		var db = new dblib({
 			dburi: app.get('config').dburi, 
 			session_id: session_id,
