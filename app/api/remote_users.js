@@ -27,10 +27,12 @@ exports = module.exports = function() {
 			res.json(200).status({'status': 'ERROR', message: 'Missing field search_base'});
 			return;
 		}
+
+		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 		
 		var client = ldapjs.createClient({
 			url: auth_server,
-			tlsOptions: {}
+			tlsOptions: {rejectUnauthorized: false}
 		});
 
 		client.bind('cn=root', shared_key, function(err) {

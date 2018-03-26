@@ -2,6 +2,7 @@
  * TICKET_ISSUER - this service can issue tickets for us - shared_key contains the encryption key that the other service uses to encrypt messages for us
  * SERVICE_TICKET - we can issue tickets for this service, using shared_key
  * LDAP_AUTH - this service is used to find remote users (matching user.auth_info->>'auth_server')
+ * LDAP_CLIENT - this service is used to allow other servers to fetch users from us
  * 
  */
 

@@ -287,25 +287,26 @@ Major changes:
 	- Session validation checks are now cached properly
 
 Minor changes:
-- Do not restart worker process after fatal error
-- Renamed config setting "instances" to "http_instance_count"
-- New config option "listen"
-- Add new config setting "db_idle_timeout"
-- New default password hashing rounds updated to 10000
+	General:
+	- Do not restart worker process after fatal error
+	- Renamed config setting "instances" to "http_instance_count"
+	- New config option "listen"
+	- Add new config setting "db_idle_timeout"
+	- New default password hashing rounds updated to 10000
 
-New features:
-- Functions to keep sequences in check: grape.check_sequence, grape.fix_sequence, grape.fix_all_sequences
+	New features:
+	- Functions to keep sequences in check: grape.check_sequence, grape.fix_sequence, grape.fix_all_sequences
 
-Deprecated features:
-- JS API calls (add "old_style_js_api_calls" to your project's config to enable it)
-- grape-manage has been deprecated in favour of grape-shell
+	Deprecated features:
+	- JS API calls (add "old_style_js_api_calls" to your project's config to enable it)
+	- grape-manage has been deprecated in favour of grape-shell
 
-Removed features:
-- Removed API call /session/list/:date
-- Email functionality has been moved to it's own repository, grape-email-sender
-- Removed /api_list
-- Adding API calls to grape.access_path is not necessary with JSON schema API calls anymore, as the roles should be defined in the .json file
-- Badly written view "grape.user_access_role" was removed
+	Removed features:
+	- Removed API call /session/list/:date
+	- Email functionality has been moved to it's own repository, grape-email-sender
+	- Removed /api_list
+	- Adding API calls to grape.access_path is not necessary with JSON schema API calls anymore, as the roles should be defined in the .json file
+	- View "grape.user_access_role" was removed
 
 1.1.4
 
