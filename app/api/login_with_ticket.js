@@ -17,7 +17,21 @@ module.exports = function() {
 			headers: req.headers
 		};
 
+		if (req.body.otp)
+			obj.otp = req.body.otp;
+
 		res.locals.db.jsonb_call('grape.create_session_from_service_ticket', obj, function(err, result) {
+			if (err)
+			{
+				res.json({
+					status: 'ERROR',
+					code: -99, 
+					'message': err.toString(),
+					'error': err
+				}).end();
+				return;
+			}
+
 			result = result.rows[0].grapecreate_session_from_service_ticket;
 			if (result.status == 'OK')
 			{

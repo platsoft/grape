@@ -5,7 +5,7 @@
 	"name": "GrapeLoginWithTicket",
 	"roles": ["guest"],
 	"jsfile": "login_with_ticket.js",
-	"validate": "(service_ticket:s,issued_by:s)",
+	"validate": "(service_ticket:s,issued_by:s,otp:i*,username:s)",
 	"properties": {
 		"service_ticket": {"type": "string", "description": "Service Ticket"},
 		"issued_by": {"type": "string", "description": "Service Ticket Issuer"}

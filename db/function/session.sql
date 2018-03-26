@@ -54,7 +54,7 @@ BEGIN
 		IF json_extract_path($1, 'otp') IS NOT NULL THEN
 			_otp := $1->>'otp';
 			IF _otp != grape.generate_totp_for_user(_user.user_id) THEN
-				RETURN grape.api_error('OTP does not match', -500);
+				RETURN grape.api_error('OTP does not match', -600);
 			END IF;
 		ELSE
 			RETURN grape.api_result_error('Missing OTP', -400);
@@ -217,10 +217,10 @@ BEGIN
 	END IF;
 
 	IF grape.get_user_totp_status(_user.user_id) = 'ok' THEN
-		IF json_extract_path($1, 'otp') IS NOT NULL THEN
+		IF jsonb_extract_path($1, 'otp') IS NOT NULL THEN
 			_otp := $1->>'otp';
 			IF _otp != grape.generate_totp_for_user(_user.user_id) THEN
-				RETURN grape.api_error('OTP does not match', -500);
+				RETURN grape.api_error('OTP does not match', -600);
 			END IF;
 		ELSE
 			RETURN grape.api_result_error('Missing OTP', -400);
