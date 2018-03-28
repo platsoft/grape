@@ -1,3 +1,4 @@
+
 "use strict";
 var db;
 var app;
@@ -31,8 +32,8 @@ module.exports = function() {
 
 		try {
 			var files = fs.readdirSync(dirname);
-		} catch (e) { 
-			var files = []; 
+		} catch (e) {
+			var files = [];
 		}
 
 		var new_dir_config = read_directory_permissions(dirname, dir_config);
@@ -53,7 +54,7 @@ module.exports = function() {
 
 					var file_data = fs.readFileSync(path.join(dirname, file));
 
-					var check_error = syntax_check(file_data, dirname + file);
+					var check_error = syntax_check(file_data, path.join(dirname, file));
 					if (check_error)
 					{
 						app.get('logger').error('app', "Syntax error in JS file " + path.join(relativedirname, file) + " " + check_error);
@@ -94,7 +95,7 @@ module.exports = function() {
 			{
 				var dirconf = {};
 
-				app.get('config').compile_js_dirs.forEach(function(f) { 
+				app.get('config').compile_js_dirs.forEach(function(f) {
 					var data = loadpublicjsfiles(path.join(public_directories[i], f), '/' + f, user_roles, dirconf);
 					jsdata.push(data);
 				});
@@ -110,5 +111,3 @@ module.exports = function() {
 		res.send(jsdata);
 	}
 };
-
-
