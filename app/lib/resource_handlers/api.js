@@ -156,7 +156,7 @@ function APIHandler(app)
 			}
 			else
 			{
-				self.app.logger.error('api', 'Unable to find ACL info for method', req.method, ' of API call', path);
+				self.app.logger.error('api', 'Unable to find ACL info for method', req.method, 'of API call', path);
 
 				if (default_access_allowed == 'false')
 					permission_denied(req, res, {message: 'Method for path not found and default_access_allowed is false', code: 9});
@@ -224,7 +224,8 @@ function APIHandler(app)
 		// 	}
 		// }
 		list.forEach(function(call) {
-			self.api_list[call.url] = {};
+			if (!self.api_list[call.url])
+				self.api_list[call.url] = {};
 			self.api_list[call.url][call.method] = call.roles;
 		});
 
