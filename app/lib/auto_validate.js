@@ -427,8 +427,8 @@ function validate_object (obj, params)
 			{
 				if (p.nullable == false)
 				{
-					p.errors.push('"' + p.name + '" cannot be null');
-					errors.push(p['error']);
+					p.errors.push(p.name + ' is a required field');
+					errors.push('Required field "' + p.name + '" is missing');
 					p.valid = false;
 					continue;
 				}
