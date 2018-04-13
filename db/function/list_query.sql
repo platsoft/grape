@@ -1,3 +1,4 @@
+
 /**
  * Input fields:
  * 	tablename
@@ -134,8 +135,10 @@ BEGIN
 			END IF;
 
 			_oper := UPPER(_oper);
-			IF _oper IN ('=', '>=', '>', '<', '<=', '!=', 'LIKE', 'ILIKE') THEN
+			IF _oper IN ('=', '>=', '>', '<', '<=', '!=') THEN
 				_filter_sql := CONCAT_WS(' ', quote_ident(_filter_json->>'field'), _oper, quote_literal(_filter_json->>'value'));
+			ELSIF _oper IN ('LIKE', 'ILIKE') THEN
+				_filter_sql := CONCAT_WS(' ', quote_ident(_filter_json->>'field') || '::TEXT', _oper, quote_literal(_filter_json->>'value'));
 			ELSIF _oper = 'IS_NULL' THEN
 				_filter_sql := CONCAT_WS(' ', quote_ident(_filter_json->>'field'), 'IS NULL');
 			ELSIF _oper = 'IS_NOT_NULL' THEN
