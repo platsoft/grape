@@ -6,7 +6,7 @@ const pc = require(__dirname + '/print_colors.js');
 const path = require('path');
 const colors = require('colors');
 
-function normalize_pg_string(o) 
+function normalize_pg_string(o)
 {
 	if (typeof o == 'string')
 		return o;
@@ -24,7 +24,7 @@ function GrapeDBSetup(options)
 	this.sql_list = sql_list;
 	this.sql_file_list = sql_file_list;
 
-	this.load_entry = function (f, source) 
+	this.load_entry = function (f, source)
 	{
 		pc.level++;
 		try {
@@ -71,23 +71,23 @@ function GrapeDBSetup(options)
 		var dir_list = [];
 
 		var files = fs.readdirSync(dirname);
-		for (var i = 0; i < files.length; i++) 
+		for (var i = 0; i < files.length; i++)
 		{
 			var filename = path.resolve(dirname, files[i]);
 			var fstat = fs.statSync(filename);
 
-			if (fstat.isFile()) 
+			if (fstat.isFile())
 			{
 				if (self.load_entry(filename, dirname) == false)
 					return false;
 			}
-			else if (fstat.isDirectory()) 
+			else if (fstat.isDirectory())
 			{
 				dir_list.push(filename);
 			}
 		}
 
-		if (dir_list.length != 0) 
+		if (dir_list.length != 0)
 		{
 			var current_dir = dir_list.shift();
 			while (current_dir)
@@ -138,7 +138,7 @@ function GrapeDBSetup(options)
 			new_data = data;
 		}
 
-		sql_list.push({ 
+		sql_list.push({
 			data: new_data,
 			filename: filename
 		});
@@ -164,7 +164,7 @@ function GrapeDBSetup(options)
 		pc.print_info("Loading manifest file " + filename);
 
 		var check = true;
-		
+
 		var data = fs.readFileSync(filename, 'utf8');
 		var lines = data.split("\n");
 		lines.forEach(function(line) {
@@ -185,12 +185,21 @@ function GrapeDBSetup(options)
 					if (!path.isAbsolute(jsonfilename))
 						jsonfilename = path.resolve(parent_directory, jsonfilename);
 
-					if (args[0] == '@calljson')
-						check = self.load_json_file(args[1], 'JSON', jsonfilename);
-					else
-						check = self.load_json_file(args[1], 'JSONB', jsonfilename);
-					if (!check)
-						return false;
+					var glob = require('glob');
+					glob(jsonfilename, {}, function (er, files) {
+						if (er) { pc.print_err(er); }
+						else if (files)
+						{
+							files.forEach(function (filename) {
+								if (args[0] == '@calljson')
+									check = self.load_json_file(args[1], 'JSON', filename);
+								else
+									check = self.load_json_file(args[1], 'JSONB', filename);
+								if (!check)
+									return false;
+							});
+						}
+					});
 				}
 				else if (line.startsWith('@patch')) // @patch grape:113 notes
 				{
@@ -216,7 +225,7 @@ function GrapeDBSetup(options)
 				}
 				else if (line.startsWith('@endpatch'))
 				{
-					
+
 				}
 				else
 				{
@@ -253,7 +262,7 @@ function GrapeDBSetup(options)
 		var sql = 'SELECT grape.patch_start($1,$2,$3,$4);';
 		var log_file = '';
 		var params = [system, version, note, log_file];
-		
+
 		sql_list.push({
 			data: sql,
 			filename: log_file,
@@ -319,17 +328,17 @@ function GrapeDBSetup(options)
 
 				if (!obj.user)
 					obj.user = process.env.USER;
-		
+
 				if (!obj.database || !obj.user)
 				{
 					pc.print_err('The database options you provided through the --dburi, -d option should specify a database name and user (which will be the owner of the new database), in the format pg://username:password@hostname/databasename');
 					process.exit(1);
 				}
-		
+
 				pc.print_info("\tTarget database name: " + obj.database);
 				pc.print_info("\tTarget database user: " + obj.user);
 
-				client.query(['CREATE DATABASE "', obj.database, '" OWNER "', obj.user, '"'].join(''), 
+				client.query(['CREATE DATABASE "', obj.database, '" OWNER "', obj.user, '"'].join(''),
 					function(err, res) {
 						if (err)
 						{
@@ -378,7 +387,7 @@ function GrapeDBSetup(options)
 			if (err)
 			{
 				pc.print_err("Error establishing connection" + (superdburi ? ' to ' + normalize_pg_string(superdburi) : '') + ": " + err.toString() + ' (' + err.code + ')');
-				
+
 				if (superdburi == 'postgres')
 				{
 					cb(err);
@@ -430,10 +439,10 @@ function GrapeDBSetup(options)
 						process.exit(1);
 					}
 
-			
+
 					client.query('SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=$1', [obj.database], function(err, result) {
 
-						client.query(['DROP DATABASE "', obj.database, '"'].join(''), 
+						client.query(['DROP DATABASE "', obj.database, '"'].join(''),
 							function(err, res) {
 								client.end();
 								if (err)
@@ -583,4 +592,3 @@ function GrapeDBSetup(options)
 }
 
 module.exports = GrapeDBSetup;
-
