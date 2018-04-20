@@ -186,20 +186,19 @@ function GrapeDBSetup(options)
 						jsonfilename = path.resolve(parent_directory, jsonfilename);
 
 					var glob = require('glob');
-					glob(jsonfilename, {}, function (er, files) {
-						if (er) { pc.print_err(er); }
-						else if (files)
-						{
-							files.forEach(function (filename) {
-								if (args[0] == '@calljson')
-									check = self.load_json_file(args[1], 'JSON', filename);
-								else
-									check = self.load_json_file(args[1], 'JSONB', filename);
-								if (!check)
-									return false;
-							});
-						}
-					});
+					var files = glob.sync(jsonfilename, {});
+
+					for (var i = 0; i < files.length; i++) {
+						let filename = files[i];
+
+						if (args[0] == '@calljson')
+							check = self.load_json_file(args[1], 'JSON', filename);
+						else
+							check = self.load_json_file(args[1], 'JSONB', filename);
+
+						if (check == false)
+							return false;
+					}
 				}
 				else if (line.startsWith('@patch')) // @patch grape:113 notes
 				{
